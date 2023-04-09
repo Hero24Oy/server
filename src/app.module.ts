@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { AppResolver } from './app.resolver';
 import config, { configValidationSchema } from './config';
+import { GraphqlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import config, { configValidationSchema } from './config';
         playground: configService.get<boolean>('app.isDevelopment'),
       }),
     }),
+    GraphqlPubsubModule,
   ],
   providers: [AppResolver],
 })
