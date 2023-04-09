@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { serverTimestamp } from 'firebase/database';
 import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
 import { omitUndefined } from 'src/modules/common/common.utils';
@@ -27,12 +27,18 @@ export class OfferRequestDataInitialInput {
   prePayWith?: 'stripe' | 'netvisor';
 
   @Field(() => String, { nullable: true })
+  sendInvoiceWith?: 'sms' | 'email';
+
+  @Field(() => String, { nullable: true })
   prepaid?: 'waiting' | 'paid';
 
   @Field(() => String, { nullable: true })
+  postpaid?: 'no' | 'yes';
+
+  @Field(() => Int, { nullable: true })
   fixedPrice?: number;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => Int, { nullable: true })
   fixedDuration?: number;
 
   static convertToFirebaseType(

@@ -25,7 +25,8 @@ export class OfferRequestImageQuestionInput extends OfferRequestBaseQuestionInpu
   ): OfferRequestImageQuestion {
     return omitUndefined({
       ...OfferRequestBaseQuestionInput.convertBaseToFirebaseType(question),
-      images: executeIfDefined(question.images, convertListToFirebaseMap, null),
+      images:
+        (question.images && convertListToFirebaseMap(question.images)) || null,
       imageCount: executeIfDefined(question.imageCount, (count) => count, null),
     });
   }
