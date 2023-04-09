@@ -1,29 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { SupportedLanguages, UserDB } from 'hero24-types';
-import { UserDataActiveRoute } from './ActiveRoute';
-import { UserDataAddress } from './Address';
-
-type RedefinedUserDBDataFields =
-  | 'pushToken'
-  | 'addresses'
-  | 'lastAskedReviewTime'
-  | 'birthDate'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'deletedAt';
-
-type GraphQLUserDBData = Omit<UserDB['data'], RedefinedUserDBDataFields> & {
-  pushToken?: string[];
-  addresses?: UserDataAddress[];
-  lastAskedReviewTime?: Date;
-  birthDate?: Date;
-  createdAt: Date;
-  updatedAt?: Date;
-  deletedAt?: Date;
-};
+import { UserDataAddressDto } from './user-data-address.dto';
+import { UserDataActiveRouteDto } from './user-data-active-route.dto';
+import { SupportedLanguages } from 'hero24-types';
 
 @ObjectType()
-export class UserDataDto implements GraphQLUserDBData {
+export class UserDataDto {
   @Field(() => String)
   email: string;
 
@@ -51,11 +32,11 @@ export class UserDataDto implements GraphQLUserDBData {
   @Field(() => Boolean, { nullable: true })
   isActive?: boolean;
 
-  @Field(() => UserDataActiveRoute, { nullable: true })
-  activeRoute?: UserDataActiveRoute;
+  @Field(() => UserDataActiveRouteDto, { nullable: true })
+  activeRoute?: UserDataActiveRouteDto;
 
-  @Field(() => [UserDataAddress], { nullable: true })
-  addresses?: UserDataAddress[];
+  @Field(() => [UserDataAddressDto], { nullable: true })
+  addresses?: UserDataAddressDto[];
 
   @Field(() => String)
   phone: string;

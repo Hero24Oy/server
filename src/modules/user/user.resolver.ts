@@ -4,7 +4,9 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
-import { UserDto, UsersArgs, UsersDto } from './graphql-dto';
+import { UserDto } from './dto/user/user.dto';
+import { UsersDto } from './dto/users/users.dto';
+import { UsersArgs } from './dto/users/users.args';
 
 @Resolver()
 export class UserResolver {

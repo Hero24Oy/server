@@ -1,8 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Address as AddressType } from 'hero24-types';
 
 @ObjectType()
-export class Address implements AddressType {
+export class AddressDto {
   @Field(() => String)
   city: string;
 

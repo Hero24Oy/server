@@ -4,31 +4,11 @@ import {
   executeIfDefined,
   timestampToDate,
 } from 'src/modules/common/common.utils';
-import { UserDataDto } from './Data';
-import { UserOffer } from './Offer';
-
-type RedefinedUserDBFields =
-  | 'data'
-  | 'offerRequests'
-  | 'transactions'
-  | 'paymentTransactions'
-  | 'mergedUsers'
-  | 'offers';
-
-type GraphQLUserDB = Omit<UserDB, RedefinedUserDBFields> & {
-  data: UserDataDto;
-  offerRequests?: string[];
-  transactions?: string[];
-  paymentTransactions?: string[];
-  mergedUsers?: string[];
-  offers?: Array<{
-    offerId: string;
-    offerRequestId: string;
-  }>;
-};
+import { UserDataDto } from './user-data.dto';
+import { UserOfferDto } from './user-offer.dto';
 
 @ObjectType()
-export class UserDto implements GraphQLUserDB {
+export class UserDto {
   @Field(() => String)
   id: string;
 
@@ -53,8 +33,8 @@ export class UserDto implements GraphQLUserDB {
   @Field(() => Boolean, { nullable: true })
   phoneVerified?: boolean;
 
-  @Field(() => [UserOffer], { nullable: true })
-  offers?: UserOffer[];
+  @Field(() => [UserOfferDto], { nullable: true })
+  offers?: UserOfferDto[];
 
   @Field(() => [String], { nullable: true })
   offerRequests?: string[];

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DateScalar } from './common.date.scalar';
+import { DateScalar } from './common.scalar';
 
 @Module({
   providers: [DateScalar],
