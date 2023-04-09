@@ -4,8 +4,6 @@ import { ConfigService } from '@nestjs/config';
 import { deleteApp, initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
 
-import * as stagingServiceAccount from '../../../firebase-service-account.stag.json';
-import * as productionServiceAccount from '../../../firebase-service-account.prod.json';
 import {
   FirebaseAdminAppInstance,
   FirebaseAppInstance,
@@ -16,41 +14,45 @@ export class FirebaseService {
   private app: FirebaseAdminAppInstance;
 
   constructor(private configService: ConfigService) {
-    const firebaseServiceAccount = this.getServiceAccount();
-
     this.app = admin.initializeApp({
       credential: admin.credential.cert({
-        projectId: firebaseServiceAccount.project_id,
-        clientEmail: firebaseServiceAccount.client_email,
-        privateKey: firebaseServiceAccount.private_key,
+        projectId: configService.getOrThrow<string>(
+          'firebase.serviceAccount.projectId',
+        ),
+        clientEmail: configService.getOrThrow<string>(
+          'firebase.serviceAccount.clientEmail',
+        ),
+        privateKey: configService.getOrThrow<string>(
+          'firebase.serviceAccount.privateKey',
+        ),
       }),
-      databaseURL: configService.get<string>('firebase.databaseURL'),
+      databaseURL: configService.getOrThrow<string>('firebase.databaseURL'),
     });
   }
 
-  getServiceAccount() {
-    return this.configService.get('app.isDevelopment')
-      ? stagingServiceAccount
-      : productionServiceAccount;
-  }
-
   private getClientFirebaseConfig() {
-    const isProd = this.configService.get('app.isProduction');
-
-    const projectId = isProd
-      ? 'hero24-production-ec006'
-      : 'hero24-staging-d4086';
-
     return {
-      apiKey: isProd
-        ? 'AIzaSyCYkHFir5x11xCwa0uOOigbK30nsFtd4Wg'
-        : 'AIzaSyDda-yoVzNETyuokPxSwwMezHLWvBQ3WHw',
-      authDomain: `${projectId}.firebaseapp.com`,
-      databaseURL: `https://${projectId}-default-rtdb.europe-west1.firebasedatabase.app`,
-      projectId,
-      storageBucket: `gs://${projectId}.appspot.com`,
-      messagingSenderId: isProd ? '868348751692' : '797025663538',
-      functionsUrl: `https://${projectId}.web.app`,
+      apiKey: this.configService.getOrThrow<string>(
+        'firebase.clientSdk.apiKey',
+      ),
+      authDomain: this.configService.getOrThrow<string>(
+        'firebase.clientSdk.authDomain',
+      ),
+      databaseURL: this.configService.getOrThrow<string>(
+        'firebase.clientSdk.databaseURL',
+      ),
+      projectId: this.configService.getOrThrow<string>(
+        'firebase.clientSdk.projectId',
+      ),
+      storageBucket: this.configService.getOrThrow<string>(
+        'firebase.clientSdk.storageBucket',
+      ),
+      messagingSenderId: this.configService.getOrThrow<string>(
+        'firebase.clientSdk.messagingSenderId',
+      ),
+      functionsUrl: this.configService.getOrThrow<string>(
+        'firebase.clientSdk.functionsUrl',
+      ),
     };
   }
 

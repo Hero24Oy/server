@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 
-import { PartialAddressInput } from './partial-address.input';
+import { PartialAddressInput } from '../../../common/dto/address/partial-address.input';
 
 @InputType()
 export class PartialUserDataAddressInput {

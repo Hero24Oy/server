@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 
-import { AddressInput } from './address.input';
+import { AddressInput } from '../../../common/dto/address/address.input';
 
 @InputType()
 export class UserDataAddressInput {
