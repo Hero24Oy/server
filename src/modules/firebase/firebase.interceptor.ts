@@ -2,9 +2,9 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { tap } from 'rxjs';
 import { Observable } from 'rxjs';
 
@@ -14,10 +14,9 @@ import { FirebaseService } from './firebase.service';
 
 @Injectable()
 export class FirebaseInterceptor implements NestInterceptor {
-  constructor(
-    private configService: ConfigService,
-    private firebaseService: FirebaseService,
-  ) {}
+  private logger = new Logger(FirebaseInterceptor.name);
+
+  constructor(private firebaseService: FirebaseService) {}
 
   async intercept(
     context: ExecutionContext,
@@ -45,7 +44,7 @@ export class FirebaseInterceptor implements NestInterceptor {
         }),
       );
     } catch (err) {
-      console.error(err);
+      this.logger.error(err);
 
       return next.handle();
     }
