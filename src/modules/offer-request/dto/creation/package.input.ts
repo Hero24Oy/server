@@ -28,16 +28,7 @@ export class PackageInput {
   @Field(() => [String])
   citiesExcluded?: string[];
 
-  static convertFromFirebaseType(data: PackageDB, id: string): PackageInput {
-    return {
-      ...data,
-      id,
-      citiesExcluded: data.cities_excluded,
-      citiesIncluded: data.cities_included,
-    };
-  }
-
-  static convertToFirebaseType(data: PackageInput): PackageDB {
+  static convertToFirebaseType(data: PackageInput): PackageDB & { id: string } {
     return {
       ...data,
       cities_excluded: data.citiesExcluded,

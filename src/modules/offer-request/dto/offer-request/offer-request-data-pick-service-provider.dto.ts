@@ -1,5 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, PickStrategy } from 'hero24-types';
+import {
+  convertFirebaseMapToList,
+  convertListToFirebaseMap,
+} from 'src/modules/common/common.utils';
 
 @ObjectType()
 export class OfferRequestDataPickServiceProviderDto {
@@ -14,7 +18,7 @@ export class OfferRequestDataPickServiceProviderDto {
   ): OfferRequestDataPickServiceProviderDto {
     return {
       ...data,
-      preferred: data.preferred && Object.keys(data.preferred),
+      preferred: data.preferred && convertFirebaseMapToList(data.preferred),
     };
   }
 
@@ -23,9 +27,7 @@ export class OfferRequestDataPickServiceProviderDto {
   ): Exclude<OfferRequestDB['data']['pickServiceProvider'], undefined> {
     return {
       ...data,
-      preferred:
-        data.preferred &&
-        Object.fromEntries(data.preferred.map((id) => [id, true])),
+      preferred: data.preferred && convertListToFirebaseMap(data.preferred),
     };
   }
 }

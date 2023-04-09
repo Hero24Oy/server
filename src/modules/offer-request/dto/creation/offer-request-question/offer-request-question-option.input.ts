@@ -3,10 +3,7 @@ import { OfferRequestQuestion, OfferRequestQuestionOption } from 'hero24-types';
 
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldInput } from 'src/modules/common/dto/translation-field.input';
-import {
-  OfferRequestQuestionInput,
-  offerRequestQuestionInputConvertor,
-} from './offer-request-question.input';
+import { OfferRequestQuestionInput } from './offer-request-question.input';
 
 @InputType()
 export class OfferRequestQuestionOptionInput {
@@ -35,7 +32,7 @@ export class OfferRequestQuestionOptionInput {
       order: data.order || null,
       questions:
         data.questions?.map((depsId) =>
-          offerRequestQuestionInputConvertor.convertToFirebaseType(
+          OfferRequestQuestionInput.convertToFirebaseType(
             plainQuestions.find(
               (question) => depsId === question.depsId,
             ) as OfferRequestQuestionInput,

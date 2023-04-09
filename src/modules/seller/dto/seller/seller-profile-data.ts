@@ -1,5 +1,9 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
+import {
+  convertFirebaseMapToList,
+  convertListToFirebaseMap,
+} from 'src/modules/common/common.utils';
 
 @ObjectType()
 export class SellerProfileDataDto {
@@ -52,7 +56,7 @@ export class SellerProfileDataDto {
       ...sellerProfileData,
       categories:
         sellerProfileData.categories &&
-        Object.keys(sellerProfileData.categories),
+        convertFirebaseMapToList(sellerProfileData.categories),
     };
   }
 
@@ -63,9 +67,7 @@ export class SellerProfileDataDto {
       ...sellerProfileData,
       categories:
         sellerProfileData.categories &&
-        Object.fromEntries(
-          sellerProfileData.categories.map((id) => [id, true]),
-        ),
+        convertListToFirebaseMap(sellerProfileData.categories),
     };
   }
 }
