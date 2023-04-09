@@ -5,9 +5,9 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { deleteApp } from 'firebase/app';
 import { tap } from 'rxjs';
 import { Observable } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   FIREBASE_APP_IN_REQUEST_PATH,
@@ -34,27 +34,36 @@ export class FirebaseInterceptor implements NestInterceptor {
         return next.handle();
       }
 
+      const appName = uuidv4();
+      const app = this.firebaseService.initClientApp(appName);
+      const destroyApp = () => this.firebaseService.destroyApp(app);
+
+      req[FIREBASE_APP_IN_REQUEST_PATH] = app;
+
       const token = req.headers.authorization;
 
       if (!token) {
-        return next.handle();
+        return next.handle().pipe(
+          tap({
+            next: destroyApp,
+            error: destroyApp,
+          }),
+        );
       }
 
-      const defaultApp = this.firebaseService.getDefaultApp();
+      try {
+        const defaultApp = this.firebaseService.getDefaultApp();
 
-      const { uid } = await defaultApp
-        .auth()
-        .verifyIdToken(token.replace('Bearer ', ''));
+        const { uid } = await defaultApp
+          .auth()
+          .verifyIdToken(token.replace('Bearer ', ''));
 
-      const user = await defaultApp.auth().getUser(uid);
+        const user = await defaultApp.auth().getUser(uid);
 
-      const app = await this.firebaseService.initClientApp(user.uid);
+        await this.firebaseService.authorizeUser(uid, app);
 
-      req[FIREBASE_APP_IN_REQUEST_PATH] = app;
-      req[FIREBASE_USER_IN_REQUEST_PATH] = user;
-
-      const destroyApp = () =>
-        deleteApp(app).catch((err) => console.error(err));
+        req[FIREBASE_USER_IN_REQUEST_PATH] = user;
+      } catch (err) {}
 
       return next.handle().pipe(
         tap({
