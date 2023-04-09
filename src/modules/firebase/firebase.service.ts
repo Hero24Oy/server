@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { getApps, initializeApp } from 'firebase/app';
+import { deleteApp, initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
 
 import * as stagingServiceAccount from '../../../firebase-service-account.stag.json';
@@ -58,22 +58,25 @@ export class FirebaseService {
     return this.app;
   }
 
-  async initClientApp(uid: string): Promise<FirebaseAppInstance> {
-    const candidate = getApps().find((item) => item?.name === uid);
-
-    if (candidate) {
-      return candidate;
-    }
-
+  initClientApp(appName: string): FirebaseAppInstance {
     const firebaseConfig = this.getClientFirebaseConfig();
 
-    const app = initializeApp(firebaseConfig, uid);
-    const auth = getAuth(app);
+    return initializeApp(firebaseConfig, appName);
+  }
 
+  async authorizeUser(uid: string, app: FirebaseAppInstance) {
     const customToken = await this.app.auth().createCustomToken(uid);
 
-    await signInWithCustomToken(auth, customToken);
+    const auth = getAuth(app);
 
-    return app;
+    await signInWithCustomToken(auth, customToken);
+  }
+
+  async destroyApp(app: FirebaseAppInstance) {
+    try {
+      await deleteApp(app);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
