@@ -1,7 +1,8 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { AppResolver } from './app.resolver';
 import config, { configValidationSchema } from './config';
 
 @Module({
@@ -11,8 +12,19 @@ import config, { configValidationSchema } from './config';
       load: [config],
       validationSchema: configValidationSchema,
     }),
+    GraphQLModule.forRootAsync({
+      driver: ApolloDriver,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService): ApolloDriverConfig => ({
+        autoSchemaFile: true,
+        subscriptions: {
+          'graphql-ws': true,
+        },
+        playground: configService.get<boolean>('app.isDevelopment'),
+      }),
+    }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [AppResolver],
 })
 export class AppModule {}

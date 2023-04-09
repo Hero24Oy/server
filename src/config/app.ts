@@ -6,4 +6,5 @@ export const appValidationSchema = Joi.object({
 
 export default () => ({
   port: +process.env.PORT,
+  isDevelopment: process.env.NODE_ENV !== 'production',
 });
