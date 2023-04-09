@@ -10,6 +10,7 @@ import config, { configValidationSchema } from './config';
 import { UserModule } from './modules/user/user.module';
 import { CommonModule } from './modules/common/common.module';
 import { BuyerModule } from './modules/buyer/buyer.module';
+import { SellerModule } from './modules/seller/seller.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BuyerModule } from './modules/buyer/buyer.module';
     UserModule,
     CommonModule,
     BuyerModule,
+    SellerModule,
   ],
   providers: [AppResolver],
 })
