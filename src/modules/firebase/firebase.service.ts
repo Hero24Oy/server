@@ -130,6 +130,7 @@ export class FirebaseService {
     }
 
     if (!decodedIdToken) {
+      this.logger.debug(`Decoded Id Token isn't provided`);
       return app;
     }
 
@@ -139,7 +140,12 @@ export class FirebaseService {
       this.firebaseAppService.lockAuthorizing(appName, async (resolve) => {
         try {
           await this.authorizeUser(uid, app);
-        } catch (err) {}
+        } catch (err) {
+          const error = err as Error;
+          this.logger.debug(
+            `Authorization is failed, uid is "${uid}" with message ${error.message}`,
+          );
+        }
 
         resolve(app);
       });
