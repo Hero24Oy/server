@@ -7,6 +7,7 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { UserDto } from './dto/user/user.dto';
 import { UsersDto } from './dto/users/users.dto';
 import { UsersArgs } from './dto/users/users.args';
+import { UserCreationArgs } from './dto/creation/user-creation.args';
 
 @Injectable()
 export class UserService {
@@ -75,5 +76,27 @@ export class UserService {
       hasNextPage,
       total,
     };
+  }
+
+  async createUser(
+    args: UserCreationArgs,
+    app: FirebaseAppInstance,
+  ): Promise<UserDto> {
+    const { data, isCreatedFromWeb } = args;
+
+    const newUserRef = await app
+      .database()
+      .ref(FirebaseDatabasePath.USERS)
+      .push({
+        isCreatedFromWeb,
+        data,
+        createdAt: admin.database.ServerValue.TIMESTAMP as number,
+      });
+
+    if (!newUserRef.key) {
+      throw new Error(`The user can't be created`);
+    }
+
+    return this.getUserById(newUserRef.key, app) as Promise<UserDto>;
   }
 }
