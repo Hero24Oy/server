@@ -29,6 +29,14 @@ export class SellerResolver {
     return this.sellerService.getSellers(args, app);
   }
 
+  @Query(() => Boolean)
+  async isSellerApproved(
+    @Args('id') id: string,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    return this.sellerService.isSellerApproved(id, app);
+  }
+
   @Mutation(() => SellerProfileDto, { nullable: true })
   async createSeller(
     @Args() args: SellerProfileCreationArgs,
