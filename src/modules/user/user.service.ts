@@ -1,6 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { UserDB } from 'hero24-types';
-import * as admin from 'firebase-admin';
+
+import {
+  ref,
+  getDatabase,
+  get,
+  set,
+  push,
+  update,
+  serverTimestamp,
+} from 'firebase/database';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
@@ -16,11 +25,11 @@ export class UserService {
     userId: string,
     app: FirebaseAppInstance,
   ): Promise<UserDto | null> {
-    const userSnapshot = await app
-      .database()
-      .ref(FirebaseDatabasePath.USERS)
-      .child(userId)
-      .once('value');
+    const database = getDatabase(app);
+
+    const userSnapshot = await get(
+      ref(database, `${FirebaseDatabasePath.USERS}/${userId}`),
+    );
 
     const user: UserDB | null = userSnapshot.val();
 
@@ -29,10 +38,9 @@ export class UserService {
 
   async getUsers(args: UsersArgs, app: FirebaseAppInstance): Promise<UsersDto> {
     const { limit, offset, search } = args;
-    const usersSnapshot: admin.database.DataSnapshot = await app
-      .database()
-      .ref(FirebaseDatabasePath.USERS)
-      .once('value');
+    const database = getDatabase(app);
+
+    const usersSnapshot = await get(ref(database, FirebaseDatabasePath.USERS));
 
     if (!usersSnapshot.exists()) {
       return {
@@ -83,22 +91,46 @@ export class UserService {
     args: UserCreationArgs,
     app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    const { data, isCreatedFromWeb } = args;
+    const { data, isCreatedFromWeb, userId } = args;
 
-    const newUserRef = await app
-      .database()
-      .ref(FirebaseDatabasePath.USERS)
-      .push({
+    const database = getDatabase(app);
+
+    let updatedUserId = userId || null;
+
+    const newUserData = {
+      ...data,
+      createdAt: serverTimestamp() as unknown as number,
+    };
+
+    if (isCreatedFromWeb && userId) {
+      // admin
+      await set(ref(database, `${FirebaseDatabasePath.USERS}/${userId}`), {
+        data: newUserData,
         isCreatedFromWeb,
-        data,
-        createdAt: admin.database.ServerValue.TIMESTAMP as number,
       });
+    } else if (isCreatedFromWeb) {
+      // admin
+      const newUserRef = await push(
+        ref(database, `${FirebaseDatabasePath.USERS}`),
+        {
+          data: newUserData,
+          isCreatedFromWeb,
+        },
+      );
+      updatedUserId = newUserRef.key;
+    } else if (userId) {
+      // user
+      await set(
+        ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
+        newUserData,
+      );
+    }
 
-    if (!newUserRef.key) {
+    if (!updatedUserId) {
       throw new Error(`The user can't be created`);
     }
 
-    return this.getUserById(newUserRef.key, app) as Promise<UserDto>;
+    return this.getUserById(updatedUserId, app) as Promise<UserDto>;
   }
 
   async editUserData(
@@ -106,13 +138,16 @@ export class UserService {
     app: FirebaseAppInstance,
   ): Promise<UserDto> {
     const { userId } = args;
+    const database = getDatabase(app);
 
-    await app
-      .database()
-      .ref(FirebaseDatabasePath.USERS)
-      .child(userId)
-      .child('data')
-      .update(args.data);
+    await update(
+      ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
+      {
+        ...args.data,
+        // 'updatedAt' field fixes an issue where login(UserA)->logout->login(UserA) wouldn't reload the user
+        updatedAt: serverTimestamp() as unknown as number,
+      },
+    );
 
     return this.getUserById(userId, app) as Promise<UserDto>;
   }
@@ -126,12 +161,12 @@ export class UserService {
       offerRequestIds.map((id) => [id, null]),
     );
 
-    await app
-      .database()
-      .ref(FirebaseDatabasePath.USERS)
-      .child(userId)
-      .child('offerRequests')
-      .update(offerRequestsData);
+    const database = getDatabase(app);
+
+    await update(
+      ref(database, `${FirebaseDatabasePath.USERS}/${userId}/offerRequests`),
+      offerRequestsData,
+    );
 
     return true;
   }

@@ -27,6 +27,7 @@
     "@nestjs/graphql": "^10.2.0",
     "@nestjs/platform-express": "^9.0.0",
     "apollo-server-express": "^3.11.1",
+    "firebase": "^9.17.2",
     "firebase-admin": "^11.5.0",
     "graphql": "^16.6.0",
     "graphql-subscriptions": "^2.0.0",
