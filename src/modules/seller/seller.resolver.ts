@@ -4,6 +4,8 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
+import { SellerProfilesDto } from './dto/sellers/seller-profiles.dto';
+import { SellersArgs } from './dto/sellers/sellers.args';
 
 import { SellerService } from './seller.service';
 
@@ -17,6 +19,14 @@ export class SellerResolver {
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<SellerProfileDto | null> {
     return this.sellerService.getSellerById(sellerId, app);
+  }
+
+  @Query(() => SellerProfilesDto)
+  async sellers(
+    @Args() args: SellersArgs,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<SellerProfilesDto> {
+    return this.sellerService.getSellers(args, app);
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { get, getDatabase, ref, set, update } from 'firebase/database';
+import { SellerProfileDB } from 'hero24-types';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
@@ -7,6 +8,8 @@ import { SellerProfileDataInput } from './dto/creation/seller-profile-data.input
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
+import { SellerProfilesDto } from './dto/sellers/seller-profiles.dto';
+import { SellersArgs } from './dto/sellers/sellers.args';
 
 @Injectable()
 export class SellerService {
@@ -24,6 +27,48 @@ export class SellerService {
     return (
       candidate && SellerProfileDto.convertFromFirebaseType(candidate, sellerId)
     );
+  }
+
+  async getSellers(
+    args: SellersArgs,
+    app: FirebaseAppInstance,
+  ): Promise<SellerProfilesDto> {
+    const { offset, limit } = args;
+
+    const database = getDatabase(app);
+
+    const sellersSnapshot = await get(
+      ref(database, FirebaseDatabasePath.SELLER_PROFILES),
+    );
+
+    const sellersRecord: Record<string, SellerProfileDB> =
+      sellersSnapshot.val() || {};
+
+    const sellers = Object.entries(sellersRecord).map(([id, sellerProfile]) =>
+      SellerProfileDto.convertFromFirebaseType(sellerProfile, id),
+    );
+
+    const total = sellers.length;
+
+    if (typeof offset === 'number' && typeof limit === 'number') {
+      const edges = sellers
+        .slice(offset, limit)
+        .map((node) => ({ node, cursor: node.id }));
+
+      return {
+        edges,
+        total,
+        hasNextPage: total > offset + limit,
+        endCursor: edges[edges.length - 1]?.cursor || null,
+      };
+    }
+
+    return {
+      edges: sellers.map((node) => ({ node, cursor: node.id })),
+      total,
+      hasNextPage: false,
+      endCursor: sellers[sellers.length - 1]?.id || null,
+    };
   }
 
   async createSeller(
