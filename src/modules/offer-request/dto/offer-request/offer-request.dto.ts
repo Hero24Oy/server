@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 import {
   convertFirebaseMapToList,
@@ -29,22 +29,22 @@ export class OfferRequestDto {
   @Field(() => String, { nullable: true })
   stripePaymentIntentId?: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   customerVAT?: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   serviceProviderVAT?: number;
 
   @Field(() => String, { nullable: true })
   netvisorSalesOrderId?: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   netvisorSalesInvoiceNumber?: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   minimumDuration?: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   sendToNetvisor?: number;
 
   @Field(() => Boolean, { nullable: true })

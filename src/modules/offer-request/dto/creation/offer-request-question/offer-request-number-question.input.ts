@@ -1,4 +1,4 @@
-import { Field, Int, InputType } from '@nestjs/graphql';
+import { Field, Float, InputType } from '@nestjs/graphql';
 import { OfferRequestNumberQuestion } from 'hero24-types';
 import { MaybeType } from 'src/modules/common/common.types';
 import { omitUndefined } from 'src/modules/common/common.utils';
@@ -13,7 +13,7 @@ export class OfferRequestNumberQuestionInput extends OfferRequestBaseQuestionInp
   @Field(() => TranslationFieldInput, { nullable: true })
   placeholder?: MaybeType<TranslationFieldInput>;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   numericValue?: MaybeType<number>;
 
   static convertToFirebaseType(

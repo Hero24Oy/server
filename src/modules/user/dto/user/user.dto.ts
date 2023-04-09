@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { UserDB } from 'hero24-types';
 import {
   convertFirebaseMapToList,
@@ -25,10 +25,10 @@ export class UserDto {
   @Field(() => Boolean, { nullable: true })
   isAdmin?: boolean;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   netvisorCustomerId?: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   netvisorSellerId?: number;
 
   @Field(() => Boolean, { nullable: true })

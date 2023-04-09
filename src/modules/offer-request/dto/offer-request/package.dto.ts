@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, Float, ObjectType } from '@nestjs/graphql';
 import { PackageDB } from 'hero24-types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 
@@ -16,10 +16,10 @@ export class PackageDto {
   @Field(() => Int)
   order: number;
 
-  @Field(() => Int)
+  @Field(() => Float)
   pricePerHour: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   recommendedDuration?: number;
 
   @Field(() => [String], { nullable: true })

@@ -107,7 +107,7 @@ const convertToFirebaseType = (
       return {
         ...data,
         name: data.name || null,
-        preferredTime: data.preferredTime || null,
+        preferredTime: data.preferredTime ? +data.preferredTime : null,
         suitableTimes: data.suitableTimes
           ? SuitableTimeDto.convertToFirebaseTime(data.suitableTimes)
           : null,
@@ -162,6 +162,7 @@ const convertFromFirebaseType = (
       return {
         ...data,
         order,
+        preferredTime: data.preferredTime ? new Date(data.preferredTime) : null,
         suitableTimes: data.suitableTimes
           ? SuitableTimeDto.convertFromFirebaseTime(data.suitableTimes)
           : null,

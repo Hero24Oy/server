@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
 import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 import { SellerProfileDataDto } from './seller-profile-data';
@@ -11,7 +11,7 @@ export class SellerProfileDto {
   @Field(() => SellerProfileDataDto)
   data: SellerProfileDataDto;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   rating?: number;
 
   @Field(() => [String], { nullable: true })
