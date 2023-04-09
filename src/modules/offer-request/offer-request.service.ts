@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { get, getDatabase, push, ref } from 'firebase/database';
-import { OfferRequestDB } from 'hero24-types';
+import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
@@ -30,13 +30,24 @@ export class OfferRequestService {
     args: OfferRequestCreationArgs,
     app: FirebaseAppInstance,
   ): Promise<OfferRequestDto> {
-    const { data, subscription } = args;
+    const {
+      data,
+      subscription,
+      serviceProviderVAT,
+      customerVat,
+      minimumDuration,
+    } = args;
 
     const database = getDatabase(app);
 
-    const offerRequest: OfferRequestDB = {
+    const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
+      subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
+    } = {
       data: OfferRequestDataInput.convertToFirebaseType(data),
       ...(subscription ? { subscription } : {}),
+      ...(serviceProviderVAT ? { serviceProviderVAT } : {}),
+      ...(customerVat ? { customerVat } : {}),
+      ...(minimumDuration ? { minimumDuration } : {}),
     };
 
     if (offerRequest.data.initial.questions.length === 0) {
