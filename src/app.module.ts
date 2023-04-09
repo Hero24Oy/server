@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { CommonModule } from './modules/common/common.module';
 import { BuyerModule } from './modules/buyer/buyer.module';
 import { SellerModule } from './modules/seller/seller.module';
+import { OfferRequestModule } from './modules/offer-request/offer-request.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { SellerModule } from './modules/seller/seller.module';
     CommonModule,
     BuyerModule,
     SellerModule,
+    OfferRequestModule,
   ],
   providers: [AppResolver],
 })

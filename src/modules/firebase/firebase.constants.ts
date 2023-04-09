@@ -7,4 +7,5 @@ export enum FirebaseDatabasePath {
   BUYER_PROFILES = 'buyerProfiles',
   SELLER_PROFILES = 'sellerProfiles',
   APPROVED_SELLERS = 'approvedSellers',
+  OFFER_REQUESTS = 'offerRequests',
 }
