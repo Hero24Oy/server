@@ -29,6 +29,14 @@ export class SellerResolver {
     return this.sellerService.getSellers(args, app);
   }
 
+  @Query(() => Boolean)
+  async isSellerApproved(
+    @Args('id') id: string,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    return this.sellerService.isSellerApproved(id, app);
+  }
+
   @Mutation(() => SellerProfileDto, { nullable: true })
   async createSeller(
     @Args() args: SellerProfileCreationArgs,
@@ -74,5 +82,14 @@ export class SellerResolver {
     @FirebaseApp() app: FirebaseAppInstance,
   ) {
     return this.sellerService.removeReviewFromSeller(sellerId, reviewId, app);
+  }
+
+  @Mutation(() => Boolean)
+  async setIsSellerApproved(
+    @Args('sellerId') sellerId: string,
+    @Args('isApproved') isApproved: boolean,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    return this.sellerService.setIsSellerApproved(sellerId, isApproved, app);
   }
 }
