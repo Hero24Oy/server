@@ -8,8 +8,8 @@ export class UserDataDto {
   @Field(() => String)
   email: string;
 
-  @Field(() => Boolean)
-  emailVerified: boolean;
+  @Field(() => Boolean, { nullable: true })
+  emailVerified?: boolean;
 
   @Field(() => [String], { nullable: true })
   pushToken?: string[];
@@ -26,8 +26,8 @@ export class UserDataDto {
   @Field(() => String)
   photoURL: string;
 
-  @Field(() => String)
-  language: string;
+  @Field(() => String, { nullable: true })
+  language?: string;
 
   @Field(() => Boolean, { nullable: true })
   isActive?: boolean;
@@ -38,8 +38,8 @@ export class UserDataDto {
   @Field(() => [UserDataAddressDto], { nullable: true })
   addresses?: UserDataAddressDto[];
 
-  @Field(() => String)
-  phone: string;
+  @Field(() => String, { nullable: true }) // Todo: UserDB['data']['phone'] = string | undefined
+  phone?: string;
 
   @Field(() => String, { nullable: true })
   iban?: string;

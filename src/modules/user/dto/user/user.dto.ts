@@ -102,6 +102,10 @@ export class UserDto {
       offers: Object.entries(user.offers || {}).map(
         ([offerId, { offerRequestId }]) => ({ offerId, offerRequestId }),
       ),
+      isBlocked:
+        typeof user.isBlocked === 'string'
+          ? user.isBlocked === 'true'
+          : user.isBlocked,
     };
   }
 }
