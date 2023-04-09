@@ -8,6 +8,7 @@ import { UserDto } from './dto/user/user.dto';
 import { UsersDto } from './dto/users/users.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 
 @Injectable()
 export class UserService {
@@ -98,5 +99,21 @@ export class UserService {
     }
 
     return this.getUserById(newUserRef.key, app) as Promise<UserDto>;
+  }
+
+  async editUserData(
+    args: UserDataEditingArgs,
+    app: FirebaseAppInstance,
+  ): Promise<UserDto> {
+    const { userId } = args;
+
+    await app
+      .database()
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('data')
+      .update(args.data);
+
+    return this.getUserById(userId, app) as Promise<UserDto>;
   }
 }

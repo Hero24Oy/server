@@ -6,6 +6,7 @@ import { UsersDto } from './dto/users/users.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserService } from './user.service';
 import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 
 @Resolver()
 export class UserResolver {
@@ -33,5 +34,13 @@ export class UserResolver {
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
     return this.userService.createUser(args, app);
+  }
+
+  @Mutation(() => UserDto)
+  async editUserData(
+    @Args() args: UserDataEditingArgs,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<UserDto> {
+    return this.userService.editUserData(args, app);
   }
 }
