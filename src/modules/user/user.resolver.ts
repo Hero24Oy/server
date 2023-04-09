@@ -28,6 +28,14 @@ export class UserResolver {
     return this.userService.getUsers(args, app);
   }
 
+  @Query(() => String)
+  async phone(
+    @Args('userId') userId: string,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ) {
+    return this.userService.getUserPhone(userId, app);
+  }
+
   @Mutation(() => UserDto)
   async createUser(
     @Args() args: UserCreationArgs,

@@ -170,4 +170,16 @@ export class UserService {
 
     return true;
   }
+
+  async getUserPhone(
+    userId: string,
+    app: FirebaseAppInstance,
+  ): Promise<string> {
+    const database = getDatabase(app);
+    const path = [FirebaseDatabasePath.USERS, userId, 'data', 'phone'];
+
+    const phoneSnapshot = await get(ref(database, path.join('/')));
+
+    return phoneSnapshot.val() || '';
+  }
 }
