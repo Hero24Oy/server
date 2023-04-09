@@ -64,4 +64,10 @@ export class PartialUserDataInput {
 
   @Field(() => Date, { nullable: true })
   lastAskedReviewTime?: Date;
+
+  @Field(() => Date, { nullable: true })
+  createdAt?: Date;
+
+  @Field(() => Date, { nullable: true })
+  updatedAt?: Date;
 }
