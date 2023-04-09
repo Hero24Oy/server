@@ -46,7 +46,7 @@ export class SellerProfileDataInput {
   @Field(() => Int, { nullable: true })
   weeksOfSentPurchaseInvoices?: number;
 
-  static converToFirebaseType(
+  static convertToFirebaseType(
     sellerProfileData: SellerProfileDataInput,
   ): SellerProfileDB['data'] {
     return {

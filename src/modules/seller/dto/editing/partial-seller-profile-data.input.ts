@@ -46,7 +46,7 @@ export class PartialSellerProfileDataInput {
   @Field(() => Int, { nullable: true })
   weeksOfSentPurchaseInvoices?: number;
 
-  static converToFirebaseType(
+  static convertToFirebaseType(
     sellerProfileData: PartialSellerProfileDataInput,
   ): Partial<SellerProfileDB['data']> {
     return {

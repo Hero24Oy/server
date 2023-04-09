@@ -1,7 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { SupportedLanguages } from 'hero24-types';
+import { SupportedLanguages, UserDB } from 'hero24-types';
 import { PartialUserDataActiveRouteInput } from './partial-user-data-active-route.input';
 import { PartialUserDataAddressInput } from './partial-user-data-address.input';
+import {
+  convertListToFirebaseMap,
+  omitUndefined,
+} from 'src/modules/common/common.utils';
+import { serverTimestamp } from 'firebase/database';
 
 @InputType()
 export class PartialUserDataInput {
@@ -70,4 +75,38 @@ export class PartialUserDataInput {
 
   @Field(() => Date, { nullable: true })
   updatedAt?: Date;
+
+  static convertToFirebaseType(
+    data: PartialUserDataInput,
+  ): Partial<UserDB['data']> {
+    return omitUndefined({
+      email: data.email,
+      emailVerified: data.emailVerified,
+      pushToken: data.pushToken && convertListToFirebaseMap(data.pushToken),
+      name: data.name,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      photoURL: data.photoURL,
+      language: data.language,
+      isActive: data.isActive,
+      activeRoute: data.activeRoute,
+      addresses:
+        data.addresses &&
+        Object.fromEntries(
+          data.addresses.map(({ key, address }) => [key, address]),
+        ),
+      phone: data.phone,
+      iban: data.iban,
+      birthDate: data.birthDate && +data.birthDate,
+      certificate: data.certificate,
+      insurance: data.insurance,
+      ssn: data.ssn,
+      hasAccountMergeBeenAsked: data.hasAccountMergeBeenAsked,
+      selectedAppLanguage: data.selectedAppLanguage,
+      lastAskedReviewTime:
+        data.lastAskedReviewTime && +data.lastAskedReviewTime,
+      createdAt: data.createdAt && +data.createdAt,
+      updatedAt: serverTimestamp() as unknown as number,
+    });
+  }
 }

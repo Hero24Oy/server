@@ -60,7 +60,7 @@ export class SellerProfileDataDto {
     };
   }
 
-  static converToFirebaseType(
+  static convertToFirebaseType(
     sellerProfileData: SellerProfileDataDto,
   ): SellerProfileDB['data'] {
     return {
