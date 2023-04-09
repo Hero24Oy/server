@@ -52,8 +52,8 @@ export class OfferRequestDataDto {
           ? new Date(data.actualStartTime)
           : undefined,
       lastAgreedStartTime:
-        typeof data.actualStartTime === 'number'
-          ? new Date(data.actualStartTime)
+        typeof data.lastAgreedStartTime === 'number'
+          ? new Date(data.lastAgreedStartTime)
           : undefined,
     };
   }
@@ -74,14 +74,10 @@ export class OfferRequestDataDto {
         OfferRequestDataPickServiceProviderDto.convertToFirebaseType(
           data.pickServiceProvider,
         ),
-      actualStartTime:
-        typeof data.actualStartTime === 'undefined'
-          ? undefined
-          : +new Date(data.actualStartTime),
-      lastAgreedStartTime:
-        typeof data.actualStartTime === 'undefined'
-          ? undefined
-          : +new Date(data.actualStartTime),
+      actualStartTime: data.actualStartTime ? +data.actualStartTime : undefined,
+      lastAgreedStartTime: data.lastAgreedStartTime
+        ? +data.lastAgreedStartTime
+        : undefined,
     };
   }
 }

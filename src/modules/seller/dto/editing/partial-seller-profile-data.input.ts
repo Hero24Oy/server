@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType, Float } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
 import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 
@@ -34,7 +34,7 @@ export class PartialSellerProfileDataInput {
   @Field(() => String, { nullable: true })
   postalCode?: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   yearsOfExperience?: number;
 
   @Field(() => [String], { nullable: true })
@@ -43,7 +43,7 @@ export class PartialSellerProfileDataInput {
   @Field(() => String, { nullable: true })
   certificate?: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   weeksOfSentPurchaseInvoices?: number;
 
   static convertToFirebaseType(

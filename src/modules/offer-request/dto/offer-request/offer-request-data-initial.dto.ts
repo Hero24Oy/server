@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import {
   AddressesAnsweredDto,
   BasicAddressesDto,
@@ -16,10 +16,10 @@ export class OfferRequestDataInitialDto {
   @Field(() => String)
   buyerProfile: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   fixedDuration?: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   fixedPrice?: number;
 
   @Field(() => Date)

@@ -11,8 +11,8 @@ export class OfferRequestDateQuestionInput extends OfferRequestBaseQuestionInput
   @Field(() => String)
   type: 'date';
 
-  @Field(() => Int, { nullable: true })
-  preferredTime?: MaybeType<number>;
+  @Field(() => Date, { nullable: true })
+  preferredTime?: MaybeType<Date>;
 
   @Field(() => Int, { nullable: true })
   suitableTimesCount?: MaybeType<number>;
@@ -25,7 +25,7 @@ export class OfferRequestDateQuestionInput extends OfferRequestBaseQuestionInput
   ): OfferRequestDateQuestion {
     return omitUndefined({
       ...OfferRequestBaseQuestionInput.convertBaseToFirebaseType(question),
-      preferredTime: question.preferredTime || null,
+      preferredTime: question.preferredTime ? +question.preferredTime : null,
       suitableTimes: question.suitableTimes
         ? SuitableTimeInput.convertToFirebaseTime(question.suitableTimes)
         : null,

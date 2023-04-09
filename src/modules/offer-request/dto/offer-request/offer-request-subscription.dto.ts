@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestSubscription, SUBSCRIPTION_INTERVAL } from 'hero24-types';
 
 @ObjectType()
@@ -12,16 +12,16 @@ export class OfferRequestSubscriptionDto {
   @Field(() => Boolean, { nullable: true })
   initialRequest?: boolean;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   priceDiscount?: number;
 
   @Field(() => String, { nullable: true })
   discountFormat?: 'fixed' | 'percentage';
 
-  @Field(() => Int)
+  @Field(() => Date)
   currentAnchorDate: Date;
 
-  @Field(() => Int)
+  @Field(() => Date)
   nextAnchorDate: Date;
 
   static convertToFirebaseType(

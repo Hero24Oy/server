@@ -8,8 +8,8 @@ export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto {
   @Field(() => String)
   type: 'date';
 
-  @Field(() => Int, { nullable: true })
-  preferredTime?: MaybeType<number>;
+  @Field(() => Date, { nullable: true })
+  preferredTime?: MaybeType<Date>;
 
   @Field(() => Int, { nullable: true })
   suitableTimesCount?: MaybeType<number>;

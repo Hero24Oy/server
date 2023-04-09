@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, REFUND_STATUS } from 'hero24-types';
 
 @ObjectType()
@@ -6,7 +6,7 @@ export class OfferRequestRefundDto {
   @Field(() => Date)
   updatedAt: Date;
 
-  @Field(() => Int)
+  @Field(() => Float)
   amount: number;
 
   @Field(() => String, { nullable: true })
