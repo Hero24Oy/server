@@ -36,3 +36,7 @@ lerna-debug.log*
 
 # ENV
 /.env
+
+# Firebase credentials
+firebase-service-account.prod.json
+firebase-service-account.stag.json

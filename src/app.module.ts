@@ -1,10 +1,12 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { Module } from '@nestjs/common';
+
+import { GraphqlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
+import { FirebaseModule } from './modules/firebase/firebase.module';
 import { AppResolver } from './app.resolver';
 import config, { configValidationSchema } from './config';
-import { GraphqlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
 
 @Module({
   imports: [
@@ -23,9 +25,11 @@ import { GraphqlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.mod
           'graphql-ws': true,
         },
         playground: configService.get<boolean>('app.isDevelopment'),
+        context: ({ req, res }) => ({ req, res }),
       }),
     }),
     GraphqlPubsubModule,
+    FirebaseModule,
   ],
   providers: [AppResolver],
 })
