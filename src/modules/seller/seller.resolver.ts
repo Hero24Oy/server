@@ -44,4 +44,26 @@ export class SellerResolver {
   ) {
     return this.sellerService.editSellerData(args, app);
   }
+
+  @Mutation(() => Boolean)
+  async attachCategoryToSeller(
+    @Args('sellerId') sellerId: string,
+    @Args('categoryId') categoryId: string,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ) {
+    return this.sellerService.attachCategoryToSeller(sellerId, categoryId, app);
+  }
+
+  @Mutation(() => Boolean)
+  async unattachCategoryFromSeller(
+    @Args('sellerId') sellerId: string,
+    @Args('categoryId') categoryId: string,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ) {
+    return this.sellerService.unattachCategoryFromSeller(
+      sellerId,
+      categoryId,
+      app,
+    );
+  }
 }

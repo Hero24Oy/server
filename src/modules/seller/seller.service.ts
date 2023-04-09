@@ -105,4 +105,44 @@ export class SellerService {
 
     return this.getSellerById(id, app);
   }
+
+  async attachCategoryToSeller(
+    sellerId: string,
+    categoryId: string,
+    app: FirebaseAppInstance,
+  ) {
+    const database = getDatabase(app);
+
+    const path = [
+      FirebaseDatabasePath.SELLER_PROFILES,
+      sellerId,
+      'data',
+      'categories',
+      categoryId,
+    ];
+
+    await set(ref(database, path.join('/')), true);
+
+    return true;
+  }
+
+  async unattachCategoryFromSeller(
+    sellerId: string,
+    categoryId: string,
+    app: FirebaseAppInstance,
+  ) {
+    const database = getDatabase(app);
+
+    const path = [
+      FirebaseDatabasePath.SELLER_PROFILES,
+      sellerId,
+      'data',
+      'categories',
+      categoryId,
+    ];
+
+    await set(ref(database, path.join('/')), null);
+
+    return true;
+  }
 }
