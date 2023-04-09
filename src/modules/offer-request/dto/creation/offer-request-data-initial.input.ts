@@ -41,6 +41,9 @@ export class OfferRequestDataInitialInput {
   @Field(() => Int, { nullable: true })
   fixedDuration?: number;
 
+  @Field(() => Boolean, { nullable: true })
+  promotionDisabled?: boolean;
+
   static convertToFirebaseType(
     data: OfferRequestDataInitialInput,
   ): OfferRequestDB['data']['initial'] {
