@@ -116,4 +116,23 @@ export class UserService {
 
     return this.getUserById(userId, app) as Promise<UserDto>;
   }
+
+  async unbindUserOfferRequests(
+    userId: string,
+    offerRequestIds: string[],
+    app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    const offerRequestsData = Object.fromEntries(
+      offerRequestIds.map((id) => [id, null]),
+    );
+
+    await app
+      .database()
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('offerRequests')
+      .update(offerRequestsData);
+
+    return true;
+  }
 }

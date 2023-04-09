@@ -43,4 +43,18 @@ export class UserResolver {
   ): Promise<UserDto> {
     return this.userService.editUserData(args, app);
   }
+
+  @Mutation(() => Boolean)
+  async unbindUserOfferRequests(
+    @Args('userId', { type: () => String }) userId: string,
+    @Args('offerRequestIds', { type: () => [String] })
+    offerRequestIds: string[],
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    return this.userService.unbindUserOfferRequests(
+      userId,
+      offerRequestIds,
+      app,
+    );
+  }
 }
