@@ -176,4 +176,22 @@ export class SellerService {
 
     return !!isApproved.val();
   }
+
+  async setIsSellerApproved(
+    sellerId: string,
+    isApproved: boolean,
+    app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    const database = getDatabase(app);
+
+    const path = [FirebaseDatabasePath.APPROVED_SELLERS, sellerId];
+
+    if (isApproved) {
+      await set(ref(database, path.join('/')), isApproved);
+    } else {
+      await remove(ref(database, path.join('/')));
+    }
+
+    return true;
+  }
 }

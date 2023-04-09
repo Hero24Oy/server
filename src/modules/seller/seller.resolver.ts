@@ -83,4 +83,13 @@ export class SellerResolver {
   ) {
     return this.sellerService.removeReviewFromSeller(sellerId, reviewId, app);
   }
+
+  @Mutation(() => Boolean)
+  async setIsSellerApproved(
+    @Args('sellerId') sellerId: string,
+    @Args('isApproved') isApproved: boolean,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    return this.sellerService.setIsSellerApproved(sellerId, isApproved, app);
+  }
 }
