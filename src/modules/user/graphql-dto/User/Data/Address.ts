@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Address } from '../address';
+import { Address } from '../../../../common/graphql-dto';
 
 @ObjectType()
 export class UserDataAddress {

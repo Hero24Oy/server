@@ -1,8 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { SupportedLanguages, UserDB } from 'hero24-types';
-import { Address } from '../address';
-import { UserDataActiveRoute } from './active-route';
-import { UserDataAddress } from './address';
+import { UserDataActiveRoute } from './ActiveRoute';
+import { UserDataAddress } from './Address';
 
 type RedefinedUserDBDataFields =
   | 'pushToken'
@@ -15,7 +14,7 @@ type RedefinedUserDBDataFields =
 
 type GraphQLUserDBData = Omit<UserDB['data'], RedefinedUserDBDataFields> & {
   pushToken?: string[];
-  addresses?: Array<{ key: string; address: Address }>;
+  addresses?: UserDataAddress[];
   lastAskedReviewTime?: Date;
   birthDate?: Date;
   createdAt: Date;

@@ -4,8 +4,8 @@ import {
   executeIfDefined,
   timestampToDate,
 } from 'src/modules/common/common.utils';
-import { UserDataDto } from './data';
-import { UserOffer } from './offer';
+import { UserDataDto } from './Data';
+import { UserOffer } from './Offer';
 
 type RedefinedUserDBFields =
   | 'data'
