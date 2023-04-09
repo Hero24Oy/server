@@ -1,5 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 
 @InputType()
 export class SellerProfileDataInput {
@@ -52,9 +53,7 @@ export class SellerProfileDataInput {
       ...sellerProfileData,
       categories:
         sellerProfileData.categories &&
-        Object.fromEntries(
-          sellerProfileData.categories.map((id) => [id, true]),
-        ),
+        convertListToFirebaseMap(sellerProfileData.categories),
     };
   }
 }

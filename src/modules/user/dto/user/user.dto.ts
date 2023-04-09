@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { UserDB } from 'hero24-types';
 import {
+  convertFirebaseMapToList,
   executeIfDefined,
   timestampToDate,
 } from 'src/modules/common/common.utils';
@@ -69,7 +70,7 @@ export class UserDto {
       ...user,
       data: {
         ...user.data,
-        pushToken: Object.keys(user.data.pushToken || {}),
+        pushToken: convertFirebaseMapToList(user.data.pushToken || {}),
         addresses: Object.entries(user.data.addresses || {}).map(
           ([key, address]) => ({ key, address }),
         ),
@@ -95,10 +96,12 @@ export class UserDto {
           undefined,
         ),
       },
-      offerRequests: Object.keys(user.offerRequests || {}),
-      transactions: Object.keys(user.transactions || {}),
-      paymentTransactions: Object.keys(user.paymentTransactions || {}),
-      mergedUsers: Object.keys(user.mergedUsers || {}),
+      offerRequests: convertFirebaseMapToList(user.offerRequests || {}),
+      transactions: convertFirebaseMapToList(user.transactions || {}),
+      paymentTransactions: convertFirebaseMapToList(
+        user.paymentTransactions || {},
+      ),
+      mergedUsers: convertFirebaseMapToList(user.mergedUsers || {}),
       offers: Object.entries(user.offers || {}).map(
         ([offerId, { offerRequestId }]) => ({ offerId, offerRequestId }),
       ),

@@ -1,5 +1,9 @@
 import { createUnionType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
+import {
+  convertFirebaseMapToList,
+  convertListToFirebaseMap,
+} from 'src/modules/common/common.utils';
 import { SuitableTimeDto } from 'src/modules/common/dto/suitable-time/suitable-time.dto';
 
 import { OfferRequestCheckBoxQuestionDto } from './offer-request-check-box-question.dto';
@@ -116,9 +120,7 @@ const convertToFirebaseType = (
       return {
         ...data,
         name: data.name || null,
-        images: data.images
-          ? Object.fromEntries(data.images.map((id) => [id, true]))
-          : null,
+        images: data.images ? convertListToFirebaseMap(data.images) : null,
         imageCount:
           typeof data.imageCount !== 'number' ? null : data.imageCount,
       };
@@ -168,7 +170,7 @@ const convertFromFirebaseType = (
       return {
         ...data,
         order,
-        images: Object.keys(data.images || {}),
+        images: convertFirebaseMapToList(data.images || {}),
       };
     case 'list':
     case 'number':

@@ -1,5 +1,9 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
+import {
+  convertFirebaseMapToList,
+  convertListToFirebaseMap,
+} from 'src/modules/common/common.utils';
 import { OfferRequestChatDto } from './offer-request-chat.dto';
 import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
@@ -81,10 +85,11 @@ export class OfferRequestDto {
       ...data,
       id,
       data: OfferRequestDataDto.convertFromFirebaseType(data.data),
-      offers: data.offers && Object.keys(data.offers),
-      fees: data.fees && Object.keys(data.fees),
+      offers: data.offers && convertFirebaseMapToList(data.offers),
+      fees: data.fees && convertFirebaseMapToList(data.fees),
       paymentTransactions:
-        data.paymentTransactions && Object.keys(data.paymentTransactions),
+        data.paymentTransactions &&
+        convertFirebaseMapToList(data.paymentTransactions),
       refund:
         data.refund &&
         OfferRequestRefundDto.convertFromFirebaseType(data.refund),
@@ -104,12 +109,11 @@ export class OfferRequestDto {
     return {
       ...data,
       data: OfferRequestDataDto.convertToFirebaseType(data.data),
-      offers:
-        data.offers && Object.fromEntries(data.offers.map((id) => [id, true])),
-      fees: data.fees && Object.fromEntries(data.fees.map((id) => [id, true])),
+      offers: data.offers && convertListToFirebaseMap(data.offers),
+      fees: data.fees && convertListToFirebaseMap(data.fees),
       paymentTransactions:
         data.paymentTransactions &&
-        Object.fromEntries(data.paymentTransactions.map((id) => [id, true])),
+        convertListToFirebaseMap(data.paymentTransactions),
       refund:
         data.refund && OfferRequestRefundDto.convertToFirebaseType(data.refund),
       subscription:

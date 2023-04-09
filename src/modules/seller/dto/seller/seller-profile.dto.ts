@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 import { SellerProfileDataDto } from './seller-profile-data';
 
 @ObjectType()
@@ -40,7 +41,7 @@ export class SellerProfileDto {
       ...sellerProfile,
       reviews:
         sellerProfile.reviews &&
-        Object.fromEntries(sellerProfile.reviews.map((id) => [id, true])),
+        convertListToFirebaseMap(sellerProfile.reviews),
       data: SellerProfileDataDto.converToFirebaseType(sellerProfile.data),
     };
   }

@@ -49,6 +49,9 @@ export class OfferRequestDataInitialDto {
   @Field(() => PackageDto, { nullable: true })
   package?: PackageDto;
 
+  @Field(() => Boolean, { nullable: true })
+  promotionDisabled?: boolean;
+
   static convertFromFirebaseType(
     data: OfferRequestDB['data']['initial'],
   ): OfferRequestDataInitialDto {
