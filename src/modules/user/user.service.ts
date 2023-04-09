@@ -1,15 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserDB } from 'hero24-types';
 
-import {
-  ref,
-  getDatabase,
-  get,
-  set,
-  push,
-  update,
-  serverTimestamp,
-} from 'firebase/database';
+import { ref, getDatabase, get, set, push, update } from 'firebase/database';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
@@ -18,6 +10,8 @@ import { UsersDto } from './dto/users/users.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
+import { UserDataInput } from './dto/creation/user-data.input';
+import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
 
 @Injectable()
 export class UserService {
@@ -97,10 +91,7 @@ export class UserService {
 
     let updatedUserId = userId || null;
 
-    const newUserData = {
-      ...data,
-      createdAt: serverTimestamp() as unknown as number,
-    };
+    const newUserData = UserDataInput.convertToFirebaseType(data);
 
     if (isCreatedFromWeb && userId) {
       // admin
@@ -142,11 +133,7 @@ export class UserService {
 
     await update(
       ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
-      {
-        ...args.data,
-        // 'updatedAt' field fixes an issue where login(UserA)->logout->login(UserA) wouldn't reload the user
-        updatedAt: serverTimestamp() as unknown as number,
-      },
+      PartialUserDataInput.convertToFirebaseType(args.data),
     );
 
     return this.getUserById(userId, app) as Promise<UserDto>;

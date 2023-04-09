@@ -1,7 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { SupportedLanguages } from 'hero24-types';
+import { SupportedLanguages, UserDB } from 'hero24-types';
 import { UserDataActiveRouteInput } from './user-data-active-route.input';
 import { UserDataAddressInput } from './user-data-address.input';
+import {
+  convertListToFirebaseMap,
+  omitUndefined,
+} from 'src/modules/common/common.utils';
+import { serverTimestamp } from 'firebase/database';
 
 @InputType()
 export class UserDataInput {
@@ -64,4 +69,23 @@ export class UserDataInput {
 
   @Field(() => Date, { nullable: true })
   lastAskedReviewTime?: Date;
+
+  static convertToFirebaseType(data: UserDataInput): UserDB['data'] {
+    return omitUndefined({
+      ...data,
+      lastAskedReviewTime: data.lastAskedReviewTime
+        ? +data.lastAskedReviewTime
+        : undefined,
+      createdAt: serverTimestamp() as unknown as number,
+      pushToken: data.pushToken
+        ? convertListToFirebaseMap(data.pushToken)
+        : undefined,
+      addresses: data.addresses
+        ? Object.fromEntries(
+            data.addresses.map(({ key, address }) => [key, address]),
+          )
+        : undefined,
+      birthDate: data.birthDate ? +data.birthDate : undefined,
+    });
+  }
 }

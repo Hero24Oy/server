@@ -82,7 +82,7 @@ export class SellerService {
     const path = [FirebaseDatabasePath.SELLER_PROFILES, id];
 
     await set(ref(database, path.join('/')), {
-      data: SellerProfileDataInput.converToFirebaseType(data),
+      data: SellerProfileDataInput.convertToFirebaseType(data),
     });
 
     return this.getSellerById(id, app);
@@ -100,7 +100,7 @@ export class SellerService {
 
     await update(
       ref(database, path.join('/')),
-      PartialSellerProfileDataInput.converToFirebaseType(data),
+      PartialSellerProfileDataInput.convertToFirebaseType(data),
     );
 
     return this.getSellerById(id, app);

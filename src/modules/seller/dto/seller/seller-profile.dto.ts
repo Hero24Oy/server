@@ -42,7 +42,7 @@ export class SellerProfileDto {
       reviews:
         sellerProfile.reviews &&
         convertListToFirebaseMap(sellerProfile.reviews),
-      data: SellerProfileDataDto.converToFirebaseType(sellerProfile.data),
+      data: SellerProfileDataDto.convertToFirebaseType(sellerProfile.data),
     };
   }
 }
