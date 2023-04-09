@@ -7,6 +7,8 @@ import { GraphqlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.mod
 import { FirebaseModule } from './modules/firebase/firebase.module';
 import { AppResolver } from './app.resolver';
 import config, { configValidationSchema } from './config';
+import { UserModule } from './modules/user/user.module';
+import { CommonModule } from './modules/common/common.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import config, { configValidationSchema } from './config';
     }),
     GraphqlPubsubModule,
     FirebaseModule,
+    UserModule,
+    CommonModule,
   ],
   providers: [AppResolver],
 })

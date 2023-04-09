@@ -4,8 +4,8 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import * as admin from 'firebase-admin';
 import { ConfigService } from '@nestjs/config';
+import { deleteApp } from 'firebase/app';
 import { tap } from 'rxjs';
 import { Observable } from 'rxjs';
 
@@ -14,7 +14,6 @@ import {
   FIREBASE_USER_IN_REQUEST_PATH,
 } from './firebase.constants';
 import { pickRequestFromExecutionContext } from './firebase.utils';
-import { FirebaseAppInstance } from './firebase.types';
 import { FirebaseService } from './firebase.service';
 
 @Injectable()
@@ -49,36 +48,13 @@ export class FirebaseInterceptor implements NestInterceptor {
 
       const user = await defaultApp.auth().getUser(uid);
 
-      let app: FirebaseAppInstance;
-
-      const candidate = admin.apps.find((item) => item?.name === uid);
-
-      if (candidate) {
-        app = candidate;
-      } else {
-        const firebaseServiceAccount = this.firebaseService.getServiceAccount();
-
-        app = admin.initializeApp(
-          {
-            credential: admin.credential.cert({
-              projectId: firebaseServiceAccount.project_id,
-              clientEmail: firebaseServiceAccount.client_email,
-              privateKey: firebaseServiceAccount.private_key,
-            }),
-            databaseURL: this.configService.get<string>('firebase.databaseURL'),
-            databaseAuthVariableOverride: {
-              uid,
-            },
-          },
-          uid,
-        );
-      }
+      const app = await this.firebaseService.initClientApp(user.uid);
 
       req[FIREBASE_APP_IN_REQUEST_PATH] = app;
       req[FIREBASE_USER_IN_REQUEST_PATH] = user;
 
-      const destroyApp = () => () =>
-        app.delete().catch((err) => console.error(err));
+      const destroyApp = () =>
+        deleteApp(app).catch((err) => console.error(err));
 
       return next.handle().pipe(
         tap({
