@@ -66,4 +66,13 @@ export class SellerResolver {
       app,
     );
   }
+
+  @Mutation(() => Boolean)
+  async removeReviewFromSeller(
+    @Args('sellerId') sellerId: string,
+    @Args('reviewId') reviewId: string,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ) {
+    return this.sellerService.removeReviewFromSeller(sellerId, reviewId, app);
+  }
 }

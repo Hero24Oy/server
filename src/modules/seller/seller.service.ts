@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { get, getDatabase, ref, set, update } from 'firebase/database';
+import { get, getDatabase, ref, remove, set, update } from 'firebase/database';
 import { SellerProfileDB } from 'hero24-types';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
@@ -141,7 +141,26 @@ export class SellerService {
       categoryId,
     ];
 
-    await set(ref(database, path.join('/')), null);
+    await remove(ref(database, path.join('/')));
+
+    return true;
+  }
+
+  async removeReviewFromSeller(
+    sellerId: string,
+    reviewId: string,
+    app: FirebaseAppInstance,
+  ) {
+    const database = getDatabase(app);
+
+    const path = [
+      FirebaseDatabasePath.SELLER_PROFILES,
+      sellerId,
+      'reviews',
+      reviewId,
+    ];
+
+    await remove(ref(database, path.join('/')));
 
     return true;
   }
