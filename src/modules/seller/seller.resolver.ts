@@ -1,4 +1,6 @@
+import { UseFilters } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
@@ -6,7 +8,7 @@ import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfilesDto } from './dto/sellers/seller-profiles.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
-
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { SellerService } from './seller.service';
 
 @Resolver()
@@ -14,6 +16,7 @@ export class SellerResolver {
   constructor(private sellerService: SellerService) {}
 
   @Query(() => SellerProfileDto, { nullable: true })
+  @UseFilters(FirebaseExceptionFilter)
   async seller(
     @Args('id') sellerId: string,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -22,6 +25,7 @@ export class SellerResolver {
   }
 
   @Query(() => SellerProfilesDto)
+  @UseFilters(FirebaseExceptionFilter)
   async sellers(
     @Args() args: SellersArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -30,6 +34,7 @@ export class SellerResolver {
   }
 
   @Query(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
   async isSellerApproved(
     @Args('id') id: string,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -38,6 +43,7 @@ export class SellerResolver {
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
+  @UseFilters(FirebaseExceptionFilter)
   async createSeller(
     @Args() args: SellerProfileCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -46,6 +52,7 @@ export class SellerResolver {
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
+  @UseFilters(FirebaseExceptionFilter)
   async editSellerData(
     @Args() args: SellerProfileDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -54,6 +61,7 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
   async attachCategoryToSeller(
     @Args('sellerId') sellerId: string,
     @Args('categoryId') categoryId: string,
@@ -63,6 +71,7 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
   async unattachCategoryFromSeller(
     @Args('sellerId') sellerId: string,
     @Args('categoryId') categoryId: string,
@@ -76,6 +85,7 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
   async removeReviewFromSeller(
     @Args('sellerId') sellerId: string,
     @Args('reviewId') reviewId: string,
@@ -85,6 +95,7 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
   async setIsSellerApproved(
     @Args('sellerId') sellerId: string,
     @Args('isApproved') isApproved: boolean,

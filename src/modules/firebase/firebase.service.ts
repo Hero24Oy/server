@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { deleteApp, initializeApp, getApps } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
@@ -15,6 +15,7 @@ import { FirebaseAppService } from './firebase.app.service';
 @Injectable()
 export class FirebaseService {
   private app: FirebaseAdminAppInstance;
+  private logger = new Logger(FirebaseService.name);
 
   constructor(
     private configService: ConfigService,
@@ -88,7 +89,7 @@ export class FirebaseService {
         });
       }
     } catch (err) {
-      console.error(err);
+      this.logger.error(err);
     }
   }
 
@@ -129,6 +130,7 @@ export class FirebaseService {
     }
 
     if (!decodedIdToken) {
+      this.logger.debug(`Decoded Id Token isn't provided`);
       return app;
     }
 
@@ -138,7 +140,12 @@ export class FirebaseService {
       this.firebaseAppService.lockAuthorizing(appName, async (resolve) => {
         try {
           await this.authorizeUser(uid, app);
-        } catch (err) {}
+        } catch (err) {
+          const error = err as Error;
+          this.logger.debug(
+            `Authorization is failed, uid is "${uid}" with message ${error.message}`,
+          );
+        }
 
         resolve(app);
       });
