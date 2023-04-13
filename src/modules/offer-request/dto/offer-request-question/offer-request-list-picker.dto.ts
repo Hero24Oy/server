@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
@@ -11,6 +11,6 @@ export class OfferRequestListPickerDto extends OfferRequestBaseQuestionDto {
   @Field(() => TranslationFieldDto, { nullable: true })
   placeholder?: MaybeType<TranslationFieldDto>;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   numericValue?: MaybeType<number>;
 }
