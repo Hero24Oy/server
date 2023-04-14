@@ -27,6 +27,6 @@ export class AddressesAnsweredInput {
   @Field(() => BasicAddressesInput, { nullable: true })
   basic?: BasicAddressesInput;
 
-  @Field(() => BasicAddressesInput, { nullable: true })
+  @Field(() => DeliveryAddressesInput, { nullable: true })
   delivery?: DeliveryAddressesInput;
 }
