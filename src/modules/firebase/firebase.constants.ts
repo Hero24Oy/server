@@ -7,3 +7,5 @@ export enum FirebaseDatabasePath {
   APPROVED_SELLERS = 'approvedSellers',
   OFFER_REQUESTS = 'offerRequests',
 }
+
+export const MAX_TRYING_COUNT = 3;
