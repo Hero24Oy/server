@@ -79,11 +79,12 @@ export class SellerService {
 
     const database = getDatabase(app);
 
-    const path = [FirebaseDatabasePath.SELLER_PROFILES, id];
+    const path = [FirebaseDatabasePath.SELLER_PROFILES, id, 'data'];
 
-    await set(ref(database, path.join('/')), {
-      data: SellerProfileDataInput.convertToFirebaseType(data),
-    });
+    await set(
+      ref(database, path.join('/')),
+      SellerProfileDataInput.convertToFirebaseType(data),
+    );
 
     return this.getSellerById(id, app);
   }

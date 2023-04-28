@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { deleteApp, initializeApp, getApps } from 'firebase/app';
-import { getAuth, signInWithCustomToken } from 'firebase/auth';
+import { AuthError, getAuth, signInWithCustomToken } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -11,6 +11,8 @@ import {
 } from './firebase.types';
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 import { FirebaseAppService } from './firebase.app.service';
+import { callRepeatedlyAsync } from '../common/common.utils';
+import { MAX_TRYING_COUNT } from './firebase.constants';
 
 @Injectable()
 export class FirebaseService {
@@ -139,7 +141,11 @@ export class FirebaseService {
     if (!this.firebaseAppService.isAuthorized(appName)) {
       this.firebaseAppService.lockAuthorizing(appName, async (resolve) => {
         try {
-          await this.authorizeUser(uid, app);
+          await callRepeatedlyAsync(
+            () => this.authorizeUser(uid, app),
+            (error: AuthError) => error.code === 'auth/internal-error',
+            MAX_TRYING_COUNT,
+          );
         } catch (err) {
           const error = err as Error;
           this.logger.debug(

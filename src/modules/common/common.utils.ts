@@ -28,3 +28,19 @@ export const convertListToFirebaseMap = (list: string[]) =>
 export const convertFirebaseMapToList = (
   firebaseMap: Record<string, boolean>,
 ) => Object.keys(firebaseMap);
+
+export const callRepeatedlyAsync = async (
+  handler: () => Promise<unknown>,
+  condition: (error: Error) => boolean,
+  step: number,
+) => {
+  try {
+    return await handler();
+  } catch (error) {
+    if (condition(error) && step > 1) {
+      return callRepeatedlyAsync(handler, condition, step - 1);
+    }
+
+    throw error;
+  }
+};
