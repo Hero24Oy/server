@@ -12,7 +12,7 @@ import {
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 import { FirebaseAppService } from './firebase.app.service';
 import { callRepeatedlyAsync } from '../common/common.utils';
-import { MAX_TRYING_COUNT } from './firebase.constants';
+import { FirebaseDatabasePath, MAX_TRYING_COUNT } from './firebase.constants';
 
 @Injectable()
 export class FirebaseService {
@@ -107,10 +107,8 @@ export class FirebaseService {
     }
   }
 
-  async initializeApp(
-    decodedIdToken: DecodedIdToken | null,
-  ): Promise<FirebaseAppInstance> {
-    const appName = decodedIdToken?.uid || uuidv4();
+  async initializeApp(userId?: string): Promise<FirebaseAppInstance> {
+    const appName = userId || uuidv4();
 
     this.firebaseAppService.addAppConnection(appName);
 
@@ -131,25 +129,23 @@ export class FirebaseService {
       app = initializeApp(firebaseConfig, appName);
     }
 
-    if (!decodedIdToken) {
-      this.logger.debug(`Decoded Id Token isn't provided`);
+    if (!userId) {
+      this.logger.debug(`UserId isn't provided`);
       return app;
     }
-
-    const { uid } = decodedIdToken;
 
     if (!this.firebaseAppService.isAuthorized(appName)) {
       this.firebaseAppService.lockAuthorizing(appName, async (resolve) => {
         try {
           await callRepeatedlyAsync(
-            () => this.authorizeUser(uid, app),
+            () => this.authorizeUser(userId, app),
             (error: AuthError) => error.code === 'auth/internal-error',
             MAX_TRYING_COUNT,
           );
         } catch (err) {
           const error = err as Error;
           this.logger.debug(
-            `Authorization is failed, uid is "${uid}" with message ${error.message}`,
+            `Authorization is failed, userId is "${userId}" with message ${error.message}`,
           );
         }
 
@@ -160,5 +156,15 @@ export class FirebaseService {
     return this.firebaseAppService.waitAuthorizing(
       appName,
     ) as Promise<FirebaseAppInstance>;
+  }
+
+  async getIsAdmin(userId: string) {
+    const isAdminSnapshot = await this.app
+      .database()
+      .ref(FirebaseDatabasePath.ADMIN_USERS)
+      .child(userId)
+      .once('value');
+
+    return Boolean(isAdminSnapshot.val());
   }
 }

@@ -25,7 +25,7 @@ export class PackageDto {
   @Field(() => [String], { nullable: true })
   citiesIncluded?: string[];
 
-  @Field(() => [String])
+  @Field(() => [String], { nullable: true })
   citiesExcluded?: string[];
 
   static convertFromFirebaseType(data: PackageDB, id: string): PackageDto {

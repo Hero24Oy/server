@@ -175,7 +175,7 @@ export class SellerService {
     const path = [FirebaseDatabasePath.APPROVED_SELLERS, sellerId];
     const isApproved = await get(ref(database, path.join('/')));
 
-    return !!isApproved.val();
+    return Boolean(isApproved.val());
   }
 
   async setIsSellerApproved(

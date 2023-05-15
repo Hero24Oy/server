@@ -44,3 +44,6 @@ export const callRepeatedlyAsync = async (
     throw error;
   }
 };
+
+export const isNotNull = <T>(value: T | null): value is Exclude<T, null> =>
+  value !== null;
