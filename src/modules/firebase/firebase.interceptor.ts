@@ -5,12 +5,12 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { tap } from 'rxjs';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs';
 
-import { FIREBASE_APP_IN_REQUEST_PATH } from './firebase.constants';
-import { pickRequestFromExecutionContext } from './firebase.utils';
 import { FirebaseService } from './firebase.service';
+import { AppGraphQLContext } from 'src/app.types';
 
 @Injectable()
 export class FirebaseInterceptor implements NestInterceptor {
@@ -19,21 +19,18 @@ export class FirebaseInterceptor implements NestInterceptor {
   constructor(private firebaseService: FirebaseService) {}
 
   async intercept(
-    context: ExecutionContext,
+    executionContext: ExecutionContext,
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     try {
-      const req = pickRequestFromExecutionContext(context);
+      const graphQLExecutionContext =
+        GqlExecutionContext.create(executionContext);
+      const context = graphQLExecutionContext.getContext<AppGraphQLContext>();
 
-      if (!req) {
-        return next.handle();
-      }
+      const { identity } = context;
 
-      const token = req.headers.authorization || '';
-      const decodedIdToken = await this.firebaseService.verifyIdToken(token);
-      const app = await this.firebaseService.initializeApp(decodedIdToken);
-
-      req[FIREBASE_APP_IN_REQUEST_PATH] = app;
+      const app = await this.firebaseService.initializeApp(identity?.id);
+      context.app = app;
 
       const destroyApp = () => this.firebaseService.destroyApp(app);
 

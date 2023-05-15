@@ -25,7 +25,7 @@ export class PackageInput {
   @Field(() => [String], { nullable: true })
   citiesIncluded?: string[];
 
-  @Field(() => [String])
+  @Field(() => [String], { nullable: true })
   citiesExcluded?: string[];
 
   static convertToFirebaseType(data: PackageInput): PackageDB & { id: string } {

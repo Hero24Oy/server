@@ -1,4 +1,5 @@
 export const FIREBASE_APP_IN_REQUEST_PATH = Symbol('AppInRequestPath');
+export const FIREBASE_USER_IN_REQUEST_PATH = Symbol('UserInRequestPath');
 
 export enum FirebaseDatabasePath {
   USERS = 'users',
@@ -6,6 +7,9 @@ export enum FirebaseDatabasePath {
   SELLER_PROFILES = 'sellerProfiles',
   APPROVED_SELLERS = 'approvedSellers',
   OFFER_REQUESTS = 'offerRequests',
+  CHATS = 'chats',
+  CHAT_MESSAGES = 'chatMessages',
+  ADMIN_USERS = 'adminUsers',
 }
 
 export const MAX_TRYING_COUNT = 3;

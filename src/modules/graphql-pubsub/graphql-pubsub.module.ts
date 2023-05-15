@@ -11,4 +11,4 @@ const PubSubProvider = {
   providers: [PubSubProvider],
   exports: [PubSubProvider],
 })
-export class GraphqlPubsubModule {}
+export class GraphQLPubsubModule {}

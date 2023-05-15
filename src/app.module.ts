@@ -3,7 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { Module } from '@nestjs/common';
 
-import { GraphqlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
+import { GraphQLContextManagerModule } from './modules/graphql-context-manager/graphql-context-manager.module';
+import { GraphQLContextManagerService } from './modules/graphql-context-manager/graphql-context-manager.service';
+import { GraphQLPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
 import { FirebaseModule } from './modules/firebase/firebase.module';
 import { AppResolver } from './app.resolver';
 import config, { configValidationSchema } from './config';
@@ -12,6 +14,8 @@ import { CommonModule } from './modules/common/common.module';
 import { BuyerModule } from './modules/buyer/buyer.module';
 import { SellerModule } from './modules/seller/seller.module';
 import { OfferRequestModule } from './modules/offer-request/offer-request.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -22,24 +26,29 @@ import { OfferRequestModule } from './modules/offer-request/offer-request.module
     }),
     GraphQLModule.forRootAsync({
       driver: ApolloDriver,
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService): ApolloDriverConfig => ({
+      imports: [GraphQLContextManagerModule.forRoot()],
+      inject: [ConfigService, GraphQLContextManagerService],
+      useFactory: (
+        configService: ConfigService,
+        graphQLManagerService: GraphQLContextManagerService,
+      ): ApolloDriverConfig => ({
         autoSchemaFile: true,
         subscriptions: {
           'graphql-ws': true,
         },
         playground: configService.get<boolean>('app.isDevelopment'),
-        context: ({ req, res }) => ({ req, res }),
+        context: async (ctx) => graphQLManagerService.createContext(ctx),
       }),
     }),
-    GraphqlPubsubModule,
+    GraphQLPubsubModule,
     FirebaseModule,
     UserModule,
     CommonModule,
     BuyerModule,
     SellerModule,
     OfferRequestModule,
+    ChatModule,
+    AuthModule,
   ],
   providers: [AppResolver],
 })

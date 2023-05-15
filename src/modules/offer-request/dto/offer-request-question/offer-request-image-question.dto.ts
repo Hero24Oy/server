@@ -7,7 +7,7 @@ export class OfferRequestImageQuestionDto extends OfferRequestBaseQuestionDto {
   @Field(() => String)
   type: 'image';
 
-  @Field(() => [Int], { nullable: true })
+  @Field(() => [String], { nullable: true })
   images?: MaybeType<string[]>;
 
   @Field(() => Int, { nullable: true })
