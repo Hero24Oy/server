@@ -1,8 +1,10 @@
 import { createUnionType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
+
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
+  omitUndefined,
 } from 'src/modules/common/common.utils';
 import { SuitableTimeDto } from 'src/modules/common/dto/suitable-time/suitable-time.dto';
 
@@ -56,9 +58,11 @@ const convertToFirebaseType = (
   data: OfferRequestQuestionDto,
   plainQuestions: OfferRequestQuestionDto[],
 ): OfferRequestQuestion => {
+  let result: OfferRequestQuestion;
+
   switch (data.type) {
     case 'radio':
-      return {
+      result = {
         ...data,
         ...(data.selectedOption
           ? { selectedOption: data.selectedOption }
@@ -71,8 +75,9 @@ const convertToFirebaseType = (
         ),
         name: data.name || null,
       };
+      break;
     case 'checkbox':
-      return {
+      result = {
         ...data,
         name: data.name || null,
         options: data.options.map((option) =>
@@ -82,29 +87,33 @@ const convertToFirebaseType = (
           ),
         ),
       };
+      break;
     case 'textarea':
-      return {
+      result = {
         ...data,
         name: data.name || null,
         placeholder: data.placeholder || null,
         value: data.value || null,
       };
+      break;
     case 'list':
-      return {
+      result = {
         ...data,
         name: data.name || null,
         placeholder: data.placeholder || null,
         value: typeof data.numericValue !== 'number' ? null : data.numericValue,
       };
+      break;
     case 'number':
-      return {
+      result = {
         ...data,
         name: data.name || null,
         placeholder: data.placeholder || null,
         value: typeof data.numericValue !== 'number' ? null : data.numericValue,
       };
+      break;
     case 'date':
-      return {
+      result = {
         ...data,
         name: data.name || null,
         preferredTime: data.preferredTime ? +data.preferredTime : null,
@@ -116,23 +125,29 @@ const convertToFirebaseType = (
             ? null
             : data.suitableTimesCount,
       };
+      break;
     case 'image':
-      return {
+      result = {
         ...data,
         name: data.name || null,
         images: data.images ? convertListToFirebaseMap(data.images) : null,
         imageCount:
           typeof data.imageCount !== 'number' ? null : data.imageCount,
       };
+      break;
     case 'number_input':
-      return {
+    default:
+      result = {
         ...data,
         name: data.name || null,
         placeholder: data.placeholder || null,
         extra_placeholder: data.extra_placeholder || null,
         value: data.value || null,
       };
+      break;
   }
+
+  return omitUndefined(result);
 };
 
 const convertFromFirebaseType = (

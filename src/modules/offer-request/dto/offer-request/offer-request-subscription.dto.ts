@@ -1,6 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestSubscription, SUBSCRIPTION_INTERVAL } from 'hero24-types';
 
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 @ObjectType()
 export class OfferRequestSubscriptionDto {
   @Field(() => String)
@@ -27,11 +29,11 @@ export class OfferRequestSubscriptionDto {
   static convertToFirebaseType(
     data: OfferRequestSubscriptionDto,
   ): OfferRequestSubscription {
-    return {
+    return omitUndefined({
       ...data,
       currentAnchorDate: +new Date(data.currentAnchorDate),
       nextAnchorDate: +new Date(data.nextAnchorDate),
-    };
+    });
   }
 
   static convertFromFirebaseType(

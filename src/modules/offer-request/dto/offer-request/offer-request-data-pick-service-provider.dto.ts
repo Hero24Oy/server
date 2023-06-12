@@ -3,6 +3,7 @@ import { OfferRequestDB, PickStrategy } from 'hero24-types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
+  omitUndefined,
 } from 'src/modules/common/common.utils';
 
 @ObjectType()
@@ -25,9 +26,9 @@ export class OfferRequestDataPickServiceProviderDto {
   static convertToFirebaseType(
     data: OfferRequestDataPickServiceProviderDto,
   ): Exclude<OfferRequestDB['data']['pickServiceProvider'], undefined> {
-    return {
+    return omitUndefined({
       ...data,
       preferred: data.preferred && convertListToFirebaseMap(data.preferred),
-    };
+    });
   }
 }

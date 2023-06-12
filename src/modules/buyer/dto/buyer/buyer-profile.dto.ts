@@ -1,5 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BuyerProfileDB } from 'hero24-types';
+
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 import { BuyerProfileDataDto } from './buyer-profile-data.dto';
 
 @ObjectType()
@@ -29,9 +32,9 @@ export class BuyerProfileDto implements BuyerProfileDB {
     id,
     ...buyerProfile
   }: BuyerProfileDto): BuyerProfileDB {
-    return {
+    return omitUndefined({
       ...buyerProfile,
       data: BuyerProfileDataDto.convertToFirebaseType(buyerProfile.data),
-    };
+    });
   }
 }

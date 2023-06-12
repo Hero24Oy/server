@@ -1,7 +1,10 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { OfferRequestQuestion, OfferRequestQuestionOption } from 'hero24-types';
+
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 import {
   OfferRequestQuestionDto,
   offerRequestQuestionDtoConvertor,
@@ -28,7 +31,7 @@ export class OfferRequestQuestionOptionDto {
     data: OfferRequestQuestionOptionDto,
     plainQuestions: OfferRequestQuestionDto[],
   ): OfferRequestQuestionOption {
-    return {
+    return omitUndefined({
       ...data,
       name: data.name || null,
       order: data.order || null,
@@ -42,7 +45,7 @@ export class OfferRequestQuestionOptionDto {
           ),
         ) || null,
       checked: data.checked || null,
-    };
+    });
   }
 
   static convertFromFirebaseType(

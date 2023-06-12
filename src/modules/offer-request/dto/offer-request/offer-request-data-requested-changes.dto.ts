@@ -1,5 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
+
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from './offer-request-data-requested-changes-changed-questions.dto';
 
 @ObjectType()
@@ -28,12 +31,12 @@ export class OfferRequestDataRequestedChangesDto {
   static convertToFirebaseType(
     data: OfferRequestDataRequestedChangesDto,
   ): Exclude<OfferRequestDB['data']['requestedChanges'], undefined> {
-    return {
+    return omitUndefined({
       created: +new Date(data.created),
       changedQuestions:
         OfferRequestDataRequestedChangesChangedQuestionsDto.convertToFirebaseType(
           data.changedQuestions,
         ),
-    };
+    });
   }
 }
