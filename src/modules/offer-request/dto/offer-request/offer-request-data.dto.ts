@@ -1,5 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, OFFER_REQUEST_STATUS } from 'hero24-types';
+
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 import { OfferRequestDataChangesAcceptedDto } from './offer-request-data-changes-accepted.dto';
 import { OfferRequestDataInitialDto } from './offer-request-data-initial.dto';
 import { OfferRequestDataPickServiceProviderDto } from './offer-request-data-pick-service-provider.dto';
@@ -61,23 +64,23 @@ export class OfferRequestDataDto {
   static convertToFirebaseType(
     data: OfferRequestDataDto,
   ): OfferRequestDB['data'] {
-    return {
+    return omitUndefined({
       ...data,
       initial: OfferRequestDataInitialDto.convertToFirebaseType(data.initial),
-      requestedChanges:
-        data.requestedChanges &&
-        OfferRequestDataRequestedChangesDto.convertToFirebaseType(
-          data.requestedChanges,
-        ),
-      pickServiceProvider:
-        data.pickServiceProvider &&
-        OfferRequestDataPickServiceProviderDto.convertToFirebaseType(
-          data.pickServiceProvider,
-        ),
+      requestedChanges: data.requestedChanges
+        ? OfferRequestDataRequestedChangesDto.convertToFirebaseType(
+            data.requestedChanges,
+          )
+        : undefined,
+      pickServiceProvider: data.pickServiceProvider
+        ? OfferRequestDataPickServiceProviderDto.convertToFirebaseType(
+            data.pickServiceProvider,
+          )
+        : undefined,
       actualStartTime: data.actualStartTime ? +data.actualStartTime : undefined,
       lastAgreedStartTime: data.lastAgreedStartTime
         ? +data.lastAgreedStartTime
         : undefined,
-    };
+    });
   }
 }

@@ -1,6 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, REFUND_STATUS } from 'hero24-types';
 
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 @ObjectType()
 export class OfferRequestRefundDto {
   @Field(() => Date)
@@ -27,9 +29,9 @@ export class OfferRequestRefundDto {
   static convertToFirebaseType(
     data: OfferRequestRefundDto,
   ): Exclude<OfferRequestDB['refund'], undefined> {
-    return {
+    return omitUndefined({
       ...data,
       updatedAt: +new Date(data.updatedAt),
-    };
+    });
   }
 }

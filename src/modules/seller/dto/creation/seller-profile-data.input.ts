@@ -1,6 +1,10 @@
 import { Field, InputType, Float } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+
+import {
+  convertListToFirebaseMap,
+  omitUndefined,
+} from 'src/modules/common/common.utils';
 
 @InputType()
 export class SellerProfileDataInput {
@@ -49,11 +53,11 @@ export class SellerProfileDataInput {
   static convertToFirebaseType(
     sellerProfileData: SellerProfileDataInput,
   ): SellerProfileDB['data'] {
-    return {
+    return omitUndefined({
       ...sellerProfileData,
       categories:
         sellerProfileData.categories &&
         convertListToFirebaseMap(sellerProfileData.categories),
-    };
+    });
   }
 }

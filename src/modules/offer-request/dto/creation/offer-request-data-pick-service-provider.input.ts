@@ -1,6 +1,9 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { OfferRequestDB, PickStrategy } from 'hero24-types';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import {
+  convertListToFirebaseMap,
+  omitUndefined,
+} from 'src/modules/common/common.utils';
 
 @InputType()
 export class OfferRequestDataPickServiceProviderInput {
@@ -13,9 +16,9 @@ export class OfferRequestDataPickServiceProviderInput {
   static convertToFirebaseType(
     serviceProviderPicker: OfferRequestDataPickServiceProviderInput,
   ): OfferRequestDB['data']['pickServiceProvider'] {
-    return {
+    return omitUndefined({
       preferred: convertListToFirebaseMap(serviceProviderPicker.preferred),
       pickStrategy: serviceProviderPicker.pickStrategy,
-    };
+    });
   }
 }

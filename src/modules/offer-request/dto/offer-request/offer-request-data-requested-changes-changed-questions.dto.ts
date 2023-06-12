@@ -1,5 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
+
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 import {
   OfferRequestQuestionDto,
   offerRequestQuestionDtoConvertor,
@@ -91,7 +94,7 @@ export class OfferRequestDataRequestedChangesChangedQuestionsDto {
       ({ depsId }) => typeof depsId !== 'number',
     );
 
-    return {
+    return omitUndefined({
       before: rootBeforeQuestion.map((question) =>
         offerRequestQuestionDtoConvertor.convertToFirebaseType(
           question,
@@ -104,6 +107,6 @@ export class OfferRequestDataRequestedChangesChangedQuestionsDto {
           depsAfterQuestions,
         ),
       ),
-    };
+    });
   }
 }
