@@ -14,7 +14,7 @@ export const executeIfDefined = <T, R, D>(
   return fn(value);
 };
 
-export const omitUndefined = <T extends Record<string, unknown>>(
+export const omitUndefined = <T extends Record<string, any>>(
   record: T,
 ): OmitValue<T, undefined> => {
   return Object.fromEntries(

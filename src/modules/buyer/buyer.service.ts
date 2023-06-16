@@ -5,9 +5,12 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class BuyerService {
+  constructor(private firebaseService: FirebaseService) {}
+
   async getBuyerById(
     buyerId: string,
     app: FirebaseAppInstance,
@@ -48,5 +51,19 @@ export class BuyerService {
     await update(ref(database, path.join('/')), data);
 
     return this.getBuyerById(id, app) as Promise<BuyerProfileDto>;
+  }
+
+  async getFullAccessedBuyerNameById(buyerId: string): Promise<string> {
+    const app = this.firebaseService.getDefaultApp();
+
+    const snapshot = await app
+      .database()
+      .ref(FirebaseDatabasePath.BUYER_PROFILES)
+      .child(buyerId)
+      .child('data')
+      .child('displayName')
+      .once('value');
+
+    return snapshot.val() || null;
   }
 }

@@ -1,4 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
+
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 import {
   AddressesAnsweredDto,
   BasicAddressesDto,
@@ -9,7 +13,6 @@ import {
   offerRequestQuestionDtoConvertor,
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
-import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
 
 @ObjectType()
 export class OfferRequestDataInitialDto {
@@ -108,7 +111,7 @@ export class OfferRequestDataInitialDto {
       ({ depsId }) => typeof depsId === 'number',
     );
 
-    return {
+    return omitUndefined({
       ...data,
       createdAt: +new Date(data.createdAt),
       ...(data.package
@@ -125,6 +128,6 @@ export class OfferRequestDataInitialDto {
           depsQuestions,
         ),
       ),
-    };
+    });
   }
 }

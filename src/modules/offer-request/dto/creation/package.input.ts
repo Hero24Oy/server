@@ -1,5 +1,7 @@
 import { Field, Int, Float, InputType } from '@nestjs/graphql';
 import { PackageDB } from 'hero24-types';
+
+import { omitUndefined } from 'src/modules/common/common.utils';
 import { TranslationFieldInput } from 'src/modules/common/dto/translation-field.input';
 
 @InputType()
@@ -29,10 +31,10 @@ export class PackageInput {
   citiesExcluded?: string[];
 
   static convertToFirebaseType(data: PackageInput): PackageDB & { id: string } {
-    return {
+    return omitUndefined({
       ...data,
       cities_excluded: data.citiesExcluded,
       cities_included: data.citiesIncluded,
-    };
+    });
   }
 }

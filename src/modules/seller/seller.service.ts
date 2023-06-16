@@ -10,9 +10,12 @@ import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfilesDto } from './dto/sellers/seller-profiles.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class SellerService {
+  constructor(private firebaseService: FirebaseService) {}
+
   async getSellerById(
     sellerId: string,
     app: FirebaseAppInstance,
@@ -194,5 +197,21 @@ export class SellerService {
     }
 
     return true;
+  }
+
+  async getFullAccessedSellerNameById(
+    sellerId: string,
+  ): Promise<string | null> {
+    const app = this.firebaseService.getDefaultApp();
+
+    const snapshot = await app
+      .database()
+      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+      .child(sellerId)
+      .child('data')
+      .child('companyName')
+      .once('value');
+
+    return snapshot.val() || null;
   }
 }

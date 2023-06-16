@@ -1,9 +1,12 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
+
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
+  omitUndefined,
 } from 'src/modules/common/common.utils';
+
 import { OfferRequestChatDto } from './offer-request-chat.dto';
 import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
@@ -106,7 +109,7 @@ export class OfferRequestDto {
   }
 
   static convertToFirebaseType(data: OfferRequestDto): OfferRequestDB {
-    return {
+    return omitUndefined({
       ...data,
       data: OfferRequestDataDto.convertToFirebaseType(data.data),
       offers: data.offers && convertListToFirebaseMap(data.offers),
@@ -127,6 +130,6 @@ export class OfferRequestDto {
             { sellerProfile: sellerId, chatId },
           ]),
         ),
-    };
+    });
   }
 }

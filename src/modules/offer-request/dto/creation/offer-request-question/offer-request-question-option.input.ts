@@ -3,6 +3,8 @@ import { OfferRequestQuestion, OfferRequestQuestionOption } from 'hero24-types';
 
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldInput } from 'src/modules/common/dto/translation-field.input';
+import { omitUndefined } from 'src/modules/common/common.utils';
+
 import { OfferRequestQuestionInput } from './offer-request-question.input';
 
 @InputType()
@@ -26,7 +28,7 @@ export class OfferRequestQuestionOptionInput {
     data: OfferRequestQuestionOptionInput,
     plainQuestions: OfferRequestQuestionInput[],
   ): OfferRequestQuestionOption {
-    return {
+    return omitUndefined({
       ...data,
       name: data.name || null,
       order: data.order || null,
@@ -40,7 +42,7 @@ export class OfferRequestQuestionOptionInput {
           ),
         ) || null,
       checked: data.checked || null,
-    };
+    });
   }
 
   static convertFromFirebaseType(
