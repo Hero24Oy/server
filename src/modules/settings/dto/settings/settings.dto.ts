@@ -1,6 +1,4 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { ISettings } from '../../settings.types';
-import { SettingsDataDto } from './settings-data.dto';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class LangObj {
