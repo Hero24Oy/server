@@ -1,18 +1,13 @@
+import { ChatMessageDB } from 'hero24-types';
 import { Injectable } from '@nestjs/common';
-import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
+
+import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
-import { ChatMessageDB } from 'hero24-types';
 import { ChatMessageCreationArgs } from '../dto/creation/chat-message-creation.args';
-import { FirebaseAppInstance } from '../../firebase/firebase.types';
-import {
-  get,
-  getDatabase,
-  push,
-  ref,
-  serverTimestamp,
-} from 'firebase/database';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { Identity } from 'src/modules/auth/auth.types';
 
 @Injectable()
 export class ChatMessageService {
@@ -20,12 +15,13 @@ export class ChatMessageService {
 
   async getChatMessageById(
     chatMessageId: string,
-    app: FirebaseAppInstance,
   ): Promise<ChatMessageDto | null> {
-    const database = getDatabase(app);
+    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
 
-    const path = [FirebaseDatabasePath.CHAT_MESSAGES, chatMessageId];
-    const snapshot = await get(ref(database, path.join('/')));
+    const snapshot = await database
+      .ref(FirebaseDatabasePath.CHAT_MESSAGES)
+      .child(chatMessageId)
+      .get();
 
     const chatMessage: ChatMessageDB | null = snapshot.val();
 
@@ -63,33 +59,35 @@ export class ChatMessageService {
 
   async createChatMessage(
     args: ChatMessageCreationArgs,
-    app: FirebaseAppInstance,
-    userId: string,
+    identity: Identity,
   ): Promise<ChatMessageDto> {
-    const { chatId, content } = args;
+    const { chatId, content, imageIds, location } = args;
 
-    const database = getDatabase(app);
+    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
 
-    const messagesRef = ref(database, FirebaseDatabasePath.CHAT_MESSAGES);
+    const messagesRef = database.ref(FirebaseDatabasePath.CHAT_MESSAGES);
 
     const firebaseChatMessage: ChatMessageDB = {
       data: {
         initial: {
           chat: chatId,
           content,
-          createdAt: serverTimestamp() as unknown as number,
-          sender: userId,
+          createdAt: Date.now(),
+          sender: identity.id,
+          images: convertListToFirebaseMap(imageIds || []),
+          imageCount: imageIds?.length || 0,
+          ...(location ? { location } : {}),
         },
       },
     };
 
-    const newMessageRef = await push(messagesRef, firebaseChatMessage);
+    const newMessageRef = await messagesRef.push(firebaseChatMessage);
 
     if (!newMessageRef.key) {
       throw new Error('Chat message cant be created');
     }
 
-    const chatMessage = await this.getChatMessageById(newMessageRef.key, app);
+    const chatMessage = await this.getChatMessageById(newMessageRef.key);
 
     if (!chatMessage) {
       throw new Error(`Cant find the chat message`);

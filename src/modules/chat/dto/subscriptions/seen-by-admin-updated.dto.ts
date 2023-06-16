@@ -1,9 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { MaybeType } from 'src/modules/common/common.types';
 
 @ObjectType()
 export class SeenByAdminUpdatedDto {
   @Field(() => Boolean, { nullable: true })
-  previous: boolean | null;
+  previous: MaybeType<boolean>;
 
   @Field(() => Boolean)
   current: boolean;

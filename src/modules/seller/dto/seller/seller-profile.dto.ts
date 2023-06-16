@@ -23,7 +23,7 @@ export class SellerProfileDto {
   reviews?: string[];
 
   @Field(() => Boolean, { nullable: true })
-  hasMadeApprovedRequest?: boolean;
+  hasMadeApprovedRequest?: boolean; // Todo: remove it
 
   static convertFromFirebaseType(
     sellerProfile: SellerProfileDB,

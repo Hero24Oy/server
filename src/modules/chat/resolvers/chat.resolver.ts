@@ -21,12 +21,20 @@ import {
   CHAT_ADDED_SUBSCRIPTION,
   CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION,
   CHAT_UPDATED_SUBSCRIPTION,
+  UNSEEN_CHATS_CHANGED_SUBSCRIPTION,
 } from '../chat.constants';
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
 import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
 import { AuthGuard } from '../../auth/guards/auth.guard';
 import { AdminGuard } from '../../auth/guards/admin.guard';
 import { Identity } from '../../auth/auth.types';
+import { ChatGuard } from '../chat.guard';
+import { ChatActivator } from '../chat.activator';
+import { IsChatMember } from '../activators/chat-member.activator';
+import { AppGraphQLContext } from 'src/app.types';
+import { UnseenChatsChangedDto } from '../dto/subscriptions/unsee-chats-updated-dto';
+import { isMemberSeenChat } from '../utils/chat-message.utils';
+import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 
 @Resolver()
 export class ChatResolver {
@@ -45,7 +53,8 @@ export class ChatResolver {
   }
 
   @Query(() => ChatDto, { nullable: true })
-  @UseGuards(AuthGuard)
+  @ChatActivator<{ id: string }>(IsChatMember('id'))
+  @UseGuards(AuthGuard, ChatGuard)
   async chat(
     @Args('id') chatId: string,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -56,7 +65,15 @@ export class ChatResolver {
   @Query(() => Int)
   @UseGuards(AdminGuard)
   async unseenAdminChatsCount(): Promise<number> {
-    return this.chatService.getUnseenChatsCount();
+    return this.chatService.getUnseenAdminChatsCount();
+  }
+
+  @Query(() => Int)
+  @UseGuards(AuthGuard)
+  async unseenChatsCount(
+    @Context('identity') identity: Identity,
+  ): Promise<number> {
+    return this.chatService.getUnseenChatsCount(identity);
   }
 
   @Mutation(() => Boolean)
@@ -70,7 +87,7 @@ export class ChatResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(AuthGuard)
+  @UseGuards(AdminGuard)
   async setChatReclamationResolved(
     @Args('chatId') chatId: string,
     @Args('isAboutReclamation') isAboutReclamation: boolean,
@@ -84,6 +101,15 @@ export class ChatResolver {
   }
 
   @Mutation(() => Boolean)
+  @ChatActivator<ChatInviteAdminArgs>(IsChatMember('chatId'))
+  @UseGuards(AuthGuard, ChatGuard)
+  async inviteAdminToChat(@Args() args: ChatInviteAdminArgs) {
+    await this.chatService.inviteAdmin(args);
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
   @UseGuards(AdminGuard)
   async addMemberToChat(
     @Args() args: ChatMemberAdditionArgs,
@@ -92,26 +118,103 @@ export class ChatResolver {
     return this.chatService.addMemberToChat(args, app);
   }
 
+  @Mutation(() => Boolean)
+  @ChatActivator<{ chatId: string }>(IsChatMember('chatId'))
+  @UseGuards(AuthGuard, ChatGuard)
+  async updateLastOpenedTime(
+    @Args('chatId') chatId: string,
+    @FirebaseApp() app: FirebaseAppInstance,
+    @Context('identity') identity: Identity,
+  ) {
+    const chatSnapshot = await this.chatService.getChatById(chatId, app);
+
+    const isLastMessageExist = Boolean(chatSnapshot.lastMessageDate);
+    const isSeenChat = isMemberSeenChat(identity.id, chatSnapshot);
+
+    await this.chatService.updateLastOpenedTime(chatId, identity);
+
+    if (isLastMessageExist && !isSeenChat) {
+      const payload: UnseenChatsChangedDto = {
+        userIds: [identity.id],
+        delta: -1,
+      };
+
+      this.pubSub.publish(UNSEEN_CHATS_CHANGED_SUBSCRIPTION, {
+        [UNSEEN_CHATS_CHANGED_SUBSCRIPTION]: payload,
+      });
+    }
+
+    return true;
+  }
+
   @Subscription(() => ChatDto, {
     name: CHAT_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [CHAT_UPDATED_SUBSCRIPTION]: ChatDto },
-      { chatIds }: { chatIds: string[] },
+      { chatIds, isFromApp }: { chatIds?: string[]; isFromApp?: boolean },
+      { identity }: AppGraphQLContext,
     ) => {
-      return chatIds.includes(payload[CHAT_UPDATED_SUBSCRIPTION].id);
+      if (!identity) {
+        return false;
+      }
+
+      const isMember = payload[CHAT_UPDATED_SUBSCRIPTION].members.some(
+        (member) => member.id === identity.id,
+      );
+
+      const isChatIncluded = chatIds
+        ? chatIds.includes(payload[CHAT_UPDATED_SUBSCRIPTION].id)
+        : true;
+
+      if (isFromApp) {
+        return isMember && isChatIncluded;
+      }
+
+      return identity.isAdmin && isChatIncluded;
     },
   })
   @UseGuards(AuthGuard)
   subscribeOnChatUpdate(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Args('chatIds', { type: () => [String] }) chatIds: string[],
+    @Args('chatIds', { type: () => [String], nullable: true })
+    chatIds: // eslint-disable-line @typescript-eslint/no-unused-vars
+    string[],
+    @Args('isFromApp', { type: () => Boolean, nullable: true })
+    isFromApp: // eslint-disable-line @typescript-eslint/no-unused-vars
+    boolean,
   ) {
     return this.pubSub.asyncIterator(CHAT_UPDATED_SUBSCRIPTION);
   }
 
-  @Subscription(() => ChatDto, { name: CHAT_ADDED_SUBSCRIPTION })
+  @Subscription(() => ChatDto, {
+    name: CHAT_ADDED_SUBSCRIPTION,
+    filter: (
+      payload: { [CHAT_ADDED_SUBSCRIPTION]: ChatDto },
+      variables: { isFromApp?: boolean },
+      context: AppGraphQLContext,
+    ) => {
+      const { identity } = context;
+
+      if (!identity) {
+        return false;
+      }
+
+      const chat = payload[CHAT_ADDED_SUBSCRIPTION];
+
+      const { isFromApp } = variables;
+      const { isAdmin, id } = identity;
+
+      if (!isFromApp) {
+        return isAdmin;
+      }
+
+      return chat.members.some((member) => member.id === id);
+    },
+  })
   @UseGuards(AuthGuard)
-  subscribeOnChatAdd() {
+  subscribeOnChatAdd(
+    @Args('isFromApp', { type: () => Boolean, nullable: true })
+    isFromApp: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
+  ) {
     return this.pubSub.asyncIterator(CHAT_ADDED_SUBSCRIPTION);
   }
 
@@ -121,5 +224,26 @@ export class ChatResolver {
   @UseGuards(AdminGuard)
   subscribeOnSeenByAdminUpdate() {
     return this.pubSub.asyncIterator(CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION);
+  }
+
+  @Subscription(() => UnseenChatsChangedDto, {
+    name: UNSEEN_CHATS_CHANGED_SUBSCRIPTION,
+    filter: (
+      payload: { [UNSEEN_CHATS_CHANGED_SUBSCRIPTION]: UnseenChatsChangedDto },
+      _variables,
+      { identity }: AppGraphQLContext,
+    ) => {
+      if (!identity) {
+        return false;
+      }
+
+      return payload[UNSEEN_CHATS_CHANGED_SUBSCRIPTION].userIds.includes(
+        identity.id,
+      );
+    },
+  })
+  @UseGuards(AuthGuard)
+  async subscribeOnUnseenChatsCountChanged() {
+    return this.pubSub.asyncIterator(UNSEEN_CHATS_CHANGED_SUBSCRIPTION);
   }
 }

@@ -1,6 +1,6 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { Field, Float, InputType } from '@nestjs/graphql';
 
-@ObjectType()
+@InputType()
 export class LocationInput {
   @Field(() => Float)
   latitude: number;

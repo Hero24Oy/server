@@ -1,5 +1,7 @@
 import { Observable } from 'rxjs';
 
+import { AppGraphQLContext } from 'src/app.types';
+
 export type MaybeType<T> = T | null | undefined;
 
 export type OmitValue<T extends Record<string, unknown>, Value> = {
@@ -14,3 +16,12 @@ export type ParentType<T, Args extends unknown[] = any[]> = {
 };
 
 export type GuardBoolean = boolean | Promise<boolean> | Observable<boolean>;
+
+export type BaseGuardActivator<
+  Args extends object,
+  Providers extends Record<string, unknown>,
+> = (
+  args: Args,
+  context: AppGraphQLContext,
+  providers: Providers,
+) => boolean | Promise<boolean>;

@@ -1,6 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ChatMemberRole } from '../../chat.types';
+
 import { MaybeType } from 'src/modules/common/common.types';
+
+import { ChatMemberDB, ChatMemberRole } from '../../chat.types';
 
 @ObjectType()
 export class ChatMemberDto {
@@ -12,4 +14,35 @@ export class ChatMemberDto {
 
   @Field(() => Date, { nullable: true })
   lastOpened?: MaybeType<Date>;
+
+  @Field(() => Date, { nullable: true })
+  lastMessageDate?: MaybeType<Date>;
+
+  @Field(() => String, { nullable: true })
+  userName?: MaybeType<string>;
+
+  @Field(() => String, { nullable: true })
+  avatar?: MaybeType<string>;
+
+  @Field(() => String, { nullable: true })
+  buyerName?: MaybeType<string>;
+
+  @Field(() => String, { nullable: true })
+  sellerName?: MaybeType<string>;
+
+  static convertFromFirebaseType(
+    chatMember: ChatMemberDB,
+    id: string,
+  ): ChatMemberDto {
+    return {
+      id,
+      lastOpened: chatMember.lastOpened
+        ? new Date(chatMember.lastOpened)
+        : null,
+      role: chatMember.role as ChatMemberRole,
+      lastMessageDate: chatMember.lastMessageDate
+        ? new Date(chatMember.lastMessageDate)
+        : null,
+    };
+  }
 }

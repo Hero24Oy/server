@@ -12,9 +12,12 @@ import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserDataInput } from './dto/creation/user-data.input';
 import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class UserService {
+  constructor(private firebaseService: FirebaseService) {}
+
   async getUserById(
     userId: string,
     app: FirebaseAppInstance,
@@ -168,5 +171,32 @@ export class UserService {
     const phoneSnapshot = await get(ref(database, path.join('/')));
 
     return phoneSnapshot.val() || '';
+  }
+
+  async getFullAccessedUserNameById(userId: string): Promise<string | null> {
+    const app = this.firebaseService.getDefaultApp();
+    const snapshot = await app
+      .database()
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('data')
+      .child('name')
+      .once('value');
+
+    return snapshot.val() || null;
+  }
+
+  async getFullAccessedUserAvatarById(userId: string): Promise<string | null> {
+    const app = this.firebaseService.getDefaultApp();
+
+    const snapshot = await app
+      .database()
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('data')
+      .child('photoURL')
+      .once('value');
+
+    return snapshot.val() || null;
   }
 }

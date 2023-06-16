@@ -2,11 +2,11 @@ import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isString from 'lodash/isString';
 
-import { ChatDto } from './dto/chat/chat.dto';
-import { ChatsFilterInput } from './dto/chats/chats-filter.input';
-import { ChatMemberRole } from './chat.types';
-import { MaybeType } from '../common/common.types';
-import { Identity } from '../auth/auth.types';
+import { ChatDto } from '../dto/chat/chat.dto';
+import { ChatsFilterInput } from '../dto/chats/chats-filter.input';
+import { ChatMemberRole } from '../chat.types';
+import { MaybeType } from '../../common/common.types';
+import { Identity } from '../../auth/auth.types';
 
 export const filterChats = (
   allChats: ChatDto[],

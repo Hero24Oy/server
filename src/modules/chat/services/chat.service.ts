@@ -3,9 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { getDatabase, set, ref, get } from 'firebase/database';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
-import orderBy from 'lodash/orderBy';
-import map from 'lodash/map';
-import getValue from 'lodash/get';
 
 import { FirebaseAppInstance } from '../../firebase/firebase.types';
 import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
@@ -19,18 +16,22 @@ import { ChatsDto } from '../dto/chats/chats.dto';
 import { ChatDto } from '../dto/chat/chat.dto';
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
 import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
-import { filterChats } from '../chat.utils';
-import {
-  CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION,
-  ChatColumnDefaultValues,
-} from '../chat.constants';
+import { filterChats } from '../utils/chat.utils';
+import { CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION } from '../chat.constants';
 import { ChatsOrderColumn } from '../dto/chats/chats-order-column.enum';
-import { SortOrder } from 'src/modules/common/sort-order/sort-order.enum';
+import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
+import { ChatMemberDB, ChatsSorterContext } from '../chat.types';
+import { SorterService } from 'src/modules/sorter/sorter.service';
 
 @Injectable()
 export class ChatService {
   constructor(
     private firebaseService: FirebaseService,
+    private chatsSorter: SorterService<
+      ChatsOrderColumn,
+      ChatDto,
+      ChatsSorterContext
+    >,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
@@ -61,28 +62,7 @@ export class ChatService {
 
     const total = chatEdges.length;
 
-    // lodash.orderBy:
-    // orderBy(array, [...columns] || valuePicker, [...sortOrders])
-    // Example 1. orderBy(
-    //    [{ a: 1, b: 2 }, { a: 2, b: 1 }],
-    //    ['a', 'b'],
-    //    ['asc', 'desc']
-    //  )
-    // Example 2. orderBy(
-    //    [{ a: 'hello', b: 'world' }, { a: undefined, b: undefined }],
-    //    (item) => [item.a || '', item.b || '',
-    //    ['desc', 'asc']
-    //  )
-    const columns: ChatsOrderColumn[] = map(ordersBy, 'column');
-    const orders: SortOrder[] = map(ordersBy, 'order');
-
-    const valuePicker = (item: ChatDto) =>
-      map(
-        columns,
-        (column) => getValue(item, column) || ChatColumnDefaultValues[column],
-      );
-
-    chatEdges = orderBy(chatEdges, valuePicker, orders);
+    chatEdges = this.chatsSorter.sort(chatEdges, ordersBy, { identity });
 
     if (hasPagination) {
       chatEdges = chatEdges.slice(offset, limit + offset);
@@ -131,7 +111,7 @@ export class ChatService {
     return chat && ChatDto.convertFromFirebaseType(chat, chatId);
   }
 
-  async getUnseenChatsCount(): Promise<number> {
+  async getUnseenAdminChatsCount(): Promise<number> {
     const database = getAdminDatabase(this.firebaseService.getDefaultApp());
 
     const chatsSnapshot = await database.ref(FirebaseDatabasePath.CHATS).get();
@@ -149,6 +129,49 @@ export class ChatService {
     });
 
     return result;
+  }
+
+  async getUnseenChatsCount(identity: Identity): Promise<number> {
+    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+
+    const chatsSnapshot = await database.ref(FirebaseDatabasePath.CHATS).get();
+
+    let unseenChatsCount = 0;
+
+    chatsSnapshot.forEach((snapshot) => {
+      if (!snapshot.key) {
+        return;
+      }
+
+      const chat = ChatDto.convertFromFirebaseType(
+        snapshot.val(),
+        snapshot.key,
+      );
+
+      const member = chat.members.find((member) => member.id === identity.id);
+
+      if (!member) {
+        return;
+      }
+
+      if (!chat.lastMessageDate) {
+        return;
+      }
+
+      if (!member.lastOpened) {
+        unseenChatsCount++;
+        return;
+      }
+
+      const lastOpenedDate = +member.lastOpened;
+      const lastMessageDate = +chat.lastMessageDate;
+
+      if (lastMessageDate > lastOpenedDate) {
+        unseenChatsCount++;
+      }
+    });
+
+    return unseenChatsCount;
   }
 
   async setChatSeenByAdmin(
@@ -214,7 +237,7 @@ export class ChatService {
       userId,
     ];
 
-    const chatMember: ChatDB['data']['members'][string] = {
+    const chatMember: ChatMemberDB = {
       role,
     };
 
@@ -223,35 +246,97 @@ export class ChatService {
     return true;
   }
 
-  async checkMessageCreationRights(
-    identity: Identity,
-    chatId: string,
-    app: FirebaseAppInstance,
-  ) {
-    const chat = await this.getChatById(chatId, app);
+  async checkIsMember(identity: Identity, chatId: string): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
 
-    if (!chat.members.some(({ id }) => id === identity.id)) {
-      throw new Error(`User should be a member of chat`);
-    }
+    const chatMemberSnapshot = await database
+      .ref(FirebaseDatabasePath.CHATS)
+      .child(chatId)
+      .child('data')
+      .child('members')
+      .child(identity.id)
+      .once('value');
+
+    const chatMember: ChatMemberDB | null = chatMemberSnapshot.val();
+
+    return Boolean(chatMember);
   }
 
   async attachChatMessageToChat(
     chatId: string,
     chatMessage: ChatMessageDto,
-    app: FirebaseAppInstance,
+    identity: Identity,
   ) {
-    const database = getDatabase(app);
+    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+    const chatRef = database.ref(FirebaseDatabasePath.CHATS).child(chatId);
 
-    const chatPath = [
-      FirebaseDatabasePath.CHATS,
+    await chatRef
+      .child('data')
+      .child('messages')
+      .child(chatMessage.id)
+      .set(true);
+
+    const chatMemberUpdates: Partial<ChatMemberDB> = {
+      lastMessageDate: +chatMessage.createdAt,
+      lastOpened: +chatMessage.createdAt,
+    };
+
+    await chatRef
+      .child('data')
+      .child('members')
+      .child(identity.id)
+      .update(chatMemberUpdates);
+  }
+
+  async updateLastOpenedTime(chatId: string, identity: Identity) {
+    const app = this.firebaseService.getDefaultApp();
+
+    await app
+      .database()
+      .ref(FirebaseDatabasePath.CHATS)
+      .child(chatId)
+      .child('data')
+      .child('members')
+      .child(identity.id)
+      .child('lastOpened')
+      .set(Date.now());
+  }
+
+  async inviteAdmin(args: ChatInviteAdminArgs) {
+    const { chatId, isAboutReclamation, isReasonGiven } = args;
+
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const values: Pick<
+      ChatDB['data'],
+      'inviteAdmin' | 'isAboutReclamation' | 'reasonGiven' | 'seenByAdmin'
+    > = {
+      inviteAdmin: true,
+      seenByAdmin: false,
+    };
+
+    if (isAboutReclamation) {
+      values.isAboutReclamation = true;
+    }
+
+    if (isReasonGiven) {
+      values.reasonGiven = true;
+    }
+
+    await database
+      .ref(FirebaseDatabasePath.CHATS)
+      .child(chatId)
+      .child('data')
+      .update(values);
+
+    const seenByAdminUpdatedDto: SeenByAdminUpdatedDto = {
+      previous: true,
+      current: false,
       chatId,
-      'data',
-      'messages',
-      chatMessage.id,
-    ];
+    };
 
-    const chatRef = ref(database, chatPath.join('/'));
-
-    await set(chatRef, true);
+    this.pubSub.publish(CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION, {
+      [CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION]: seenByAdminUpdatedDto,
+    });
   }
 }
