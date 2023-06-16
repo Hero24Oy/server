@@ -16,6 +16,7 @@ import { SellerModule } from './modules/seller/seller.module';
 import { OfferRequestModule } from './modules/offer-request/offer-request.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { AuthModule } from './modules/auth/auth.module';
     OfferRequestModule,
     ChatModule,
     AuthModule,
+    SettingsModule,
   ],
   providers: [AppResolver],
 })
