@@ -17,6 +17,7 @@ import { OfferRequestModule } from './modules/offer-request/offer-request.module
 import { ChatModule } from './modules/chat/chat.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { SettingsModule } from './modules/settings/settings.module';
     ChatModule,
     AuthModule,
     SettingsModule,
+    PlatformSpecifierModule,
   ],
   providers: [AppResolver],
 })

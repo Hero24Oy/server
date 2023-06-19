@@ -31,7 +31,7 @@ import { Identity } from '../../auth/auth.types';
 import { ChatGuard } from '../chat.guard';
 import { ChatActivator } from '../chat.activator';
 import { IsChatMember } from '../activators/chat-member.activator';
-import { AppGraphQLContext } from 'src/app.types';
+import { AppGraphQLContext, AppPlatform } from 'src/app.types';
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unsee-chats-updated-dto';
 import { isMemberSeenChat } from '../utils/chat-message.utils';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
@@ -48,8 +48,9 @@ export class ChatResolver {
   chats(
     @Args() args: ChatsArgs,
     @Context('identity') identity: Identity,
+    @Context('platform') platform: AppPlatform | null,
   ): Promise<ChatsDto> {
-    return this.chatService.getChats(args, identity);
+    return this.chatService.getChats(args, identity, platform);
   }
 
   @Query(() => ChatDto, { nullable: true })
