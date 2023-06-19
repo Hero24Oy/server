@@ -5,7 +5,7 @@ import { ref, getDatabase, get } from 'firebase/database';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { SettingsDto } from './dto/settings/settings.dto';
-import { ISettings } from './settings.types';
+import { Settings } from './settings.types';
 
 @Injectable()
 export class SettingsService {
@@ -18,7 +18,7 @@ export class SettingsService {
       ref(database, `${FirebaseDatabasePath.SETTINGS}`),
     );
 
-    const Settings: ISettings | null = settingsSnapshot.val();
+    const Settings: Settings | null = settingsSnapshot.val();
 
     return Settings
   }
