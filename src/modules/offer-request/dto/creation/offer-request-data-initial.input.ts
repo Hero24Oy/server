@@ -48,7 +48,7 @@ export class OfferRequestDataInitialInput {
     data: OfferRequestDataInitialInput,
   ): OfferRequestDB['data']['initial'] {
     const mainQuestions = data.questions.filter(
-      (question) => typeof question.depsId !== 'number',
+      (question) => typeof question.depsId !== 'string',
     );
 
     return omitUndefined({

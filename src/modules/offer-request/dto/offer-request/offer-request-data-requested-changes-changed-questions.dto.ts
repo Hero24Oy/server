@@ -81,17 +81,17 @@ export class OfferRequestDataRequestedChangesChangedQuestionsDto {
     undefined
   >['changedQuestions'] {
     const depsBeforeQuestion = data.before.filter(
-      ({ depsId }) => typeof depsId === 'number',
+      ({ depsId }) => typeof depsId === 'string',
     );
     const depsAfterQuestions = data.after.filter(
-      ({ depsId }) => typeof depsId === 'number',
+      ({ depsId }) => typeof depsId === 'string',
     );
 
     const rootBeforeQuestion = data.before.filter(
-      ({ depsId }) => typeof depsId !== 'number',
+      ({ depsId }) => typeof depsId !== 'string',
     );
     const rootAfterQuestions = data.after.filter(
-      ({ depsId }) => typeof depsId !== 'number',
+      ({ depsId }) => typeof depsId !== 'string',
     );
 
     return omitUndefined({
