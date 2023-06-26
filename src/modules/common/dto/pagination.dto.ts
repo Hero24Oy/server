@@ -1,33 +1,41 @@
+import { Type } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+export interface EdgeType<T> {
+  cursor: string;
+  node: T;
+}
 
-export const makePaginationDto = <T, C = string>(
-  prefix: string,
-  Node: { new (): T },
-  Cursor: typeof Int | typeof String = String,
-) => {
-  @ObjectType(`${prefix}PaginationEdgeDto`)
-  class EdgeDto {
-    @Field(() => Node)
+export interface PaginatedType<T> {
+  edges: EdgeType<T>[];
+  total: number;
+  hasNextPage: boolean;
+  endCursor: string | null; // Todo: it's never used
+}
+
+export function Paginated<T>(classRef: Type<T>): Type<PaginatedType<T>> {
+  @ObjectType(`${classRef.name}EdgeDto`)
+  abstract class EdgeType {
+    @Field(() => String)
+    cursor: string;
+
+    @Field(() => classRef)
     node: T;
-
-    @Field(() => Cursor)
-    cursor: C;
   }
 
-  @ObjectType(`${prefix}PaginationDto`)
-  class PaginationObjectDto {
+  @ObjectType({ isAbstract: true })
+  abstract class PaginatedDto implements PaginatedType<T> {
+    @Field(() => [EdgeType], { nullable: true })
+    edges: EdgeType[];
+
     @Field(() => Int)
     total: number;
-
-    @Field(() => [EdgeDto])
-    edges: EdgeDto[];
 
     @Field(() => Boolean)
     hasNextPage: boolean;
 
-    @Field(() => Cursor, { nullable: true })
-    endCursor: C | null;
+    @Field(() => String, { nullable: true })
+    endCursor: string | null;
   }
 
-  return PaginationObjectDto;
-};
+  return PaginatedDto as Type<PaginatedType<T>>;
+}

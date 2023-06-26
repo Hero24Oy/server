@@ -10,6 +10,8 @@ export enum FirebaseDatabasePath {
   CHATS = 'chats',
   CHAT_MESSAGES = 'chatMessages',
   ADMIN_USERS = 'adminUsers',
+  NEWS = 'news',
+  SETTINGS = 'settings',
 }
 
 export const MAX_TRYING_COUNT = 3;

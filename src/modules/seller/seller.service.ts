@@ -8,7 +8,7 @@ import { SellerProfileDataInput } from './dto/creation/seller-profile-data.input
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
-import { SellerProfilesDto } from './dto/sellers/seller-profiles.dto';
+import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseService } from '../firebase/firebase.service';
 
@@ -35,7 +35,7 @@ export class SellerService {
   async getSellers(
     args: SellersArgs,
     app: FirebaseAppInstance,
-  ): Promise<SellerProfilesDto> {
+  ): Promise<SellerProfileListDto> {
     const { offset, limit } = args;
 
     const database = getDatabase(app);
