@@ -33,7 +33,7 @@ import { ChatActivator } from '../chat.activator';
 import { IsChatMember } from '../activators/chat-member.activator';
 import { AppGraphQLContext, AppPlatform } from 'src/app.types';
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
-import { isMemberSeenChat } from '../chat.utils/is-member-seen-chat.util';
+import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 
 @Resolver()
@@ -130,7 +130,7 @@ export class ChatResolver {
     const chatSnapshot = await this.chatService.getChatById(chatId, app);
 
     const isLastMessageExist = Boolean(chatSnapshot.lastMessageDate);
-    const isSeenChat = isMemberSeenChat(identity.id, chatSnapshot);
+    const isSeenChat = hasMemberSeenChat(identity.id, chatSnapshot);
 
     await this.chatService.updateLastOpenedTime(chatId, identity);
 
