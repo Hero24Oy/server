@@ -104,11 +104,11 @@ export class OfferRequestDataInitialDto {
     data: OfferRequestDataInitialDto,
   ): OfferRequestDB['data']['initial'] {
     const baseQuestions = data.questions.filter(
-      ({ depsId }) => typeof depsId !== 'number',
+      ({ depsId }) => typeof depsId !== 'string',
     );
 
     const depsQuestions = data.questions.filter(
-      ({ depsId }) => typeof depsId === 'number',
+      ({ depsId }) => typeof depsId === 'string',
     );
 
     return omitUndefined({
