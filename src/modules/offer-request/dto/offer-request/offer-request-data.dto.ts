@@ -62,9 +62,7 @@ export class OfferRequestDataDto
           )
         : undefined,
       pickServiceProvider: this.pickServiceProvider
-        ? OfferRequestDataPickServiceProviderDto.convertToFirebaseType(
-            this.pickServiceProvider,
-          )
+        ? this.pickServiceProvider.toFirebase()
         : undefined,
       actualStartTime: this.actualStartTime ? +this.actualStartTime : undefined,
       lastAgreedStartTime: this.lastAgreedStartTime
@@ -87,7 +85,7 @@ export class OfferRequestDataDto
         ),
       pickServiceProvider:
         data.pickServiceProvider &&
-        OfferRequestDataPickServiceProviderDto.convertFromFirebaseType(
+        new OfferRequestDataPickServiceProviderDto().fromFirebase(
           data.pickServiceProvider,
         ),
       actualStartTime:

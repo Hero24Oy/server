@@ -1,34 +1,49 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, PickStrategy } from 'hero24-types';
+import { TypeSafeRequired } from 'src/modules/common/common.types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
-  omitUndefined,
 } from 'src/modules/common/common.utils';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+
+type PickServiceProviderDB = Exclude<
+  OfferRequestDB['data']['pickServiceProvider'],
+  undefined
+>;
+type PickServiceProviderShape = {
+  preferred?: string[];
+  pickStrategy: PickStrategy;
+};
 
 @ObjectType()
-export class OfferRequestDataPickServiceProviderDto {
+export class OfferRequestDataPickServiceProviderDto extends FirebaseGraphQLAdapter<
+  PickServiceProviderShape,
+  PickServiceProviderDB
+> {
   @Field(() => [String], { nullable: true })
   preferred?: string[];
 
   @Field(() => String)
   pickStrategy: PickStrategy;
 
-  static convertFromFirebaseType(
-    data: Exclude<OfferRequestDB['data']['pickServiceProvider'], undefined>,
-  ): OfferRequestDataPickServiceProviderDto {
+  protected toFirebaseType(): TypeSafeRequired<PickServiceProviderDB> {
     return {
-      ...data,
-      preferred: data.preferred && convertFirebaseMapToList(data.preferred),
+      pickStrategy: this.pickStrategy,
+      preferred: this.preferred
+        ? convertListToFirebaseMap(this.preferred)
+        : undefined,
     };
   }
 
-  static convertToFirebaseType(
-    data: OfferRequestDataPickServiceProviderDto,
-  ): Exclude<OfferRequestDB['data']['pickServiceProvider'], undefined> {
-    return omitUndefined({
-      ...data,
-      preferred: data.preferred && convertListToFirebaseMap(data.preferred),
-    });
+  protected fromFirebaseType(
+    serviceProviderPicker: PickServiceProviderDB,
+  ): TypeSafeRequired<PickServiceProviderShape> {
+    return {
+      pickStrategy: serviceProviderPicker.pickStrategy,
+      preferred: serviceProviderPicker.preferred
+        ? convertFirebaseMapToList(serviceProviderPicker.preferred)
+        : undefined,
+    };
   }
 }
