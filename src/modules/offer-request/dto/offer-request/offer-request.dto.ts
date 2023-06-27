@@ -4,16 +4,19 @@ import { OfferRequestDB } from 'hero24-types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
-  omitUndefined,
 } from 'src/modules/common/common.utils';
 
 import { OfferRequestChatDto } from './offer-request-chat.dto';
 import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
 import { OfferRequestSubscriptionDto } from './offer-request-subscription.dto';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
 
 @ObjectType()
-export class OfferRequestDto {
+export class OfferRequestDto extends FirebaseGraphQLAdapter<
+  OfferRequestDB,
+  { id: string }
+> {
   @Field(() => String)
   id: string;
 
@@ -80,56 +83,80 @@ export class OfferRequestDto {
   @Field(() => OfferRequestRefundDto, { nullable: true })
   refund?: OfferRequestRefundDto;
 
-  static convertFromFirebaseType(
-    data: OfferRequestDB,
-    id: string,
-  ): OfferRequestDto {
+  protected toFirebaseType(): OfferRequestDB {
     return {
-      ...data,
-      id,
-      data: OfferRequestDataDto.convertFromFirebaseType(data.data),
-      offers: data.offers && convertFirebaseMapToList(data.offers),
-      fees: data.fees && convertFirebaseMapToList(data.fees),
+      data: OfferRequestDataDto.convertToFirebaseType(this.data),
+      offers: this.offers && convertListToFirebaseMap(this.offers),
+      fees: this.fees && convertListToFirebaseMap(this.fees),
       paymentTransactions:
-        data.paymentTransactions &&
-        convertFirebaseMapToList(data.paymentTransactions),
+        this.paymentTransactions &&
+        convertListToFirebaseMap(this.paymentTransactions),
       refund:
-        data.refund &&
-        OfferRequestRefundDto.convertFromFirebaseType(data.refund),
+        this.refund && OfferRequestRefundDto.convertToFirebaseType(this.refund),
       subscription:
-        data.subscription &&
-        OfferRequestSubscriptionDto.convertFromFirebaseType(data.subscription),
+        this.subscription &&
+        OfferRequestSubscriptionDto.convertToFirebaseType(this.subscription),
       chats:
-        data.chats &&
-        Object.values(data.chats).map(({ sellerProfile, chatId }) => ({
-          sellerId: sellerProfile,
-          chatId,
-        })),
-    };
-  }
-
-  static convertToFirebaseType(data: OfferRequestDto): OfferRequestDB {
-    return omitUndefined({
-      ...data,
-      data: OfferRequestDataDto.convertToFirebaseType(data.data),
-      offers: data.offers && convertListToFirebaseMap(data.offers),
-      fees: data.fees && convertListToFirebaseMap(data.fees),
-      paymentTransactions:
-        data.paymentTransactions &&
-        convertListToFirebaseMap(data.paymentTransactions),
-      refund:
-        data.refund && OfferRequestRefundDto.convertToFirebaseType(data.refund),
-      subscription:
-        data.subscription &&
-        OfferRequestSubscriptionDto.convertToFirebaseType(data.subscription),
-      chats:
-        data.chats &&
+        this.chats &&
         Object.fromEntries(
-          data.chats.map(({ sellerId, chatId }) => [
+          this.chats.map(({ sellerId, chatId }) => [
             sellerId,
             { sellerProfile: sellerId, chatId },
           ]),
         ),
-    });
+      stripeSubscriptionId: this.stripeSubscriptionId,
+      stripePaymentIntentId: this.stripePaymentIntentId,
+      customerVAT: this.customerVAT,
+      serviceProviderVAT: this.serviceProviderVAT,
+      netvisorSalesOrderId: this.netvisorSalesOrderId,
+      netvisorSalesInvoiceNumber: this.netvisorSalesInvoiceNumber,
+      minimumDuration: this.minimumDuration,
+      sendToNetvisor: this.sendToNetvisor,
+      isApproved: this.isApproved,
+      isApprovedByBuyer: this.isApprovedByBuyer,
+      paymentParamsId: this.paymentParamsId,
+      paymentInfoId: this.paymentInfoId,
+      offerRequestChanged: this.offerRequestChanged,
+      offerRrequestChangeAccepted: this.offerRrequestChangeAccepted,
+    };
+  }
+
+  protected fromFirebaseType(shape: OfferRequestDB & { id: string }): this {
+    this.id = shape.id;
+    this.stripeSubscriptionId = shape.stripeSubscriptionId;
+    this.stripePaymentIntentId = shape.stripePaymentIntentId;
+    this.customerVAT = shape.customerVAT;
+    this.serviceProviderVAT = shape.serviceProviderVAT;
+    this.netvisorSalesOrderId = shape.netvisorSalesOrderId;
+    this.netvisorSalesInvoiceNumber = shape.netvisorSalesInvoiceNumber;
+    this.minimumDuration = shape.minimumDuration;
+    this.sendToNetvisor = shape.sendToNetvisor;
+    this.isApproved = shape.isApproved;
+    this.isApprovedByBuyer = shape.isApprovedByBuyer;
+    this.paymentParamsId = shape.paymentParamsId;
+    this.paymentInfoId = shape.paymentInfoId;
+    this.offerRequestChanged = shape.offerRequestChanged;
+    this.offerRrequestChangeAccepted = shape.offerRrequestChangeAccepted;
+
+    this.data = OfferRequestDataDto.convertFromFirebaseType(shape.data);
+    this.offers = shape.offers && convertFirebaseMapToList(shape.offers);
+    this.fees = shape.fees && convertFirebaseMapToList(shape.fees);
+    this.paymentTransactions =
+      shape.paymentTransactions &&
+      convertFirebaseMapToList(shape.paymentTransactions);
+    this.refund =
+      shape.refund &&
+      OfferRequestRefundDto.convertFromFirebaseType(shape.refund);
+    this.subscription =
+      shape.subscription &&
+      OfferRequestSubscriptionDto.convertFromFirebaseType(shape.subscription);
+    this.chats =
+      shape.chats &&
+      Object.values(shape.chats).map(({ sellerProfile, chatId }) => ({
+        sellerId: sellerProfile,
+        chatId,
+      }));
+
+    return this;
   }
 }

@@ -20,10 +20,16 @@ export class OfferRequestService {
 
     const offerRequest: OfferRequestDB | null = snapshot.val();
 
-    return (
-      offerRequest &&
-      OfferRequestDto.convertFromFirebaseType(offerRequest, offerRequestId)
-    );
+    const offerRequestDto = new OfferRequestDto();
+
+    if (!offerRequest) {
+      return null;
+    }
+
+    return offerRequestDto.fromFirebase({
+      ...offerRequest,
+      id: offerRequestId,
+    });
   }
 
   async createOfferRequest(
