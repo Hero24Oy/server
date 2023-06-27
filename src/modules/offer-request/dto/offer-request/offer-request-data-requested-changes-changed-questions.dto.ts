@@ -7,21 +7,63 @@ import {
   OfferRequestQuestionDto,
   offerRequestQuestionDtoConvertor,
 } from '../offer-request-question/offer-request-question.dto';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { TypeSafeRequired } from 'src/modules/common/common.types';
+
+type ChangedQuestionsShape = {
+  before: OfferRequestQuestionDto[];
+  after: OfferRequestQuestionDto[];
+};
+
+type ChangedQuestionsDB = Required<
+  OfferRequestDB['data']
+>['requestedChanges']['changedQuestions'];
 
 @ObjectType()
-export class OfferRequestDataRequestedChangesChangedQuestionsDto {
+export class OfferRequestDataRequestedChangesChangedQuestionsDto
+  extends FirebaseGraphQLAdapter<ChangedQuestionsShape, ChangedQuestionsDB>
+  implements ChangedQuestionsShape
+{
   @Field(() => [OfferRequestQuestionDto])
   before: OfferRequestQuestionDto[];
 
   @Field(() => [OfferRequestQuestionDto])
   after: OfferRequestQuestionDto[];
 
-  static convertFromFirebaseType(
-    data: Exclude<
-      OfferRequestDB['data']['requestedChanges'],
-      undefined
-    >['changedQuestions'],
-  ): OfferRequestDataRequestedChangesChangedQuestionsDto {
+  protected toFirebaseType(): TypeSafeRequired<ChangedQuestionsDB> {
+    const depsBeforeQuestion = this.before.filter(
+      ({ depsId }) => typeof depsId === 'string',
+    );
+    const depsAfterQuestions = this.after.filter(
+      ({ depsId }) => typeof depsId === 'string',
+    );
+
+    const rootBeforeQuestion = this.before.filter(
+      ({ depsId }) => typeof depsId !== 'string',
+    );
+    const rootAfterQuestions = this.after.filter(
+      ({ depsId }) => typeof depsId !== 'string',
+    );
+
+    return omitUndefined({
+      before: rootBeforeQuestion.map((question) =>
+        offerRequestQuestionDtoConvertor.convertToFirebaseType(
+          question,
+          depsBeforeQuestion,
+        ),
+      ),
+      after: rootAfterQuestions.map((question) =>
+        offerRequestQuestionDtoConvertor.convertToFirebaseType(
+          question,
+          depsAfterQuestions,
+        ),
+      ),
+    });
+  }
+
+  protected fromFirebaseType(
+    changedQuestions: ChangedQuestionsDB,
+  ): TypeSafeRequired<ChangedQuestionsShape> {
     const depsBeforeQuestions: OfferRequestQuestionDto[] = [];
     const depsAfterQuestions: OfferRequestQuestionDto[] = [];
 
@@ -53,60 +95,24 @@ export class OfferRequestDataRequestedChangesChangedQuestionsDto {
       return depsId;
     };
 
-    const rootBeforeQuestions: OfferRequestQuestionDto[] = data.before.map(
-      (question) =>
+    const rootBeforeQuestions: OfferRequestQuestionDto[] =
+      changedQuestions.before.map((question) =>
         offerRequestQuestionDtoConvertor.convertFromFirebaseType(
           question,
           saveBeforeQuestion,
         ),
-    );
-    const rootAfterQuestions: OfferRequestQuestionDto[] = data.after.map(
-      (question) =>
+      );
+    const rootAfterQuestions: OfferRequestQuestionDto[] =
+      changedQuestions.after.map((question) =>
         offerRequestQuestionDtoConvertor.convertFromFirebaseType(
           question,
           saveAfterQuestion,
         ),
-    );
+      );
 
     return {
       before: [...rootBeforeQuestions, ...depsBeforeQuestions],
       after: [...rootAfterQuestions, ...depsAfterQuestions],
     };
-  }
-
-  static convertToFirebaseType(
-    data: OfferRequestDataRequestedChangesChangedQuestionsDto,
-  ): Exclude<
-    OfferRequestDB['data']['requestedChanges'],
-    undefined
-  >['changedQuestions'] {
-    const depsBeforeQuestion = data.before.filter(
-      ({ depsId }) => typeof depsId === 'string',
-    );
-    const depsAfterQuestions = data.after.filter(
-      ({ depsId }) => typeof depsId === 'string',
-    );
-
-    const rootBeforeQuestion = data.before.filter(
-      ({ depsId }) => typeof depsId !== 'string',
-    );
-    const rootAfterQuestions = data.after.filter(
-      ({ depsId }) => typeof depsId !== 'string',
-    );
-
-    return omitUndefined({
-      before: rootBeforeQuestion.map((question) =>
-        offerRequestQuestionDtoConvertor.convertToFirebaseType(
-          question,
-          depsBeforeQuestion,
-        ),
-      ),
-      after: rootAfterQuestions.map((question) =>
-        offerRequestQuestionDtoConvertor.convertToFirebaseType(
-          question,
-          depsAfterQuestions,
-        ),
-      ),
-    });
   }
 }

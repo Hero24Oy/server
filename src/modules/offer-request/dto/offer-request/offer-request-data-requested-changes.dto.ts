@@ -35,10 +35,7 @@ export class OfferRequestDataRequestedChangesDto
     return {
       reason: this.reason,
       created: +new Date(this.created),
-      changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.convertToFirebaseType(
-          this.changedQuestions,
-        ),
+      changedQuestions: this.changedQuestions.toFirebase(),
     };
   }
 
@@ -49,7 +46,7 @@ export class OfferRequestDataRequestedChangesDto
       reason: requestedChanges.reason,
       created: new Date(requestedChanges.created),
       changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.convertFromFirebaseType(
+        new OfferRequestDataRequestedChangesChangedQuestionsDto().fromFirebase(
           requestedChanges.changedQuestions,
         ),
     };
