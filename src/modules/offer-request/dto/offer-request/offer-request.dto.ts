@@ -124,9 +124,9 @@ export class OfferRequestDto
       refund: this.refund
         ? OfferRequestRefundDto.convertToFirebaseType(this.refund)
         : undefined,
-      subscription:
-        this.subscription &&
-        OfferRequestSubscriptionDto.convertToFirebaseType(this.subscription),
+      subscription: this.subscription
+        ? this.subscription.toFirebase()
+        : undefined,
       chats: this.chats
         ? Object.fromEntries(
             this.chats.map(({ sellerId, chatId }) => [
@@ -182,9 +182,7 @@ export class OfferRequestDto
         ? OfferRequestRefundDto.convertFromFirebaseType(shape.refund)
         : undefined,
       subscription: shape.subscription
-        ? OfferRequestSubscriptionDto.convertFromFirebaseType(
-            shape.subscription,
-          )
+        ? new OfferRequestSubscriptionDto().fromFirebase(shape.subscription)
         : undefined,
       chats: shape.chats
         ? Object.values(shape.chats).map(({ sellerProfile, chatId }) => ({

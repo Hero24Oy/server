@@ -1,10 +1,24 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestSubscription, SUBSCRIPTION_INTERVAL } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+
+type OfferRequestSubscriptionShape = {
+  subscriptionId: string;
+  subscriptionType: SUBSCRIPTION_INTERVAL;
+  initialRequest?: boolean;
+  priceDiscount?: number;
+  discountFormat?: 'fixed' | 'percentage';
+  currentAnchorDate: Date;
+  nextAnchorDate: Date;
+};
 
 @ObjectType()
-export class OfferRequestSubscriptionDto {
+export class OfferRequestSubscriptionDto extends FirebaseGraphQLAdapter<
+  OfferRequestSubscriptionShape,
+  OfferRequestSubscription
+> {
   @Field(() => String)
   subscriptionId: string;
 
@@ -26,23 +40,29 @@ export class OfferRequestSubscriptionDto {
   @Field(() => Date)
   nextAnchorDate: Date;
 
-  static convertToFirebaseType(
-    data: OfferRequestSubscriptionDto,
-  ): OfferRequestSubscription {
-    return omitUndefined({
-      ...data,
-      currentAnchorDate: +new Date(data.currentAnchorDate),
-      nextAnchorDate: +new Date(data.nextAnchorDate),
-    });
+  protected toFirebaseType(): TypeSafeRequired<OfferRequestSubscription> {
+    return {
+      subscriptionId: this.subscriptionId,
+      subscriptionType: this.subscriptionType,
+      initialRequest: this.initialRequest,
+      priceDiscount: this.priceDiscount,
+      discountFormat: this.discountFormat,
+      currentAnchorDate: +new Date(this.currentAnchorDate),
+      nextAnchorDate: +new Date(this.nextAnchorDate),
+    };
   }
 
-  static convertFromFirebaseType(
-    data: OfferRequestSubscription,
-  ): OfferRequestSubscriptionDto {
+  protected fromFirebaseType(
+    subscription: OfferRequestSubscription,
+  ): TypeSafeRequired<OfferRequestSubscriptionShape> {
     return {
-      ...data,
-      currentAnchorDate: new Date(data.currentAnchorDate),
-      nextAnchorDate: new Date(data.nextAnchorDate),
+      subscriptionId: subscription.subscriptionId,
+      subscriptionType: subscription.subscriptionType,
+      initialRequest: subscription.initialRequest,
+      priceDiscount: subscription.priceDiscount,
+      discountFormat: subscription.discountFormat,
+      currentAnchorDate: new Date(subscription.currentAnchorDate),
+      nextAnchorDate: new Date(subscription.nextAnchorDate),
     };
   }
 }
