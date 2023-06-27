@@ -55,7 +55,7 @@ export class OfferRequestDataDto
       reviewed: this.reviewed,
       status: this.status,
       changesAccepted: this.changesAccepted,
-      initial: OfferRequestDataInitialDto.convertToFirebaseType(this.initial),
+      initial: this.initial.toFirebase(),
       requestedChanges: this.requestedChanges
         ? OfferRequestDataRequestedChangesDto.convertToFirebaseType(
             this.requestedChanges,
@@ -79,7 +79,7 @@ export class OfferRequestDataDto
       reviewed: data.reviewed,
       changesAccepted: data.changesAccepted,
       status: data.status,
-      initial: OfferRequestDataInitialDto.convertFromFirebaseType(data.initial),
+      initial: new OfferRequestDataInitialDto().fromFirebase(data.initial),
       requestedChanges:
         data.requestedChanges &&
         OfferRequestDataRequestedChangesDto.convertFromFirebaseType(

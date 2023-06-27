@@ -1,8 +1,6 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
-
 import {
   AddressesAnsweredDto,
   BasicAddressesDto,
@@ -13,9 +11,35 @@ import {
   offerRequestQuestionDtoConvertor,
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { TypeSafeRequired } from 'src/modules/common/common.types';
+
+interface OfferRequestDataInitialShape {
+  buyerProfile: string;
+  fixedDuration?: number;
+  fixedPrice?: number;
+  createdAt: Date;
+  prePayWith?: 'stripe' | 'netvisor';
+  sendInvoiceWith?: 'sms' | 'email';
+  prepaid?: 'waiting' | 'paid';
+  postpaid?: 'no' | 'yes';
+  questions: OfferRequestQuestionDto[];
+  addresses: AddressesAnsweredDto;
+  category: string;
+  package?: PackageDto;
+  promotionDisabled?: boolean;
+}
+
+type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];
 
 @ObjectType()
-export class OfferRequestDataInitialDto {
+export class OfferRequestDataInitialDto
+  extends FirebaseGraphQLAdapter<
+    OfferRequestDataInitialShape,
+    OfferRequestDataInitialDB
+  >
+  implements OfferRequestDataInitialShape
+{
   @Field(() => String)
   buyerProfile: string;
 
@@ -55,9 +79,45 @@ export class OfferRequestDataInitialDto {
   @Field(() => Boolean, { nullable: true })
   promotionDisabled?: boolean;
 
-  static convertFromFirebaseType(
-    data: OfferRequestDB['data']['initial'],
-  ): OfferRequestDataInitialDto {
+  protected toFirebaseType(): TypeSafeRequired<OfferRequestDataInitialDB> {
+    const baseQuestions = this.questions.filter(
+      ({ depsId }) => typeof depsId !== 'string',
+    );
+
+    const depsQuestions = this.questions.filter(
+      ({ depsId }) => typeof depsId === 'string',
+    );
+
+    return {
+      prepaid: this.prepaid,
+      postpaid: this.postpaid,
+      promotionDisabled: this.promotionDisabled,
+      fixedDuration: this.fixedDuration,
+      fixedPrice: this.fixedPrice,
+      prePayWith: this.prePayWith,
+      sendInvoiceWith: this.sendInvoiceWith,
+      buyerProfile: this.buyerProfile,
+      addresses: this.addresses,
+      category: this.category,
+      createdAt: +new Date(this.createdAt),
+      package: this.package
+        ? {
+            ...PackageDto.convertToFirebaseType(this.package),
+            id: this.package.id,
+          }
+        : undefined,
+      questions: baseQuestions.map((question) =>
+        offerRequestQuestionDtoConvertor.convertToFirebaseType(
+          question,
+          depsQuestions,
+        ),
+      ),
+    };
+  }
+
+  protected fromFirebaseType(
+    data: OfferRequestDataInitialDB,
+  ): TypeSafeRequired<OfferRequestDataInitialShape> {
     const depsQuestions: OfferRequestQuestionDto[] = [];
 
     const saveQuestion = (question: OfferRequestQuestion) => {
@@ -82,52 +142,24 @@ export class OfferRequestDataInitialDto {
     );
 
     return {
-      ...data,
+      fixedPrice: this.fixedPrice,
+      prePayWith: this.prePayWith,
+      sendInvoiceWith: this.sendInvoiceWith,
+      prepaid: this.prepaid,
+      postpaid: this.postpaid,
+      promotionDisabled: this.promotionDisabled,
+      buyerProfile: this.buyerProfile,
+      category: this.category,
+      fixedDuration: data.fixedDuration,
       createdAt: new Date(data.createdAt),
       questions: [...baseQuestions, ...depsQuestions],
       addresses:
         data.addresses.type === 'basic'
           ? new BasicAddressesDto(data.addresses)
           : new DeliveryAddressesDto(data.addresses),
-      ...(data.package
-        ? {
-            package: PackageDto.convertFromFirebaseType(
-              data.package,
-              data.package.id,
-            ),
-          }
-        : {}),
+      package: data.package
+        ? PackageDto.convertFromFirebaseType(data.package, data.package.id)
+        : undefined,
     };
-  }
-
-  static convertToFirebaseType(
-    data: OfferRequestDataInitialDto,
-  ): OfferRequestDB['data']['initial'] {
-    const baseQuestions = data.questions.filter(
-      ({ depsId }) => typeof depsId !== 'string',
-    );
-
-    const depsQuestions = data.questions.filter(
-      ({ depsId }) => typeof depsId === 'string',
-    );
-
-    return omitUndefined({
-      ...data,
-      createdAt: +new Date(data.createdAt),
-      ...(data.package
-        ? {
-            package: {
-              ...PackageDto.convertToFirebaseType(data.package),
-              id: data.package.id,
-            },
-          }
-        : {}),
-      questions: baseQuestions.map((question) =>
-        offerRequestQuestionDtoConvertor.convertToFirebaseType(
-          question,
-          depsQuestions,
-        ),
-      ),
-    });
   }
 }
