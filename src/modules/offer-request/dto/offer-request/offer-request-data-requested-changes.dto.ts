@@ -1,12 +1,27 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { TypeSafeRequired } from 'src/modules/common/common.types';
 
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from './offer-request-data-requested-changes-changed-questions.dto';
 
+type RequestedChangesShape = {
+  created: Date;
+  reason?: string;
+  changedQuestions: OfferRequestDataRequestedChangesChangedQuestionsDto;
+};
+
+type RequestedChangesDB = Exclude<
+  OfferRequestDB['data']['requestedChanges'],
+  undefined
+>;
+
 @ObjectType()
-export class OfferRequestDataRequestedChangesDto {
+export class OfferRequestDataRequestedChangesDto extends FirebaseGraphQLAdapter<
+  RequestedChangesShape,
+  RequestedChangesDB
+> {
   @Field(() => Date)
   created: Date;
 
@@ -16,27 +31,27 @@ export class OfferRequestDataRequestedChangesDto {
   @Field(() => OfferRequestDataRequestedChangesChangedQuestionsDto)
   changedQuestions: OfferRequestDataRequestedChangesChangedQuestionsDto;
 
-  static convertFromFirebaseType(
-    data: Exclude<OfferRequestDB['data']['requestedChanges'], undefined>,
-  ): OfferRequestDataRequestedChangesDto {
+  protected toFirebaseType(): TypeSafeRequired<RequestedChangesDB> {
     return {
-      created: new Date(data.created),
+      reason: this.reason,
+      created: +new Date(this.created),
       changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.convertFromFirebaseType(
-          data.changedQuestions,
+        OfferRequestDataRequestedChangesChangedQuestionsDto.convertToFirebaseType(
+          this.changedQuestions,
         ),
     };
   }
 
-  static convertToFirebaseType(
-    data: OfferRequestDataRequestedChangesDto,
-  ): Exclude<OfferRequestDB['data']['requestedChanges'], undefined> {
-    return omitUndefined({
-      created: +new Date(data.created),
+  protected fromFirebaseType(
+    requestedChanges: RequestedChangesDB,
+  ): TypeSafeRequired<RequestedChangesShape> {
+    return {
+      reason: requestedChanges.reason,
+      created: new Date(requestedChanges.created),
       changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.convertToFirebaseType(
-          data.changedQuestions,
+        OfferRequestDataRequestedChangesChangedQuestionsDto.convertFromFirebaseType(
+          requestedChanges.changedQuestions,
         ),
-    });
+    };
   }
 }

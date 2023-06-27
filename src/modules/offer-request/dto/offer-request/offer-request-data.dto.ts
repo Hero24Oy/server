@@ -57,9 +57,7 @@ export class OfferRequestDataDto
       changesAccepted: this.changesAccepted,
       initial: this.initial.toFirebase(),
       requestedChanges: this.requestedChanges
-        ? OfferRequestDataRequestedChangesDto.convertToFirebaseType(
-            this.requestedChanges,
-          )
+        ? this.requestedChanges.toFirebase()
         : undefined,
       pickServiceProvider: this.pickServiceProvider
         ? this.pickServiceProvider.toFirebase()
@@ -80,7 +78,7 @@ export class OfferRequestDataDto
       initial: new OfferRequestDataInitialDto().fromFirebase(data.initial),
       requestedChanges:
         data.requestedChanges &&
-        OfferRequestDataRequestedChangesDto.convertFromFirebaseType(
+        new OfferRequestDataRequestedChangesDto().fromFirebase(
           data.requestedChanges,
         ),
       pickServiceProvider:
