@@ -127,10 +127,7 @@ export class OfferRequestDto
         : undefined,
       chats: this.chats
         ? Object.fromEntries(
-            this.chats.map(({ sellerId, chatId }) => [
-              sellerId,
-              { sellerProfile: sellerId, chatId },
-            ]),
+            this.chats.map((chat) => [chat.sellerId, chat.toFirebase()]),
           )
         : undefined,
       stripeSubscriptionId: this.stripeSubscriptionId,
@@ -183,10 +180,9 @@ export class OfferRequestDto
         ? new OfferRequestSubscriptionDto().fromFirebase(shape.subscription)
         : undefined,
       chats: shape.chats
-        ? Object.values(shape.chats).map(({ sellerProfile, chatId }) => ({
-            sellerId: sellerProfile,
-            chatId,
-          }))
+        ? Object.values(shape.chats).map((chat) =>
+            new OfferRequestChatDto().fromFirebase(chat),
+          )
         : undefined,
     };
   }

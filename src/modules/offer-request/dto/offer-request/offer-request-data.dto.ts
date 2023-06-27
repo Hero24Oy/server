@@ -54,14 +54,10 @@ export class OfferRequestDataDto
     return {
       reviewed: this.reviewed,
       status: this.status,
-      changesAccepted: this.changesAccepted,
+      changesAccepted: this.changesAccepted?.toFirebase(),
       initial: this.initial.toFirebase(),
-      requestedChanges: this.requestedChanges
-        ? this.requestedChanges.toFirebase()
-        : undefined,
-      pickServiceProvider: this.pickServiceProvider
-        ? this.pickServiceProvider.toFirebase()
-        : undefined,
+      requestedChanges: this.requestedChanges?.toFirebase(),
+      pickServiceProvider: this.pickServiceProvider?.toFirebase(),
       actualStartTime: this.actualStartTime ? +this.actualStartTime : undefined,
       lastAgreedStartTime: this.lastAgreedStartTime
         ? +this.lastAgreedStartTime
@@ -73,7 +69,11 @@ export class OfferRequestDataDto
   ): TypeSafeRequired<OfferRequestDataShape> {
     return {
       reviewed: data.reviewed,
-      changesAccepted: data.changesAccepted,
+      changesAccepted: data.changesAccepted
+        ? new OfferRequestDataChangesAcceptedDto().fromFirebase(
+            data.changesAccepted,
+          )
+        : undefined,
       status: data.status,
       initial: new OfferRequestDataInitialDto().fromFirebase(data.initial),
       requestedChanges:
