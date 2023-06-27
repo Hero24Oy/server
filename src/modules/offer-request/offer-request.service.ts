@@ -6,6 +6,8 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
 import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
+import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
+import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
 
 @Injectable()
 export class OfferRequestService {
@@ -28,6 +30,18 @@ export class OfferRequestService {
       ...offerRequest,
       id: offerRequestId,
     });
+  }
+
+  async getOfferRequestList(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    args: OfferRequestListArgs,
+  ): Promise<OfferRequestListDto> {
+    return {
+      total: 0,
+      edges: [],
+      endCursor: null,
+      hasNextPage: false,
+    };
   }
 
   async createOfferRequest(
