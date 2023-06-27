@@ -1,6 +1,5 @@
 import { Inject, Module } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
-import * as adminDatabase from 'firebase-admin/database';
 
 import { ChatFieldsResolver } from './resolvers/chat-fields.resolver';
 import { ChatResolver } from './resolvers/chat.resolver';
@@ -11,11 +10,6 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import {
-  CHAT_ADDED_SUBSCRIPTION,
-  CHAT_UPDATED_SUBSCRIPTION,
-} from './chat.constants';
-import { ChatDto } from './dto/chat/chat.dto';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { ChatMessageService } from './services/chat-message.service';
 import { ChatMessageResolver } from './resolvers/chat-message.resolver';
@@ -25,6 +19,10 @@ import { SellerModule } from '../seller/seller.module';
 import { BuyerModule } from '../buyer/buyer.module';
 import { SorterModule } from '../sorter/sorter.module';
 import { CHAT_SORTERS } from './chat.sorters';
+import {
+  createChatAddedEventHandler,
+  createChatUpdatedEventHandler,
+} from './chat.event-handlers';
 
 @Module({
   imports: [
@@ -45,7 +43,7 @@ import { CHAT_SORTERS } from './chat.sorters';
   ],
 })
 export class ChatModule {
-  static unsubscribes: Array<() => void> = [];
+  static unsubscribes: Array<() => Promise<void> | void> = [];
 
   constructor(
     private firebaseService: FirebaseService,
@@ -60,34 +58,19 @@ export class ChatModule {
   }
 
   subscribeOnChatUpdates(app: FirebaseAdminAppInstance, pubsub: PubSub) {
-    const database = adminDatabase.getDatabase(app);
+    const database = app.database();
     const chatsRef = database.ref(FirebaseDatabasePath.CHATS);
-
-    const getEventHandler =
-      (subscriptionName: string, triggerName = subscriptionName) =>
-      (snap: adminDatabase.DataSnapshot) => {
-        if (!snap.key) {
-          return;
-        }
-
-        pubsub.publish(triggerName, {
-          [subscriptionName]: ChatDto.convertFromFirebaseType(
-            snap.val(),
-            snap.key,
-          ),
-        });
-      };
 
     const unsubscribes = [
       subscribeOnFirebaseEvent(
         chatsRef,
         'child_changed',
-        getEventHandler(CHAT_UPDATED_SUBSCRIPTION),
+        createChatUpdatedEventHandler(pubsub),
       ),
       subscribeOnFirebaseEvent(
         chatsRef,
         'child_added',
-        getEventHandler(CHAT_ADDED_SUBSCRIPTION),
+        createChatAddedEventHandler(pubsub),
       ),
     ];
 

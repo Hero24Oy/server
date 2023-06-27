@@ -4,7 +4,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { UserDto } from './dto/user/user.dto';
-import { UsersDto } from './dto/users/users.dto';
+import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserService } from './user.service';
 import { UserCreationArgs } from './dto/creation/user-creation.args';
@@ -24,12 +24,12 @@ export class UserResolver {
     return this.userService.getUserById(userId, app);
   }
 
-  @Query(() => UsersDto)
+  @Query(() => UserListDto)
   @UseFilters(FirebaseExceptionFilter)
   async users(
     @Args() args: UsersArgs,
     @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UsersDto> {
+  ): Promise<UserListDto> {
     return this.userService.getUsers(args, app);
   }
 

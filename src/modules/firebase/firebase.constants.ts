@@ -10,6 +10,7 @@ export enum FirebaseDatabasePath {
   CHATS = 'chats',
   CHAT_MESSAGES = 'chatMessages',
   ADMIN_USERS = 'adminUsers',
+  NEWS = 'news',
   SETTINGS = 'settings',
 }
 

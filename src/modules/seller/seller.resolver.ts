@@ -6,7 +6,7 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
-import { SellerProfilesDto } from './dto/sellers/seller-profiles.dto';
+import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { SellerService } from './seller.service';
@@ -24,12 +24,12 @@ export class SellerResolver {
     return this.sellerService.getSellerById(sellerId, app);
   }
 
-  @Query(() => SellerProfilesDto)
+  @Query(() => SellerProfileListDto)
   @UseFilters(FirebaseExceptionFilter)
   async sellers(
     @Args() args: SellersArgs,
     @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<SellerProfilesDto> {
+  ): Promise<SellerProfileListDto> {
     return this.sellerService.getSellers(args, app);
   }
 

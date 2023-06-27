@@ -12,11 +12,11 @@ import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
 import { Identity } from '../../auth/auth.types';
 import { ChatsArgs } from '../dto/chats/chats.args';
-import { ChatsDto } from '../dto/chats/chats.dto';
+import { ChatListDto } from '../dto/chats/chat-list.dto';
 import { ChatDto } from '../dto/chat/chat.dto';
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
 import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
-import { filterChats } from '../utils/chat.utils';
+import { filterChats } from '../chat.utils/filter-chats.util';
 import { CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION } from '../chat.constants';
 import { ChatsOrderColumn } from '../dto/chats/chats-order-column.enum';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
@@ -40,7 +40,7 @@ export class ChatService {
     args: ChatsArgs,
     identity: Identity,
     platform: AppPlatform | null,
-  ): Promise<ChatsDto> {
+  ): Promise<ChatListDto> {
     const { limit, offset, filter, ordersBy = [] } = args;
 
     const database = getAdminDatabase(this.firebaseService.getDefaultApp());
@@ -75,7 +75,7 @@ export class ChatService {
 
     const edges = chatEdges.map((chat) => ({ node: chat, cursor: chat.id }));
 
-    const chatsDto: ChatsDto = {
+    const chatsDto: ChatListDto = {
       edges,
       endCursor: edges[edges.length - 1]?.cursor || null,
       hasNextPage: !hasPagination ? false : offset + limit < total,

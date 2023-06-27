@@ -17,8 +17,8 @@ import { ChatGuard } from '../chat.guard';
 import { ChatActivator } from '../chat.activator';
 import { IsChatMember } from '../activators/chat-member.activator';
 import { UNSEEN_CHATS_CHANGED_SUBSCRIPTION } from '../chat.constants';
-import { UnseenChatsChangedDto } from '../dto/subscriptions/unsee-chats-updated-dto';
-import { isMemberSeenChat } from '../utils/chat-message.utils';
+import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
+import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
 
 @Resolver()
 export class ChatMessageResolver {
@@ -53,7 +53,7 @@ export class ChatMessageResolver {
 
     const seenMembers = chatSnapshot.members.filter(
       (member) =>
-        member.id !== identity.id && isMemberSeenChat(member.id, chatSnapshot),
+        member.id !== identity.id && hasMemberSeenChat(member.id, chatSnapshot),
     );
 
     const payload: UnseenChatsChangedDto = {

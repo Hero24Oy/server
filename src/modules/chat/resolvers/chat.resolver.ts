@@ -10,7 +10,7 @@ import {
 import { Inject, UseGuards } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
-import { ChatsDto } from '../dto/chats/chats.dto';
+import { ChatListDto } from '../dto/chats/chat-list.dto';
 import { ChatsArgs } from '../dto/chats/chats.args';
 import { ChatService } from '../services/chat.service';
 import { ChatDto } from '../dto/chat/chat.dto';
@@ -32,8 +32,8 @@ import { ChatGuard } from '../chat.guard';
 import { ChatActivator } from '../chat.activator';
 import { IsChatMember } from '../activators/chat-member.activator';
 import { AppGraphQLContext, AppPlatform } from 'src/app.types';
-import { UnseenChatsChangedDto } from '../dto/subscriptions/unsee-chats-updated-dto';
-import { isMemberSeenChat } from '../utils/chat-message.utils';
+import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
+import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 
 @Resolver()
@@ -43,13 +43,13 @@ export class ChatResolver {
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
-  @Query(() => ChatsDto)
+  @Query(() => ChatListDto)
   @UseGuards(AuthGuard)
   chats(
     @Args() args: ChatsArgs,
     @Context('identity') identity: Identity,
     @Context('platform') platform: AppPlatform | null,
-  ): Promise<ChatsDto> {
+  ): Promise<ChatListDto> {
     return this.chatService.getChats(args, identity, platform);
   }
 
@@ -130,7 +130,7 @@ export class ChatResolver {
     const chatSnapshot = await this.chatService.getChatById(chatId, app);
 
     const isLastMessageExist = Boolean(chatSnapshot.lastMessageDate);
-    const isSeenChat = isMemberSeenChat(identity.id, chatSnapshot);
+    const isSeenChat = hasMemberSeenChat(identity.id, chatSnapshot);
 
     await this.chatService.updateLastOpenedTime(chatId, identity);
 

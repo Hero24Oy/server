@@ -6,7 +6,7 @@ import { ref, getDatabase, get, set, push, update } from 'firebase/database';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { UserDto } from './dto/user/user.dto';
-import { UsersDto } from './dto/users/users.dto';
+import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
@@ -33,7 +33,10 @@ export class UserService {
     return user && UserDto.convertFromFirebaseType(userId, user);
   }
 
-  async getUsers(args: UsersArgs, app: FirebaseAppInstance): Promise<UsersDto> {
+  async getUsers(
+    args: UsersArgs,
+    app: FirebaseAppInstance,
+  ): Promise<UserListDto> {
     const { limit, offset, search } = args;
     const database = getDatabase(app);
 
