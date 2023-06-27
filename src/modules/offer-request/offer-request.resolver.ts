@@ -1,4 +1,4 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { FirebaseApp } from '../firebase/firebase.decorator';
@@ -9,6 +9,7 @@ import { OfferRequestService } from './offer-request.service';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
 import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class OfferRequestResolver {
@@ -16,6 +17,7 @@ export class OfferRequestResolver {
 
   @Query(() => OfferRequestDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async offerRequest(
     @Args('id') offerRequestId: string,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -25,12 +27,14 @@ export class OfferRequestResolver {
 
   @Query(() => OfferRequestListDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async offerRequestList(@Args() args: OfferRequestListArgs) {
     return this.offerRequestService.getOfferRequestList(args);
   }
 
   @Mutation(() => OfferRequestDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async createOfferRequest(
     @Args() args: OfferRequestCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
