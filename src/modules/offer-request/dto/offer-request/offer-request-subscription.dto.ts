@@ -15,10 +15,13 @@ type OfferRequestSubscriptionShape = {
 };
 
 @ObjectType()
-export class OfferRequestSubscriptionDto extends FirebaseGraphQLAdapter<
-  OfferRequestSubscriptionShape,
-  OfferRequestSubscription
-> {
+export class OfferRequestSubscriptionDto
+  extends FirebaseGraphQLAdapter<
+    OfferRequestSubscriptionShape,
+    OfferRequestSubscription
+  >
+  implements OfferRequestSubscriptionShape
+{
   @Field(() => String)
   subscriptionId: string;
 

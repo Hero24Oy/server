@@ -18,10 +18,10 @@ type RequestedChangesDB = Exclude<
 >;
 
 @ObjectType()
-export class OfferRequestDataRequestedChangesDto extends FirebaseGraphQLAdapter<
-  RequestedChangesShape,
-  RequestedChangesDB
-> {
+export class OfferRequestDataRequestedChangesDto
+  extends FirebaseGraphQLAdapter<RequestedChangesShape, RequestedChangesDB>
+  implements RequestedChangesShape
+{
   @Field(() => Date)
   created: Date;
 

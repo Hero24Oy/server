@@ -17,10 +17,13 @@ type PickServiceProviderShape = {
 };
 
 @ObjectType()
-export class OfferRequestDataPickServiceProviderDto extends FirebaseGraphQLAdapter<
-  PickServiceProviderShape,
-  PickServiceProviderDB
-> {
+export class OfferRequestDataPickServiceProviderDto
+  extends FirebaseGraphQLAdapter<
+    PickServiceProviderShape,
+    PickServiceProviderDB
+  >
+  implements PickServiceProviderShape
+{
   @Field(() => [String], { nullable: true })
   preferred?: string[];
 

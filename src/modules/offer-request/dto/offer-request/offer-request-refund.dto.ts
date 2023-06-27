@@ -14,10 +14,10 @@ type OfferRequestRefundShape = {
 type RefundDB = Exclude<OfferRequestDB['refund'], undefined>;
 
 @ObjectType()
-export class OfferRequestRefundDto extends FirebaseGraphQLAdapter<
-  OfferRequestRefundShape,
-  RefundDB
-> {
+export class OfferRequestRefundDto
+  extends FirebaseGraphQLAdapter<OfferRequestRefundShape, RefundDB>
+  implements OfferRequestRefundShape
+{
   @Field(() => Date)
   updatedAt: Date;
 
