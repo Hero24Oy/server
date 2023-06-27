@@ -102,7 +102,7 @@ export class OfferRequestDataInitialDto
       createdAt: +new Date(this.createdAt),
       package: this.package
         ? {
-            ...PackageDto.convertToFirebaseType(this.package),
+            ...this.package.toFirebase(),
             id: this.package.id,
           }
         : undefined,
@@ -158,7 +158,7 @@ export class OfferRequestDataInitialDto
           ? new BasicAddressesDto(data.addresses)
           : new DeliveryAddressesDto(data.addresses),
       package: data.package
-        ? PackageDto.convertFromFirebaseType(data.package, data.package.id)
+        ? new PackageDto().fromFirebase(data.package)
         : undefined,
     };
   }
