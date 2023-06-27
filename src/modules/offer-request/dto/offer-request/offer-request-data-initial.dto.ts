@@ -1,11 +1,7 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
 
-import {
-  AddressesAnsweredDto,
-  BasicAddressesDto,
-  DeliveryAddressesDto,
-} from './addresses-answered.dto';
+import { AddressesAnsweredDto } from './addresses-answered.dto';
 import {
   OfferRequestQuestionDto,
   offerRequestQuestionDtoConvertor,
@@ -13,6 +9,8 @@ import {
 import { PackageDto } from './package.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
 import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { BasicAddressesDto } from './basic-addresses.dto';
+import { DeliveryAddressesDto } from './delivery-addresses.dto';
 
 interface OfferRequestDataInitialShape {
   buyerProfile: string;
