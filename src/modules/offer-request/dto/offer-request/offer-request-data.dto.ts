@@ -1,15 +1,31 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, OFFER_REQUEST_STATUS } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
-
 import { OfferRequestDataChangesAcceptedDto } from './offer-request-data-changes-accepted.dto';
 import { OfferRequestDataInitialDto } from './offer-request-data-initial.dto';
 import { OfferRequestDataPickServiceProviderDto } from './offer-request-data-pick-service-provider.dto';
 import { OfferRequestDataRequestedChangesDto } from './offer-request-data-requested-changes.dto';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { TypeSafeRequired } from 'src/modules/common/common.types';
+
+type OfferRequestDataDB = OfferRequestDB['data'];
+
+type OfferRequestDataShape = {
+  actualStartTime?: Date;
+  reviewed?: boolean;
+  status: OFFER_REQUEST_STATUS;
+  initial: OfferRequestDataInitialDto;
+  lastAgreedStartTime?: Date;
+  requestedChanges?: OfferRequestDataRequestedChangesDto;
+  changesAccepted?: OfferRequestDataChangesAcceptedDto;
+  pickServiceProvider?: OfferRequestDataPickServiceProviderDto;
+};
 
 @ObjectType()
-export class OfferRequestDataDto {
+export class OfferRequestDataDto
+  extends FirebaseGraphQLAdapter<OfferRequestDataShape, OfferRequestDataDB>
+  implements OfferRequestDataShape
+{
   @Field(() => Date, { nullable: true })
   actualStartTime?: Date;
 
@@ -34,11 +50,35 @@ export class OfferRequestDataDto {
   @Field(() => OfferRequestDataPickServiceProviderDto, { nullable: true })
   pickServiceProvider?: OfferRequestDataPickServiceProviderDto;
 
-  static convertFromFirebaseType(
-    data: OfferRequestDB['data'],
-  ): OfferRequestDataDto {
+  protected toFirebaseType(): TypeSafeRequired<OfferRequestDataDB> {
     return {
-      ...data,
+      reviewed: this.reviewed,
+      status: this.status,
+      changesAccepted: this.changesAccepted,
+      initial: OfferRequestDataInitialDto.convertToFirebaseType(this.initial),
+      requestedChanges: this.requestedChanges
+        ? OfferRequestDataRequestedChangesDto.convertToFirebaseType(
+            this.requestedChanges,
+          )
+        : undefined,
+      pickServiceProvider: this.pickServiceProvider
+        ? OfferRequestDataPickServiceProviderDto.convertToFirebaseType(
+            this.pickServiceProvider,
+          )
+        : undefined,
+      actualStartTime: this.actualStartTime ? +this.actualStartTime : undefined,
+      lastAgreedStartTime: this.lastAgreedStartTime
+        ? +this.lastAgreedStartTime
+        : undefined,
+    };
+  }
+  protected fromFirebaseType(
+    data: OfferRequestDataDB,
+  ): TypeSafeRequired<OfferRequestDataShape> {
+    return {
+      reviewed: data.reviewed,
+      changesAccepted: data.changesAccepted,
+      status: data.status,
       initial: OfferRequestDataInitialDto.convertFromFirebaseType(data.initial),
       requestedChanges:
         data.requestedChanges &&
@@ -59,28 +99,5 @@ export class OfferRequestDataDto {
           ? new Date(data.lastAgreedStartTime)
           : undefined,
     };
-  }
-
-  static convertToFirebaseType(
-    data: OfferRequestDataDto,
-  ): OfferRequestDB['data'] {
-    return omitUndefined({
-      ...data,
-      initial: OfferRequestDataInitialDto.convertToFirebaseType(data.initial),
-      requestedChanges: data.requestedChanges
-        ? OfferRequestDataRequestedChangesDto.convertToFirebaseType(
-            data.requestedChanges,
-          )
-        : undefined,
-      pickServiceProvider: data.pickServiceProvider
-        ? OfferRequestDataPickServiceProviderDto.convertToFirebaseType(
-            data.pickServiceProvider,
-          )
-        : undefined,
-      actualStartTime: data.actualStartTime ? +data.actualStartTime : undefined,
-      lastAgreedStartTime: data.lastAgreedStartTime
-        ? +data.lastAgreedStartTime
-        : undefined,
-    });
   }
 }

@@ -11,12 +11,42 @@ import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
 import { OfferRequestSubscriptionDto } from './offer-request-subscription.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { TypeSafeRequired } from 'src/modules/common/common.types';
+
+type OfferRequestShape = {
+  id: string;
+  data: OfferRequestDataDto;
+  chats?: OfferRequestChatDto[];
+  subscription?: OfferRequestSubscriptionDto;
+  stripeSubscriptionId?: string;
+  stripePaymentIntentId?: string;
+  customerVAT?: number;
+  serviceProviderVAT?: number;
+  netvisorSalesOrderId?: string;
+  netvisorSalesInvoiceNumber?: number;
+  minimumDuration?: number;
+  sendToNetvisor?: number;
+  isApproved?: boolean;
+  isApprovedByBuyer?: boolean;
+  offers?: string[];
+  fees?: string[];
+  paymentParamsId?: string; // legacy
+  paymentInfoId?: string;
+  paymentTransactions?: string[];
+  offerRequestChanged?: boolean;
+  offerRrequestChangeAccepted?: boolean;
+  refund?: OfferRequestRefundDto;
+};
 
 @ObjectType()
-export class OfferRequestDto extends FirebaseGraphQLAdapter<
-  OfferRequestDB,
-  { id: string }
-> {
+export class OfferRequestDto
+  extends FirebaseGraphQLAdapter<
+    OfferRequestShape,
+    OfferRequestDB,
+    { id: string }
+  >
+  implements OfferRequestShape
+{
   @Field(() => String)
   id: string;
 
@@ -83,27 +113,28 @@ export class OfferRequestDto extends FirebaseGraphQLAdapter<
   @Field(() => OfferRequestRefundDto, { nullable: true })
   refund?: OfferRequestRefundDto;
 
-  protected toFirebaseType(): OfferRequestDB {
+  protected toFirebaseType(): TypeSafeRequired<OfferRequestDB> {
     return {
-      data: OfferRequestDataDto.convertToFirebaseType(this.data),
-      offers: this.offers && convertListToFirebaseMap(this.offers),
-      fees: this.fees && convertListToFirebaseMap(this.fees),
-      paymentTransactions:
-        this.paymentTransactions &&
-        convertListToFirebaseMap(this.paymentTransactions),
-      refund:
-        this.refund && OfferRequestRefundDto.convertToFirebaseType(this.refund),
+      data: this.data.toFirebase(),
+      offers: this.offers ? convertListToFirebaseMap(this.offers) : undefined,
+      fees: this.fees ? convertListToFirebaseMap(this.fees) : undefined,
+      paymentTransactions: this.paymentTransactions
+        ? convertListToFirebaseMap(this.paymentTransactions)
+        : undefined,
+      refund: this.refund
+        ? OfferRequestRefundDto.convertToFirebaseType(this.refund)
+        : undefined,
       subscription:
         this.subscription &&
         OfferRequestSubscriptionDto.convertToFirebaseType(this.subscription),
-      chats:
-        this.chats &&
-        Object.fromEntries(
-          this.chats.map(({ sellerId, chatId }) => [
-            sellerId,
-            { sellerProfile: sellerId, chatId },
-          ]),
-        ),
+      chats: this.chats
+        ? Object.fromEntries(
+            this.chats.map(({ sellerId, chatId }) => [
+              sellerId,
+              { sellerProfile: sellerId, chatId },
+            ]),
+          )
+        : undefined,
       stripeSubscriptionId: this.stripeSubscriptionId,
       stripePaymentIntentId: this.stripePaymentIntentId,
       customerVAT: this.customerVAT,
@@ -121,42 +152,46 @@ export class OfferRequestDto extends FirebaseGraphQLAdapter<
     };
   }
 
-  protected fromFirebaseType(shape: OfferRequestDB & { id: string }): this {
-    this.id = shape.id;
-    this.stripeSubscriptionId = shape.stripeSubscriptionId;
-    this.stripePaymentIntentId = shape.stripePaymentIntentId;
-    this.customerVAT = shape.customerVAT;
-    this.serviceProviderVAT = shape.serviceProviderVAT;
-    this.netvisorSalesOrderId = shape.netvisorSalesOrderId;
-    this.netvisorSalesInvoiceNumber = shape.netvisorSalesInvoiceNumber;
-    this.minimumDuration = shape.minimumDuration;
-    this.sendToNetvisor = shape.sendToNetvisor;
-    this.isApproved = shape.isApproved;
-    this.isApprovedByBuyer = shape.isApprovedByBuyer;
-    this.paymentParamsId = shape.paymentParamsId;
-    this.paymentInfoId = shape.paymentInfoId;
-    this.offerRequestChanged = shape.offerRequestChanged;
-    this.offerRrequestChangeAccepted = shape.offerRrequestChangeAccepted;
+  protected fromFirebaseType(
+    shape: OfferRequestDB & { id: string },
+  ): TypeSafeRequired<OfferRequestShape> {
+    return {
+      id: shape.id,
+      stripeSubscriptionId: shape.stripeSubscriptionId,
+      stripePaymentIntentId: shape.stripePaymentIntentId,
+      customerVAT: shape.customerVAT,
+      serviceProviderVAT: shape.serviceProviderVAT,
+      netvisorSalesOrderId: shape.netvisorSalesOrderId,
+      netvisorSalesInvoiceNumber: shape.netvisorSalesInvoiceNumber,
+      minimumDuration: shape.minimumDuration,
+      sendToNetvisor: shape.sendToNetvisor,
+      isApproved: shape.isApproved,
+      isApprovedByBuyer: shape.isApprovedByBuyer,
+      paymentParamsId: shape.paymentParamsId,
+      paymentInfoId: shape.paymentInfoId,
+      offerRequestChanged: shape.offerRequestChanged,
+      offerRrequestChangeAccepted: shape.offerRrequestChangeAccepted,
 
-    this.data = OfferRequestDataDto.convertFromFirebaseType(shape.data);
-    this.offers = shape.offers && convertFirebaseMapToList(shape.offers);
-    this.fees = shape.fees && convertFirebaseMapToList(shape.fees);
-    this.paymentTransactions =
-      shape.paymentTransactions &&
-      convertFirebaseMapToList(shape.paymentTransactions);
-    this.refund =
-      shape.refund &&
-      OfferRequestRefundDto.convertFromFirebaseType(shape.refund);
-    this.subscription =
-      shape.subscription &&
-      OfferRequestSubscriptionDto.convertFromFirebaseType(shape.subscription);
-    this.chats =
-      shape.chats &&
-      Object.values(shape.chats).map(({ sellerProfile, chatId }) => ({
-        sellerId: sellerProfile,
-        chatId,
-      }));
-
-    return this;
+      data: new OfferRequestDataDto().fromFirebase(shape.data),
+      offers: shape.offers ? convertFirebaseMapToList(shape.offers) : undefined,
+      fees: shape.fees ? convertFirebaseMapToList(shape.fees) : undefined,
+      paymentTransactions:
+        shape.paymentTransactions &&
+        convertFirebaseMapToList(shape.paymentTransactions),
+      refund: shape.refund
+        ? OfferRequestRefundDto.convertFromFirebaseType(shape.refund)
+        : undefined,
+      subscription: shape.subscription
+        ? OfferRequestSubscriptionDto.convertFromFirebaseType(
+            shape.subscription,
+          )
+        : undefined,
+      chats: shape.chats
+        ? Object.values(shape.chats).map(({ sellerProfile, chatId }) => ({
+            sellerId: sellerProfile,
+            chatId,
+          }))
+        : undefined,
+    };
   }
 }

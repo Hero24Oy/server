@@ -20,13 +20,11 @@ export class OfferRequestService {
 
     const offerRequest: OfferRequestDB | null = snapshot.val();
 
-    const offerRequestDto = new OfferRequestDto();
-
     if (!offerRequest) {
       return null;
     }
 
-    return offerRequestDto.fromFirebase({
+    return new OfferRequestDto().fromFirebase({
       ...offerRequest,
       id: offerRequestId,
     });
