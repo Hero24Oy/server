@@ -121,9 +121,7 @@ export class OfferRequestDto
       paymentTransactions: this.paymentTransactions
         ? convertListToFirebaseMap(this.paymentTransactions)
         : undefined,
-      refund: this.refund
-        ? OfferRequestRefundDto.convertToFirebaseType(this.refund)
-        : undefined,
+      refund: this.refund ? this.refund.toFirebase() : undefined,
       subscription: this.subscription
         ? this.subscription.toFirebase()
         : undefined,
@@ -179,7 +177,7 @@ export class OfferRequestDto
         shape.paymentTransactions &&
         convertFirebaseMapToList(shape.paymentTransactions),
       refund: shape.refund
-        ? OfferRequestRefundDto.convertFromFirebaseType(shape.refund)
+        ? new OfferRequestRefundDto().fromFirebase(shape.refund)
         : undefined,
       subscription: shape.subscription
         ? new OfferRequestSubscriptionDto().fromFirebase(shape.subscription)
