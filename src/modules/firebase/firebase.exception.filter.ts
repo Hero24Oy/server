@@ -15,6 +15,10 @@ export class FirebaseExceptionFilter implements GqlExceptionFilter {
       return new ForbiddenException('Permission denied');
     }
 
+    if (exception instanceof ForbiddenException) {
+      return exception;
+    }
+
     this.logger.error(exception);
 
     return new InternalServerErrorException('Internal server error');
