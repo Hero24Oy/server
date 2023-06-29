@@ -19,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
+import { N8nModule } from './modules/n8n/n8n.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { PlatformSpecifierModule } from './modules/platform-specifier/platform-s
     NewsModule,
     SettingsModule,
     PlatformSpecifierModule,
+    N8nModule,
   ],
   providers: [AppResolver],
 })
