@@ -8,9 +8,9 @@ import { N8nWebhookManagerService } from '../n8n-webhook-manager/n8n-webhook-man
 export class N8nModule {
   constructor(private n8nWebhookManagerService: N8nWebhookManagerService) {}
 
-  onApplicationBootstrap() {
+  async onApplicationBootstrap() {
     N8nWebhookManagerModule.unsubscribe =
-      this.n8nWebhookManagerService.subscribe();
+      await this.n8nWebhookManagerService.subscribe();
   }
 
   async beforeApplicationShutdown() {
