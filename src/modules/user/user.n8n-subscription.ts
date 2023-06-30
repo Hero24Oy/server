@@ -1,12 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import axios, { isAxiosError } from 'axios';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { isEqual } from 'lodash';
+import { PubSub } from 'graphql-subscriptions';
 
 import { N8nWebhookSubscriptionService } from '../n8n-webhook-manager/n8n-webhook-manager.interface';
-import { FirebaseService } from '../firebase/firebase.service';
-import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { ConfigService } from '@nestjs/config';
-import axios, { isAxiosError } from 'axios';
-import { DataSnapshot } from 'firebase-admin/database';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import {
+  USER_CREATED_SUBSCRIPTION,
+  USER_UPDATED_SUBSCRIPTION,
+} from './user.constants';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
+import { UserDto } from './dto/user/user.dto';
+import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
 
 @Injectable()
 export class UserN8nSubscription implements N8nWebhookSubscriptionService {
@@ -14,8 +20,8 @@ export class UserN8nSubscription implements N8nWebhookSubscriptionService {
   private templateWebhookUrl: string;
 
   constructor(
-    private firebaseService: FirebaseService,
     private configService: ConfigService,
+    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {
     const baseUrl = this.configService.getOrThrow<string>('n8n.webhookUrl');
     const contactCreationPath = this.configService.getOrThrow<string>(
@@ -25,27 +31,45 @@ export class UserN8nSubscription implements N8nWebhookSubscriptionService {
     this.templateWebhookUrl = `${baseUrl}${contactCreationPath}`;
   }
 
-  subscribe(): () => Promise<void> {
-    const app = this.firebaseService.getDefaultApp();
-    const usersRef = app.database().ref(FirebaseDatabasePath.USERS);
+  public async subscribe(): Promise<() => Promise<void>> {
+    const subscriptionIds = await Promise.all([
+      this.subscribeOnUserUpdates(),
+      this.subscribeOnUserCreation(),
+    ]);
 
-    const unsubscribe = subscribeOnFirebaseEvent(
-      usersRef,
-      'child_changed',
-      this.firebaseEventHandler,
-    );
-
-    return async () => unsubscribe();
+    return async () => {
+      for (const subscriptionId of subscriptionIds) {
+        await this.pubSub.unsubscribe(subscriptionId);
+      }
+    };
   }
 
-  private firebaseEventHandler = async (snapshot: DataSnapshot) => {
-    if (snapshot.key) {
-      await this.callWebhook(snapshot.key);
-    }
-  };
+  private async subscribeOnUserUpdates() {
+    return this.pubSub.subscribe(
+      USER_UPDATED_SUBSCRIPTION,
+      ({ user, beforeUpdateUser }: UserUpdatedDto) => {
+        if (this.shouldCallWebhook(user, beforeUpdateUser)) {
+          this.callWebhook(user.id);
+        }
+      },
+    );
+  }
+
+  private async subscribeOnUserCreation() {
+    return this.pubSub.subscribe(
+      USER_CREATED_SUBSCRIPTION,
+      ({ user }: UserCreatedDto) => {
+        this.callWebhook(user.id);
+      },
+    );
+  }
 
   private async callWebhook(userId: string) {
     try {
+      if (!userId) {
+        throw new Error('User id should be provided');
+      }
+
       const webhookUrl = this.templateWebhookUrl.replace(':userId', userId);
 
       await axios.get(webhookUrl);
@@ -60,4 +84,17 @@ export class UserN8nSubscription implements N8nWebhookSubscriptionService {
       this.logger.error(error);
     }
   }
+
+  private shouldCallWebhook(user: UserDto, previous: UserDto) {
+    return !isEqual(
+      this.getCompareValues(user),
+      this.getCompareValues(previous),
+    );
+  }
+
+  private getCompareValues = (compareUser: UserDto) => [
+    compareUser.data.email,
+    compareUser.data.firstName,
+    compareUser.data.lastName,
+  ];
 }

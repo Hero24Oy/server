@@ -1,4 +1,4 @@
-import { UseFilters } from '@nestjs/common';
+import { Inject, UseFilters } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { FirebaseApp } from '../firebase/firebase.decorator';
@@ -10,10 +10,22 @@ import { UserService } from './user.service';
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
+import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
+import {
+  USER_CREATED_SUBSCRIPTION,
+  USER_UPDATED_SUBSCRIPTION,
+} from './user.constants';
+import { PubSub } from 'graphql-subscriptions';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
+import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
 
 @Resolver()
 export class UserResolver {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+  ) {}
 
   @Query(() => UserDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
@@ -48,7 +60,14 @@ export class UserResolver {
     @Args() args: UserCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    return this.userService.createUser(args, app);
+    const emitUserCreated = createSubscriptionEventEmitter(
+      USER_CREATED_SUBSCRIPTION,
+    );
+    const user = await this.userService.createUser(args, app);
+
+    emitUserCreated<UserCreatedDto>(this.pubSub, { user });
+
+    return user;
   }
 
   @Mutation(() => UserDto)
@@ -57,7 +76,24 @@ export class UserResolver {
     @Args() args: UserDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    return this.userService.editUserData(args, app);
+    const emitUserUpdated = createSubscriptionEventEmitter(
+      USER_UPDATED_SUBSCRIPTION,
+    );
+
+    const beforeUpdateUser = await this.userService.getUserById(
+      args.userId,
+      app,
+    );
+
+    if (!beforeUpdateUser) {
+      throw new Error(`User not found`);
+    }
+
+    const user = await this.userService.editUserData(args, app);
+
+    emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
+
+    return user;
   }
 
   @Mutation(() => Boolean)
