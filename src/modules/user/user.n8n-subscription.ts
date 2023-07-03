@@ -47,7 +47,9 @@ export class UserN8nSubscription implements N8nWebhookSubscriptionService {
   private async subscribeOnUserUpdates() {
     return this.pubSub.subscribe(
       USER_UPDATED_SUBSCRIPTION,
-      ({ user, beforeUpdateUser }: UserUpdatedDto) => {
+      (data: Record<typeof USER_UPDATED_SUBSCRIPTION, UserUpdatedDto>) => {
+        const { user, beforeUpdateUser } = data[USER_UPDATED_SUBSCRIPTION];
+
         if (this.shouldCallWebhook(user, beforeUpdateUser)) {
           this.callWebhook(user.id);
         }
@@ -58,7 +60,8 @@ export class UserN8nSubscription implements N8nWebhookSubscriptionService {
   private async subscribeOnUserCreation() {
     return this.pubSub.subscribe(
       USER_CREATED_SUBSCRIPTION,
-      ({ user }: UserCreatedDto) => {
+      (data: Record<typeof USER_CREATED_SUBSCRIPTION, UserCreatedDto>) => {
+        const { user } = data[USER_CREATED_SUBSCRIPTION];
         this.callWebhook(user.id);
       },
     );
