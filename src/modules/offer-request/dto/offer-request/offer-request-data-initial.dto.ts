@@ -1,16 +1,19 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
+import { OfferRequestDB } from 'hero24-types';
 
 import { AddressesAnsweredDto } from './addresses-answered.dto';
 import {
   OfferRequestQuestionDto,
-  offerRequestQuestionDtoConvertor,
+  createOfferRequestQuestionDto,
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
 import { TypeSafeRequired } from 'src/modules/common/common.types';
 import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';
+import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
+import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
+import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
 
 interface OfferRequestDataInitialShape {
   buyerProfile: string;
@@ -78,13 +81,7 @@ export class OfferRequestDataInitialDto
   promotionDisabled?: boolean;
 
   protected toFirebaseType(): TypeSafeRequired<OfferRequestDataInitialDB> {
-    const baseQuestions = this.questions.filter(
-      ({ depsId }) => typeof depsId !== 'string',
-    );
-
-    const depsQuestions = this.questions.filter(
-      ({ depsId }) => typeof depsId === 'string',
-    );
+    const questions = this.questions.map((question) => question.toFirebase());
 
     return {
       prepaid: this.prepaid,
@@ -104,39 +101,16 @@ export class OfferRequestDataInitialDto
             id: this.package.id,
           }
         : undefined,
-      questions: baseQuestions.map((question) =>
-        offerRequestQuestionDtoConvertor.convertToFirebaseType(
-          question,
-          depsQuestions,
-        ),
-      ),
+      questions: offerRequestQuestionsToTree(questions, QUESTION_FLAT_ID_NAME),
     };
   }
 
   protected fromFirebaseType(
     data: OfferRequestDataInitialDB,
   ): TypeSafeRequired<OfferRequestDataInitialShape> {
-    const depsQuestions: OfferRequestQuestionDto[] = [];
-
-    const saveQuestion = (question: OfferRequestQuestion) => {
-      const depsId = Math.random().toString(32);
-
-      const questionDto =
-        offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-          question,
-          saveQuestion,
-        );
-
-      depsQuestions.push({ ...questionDto, depsId });
-
-      return depsId;
-    };
-
-    const baseQuestions = data.questions.map((question) =>
-      offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-        question,
-        saveQuestion,
-      ),
+    const questions = offerRequestQuestionsToArray(
+      data.questions,
+      QUESTION_FLAT_ID_NAME,
     );
 
     return {
@@ -150,7 +124,7 @@ export class OfferRequestDataInitialDto
       category: this.category,
       fixedDuration: data.fixedDuration,
       createdAt: new Date(data.createdAt),
-      questions: [...baseQuestions, ...depsQuestions],
+      questions: questions.map(createOfferRequestQuestionDto),
       addresses:
         data.addresses.type === 'basic'
           ? new BasicAddressesDto(data.addresses)

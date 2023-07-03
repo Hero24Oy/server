@@ -8,9 +8,36 @@ import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
+import { FirebaseService } from '../firebase/firebase.service';
+import { isNumber } from 'lodash';
 
 @Injectable()
 export class OfferRequestService {
+  constructor(private firebaseService: FirebaseService) {}
+
+  private async getAllOfferRequests() {
+    const app = this.firebaseService.getDefaultApp();
+    const database = app.database();
+
+    const offerRequests: OfferRequestDto[] = [];
+
+    const offerRequestsSnapshot = await database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .get();
+
+    offerRequestsSnapshot.forEach((snapshot) => {
+      if (snapshot.key) {
+        offerRequests.push(
+          new OfferRequestDto().fromFirebase({
+            ...snapshot.val(),
+            id: snapshot.key,
+          }),
+        );
+      }
+    });
+
+    return offerRequests;
+  }
   async getOfferRequestById(
     offerRequestId: string,
     app: FirebaseAppInstance,
@@ -33,14 +60,25 @@ export class OfferRequestService {
   }
 
   async getOfferRequestList(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     args: OfferRequestListArgs,
   ): Promise<OfferRequestListDto> {
+    const { limit, offset } = args;
+
+    const offerRequests = await this.getAllOfferRequests();
+    const hasPagination = isNumber(limit) && isNumber(offset);
+
+    let edges = offerRequests;
+    const total = edges.length;
+
+    if (hasPagination) {
+      edges = edges.slice(offset, offset + limit);
+    }
+
     return {
-      total: 0,
-      edges: [],
-      endCursor: null,
-      hasNextPage: false,
+      total,
+      edges: edges.map((node) => ({ node, cursor: node.id })),
+      endCursor: edges[edges.length - 1]?.id,
+      hasNextPage: hasPagination ? offset + limit < total : false,
     };
   }
 

@@ -1,17 +1,23 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { OfferRequestQuestion, OfferRequestQuestionOption } from 'hero24-types';
 
-import { MaybeType } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { PlainOfferRequestQuestionOption } from '../../offer-request-questions.types';
 
-import {
-  OfferRequestQuestionDto,
-  offerRequestQuestionDtoConvertor,
-} from './offer-request-question.dto';
+type OfferRequestQuestionOptionShape = {
+  id: string;
+  name?: MaybeType<TranslationFieldDto>;
+  order?: MaybeType<number>;
+  questions?: MaybeType<string[]>; // it will be used to tackle circular deps in graphql. This is custom ID, generated on the go.
+  checked?: MaybeType<boolean>;
+};
 
 @ObjectType()
-export class OfferRequestQuestionOptionDto {
+export class OfferRequestQuestionOptionDto extends FirebaseGraphQLAdapter<
+  OfferRequestQuestionOptionShape,
+  PlainOfferRequestQuestionOption
+> {
   @Field(() => String)
   id: string;
 
@@ -27,34 +33,25 @@ export class OfferRequestQuestionOptionDto {
   @Field(() => Boolean, { nullable: true })
   checked?: MaybeType<boolean>;
 
-  static convertToFirebaseType(
-    data: OfferRequestQuestionOptionDto,
-    plainQuestions: OfferRequestQuestionDto[],
-  ): OfferRequestQuestionOption {
-    return omitUndefined({
-      ...data,
-      name: data.name || null,
-      order: data.order || null,
-      questions:
-        data.questions?.map((depsId) =>
-          offerRequestQuestionDtoConvertor.convertToFirebaseType(
-            plainQuestions.find(
-              (question) => depsId === question.depsId,
-            ) as OfferRequestQuestionDto,
-            plainQuestions,
-          ),
-        ) || null,
-      checked: data.checked || null,
-    });
+  protected toFirebaseType(): TypeSafeRequired<PlainOfferRequestQuestionOption> {
+    return {
+      id: this.id,
+      name: this.name || null,
+      order: typeof this.order === 'number' ? this.order : null,
+      questions: this.questions || null,
+      checked: this.checked ?? null,
+    };
   }
 
-  static convertFromFirebaseType(
-    data: OfferRequestQuestionOption,
-    saveQuestion: (question: OfferRequestQuestion) => string, // return the depsId
-  ): OfferRequestQuestionOptionDto {
+  protected fromFirebaseType(
+    firebase: PlainOfferRequestQuestionOption,
+  ): TypeSafeRequired<OfferRequestQuestionOptionShape> {
     return {
-      ...data,
-      questions: data.questions?.map(saveQuestion),
+      id: firebase.id,
+      checked: firebase.checked,
+      name: firebase.name,
+      order: firebase.order,
+      questions: firebase.questions,
     };
   }
 }

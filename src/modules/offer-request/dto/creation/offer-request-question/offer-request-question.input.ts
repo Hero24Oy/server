@@ -9,11 +9,12 @@ import { OfferRequestNumberInputQuestionInput } from './offer-request-number-inp
 import { OfferRequestNumberQuestionInput } from './offer-request-number-question.input';
 import { OfferRequestRadioQuestionInput } from './offer-request-radio-question.dto';
 import { OfferRequestTextAreaQuestionInput } from './offer-request-text-area-question.dto';
+import { QUESTION_FLAT_ID_NAME } from 'src/modules/offer-request/offer-request.constants';
 
 @InputType()
 export class OfferRequestQuestionInput {
   @Field(() => String, { nullable: true })
-  depsId?: string; // undefined for the root question
+  [QUESTION_FLAT_ID_NAME]?: string; // undefined for the root question
 
   @Field(() => OfferRequestRadioQuestionInput, { nullable: true })
   radio?: OfferRequestRadioQuestionInput;
