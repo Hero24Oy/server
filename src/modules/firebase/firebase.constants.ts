@@ -12,6 +12,7 @@ export enum FirebaseDatabasePath {
   ADMIN_USERS = 'adminUsers',
   NEWS = 'news',
   SETTINGS = 'settings',
+  USER_MERGES = 'userMerges',
 }
 
 export const MAX_TRYING_COUNT = 3;
