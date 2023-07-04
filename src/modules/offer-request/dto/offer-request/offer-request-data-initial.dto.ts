@@ -114,14 +114,14 @@ export class OfferRequestDataInitialDto
     );
 
     return {
-      fixedPrice: this.fixedPrice,
-      prePayWith: this.prePayWith,
-      sendInvoiceWith: this.sendInvoiceWith,
-      prepaid: this.prepaid,
-      postpaid: this.postpaid,
-      promotionDisabled: this.promotionDisabled,
-      buyerProfile: this.buyerProfile,
-      category: this.category,
+      fixedPrice: data.fixedPrice,
+      prePayWith: data.prePayWith,
+      sendInvoiceWith: data.sendInvoiceWith,
+      prepaid: data.prepaid,
+      postpaid: data.postpaid,
+      promotionDisabled: data.promotionDisabled,
+      buyerProfile: data.buyerProfile,
+      category: data.category,
       fixedDuration: data.fixedDuration,
       createdAt: new Date(data.createdAt),
       questions: questions.map(createOfferRequestQuestionDto),
