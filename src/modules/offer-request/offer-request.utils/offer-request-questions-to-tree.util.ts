@@ -5,6 +5,7 @@ import {
   WithDependencyId,
 } from '../offer-request-questions.types';
 import { fillQuestion } from './fill-question.util';
+import { omit } from 'lodash';
 
 export const offerRequestQuestionsToTree = <Name extends string>(
   questions: WithDependencyId<PlainOfferRequestQuestion, Name>[],
@@ -18,7 +19,9 @@ export const offerRequestQuestionsToTree = <Name extends string>(
     const dependencyId = (question as Record<Name, DependencyId>)[idFieldName];
 
     if (typeof dependencyId === 'string') {
-      questionById[dependencyId] = question;
+      questionById[dependencyId] = omit<
+        PlainOfferRequestQuestion & { [K in Name]?: string }
+      >(question, idFieldName) as PlainOfferRequestQuestion;
     } else {
       mainQuestions.push(question);
     }
