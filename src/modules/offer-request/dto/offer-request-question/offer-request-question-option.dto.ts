@@ -14,10 +14,13 @@ type OfferRequestQuestionOptionShape = {
 };
 
 @ObjectType()
-export class OfferRequestQuestionOptionDto extends FirebaseGraphQLAdapter<
-  OfferRequestQuestionOptionShape,
-  PlainOfferRequestQuestionOption
-> {
+export class OfferRequestQuestionOptionDto
+  extends FirebaseGraphQLAdapter<
+    OfferRequestQuestionOptionShape,
+    PlainOfferRequestQuestionOption
+  >
+  implements OfferRequestQuestionOptionShape
+{
   @Field(() => String)
   id: string;
 
@@ -27,8 +30,9 @@ export class OfferRequestQuestionOptionDto extends FirebaseGraphQLAdapter<
   @Field(() => Int, { nullable: true })
   order?: MaybeType<number>;
 
+  // it will be used to tackle circular deps in graphql. This is custom ID, generated on the go.
   @Field(() => [String], { nullable: true })
-  questions?: MaybeType<string[]>; // it will be used to tackle circular deps in graphql. This is custom ID, generated on the go.
+  questions?: MaybeType<string[]>;
 
   @Field(() => Boolean, { nullable: true })
   checked?: MaybeType<boolean>;
