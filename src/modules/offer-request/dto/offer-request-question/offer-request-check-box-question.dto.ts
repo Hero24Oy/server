@@ -18,7 +18,7 @@ type PlainOfferRequestCheckBoxQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
-@ObjectType()
+@ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 export class OfferRequestCheckBoxQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
   OfferRequestCheckBoxQuestionShape,

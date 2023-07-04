@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, InterfaceType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
 import {
   MaybeType,
@@ -24,7 +24,7 @@ export type BaseOfferRequestQuestionDB<
   type: Type;
 };
 
-@ObjectType()
+@InterfaceType()
 export abstract class OfferRequestBaseQuestionDto<
     Type extends OfferRequestQuestion['type'],
     Shape extends RecordType,
@@ -73,7 +73,7 @@ export abstract class OfferRequestBaseQuestionDto<
       id: firebase.id,
       [QUESTION_FLAT_ID_NAME]: firebase[QUESTION_FLAT_ID_NAME],
       name: firebase.name,
-      order: firebase.order,
+      order: firebase.order || 0,
       type: firebase.type,
     };
   }

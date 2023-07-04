@@ -20,7 +20,7 @@ type PlainOfferRequestNumberInputQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
-@ObjectType()
+@ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 export class OfferRequestNumberInputQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
   OfferRequestNumberInputQuestionShape,

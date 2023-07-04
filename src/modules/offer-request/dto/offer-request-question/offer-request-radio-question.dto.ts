@@ -19,7 +19,7 @@ type PlainOfferRequestRadioQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
-@ObjectType()
+@ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
   RadioQuestionShape,
