@@ -5,9 +5,9 @@ import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
-import { UserMergeDto } from './dto/userMerge/userMerge.dto';
+import { UserMergeDto } from './dto/user-merge/user-merge.dto';
 import { UserMergeDB } from 'hero24-types';
-import { UserMergeInput } from './dto/userMerge/userMerge.input';
+import { UserMergeInput } from './dto/user-merge/user-merge.input';
 import { FirebaseService } from '../firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';

@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserMergeDB } from 'hero24-types';
+import MergeStatus from './merge-status.dto';
 
 @ObjectType()
 export class UserMergeDto {
@@ -10,7 +11,7 @@ export class UserMergeDto {
   emailToSearch?: string;
 
   @Field(() => String, { nullable: true })
-  emailStatus: string;
+  emailStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
   emailVerifiedByUser?: boolean;
@@ -19,7 +20,7 @@ export class UserMergeDto {
   phoneToSearch?: string;
 
   @Field(() => String, { nullable: true })
-  phoneStatus: string;
+  phoneStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
   phoneVerifiedByUser?: boolean;
@@ -31,10 +32,10 @@ export class UserMergeDto {
     return {
       userId: userMerge.userId,
       emailToSearch: userMerge.emailToSearch,
-      emailStatus: userMerge.emailStatus,
+      emailStatus: userMerge.emailStatus as MergeStatus,
       emailVerifiedByUser: userMerge.emailVerifiedByUser,
       phoneToSearch: userMerge.phoneToSearch,
-      phoneStatus: userMerge.phoneStatus,
+      phoneStatus: userMerge.phoneStatus as MergeStatus,
       phoneVerifiedByUser: userMerge.phoneVerifiedByUser,
       createdAt: userMerge.createdAt,
     };

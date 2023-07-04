@@ -1,6 +1,6 @@
 import { DataSnapshot } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
-import { UserMergeDto } from '../dto/userMerge/userMerge.dto';
+import { UserMergeDto } from '../dto/user-merge/user-merge.dto';
 
 export const createUserMergeEventHandler =
   (eventEmitter: (pubsub: PubSub, userMerge: UserMergeDto) => void) =>

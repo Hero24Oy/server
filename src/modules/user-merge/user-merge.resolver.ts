@@ -4,9 +4,9 @@ import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
-import { UserMergeDto } from './dto/userMerge/userMerge.dto';
+import { UserMergeDto } from './dto/user-merge/user-merge.dto';
 import { UserMergeService } from './userMerge.service';
-import { UserMergeInput } from './dto/userMerge/userMerge.input';
+import { UserMergeInput } from './dto/user-merge/user-merge.input';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
@@ -33,6 +33,7 @@ export class UserMergeResolver {
     @Args('userMergeInput') userMergeInput: UserMergeInput,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserMergeDto | null> {
+    console.log(userMergeInput);
     return await this.UserMergeService.startUserMerge(userMergeInput, app);
   }
 

@@ -1,5 +1,5 @@
 import { Inject, Module } from '@nestjs/common';
-import { UserMergeResolver } from './userMerge.resolver';
+import { UserMergeResolver } from './user-merge.resolver';
 import { UserMergeService } from './userMerge.service';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
@@ -9,7 +9,10 @@ import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
-import { createUserMergeAddedEventHandler, createUserMergeUpdatedEventHandler } from './userMerge.event-handlers';
+import {
+  createUserMergeAddedEventHandler,
+  createUserMergeUpdatedEventHandler,
+} from './user-merge.event-handlers';
 
 @Module({
   imports: [FirebaseModule, GraphQLPubsubModule],
