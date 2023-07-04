@@ -1,31 +1,36 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 
 import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { SuitableTimeDto } from 'src/modules/common/dto/suitable-time/suitable-time.dto';
 
 import {
   BaseOfferRequestQuestionDB,
-  BaseOfferRequestShape,
+  BaseOfferRequestQuestionShape,
   OfferRequestBaseQuestionDto,
 } from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type QuestionType = 'date';
 
-type OfferRequestDateQuestionShape = {
-  preferredTime?: MaybeType<Date>;
-  suitableTimesCount?: MaybeType<number>;
-  suitableTimes?: MaybeType<SuitableTimeDto[]>;
-};
+type OfferRequestDateQuestionAdapterShape =
+  BaseOfferRequestQuestionShape<QuestionType> & {
+    preferredTime?: MaybeType<Date>;
+    suitableTimesCount?: MaybeType<number>;
+    suitableTimes?: MaybeType<SuitableTimeDto[]>;
+  };
 
 type PlainOfferRequestDateQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
+export type OfferRequestDateQuestionInputShape =
+  OfferRequestDateQuestionAdapterShape;
+
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
+@InputType('OfferRequestDateQuestionInput')
 export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
-  OfferRequestDateQuestionShape,
+  OfferRequestDateQuestionAdapterShape,
   PlainOfferRequestDateQuestion
 > {
   @Field(() => Date, { nullable: true })
@@ -52,9 +57,7 @@ export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto<
 
   protected fromFirebaseType(
     firebase: PlainOfferRequestDateQuestion,
-  ): TypeSafeRequired<
-    OfferRequestDateQuestionShape & BaseOfferRequestShape<QuestionType>
-  > {
+  ): TypeSafeRequired<OfferRequestDateQuestionAdapterShape> {
     return {
       ...this.fromBaseFirebaseType(firebase),
       preferredTime:

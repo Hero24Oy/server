@@ -1,28 +1,33 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { Field, Float, InputType, ObjectType } from '@nestjs/graphql';
 import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import {
   BaseOfferRequestQuestionDB,
-  BaseOfferRequestShape,
+  BaseOfferRequestQuestionShape,
   OfferRequestBaseQuestionDto,
 } from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type QuestionType = 'list';
 
-type OfferRequestListPickerShape = {
-  placeholder?: MaybeType<TranslationFieldDto>;
-  numericValue?: MaybeType<number>;
-};
+type OfferRequestListPickerAdapterShape =
+  BaseOfferRequestQuestionShape<QuestionType> & {
+    placeholder?: MaybeType<TranslationFieldDto>;
+    numericValue?: MaybeType<number>;
+  };
 
 type PlainOfferRequestListQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
+export type OfferRequestListPickerInputShape =
+  OfferRequestListPickerAdapterShape;
+
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
+@InputType('OfferRequestListQuestionInput')
 export class OfferRequestListPickerDto extends OfferRequestBaseQuestionDto<
   QuestionType,
-  OfferRequestListPickerShape,
+  OfferRequestListPickerAdapterShape,
   PlainOfferRequestListQuestion
 > {
   @Field(() => TranslationFieldDto, { nullable: true })
@@ -43,9 +48,7 @@ export class OfferRequestListPickerDto extends OfferRequestBaseQuestionDto<
 
   protected fromFirebaseType(
     firebase: PlainOfferRequestListQuestion,
-  ): TypeSafeRequired<
-    OfferRequestListPickerShape & BaseOfferRequestShape<QuestionType>
-  > {
+  ): TypeSafeRequired<OfferRequestListPickerAdapterShape> {
     return {
       ...this.fromBaseFirebaseType(firebase),
       placeholder: firebase.placeholder,

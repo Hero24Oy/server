@@ -1,29 +1,34 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import {
   BaseOfferRequestQuestionDB,
-  BaseOfferRequestShape,
+  BaseOfferRequestQuestionShape,
   OfferRequestBaseQuestionDto,
 } from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type QuestionType = 'number_input';
 
-type OfferRequestNumberInputQuestionShape = {
-  placeholder?: MaybeType<TranslationFieldDto>;
-  extra_placeholder?: MaybeType<TranslationFieldDto>;
-  value?: MaybeType<string>;
-};
+type OfferRequestNumberInputQuestionAdapterShape =
+  BaseOfferRequestQuestionShape<QuestionType> & {
+    placeholder?: MaybeType<TranslationFieldDto>;
+    extra_placeholder?: MaybeType<TranslationFieldDto>;
+    value?: MaybeType<string>;
+  };
 
 type PlainOfferRequestNumberInputQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
+export type OfferRequestNumberInputQuestionInputShape =
+  OfferRequestNumberInputQuestionAdapterShape;
+
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
+@InputType('OfferRequestNumberInputQuestionInput')
 export class OfferRequestNumberInputQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
-  OfferRequestNumberInputQuestionShape,
+  OfferRequestNumberInputQuestionAdapterShape,
   PlainOfferRequestNumberInputQuestion
 > {
   @Field(() => TranslationFieldDto, { nullable: true })
@@ -49,9 +54,7 @@ export class OfferRequestNumberInputQuestionDto extends OfferRequestBaseQuestion
 
   protected fromFirebaseType(
     firebase: PlainOfferRequestNumberInputQuestion,
-  ): TypeSafeRequired<
-    OfferRequestNumberInputQuestionShape & BaseOfferRequestShape<QuestionType>
-  > {
+  ): TypeSafeRequired<OfferRequestNumberInputQuestionAdapterShape> {
     return {
       ...this.fromBaseFirebaseType(firebase),
       placeholder: firebase.placeholder,

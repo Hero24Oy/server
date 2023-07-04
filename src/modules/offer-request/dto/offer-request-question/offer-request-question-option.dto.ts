@@ -1,25 +1,29 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 
 import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
 import { PlainOfferRequestQuestionOption } from '../../offer-request-questions.types';
 
-type OfferRequestQuestionOptionShape = {
+type OfferRequestQuestionOptionAdapterShape = {
   id: string;
   name?: MaybeType<TranslationFieldDto>;
   order?: MaybeType<number>;
-  questions?: MaybeType<string[]>; // it will be used to tackle circular deps in graphql. This is custom ID, generated on the go.
+  questions?: MaybeType<string[]>;
   checked?: MaybeType<boolean>;
 };
 
+export type OfferRequestQuestionOptionInputShape =
+  OfferRequestQuestionOptionAdapterShape;
+
 @ObjectType()
+@InputType('OfferRequestQuestionOptionInput')
 export class OfferRequestQuestionOptionDto
   extends FirebaseGraphQLAdapter<
-    OfferRequestQuestionOptionShape,
+    OfferRequestQuestionOptionAdapterShape,
     PlainOfferRequestQuestionOption
   >
-  implements OfferRequestQuestionOptionShape
+  implements OfferRequestQuestionOptionAdapterShape
 {
   @Field(() => String)
   id: string;
@@ -49,7 +53,7 @@ export class OfferRequestQuestionOptionDto
 
   protected fromFirebaseType(
     firebase: PlainOfferRequestQuestionOption,
-  ): TypeSafeRequired<OfferRequestQuestionOptionShape> {
+  ): TypeSafeRequired<OfferRequestQuestionOptionAdapterShape> {
     return {
       id: firebase.id,
       checked: firebase.checked,

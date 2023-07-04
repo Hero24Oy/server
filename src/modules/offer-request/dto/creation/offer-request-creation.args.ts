@@ -1,6 +1,7 @@
 import { ArgsType, Field, Float } from '@nestjs/graphql';
 import { OfferRequestDataInput } from './offer-request-data.input';
 import { OfferRequestSubscriptionInput } from './offer-request-subscription.input';
+import { MaybeType } from 'src/modules/common/common.types';
 
 @ArgsType()
 export class OfferRequestCreationArgs {
@@ -8,14 +9,14 @@ export class OfferRequestCreationArgs {
   data: OfferRequestDataInput;
 
   @Field(() => OfferRequestSubscriptionInput, { nullable: true })
-  subscription?: OfferRequestSubscriptionInput;
+  subscription?: MaybeType<OfferRequestSubscriptionInput>;
 
   @Field(() => Float, { nullable: true })
-  customerVat?: number;
+  customerVat?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  minimumDuration?: number;
+  minimumDuration?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  serviceProviderVAT?: number;
+  serviceProviderVAT?: MaybeType<number>;
 }

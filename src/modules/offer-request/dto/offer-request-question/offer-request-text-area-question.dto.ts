@@ -1,28 +1,33 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import {
   BaseOfferRequestQuestionDB,
-  BaseOfferRequestShape,
+  BaseOfferRequestQuestionShape,
   OfferRequestBaseQuestionDto,
 } from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type QuestionType = 'textarea';
 
-type OfferRequestTextAreaQuestionShape = {
-  placeholder?: MaybeType<TranslationFieldDto>;
-  value?: MaybeType<string>;
-};
+type OfferRequestTextAreaQuestionAdapterShape =
+  BaseOfferRequestQuestionShape<QuestionType> & {
+    placeholder?: MaybeType<TranslationFieldDto>;
+    value?: MaybeType<string>;
+  };
 
 type PlainOfferRequestTextAreaQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
+export type OfferRequestTextAreaQuestionInputShape =
+  OfferRequestTextAreaQuestionAdapterShape;
+
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
+@InputType('OfferRequestTextAreaQuestionInput')
 export class OfferRequestTextAreaQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
-  OfferRequestTextAreaQuestionShape,
+  OfferRequestTextAreaQuestionAdapterShape,
   PlainOfferRequestTextAreaQuestion
 > {
   @Field(() => TranslationFieldDto, { nullable: true })
@@ -43,9 +48,7 @@ export class OfferRequestTextAreaQuestionDto extends OfferRequestBaseQuestionDto
 
   protected fromFirebaseType(
     firebase: PlainOfferRequestTextAreaQuestion,
-  ): TypeSafeRequired<
-    OfferRequestTextAreaQuestionShape & BaseOfferRequestShape<QuestionType>
-  > {
+  ): TypeSafeRequired<OfferRequestTextAreaQuestionAdapterShape> {
     return {
       ...this.fromBaseFirebaseType(firebase),
       placeholder: firebase.placeholder,

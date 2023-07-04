@@ -1,8 +1,8 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import {
   BaseOfferRequestQuestionDB,
-  BaseOfferRequestShape,
+  BaseOfferRequestQuestionShape,
   OfferRequestBaseQuestionDto,
 } from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
@@ -13,19 +13,24 @@ import {
 
 type QuestionType = 'image';
 
-type OfferRequestBaseQuestionShape = {
-  images?: MaybeType<string[]>;
-  imageCount?: MaybeType<number>;
-};
+type OfferRequestImageQuestionAdapterShape =
+  BaseOfferRequestQuestionShape<QuestionType> & {
+    images?: MaybeType<string[]>;
+    imageCount?: MaybeType<number>;
+  };
 
 type PlainOfferRequestBaseQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
+export type OfferRequestImageQuestionInputShape =
+  OfferRequestImageQuestionAdapterShape;
+
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
+@InputType('OfferRequestImageQuestionInput')
 export class OfferRequestImageQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
-  OfferRequestBaseQuestionShape,
+  OfferRequestImageQuestionAdapterShape,
   PlainOfferRequestBaseQuestion
 > {
   @Field(() => [String], { nullable: true })
@@ -46,9 +51,7 @@ export class OfferRequestImageQuestionDto extends OfferRequestBaseQuestionDto<
 
   protected fromFirebaseType(
     firebase: PlainOfferRequestBaseQuestion,
-  ): TypeSafeRequired<
-    OfferRequestBaseQuestionShape & BaseOfferRequestShape<QuestionType>
-  > {
+  ): TypeSafeRequired<OfferRequestImageQuestionAdapterShape> {
     return {
       ...this.fromBaseFirebaseType(firebase),
       images: firebase.images && convertFirebaseMapToList(firebase.images),

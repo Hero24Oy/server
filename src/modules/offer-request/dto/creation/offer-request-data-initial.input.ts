@@ -1,13 +1,65 @@
 import { Field, InputType, Float } from '@nestjs/graphql';
-import { serverTimestamp } from 'firebase/database';
 import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
-import { omitUndefined } from 'src/modules/common/common.utils';
 import { AddressesAnsweredInput } from './addresses-answered.input';
-import { OfferRequestQuestionInput } from './offer-request-question/offer-request-question.input';
-import { PackageInput } from './package.input';
+import { PackageInput, PackageShape } from './package.input';
+import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
+import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
+import {
+  OfferRequestQuestionInput,
+  OfferRequestQuestionInputShape,
+} from '../offer-request-question/offer-request-question.input';
+import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
+
+export type OfferRequestInitialDataInputShape = {
+  buyerProfile: string;
+  category: string;
+  questions: OfferRequestQuestionInputShape[];
+  addresses: AddressesAnsweredInput;
+  package?: MaybeType<PackageShape>;
+  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
+  sendInvoiceWith?: MaybeType<'sms' | 'email'>;
+  prepaid?: MaybeType<'waiting' | 'paid'>;
+  postpaid?: MaybeType<'no' | 'yes'>;
+  fixedPrice?: MaybeType<number>;
+  fixedDuration?: MaybeType<number>;
+  promotionDisabled?: MaybeType<boolean>;
+};
+
+type OfferRequestInitialDataShape = {
+  buyerProfile: string;
+  category: string;
+  questions: OfferRequestQuestionInput[];
+  addresses: AddressesAnsweredInput;
+  package?: MaybeType<PackageInput>;
+  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
+  sendInvoiceWith?: MaybeType<'sms' | 'email'>;
+  prepaid?: MaybeType<'waiting' | 'paid'>;
+  postpaid?: MaybeType<'no' | 'yes'>;
+  fixedPrice?: MaybeType<number>;
+  fixedDuration?: MaybeType<number>;
+  promotionDisabled?: MaybeType<boolean>;
+};
+
+type OfferRequestInitialDataDB = OfferRequestDB['data']['initial'];
 
 @InputType()
-export class OfferRequestDataInitialInput {
+export class OfferRequestDataInitialInput extends FirebaseGraphQLAdapter<
+  OfferRequestInitialDataShape,
+  OfferRequestInitialDataDB
+> {
+  constructor(shape?: OfferRequestInitialDataInputShape) {
+    super(
+      shape && {
+        ...shape,
+        package: shape.package && new PackageInput(shape.package),
+        questions: shape.questions.map(
+          (question) => new OfferRequestQuestionInput(question),
+        ),
+      },
+    );
+  }
+
   @Field(() => String)
   buyerProfile: string;
 
@@ -21,51 +73,56 @@ export class OfferRequestDataInitialInput {
   addresses: AddressesAnsweredInput;
 
   @Field(() => PackageInput, { nullable: true })
-  package?: PackageInput;
+  package?: MaybeType<PackageInput>;
 
   @Field(() => String, { nullable: true })
-  prePayWith?: 'stripe' | 'netvisor';
+  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
 
   @Field(() => String, { nullable: true })
-  sendInvoiceWith?: 'sms' | 'email';
+  sendInvoiceWith?: MaybeType<'sms' | 'email'>;
 
   @Field(() => String, { nullable: true })
-  prepaid?: 'waiting' | 'paid';
+  prepaid?: MaybeType<'waiting' | 'paid'>;
 
   @Field(() => String, { nullable: true })
-  postpaid?: 'no' | 'yes';
+  postpaid?: MaybeType<'no' | 'yes'>;
 
   @Field(() => Float, { nullable: true })
-  fixedPrice?: number;
+  fixedPrice?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  fixedDuration?: number;
+  fixedDuration?: MaybeType<number>;
 
   @Field(() => Boolean, { nullable: true })
-  promotionDisabled?: boolean;
+  promotionDisabled?: MaybeType<boolean>;
 
-  static convertToFirebaseType(
-    data: OfferRequestDataInitialInput,
-  ): OfferRequestDB['data']['initial'] {
-    const mainQuestions = data.questions.filter(
-      (question) => typeof question.depsId !== 'string',
-    );
+  protected toFirebaseType(): TypeSafeRequired<OfferRequestInitialDataDB> {
+    const questions = this.questions.map((question) => question.toFirebase());
 
-    return omitUndefined({
-      ...data,
-      questions: mainQuestions.map((question) =>
-        OfferRequestQuestionInput.convertToFirebaseType(
-          question,
-          data.questions,
-        ),
-      ),
-      addresses: (data.addresses.basic ||
-        data.addresses.delivery) as AddressesAnswered,
-      package: data.package && {
-        ...PackageInput.convertToFirebaseType(data.package),
-        id: data.package.id,
-      },
-      createdAt: serverTimestamp() as unknown as number,
-    });
+    return {
+      buyerProfile: this.buyerProfile,
+      category: this.category,
+      prePayWith: this.prePayWith ?? undefined,
+      sendInvoiceWith: this.sendInvoiceWith ?? undefined,
+      prepaid: this.prepaid ?? undefined,
+      postpaid: this.postpaid ?? undefined,
+      fixedPrice: this.fixedPrice ?? undefined,
+      fixedDuration: this.fixedDuration ?? undefined,
+      promotionDisabled: this.promotionDisabled ?? undefined,
+      questions: offerRequestQuestionsToTree(questions, QUESTION_FLAT_ID_NAME),
+      addresses: (this.addresses.basic ||
+        this.addresses.delivery) as AddressesAnswered,
+      package: this.package
+        ? {
+            ...this.package.toFirebase(),
+            id: this.package.id,
+          }
+        : undefined,
+      createdAt: Date.now(),
+    };
+  }
+
+  protected fromFirebaseType(): TypeSafeRequired<OfferRequestInitialDataShape> {
+    throw new Error('Should never use');
   }
 }

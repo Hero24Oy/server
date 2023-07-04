@@ -1,4 +1,4 @@
-import { Field, Int, InterfaceType } from '@nestjs/graphql';
+import { Field, InputType, Int, InterfaceType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
 import {
   MaybeType,
@@ -9,7 +9,9 @@ import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dt
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
 import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
 
-export type BaseOfferRequestShape<Type extends OfferRequestQuestion['type']> = {
+export type BaseOfferRequestQuestionShape<
+  Type extends OfferRequestQuestion['type'],
+> = {
   id: string;
   [QUESTION_FLAT_ID_NAME]?: string; // undefined for the root question
   name?: MaybeType<TranslationFieldDto>;
@@ -25,6 +27,7 @@ export type BaseOfferRequestQuestionDB<
 };
 
 @InterfaceType()
+@InputType({ isAbstract: true })
 export abstract class OfferRequestBaseQuestionDto<
     Type extends OfferRequestQuestion['type'],
     Shape extends RecordType,
@@ -33,11 +36,11 @@ export abstract class OfferRequestBaseQuestionDto<
     ExpandT extends RecordType = {},
   >
   extends FirebaseGraphQLAdapter<
-    Shape & BaseOfferRequestShape<Type>,
+    Shape & BaseOfferRequestQuestionShape<Type>,
     FirebaseT & BaseOfferRequestQuestionDB<Type>,
     ExpandT
   >
-  implements BaseOfferRequestShape<Type>
+  implements BaseOfferRequestQuestionShape<Type>
 {
   @Field(() => String)
   id: string;
@@ -68,7 +71,7 @@ export abstract class OfferRequestBaseQuestionDto<
 
   protected fromBaseFirebaseType(
     firebase: BaseOfferRequestQuestionDB<Type>,
-  ): TypeSafeRequired<BaseOfferRequestShape<Type>> {
+  ): TypeSafeRequired<BaseOfferRequestQuestionShape<Type>> {
     return {
       id: firebase.id,
       [QUESTION_FLAT_ID_NAME]: firebase[QUESTION_FLAT_ID_NAME],

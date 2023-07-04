@@ -1,8 +1,9 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { SuitableTimes } from 'hero24-types';
 import { SuitableTimeItemDto } from './suitable-time-item.dto';
 
 @ObjectType()
+@InputType('SuitableTimeInput')
 export class SuitableTimeDto {
   @Field(() => String)
   key: string;

@@ -1,30 +1,52 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import {
   BaseOfferRequestQuestionDB,
-  BaseOfferRequestShape,
+  BaseOfferRequestQuestionShape,
   OfferRequestBaseQuestionDto,
 } from './offer-request-base-question.dto';
-import { OfferRequestQuestionOptionDto } from './offer-request-question-option.dto';
+import {
+  OfferRequestQuestionOptionDto,
+  OfferRequestQuestionOptionInputShape,
+} from './offer-request-question-option.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type QuestionType = 'radio';
 
-type RadioQuestionShape = {
-  selectedOption?: MaybeType<string>;
-  options: OfferRequestQuestionOptionDto[];
-};
+type OfferRequestRadioQuestionAdapterShape =
+  BaseOfferRequestQuestionShape<QuestionType> & {
+    selectedOption?: MaybeType<string>;
+    options: OfferRequestQuestionOptionDto[];
+  };
 
 type PlainOfferRequestRadioQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
+export type OfferRequestRadioQuestionInputShape =
+  BaseOfferRequestQuestionShape<QuestionType> & {
+    selectedOption?: MaybeType<string>;
+    options: OfferRequestQuestionOptionInputShape[];
+  };
+
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
+@InputType('OfferRequestRadioQuestionInput')
 export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<
   QuestionType,
-  RadioQuestionShape,
+  OfferRequestRadioQuestionAdapterShape,
   PlainOfferRequestRadioQuestion
 > {
+  constructor(shape?: OfferRequestRadioQuestionInputShape) {
+    super(
+      shape && {
+        ...shape,
+        options: shape.options.map(
+          (option) => new OfferRequestQuestionOptionDto(option),
+        ),
+      },
+    );
+  }
+
   @Field(() => String, { nullable: true })
   selectedOption?: MaybeType<string>;
 
@@ -43,9 +65,7 @@ export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<
 
   protected fromFirebaseType(
     firebase: PlainOfferRequestRadioQuestion,
-  ): TypeSafeRequired<
-    RadioQuestionShape & BaseOfferRequestShape<QuestionType>
-  > {
+  ): TypeSafeRequired<OfferRequestRadioQuestionAdapterShape> {
     return {
       ...this.fromBaseFirebaseType(firebase),
       selectedOption: firebase.selectedOption,

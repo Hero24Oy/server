@@ -99,7 +99,7 @@ export class OfferRequestService {
     const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
       subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
     } = {
-      data: OfferRequestDataInput.convertToFirebaseType(data),
+      data: new OfferRequestDataInput(data).toFirebase(),
       ...(subscription ? { subscription } : {}),
       ...(serviceProviderVAT ? { serviceProviderVAT } : {}),
       ...(customerVat ? { customerVat } : {}),
