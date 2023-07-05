@@ -13,10 +13,20 @@ import { isNumber } from 'lodash';
 import { omitUndefined } from '../common/common.utils';
 import { Identity } from '../auth/auth.types';
 import { Scope } from '../auth/auth.constants';
+import { SorterService } from '../sorter/sorter.service';
+import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-order-column';
+import { OfferRequestSorterContext } from './offer-request.types';
 
 @Injectable()
 export class OfferRequestService {
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private firebaseService: FirebaseService,
+    private sorterService: SorterService<
+      OfferRequestOrderColumn,
+      OfferRequestDto,
+      OfferRequestSorterContext
+    >,
+  ) {}
 
   private async getAllOfferRequests() {
     const app = this.firebaseService.getDefaultApp();
@@ -69,7 +79,7 @@ export class OfferRequestService {
     args: OfferRequestListArgs,
     identity: Identity,
   ): Promise<OfferRequestListDto> {
-    const { limit, offset } = args;
+    const { limit, offset, orderBy } = args;
 
     const offerRequests = await this.getAllOfferRequests();
     const hasPagination = isNumber(limit) && isNumber(offset);
@@ -83,6 +93,8 @@ export class OfferRequestService {
     }
 
     const total = edges.length;
+
+    edges = this.sorterService.sort(edges, orderBy || [], {});
 
     if (hasPagination) {
       edges = edges.slice(offset, offset + limit);
