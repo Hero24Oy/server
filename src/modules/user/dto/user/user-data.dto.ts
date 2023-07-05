@@ -1,7 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { SupportedLanguages } from 'hero24-types';
+
+import { MaybeType } from 'src/modules/common/common.types';
+
 import { UserDataAddressDto } from './user-data-address.dto';
 import { UserDataActiveRouteDto } from './user-data-active-route.dto';
-import { SupportedLanguages } from 'hero24-types';
 
 @ObjectType()
 export class UserDataDto {
@@ -9,28 +12,28 @@ export class UserDataDto {
   email: string;
 
   @Field(() => Boolean, { nullable: true })
-  emailVerified?: boolean;
+  emailVerified?: MaybeType<boolean>;
 
   @Field(() => [String], { nullable: true })
-  pushToken?: string[];
+  pushToken?: MaybeType<string[]>;
 
   @Field(() => String)
   name: string;
 
   @Field(() => String, { nullable: true })
-  firstName?: string;
+  firstName?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  lastName?: string;
+  lastName?: MaybeType<string>;
 
   @Field(() => String)
   photoURL: string;
 
   @Field(() => String, { nullable: true })
-  language?: string;
+  language?: MaybeType<string>;
 
   @Field(() => Boolean, { nullable: true })
-  isActive?: boolean;
+  isActive?: MaybeType<boolean>;
 
   @Field(() => UserDataActiveRouteDto, { nullable: true })
   activeRoute?: UserDataActiveRouteDto;
@@ -39,38 +42,38 @@ export class UserDataDto {
   addresses?: UserDataAddressDto[];
 
   @Field(() => String, { nullable: true }) // Todo: UserDB['data']['phone'] = string | undefined
-  phone?: string;
+  phone?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  iban?: string;
+  iban?: MaybeType<string>;
 
   @Field(() => Date, { nullable: true })
-  birthDate?: Date;
+  birthDate?: MaybeType<Date>;
 
   @Field(() => String, { nullable: true })
-  certificate?: string;
+  certificate?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  insurance?: string;
+  insurance?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  ssn?: string;
+  ssn?: MaybeType<string>;
 
   @Field(() => Date)
   createdAt: Date;
 
   @Field(() => Date, { nullable: true })
-  updatedAt?: Date;
+  updatedAt?: MaybeType<Date>;
 
   @Field(() => Date, { nullable: true })
-  deletedAt?: Date;
+  deletedAt?: MaybeType<Date>;
 
   @Field(() => Boolean, { nullable: true })
-  hasAccountMergeBeenAsked?: boolean;
+  hasAccountMergeBeenAsked?: MaybeType<boolean>;
 
   @Field(() => String, { nullable: true })
-  selectedAppLanguage?: SupportedLanguages;
+  selectedAppLanguage?: MaybeType<SupportedLanguages>;
 
   @Field(() => Date, { nullable: true })
-  lastAskedReviewTime?: Date;
+  lastAskedReviewTime?: MaybeType<Date>;
 }

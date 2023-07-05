@@ -18,6 +18,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { N8nModule } from './modules/n8n/n8n.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { SettingsModule } from './modules/settings/settings.module';
     AuthModule,
     NewsModule,
     SettingsModule,
+    N8nModule,
   ],
   providers: [AppResolver],
 })

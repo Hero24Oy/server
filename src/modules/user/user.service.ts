@@ -62,9 +62,9 @@ export class UserService {
       const searchText = search.toLowerCase();
 
       users = users.filter((user) => {
-        const { email, firstName = '', name, lastName = '' } = user.data;
+        const { email, firstName, name, lastName } = user.data;
 
-        const target = [email, firstName, name, lastName]
+        const target = [email, firstName || '', name || '', lastName || ''] // TODO: write name as "" in database for deleted records
           .map((str) => str.toLowerCase())
           .join(' ');
 
