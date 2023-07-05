@@ -10,6 +10,8 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
 import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { AppIdentity } from '../auth/auth.decorator';
+import { Identity } from '../auth/auth.types';
 
 @Resolver()
 export class OfferRequestResolver {
@@ -28,8 +30,11 @@ export class OfferRequestResolver {
   @Query(() => OfferRequestListDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async offerRequestList(@Args() args: OfferRequestListArgs) {
-    return this.offerRequestService.getOfferRequestList(args);
+  async offerRequestList(
+    @Args() args: OfferRequestListArgs,
+    @AppIdentity() identity: Identity,
+  ) {
+    return this.offerRequestService.getOfferRequestList(args, identity);
   }
 
   @Mutation(() => OfferRequestDto)
