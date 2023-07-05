@@ -1,5 +1,5 @@
 import { Inject, UseGuards } from '@nestjs/common';
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import map from 'lodash/map';
 
@@ -19,6 +19,7 @@ import { IsChatMember } from '../activators/chat-member.activator';
 import { UNSEEN_CHATS_CHANGED_SUBSCRIPTION } from '../chat.constants';
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
+import { AppIdentity } from 'src/modules/auth/auth.decorator';
 
 @Resolver()
 export class ChatMessageResolver {
@@ -34,7 +35,7 @@ export class ChatMessageResolver {
   async createChatMessage(
     @Args() args: ChatMessageCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
-    @Context('identity') identity: Identity,
+    @AppIdentity() identity: Identity,
   ): Promise<ChatMessageDto> {
     const chatSnapshot = await this.chatService.getChatById(args.chatId, app);
 
