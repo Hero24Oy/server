@@ -1,6 +1,6 @@
 import { Field, Int, Float, ObjectType } from '@nestjs/graphql';
 import { PackageDB } from 'hero24-types';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
@@ -11,9 +11,9 @@ type PackageShape = {
   description: TranslationFieldDto;
   order: number;
   pricePerHour: number;
-  recommendedDuration?: number;
-  citiesIncluded?: string[];
-  citiesExcluded?: string[];
+  recommendedDuration?: MaybeType<number>;
+  citiesIncluded?: MaybeType<string[]>;
+  citiesExcluded?: MaybeType<string[]>;
 };
 
 @ObjectType()
@@ -37,23 +37,23 @@ export class PackageDto
   pricePerHour: number;
 
   @Field(() => Float, { nullable: true })
-  recommendedDuration?: number;
+  recommendedDuration?: MaybeType<number>;
 
   @Field(() => [String], { nullable: true })
-  citiesIncluded?: string[];
+  citiesIncluded?: MaybeType<string[]>;
 
   @Field(() => [String], { nullable: true })
-  citiesExcluded?: string[];
+  citiesExcluded?: MaybeType<string[]>;
 
   protected toFirebaseType(): TypeSafeRequired<PackageDB> {
     return {
-      cities_excluded: this.citiesExcluded,
-      cities_included: this.citiesIncluded,
+      cities_excluded: this.citiesExcluded ?? undefined,
+      cities_included: this.citiesIncluded ?? undefined,
       description: this.description,
       name: this.name,
       order: this.order,
       pricePerHour: this.pricePerHour,
-      recommendedDuration: this.recommendedDuration,
+      recommendedDuration: this.recommendedDuration ?? undefined,
     };
   }
 

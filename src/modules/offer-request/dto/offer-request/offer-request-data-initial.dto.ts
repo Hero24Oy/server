@@ -8,7 +8,7 @@ import {
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
@@ -17,18 +17,18 @@ import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
 
 interface OfferRequestDataInitialShape {
   buyerProfile: string;
-  fixedDuration?: number;
-  fixedPrice?: number;
+  fixedDuration?: MaybeType<number>;
+  fixedPrice?: MaybeType<number>;
   createdAt: Date;
-  prePayWith?: 'stripe' | 'netvisor';
-  sendInvoiceWith?: 'sms' | 'email';
-  prepaid?: 'waiting' | 'paid';
-  postpaid?: 'no' | 'yes';
+  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
+  sendInvoiceWith?: MaybeType<'sms' | 'email'>;
+  prepaid?: MaybeType<'waiting' | 'paid'>;
+  postpaid?: MaybeType<'no' | 'yes'>;
   questions: OfferRequestQuestionDto[];
   addresses: AddressesAnsweredDto;
   category: string;
-  package?: PackageDto;
-  promotionDisabled?: boolean;
+  package?: MaybeType<PackageDto>;
+  promotionDisabled?: MaybeType<boolean>;
 }
 
 type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];
@@ -45,25 +45,25 @@ export class OfferRequestDataInitialDto
   buyerProfile: string;
 
   @Field(() => Float, { nullable: true })
-  fixedDuration?: number;
+  fixedDuration?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  fixedPrice?: number;
+  fixedPrice?: MaybeType<number>;
 
   @Field(() => Date)
   createdAt: Date;
 
   @Field(() => String, { nullable: true })
-  prePayWith?: 'stripe' | 'netvisor';
+  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
 
   @Field(() => String, { nullable: true })
-  sendInvoiceWith?: 'sms' | 'email';
+  sendInvoiceWith?: MaybeType<'sms' | 'email'>;
 
   @Field(() => String, { nullable: true })
-  prepaid?: 'waiting' | 'paid';
+  prepaid?: MaybeType<'waiting' | 'paid'>;
 
   @Field(() => String, { nullable: true })
-  postpaid?: 'no' | 'yes';
+  postpaid?: MaybeType<'no' | 'yes'>;
 
   @Field(() => [OfferRequestQuestionDto])
   questions: OfferRequestQuestionDto[];
@@ -75,22 +75,22 @@ export class OfferRequestDataInitialDto
   category: string;
 
   @Field(() => PackageDto, { nullable: true })
-  package?: PackageDto;
+  package?: MaybeType<PackageDto>;
 
   @Field(() => Boolean, { nullable: true })
-  promotionDisabled?: boolean;
+  promotionDisabled?: MaybeType<boolean>;
 
   protected toFirebaseType(): TypeSafeRequired<OfferRequestDataInitialDB> {
     const questions = this.questions.map((question) => question.toFirebase());
 
     return {
-      prepaid: this.prepaid,
-      postpaid: this.postpaid,
-      promotionDisabled: this.promotionDisabled,
-      fixedDuration: this.fixedDuration,
-      fixedPrice: this.fixedPrice,
-      prePayWith: this.prePayWith,
-      sendInvoiceWith: this.sendInvoiceWith,
+      prepaid: this.prepaid ?? undefined,
+      postpaid: this.postpaid ?? undefined,
+      promotionDisabled: this.promotionDisabled ?? undefined,
+      fixedDuration: this.fixedDuration ?? undefined,
+      fixedPrice: this.fixedPrice ?? undefined,
+      prePayWith: this.prePayWith ?? undefined,
+      sendInvoiceWith: this.sendInvoiceWith ?? undefined,
       buyerProfile: this.buyerProfile,
       addresses: this.addresses,
       category: this.category,

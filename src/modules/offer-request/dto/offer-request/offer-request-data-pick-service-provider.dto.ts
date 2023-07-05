@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, PickStrategy } from 'hero24-types';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
@@ -12,7 +12,7 @@ type PickServiceProviderDB = Exclude<
   undefined
 >;
 type PickServiceProviderShape = {
-  preferred?: string[];
+  preferred?: MaybeType<string[]>;
   pickStrategy: PickStrategy;
 };
 

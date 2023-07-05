@@ -6,19 +6,19 @@ import { OfferRequestDataInitialDto } from './offer-request-data-initial.dto';
 import { OfferRequestDataPickServiceProviderDto } from './offer-request-data-pick-service-provider.dto';
 import { OfferRequestDataRequestedChangesDto } from './offer-request-data-requested-changes.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 
 type OfferRequestDataDB = OfferRequestDB['data'];
 
 type OfferRequestDataShape = {
-  actualStartTime?: Date;
-  reviewed?: boolean;
+  actualStartTime?: MaybeType<Date>;
+  reviewed?: MaybeType<boolean>;
   status: OFFER_REQUEST_STATUS;
   initial: OfferRequestDataInitialDto;
-  lastAgreedStartTime?: Date;
-  requestedChanges?: OfferRequestDataRequestedChangesDto;
-  changesAccepted?: OfferRequestDataChangesAcceptedDto;
-  pickServiceProvider?: OfferRequestDataPickServiceProviderDto;
+  lastAgreedStartTime?: MaybeType<Date>;
+  requestedChanges?: MaybeType<OfferRequestDataRequestedChangesDto>;
+  changesAccepted?: MaybeType<OfferRequestDataChangesAcceptedDto>;
+  pickServiceProvider?: MaybeType<OfferRequestDataPickServiceProviderDto>;
 };
 
 @ObjectType()
@@ -27,10 +27,10 @@ export class OfferRequestDataDto
   implements OfferRequestDataShape
 {
   @Field(() => Date, { nullable: true })
-  actualStartTime?: Date;
+  actualStartTime?: MaybeType<Date>;
 
   @Field(() => Boolean, { nullable: true })
-  reviewed?: boolean;
+  reviewed?: MaybeType<boolean>;
 
   @Field(() => String)
   status: OFFER_REQUEST_STATUS;
@@ -39,20 +39,20 @@ export class OfferRequestDataDto
   initial: OfferRequestDataInitialDto;
 
   @Field(() => Date, { nullable: true })
-  lastAgreedStartTime?: Date;
+  lastAgreedStartTime?: MaybeType<Date>;
 
   @Field(() => OfferRequestDataRequestedChangesDto, { nullable: true })
-  requestedChanges?: OfferRequestDataRequestedChangesDto;
+  requestedChanges?: MaybeType<OfferRequestDataRequestedChangesDto>;
 
   @Field(() => OfferRequestDataChangesAcceptedDto, { nullable: true })
-  changesAccepted?: OfferRequestDataChangesAcceptedDto;
+  changesAccepted?: MaybeType<OfferRequestDataChangesAcceptedDto>;
 
   @Field(() => OfferRequestDataPickServiceProviderDto, { nullable: true })
-  pickServiceProvider?: OfferRequestDataPickServiceProviderDto;
+  pickServiceProvider?: MaybeType<OfferRequestDataPickServiceProviderDto>;
 
   protected toFirebaseType(): TypeSafeRequired<OfferRequestDataDB> {
     return {
-      reviewed: this.reviewed,
+      reviewed: this.reviewed ?? undefined,
       status: this.status,
       changesAccepted: this.changesAccepted?.toFirebase(),
       initial: this.initial.toFirebase(),

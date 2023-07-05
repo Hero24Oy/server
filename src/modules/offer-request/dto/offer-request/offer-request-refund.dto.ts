@@ -1,13 +1,13 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, REFUND_STATUS } from 'hero24-types';
 
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
 
 type OfferRequestRefundShape = {
   updatedAt: Date;
   amount: number;
-  message?: string;
+  message?: MaybeType<string>;
   status: REFUND_STATUS;
 };
 
@@ -25,7 +25,7 @@ export class OfferRequestRefundDto
   amount: number;
 
   @Field(() => String, { nullable: true })
-  message?: string;
+  message?: MaybeType<string>;
 
   @Field(() => String)
   status: REFUND_STATUS;
@@ -33,7 +33,7 @@ export class OfferRequestRefundDto
   protected toFirebaseType(): TypeSafeRequired<RefundDB> {
     return {
       amount: this.amount,
-      message: this.message,
+      message: this.message ?? undefined,
       status: this.status,
       updatedAt: +this.updatedAt,
     };

@@ -2,13 +2,13 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from './offer-request-data-requested-changes-changed-questions.dto';
 
 type RequestedChangesShape = {
   created: Date;
-  reason?: string;
+  reason?: MaybeType<string>;
   changedQuestions: OfferRequestDataRequestedChangesChangedQuestionsDto;
 };
 
@@ -26,14 +26,14 @@ export class OfferRequestDataRequestedChangesDto
   created: Date;
 
   @Field(() => String, { nullable: true })
-  reason?: string;
+  reason?: MaybeType<string>;
 
   @Field(() => OfferRequestDataRequestedChangesChangedQuestionsDto)
   changedQuestions: OfferRequestDataRequestedChangesChangedQuestionsDto;
 
   protected toFirebaseType(): TypeSafeRequired<RequestedChangesDB> {
     return {
-      reason: this.reason,
+      reason: this.reason ?? undefined,
       created: +new Date(this.created),
       changedQuestions: this.changedQuestions.toFirebase(),
     };

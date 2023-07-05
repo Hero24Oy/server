@@ -1,15 +1,15 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestSubscription, SUBSCRIPTION_INTERVAL } from 'hero24-types';
 
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
 
 type OfferRequestSubscriptionShape = {
   subscriptionId: string;
   subscriptionType: SUBSCRIPTION_INTERVAL;
-  initialRequest?: boolean;
-  priceDiscount?: number;
-  discountFormat?: 'fixed' | 'percentage';
+  initialRequest?: MaybeType<boolean>;
+  priceDiscount?: MaybeType<number>;
+  discountFormat?: MaybeType<'fixed' | 'percentage'>;
   currentAnchorDate: Date;
   nextAnchorDate: Date;
 };
@@ -29,13 +29,13 @@ export class OfferRequestSubscriptionDto
   subscriptionType: SUBSCRIPTION_INTERVAL;
 
   @Field(() => Boolean, { nullable: true })
-  initialRequest?: boolean;
+  initialRequest?: MaybeType<boolean>;
 
   @Field(() => Float, { nullable: true })
-  priceDiscount?: number;
+  priceDiscount?: MaybeType<number>;
 
   @Field(() => String, { nullable: true })
-  discountFormat?: 'fixed' | 'percentage';
+  discountFormat?: MaybeType<'fixed' | 'percentage'>;
 
   @Field(() => Date)
   currentAnchorDate: Date;
@@ -47,9 +47,9 @@ export class OfferRequestSubscriptionDto
     return {
       subscriptionId: this.subscriptionId,
       subscriptionType: this.subscriptionType,
-      initialRequest: this.initialRequest,
-      priceDiscount: this.priceDiscount,
-      discountFormat: this.discountFormat,
+      initialRequest: this.initialRequest ?? undefined,
+      priceDiscount: this.priceDiscount ?? undefined,
+      discountFormat: this.discountFormat ?? undefined,
       currentAnchorDate: +new Date(this.currentAnchorDate),
       nextAnchorDate: +new Date(this.nextAnchorDate),
     };

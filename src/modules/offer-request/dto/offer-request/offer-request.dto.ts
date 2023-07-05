@@ -11,31 +11,31 @@ import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
 import { OfferRequestSubscriptionDto } from './offer-request-subscription.dto';
 import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 
 type OfferRequestShape = {
   id: string;
   data: OfferRequestDataDto;
-  chats?: OfferRequestChatDto[];
-  subscription?: OfferRequestSubscriptionDto;
-  stripeSubscriptionId?: string;
-  stripePaymentIntentId?: string;
-  customerVAT?: number;
-  serviceProviderVAT?: number;
-  netvisorSalesOrderId?: string;
-  netvisorSalesInvoiceNumber?: number;
-  minimumDuration?: number;
-  sendToNetvisor?: number;
-  isApproved?: boolean;
-  isApprovedByBuyer?: boolean;
-  offers?: string[];
-  fees?: string[];
-  paymentParamsId?: string; // legacy
-  paymentInfoId?: string;
-  paymentTransactions?: string[];
-  offerRequestChanged?: boolean;
-  offerRrequestChangeAccepted?: boolean;
-  refund?: OfferRequestRefundDto;
+  chats?: MaybeType<OfferRequestChatDto[]>;
+  subscription?: MaybeType<OfferRequestSubscriptionDto>;
+  stripeSubscriptionId?: MaybeType<string>;
+  stripePaymentIntentId?: MaybeType<string>;
+  customerVAT?: MaybeType<number>;
+  serviceProviderVAT?: MaybeType<number>;
+  netvisorSalesOrderId?: MaybeType<string>;
+  netvisorSalesInvoiceNumber?: MaybeType<number>;
+  minimumDuration?: MaybeType<number>;
+  sendToNetvisor?: MaybeType<number>;
+  isApproved?: MaybeType<boolean>;
+  isApprovedByBuyer?: MaybeType<boolean>;
+  offers?: MaybeType<string[]>;
+  fees?: MaybeType<string[]>;
+  paymentParamsId?: MaybeType<string>; // legacy
+  paymentInfoId?: MaybeType<string>;
+  paymentTransactions?: MaybeType<string[]>;
+  offerRequestChanged?: MaybeType<boolean>;
+  offerRrequestChangeAccepted?: MaybeType<boolean>;
+  refund?: MaybeType<OfferRequestRefundDto>;
 };
 
 @ObjectType()
@@ -54,64 +54,64 @@ export class OfferRequestDto
   data: OfferRequestDataDto;
 
   @Field(() => [OfferRequestChatDto], { nullable: true })
-  chats?: OfferRequestChatDto[];
+  chats?: MaybeType<OfferRequestChatDto[]>;
 
   @Field(() => OfferRequestSubscriptionDto, { nullable: true })
-  subscription?: OfferRequestSubscriptionDto;
+  subscription?: MaybeType<OfferRequestSubscriptionDto>;
 
   @Field(() => String, { nullable: true })
-  stripeSubscriptionId?: string;
+  stripeSubscriptionId?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  stripePaymentIntentId?: string;
+  stripePaymentIntentId?: MaybeType<string>;
 
   @Field(() => Float, { nullable: true })
-  customerVAT?: number;
+  customerVAT?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  serviceProviderVAT?: number;
+  serviceProviderVAT?: MaybeType<number>;
 
   @Field(() => String, { nullable: true })
-  netvisorSalesOrderId?: string;
+  netvisorSalesOrderId?: MaybeType<string>;
 
   @Field(() => Float, { nullable: true })
-  netvisorSalesInvoiceNumber?: number;
+  netvisorSalesInvoiceNumber?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  minimumDuration?: number;
+  minimumDuration?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  sendToNetvisor?: number;
+  sendToNetvisor?: MaybeType<number>;
 
   @Field(() => Boolean, { nullable: true })
-  isApproved?: boolean;
+  isApproved?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
-  isApprovedByBuyer?: boolean;
+  isApprovedByBuyer?: MaybeType<boolean>;
 
   @Field(() => [String], { nullable: true })
-  offers?: string[];
+  offers?: MaybeType<string[]>;
 
   @Field(() => [String], { nullable: true })
-  fees?: string[];
+  fees?: MaybeType<string[]>;
 
   @Field(() => String, { nullable: true })
-  paymentParamsId?: string; // legacy
+  paymentParamsId?: MaybeType<string>; // legacy
 
   @Field(() => String, { nullable: true })
-  paymentInfoId?: string;
+  paymentInfoId?: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
-  paymentTransactions?: string[];
+  paymentTransactions?: MaybeType<string[]>;
 
   @Field(() => Boolean, { nullable: true })
-  offerRequestChanged?: boolean;
+  offerRequestChanged?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
-  offerRrequestChangeAccepted?: boolean;
+  offerRrequestChangeAccepted?: MaybeType<boolean>;
 
   @Field(() => OfferRequestRefundDto, { nullable: true })
-  refund?: OfferRequestRefundDto;
+  refund?: MaybeType<OfferRequestRefundDto>;
 
   protected toFirebaseType(): TypeSafeRequired<OfferRequestDB> {
     return {
@@ -130,20 +130,21 @@ export class OfferRequestDto
             this.chats.map((chat) => [chat.sellerId, chat.toFirebase()]),
           )
         : undefined,
-      stripeSubscriptionId: this.stripeSubscriptionId,
-      stripePaymentIntentId: this.stripePaymentIntentId,
-      customerVAT: this.customerVAT,
-      serviceProviderVAT: this.serviceProviderVAT,
-      netvisorSalesOrderId: this.netvisorSalesOrderId,
-      netvisorSalesInvoiceNumber: this.netvisorSalesInvoiceNumber,
-      minimumDuration: this.minimumDuration,
-      sendToNetvisor: this.sendToNetvisor,
-      isApproved: this.isApproved,
-      isApprovedByBuyer: this.isApprovedByBuyer,
-      paymentParamsId: this.paymentParamsId,
-      paymentInfoId: this.paymentInfoId,
-      offerRequestChanged: this.offerRequestChanged,
-      offerRrequestChangeAccepted: this.offerRrequestChangeAccepted,
+      stripeSubscriptionId: this.stripeSubscriptionId ?? undefined,
+      stripePaymentIntentId: this.stripePaymentIntentId ?? undefined,
+      customerVAT: this.customerVAT ?? undefined,
+      serviceProviderVAT: this.serviceProviderVAT ?? undefined,
+      netvisorSalesOrderId: this.netvisorSalesOrderId ?? undefined,
+      netvisorSalesInvoiceNumber: this.netvisorSalesInvoiceNumber ?? undefined,
+      minimumDuration: this.minimumDuration ?? undefined,
+      sendToNetvisor: this.sendToNetvisor ?? undefined,
+      isApproved: this.isApproved ?? undefined,
+      isApprovedByBuyer: this.isApprovedByBuyer ?? undefined,
+      paymentParamsId: this.paymentParamsId ?? undefined,
+      paymentInfoId: this.paymentInfoId ?? undefined,
+      offerRequestChanged: this.offerRequestChanged ?? undefined,
+      offerRrequestChangeAccepted:
+        this.offerRrequestChangeAccepted ?? undefined,
     };
   }
 
