@@ -15,7 +15,13 @@ import { Identity } from '../auth/auth.types';
 import { Scope } from '../auth/auth.constants';
 import { SorterService } from '../sorter/sorter.service';
 import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-order-column';
-import { OfferRequestSorterContext } from './offer-request.types';
+import {
+  OfferRequestFiltererContext,
+  OfferRequestSorterContext,
+} from './offer-request.types';
+import { FiltererService } from '../filterer/filterer.service';
+import { OfferRequestFilterColumn } from './offer-request.constants';
+import { OfferRequestFiltererConfigs } from './offer-request.filers';
 
 @Injectable()
 export class OfferRequestService {
@@ -25,6 +31,12 @@ export class OfferRequestService {
       OfferRequestOrderColumn,
       OfferRequestDto,
       OfferRequestSorterContext
+    >,
+    private filtererService: FiltererService<
+      OfferRequestFilterColumn,
+      OfferRequestDto,
+      OfferRequestFiltererContext,
+      OfferRequestFiltererConfigs
     >,
   ) {}
 
@@ -79,7 +91,7 @@ export class OfferRequestService {
     args: OfferRequestListArgs,
     identity: Identity,
   ): Promise<OfferRequestListDto> {
-    const { limit, offset, orderBy } = args;
+    const { limit, offset, orderBy, filter } = args;
 
     const offerRequests = await this.getAllOfferRequests();
     const hasPagination = isNumber(limit) && isNumber(offset);
@@ -91,6 +103,12 @@ export class OfferRequestService {
         ({ data }) => data.initial.buyerProfile === identity.id,
       );
     }
+
+    const filtererConfig: Partial<OfferRequestFiltererConfigs> = {
+      [OfferRequestFilterColumn.STATUS]: filter?.status || undefined,
+    };
+
+    edges = this.filtererService.filter(edges, filtererConfig, {});
 
     const total = edges.length;
 
