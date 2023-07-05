@@ -22,7 +22,6 @@ import { ChatsOrderColumn } from '../dto/chats/chats-order-column.enum';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { ChatMemberDB, ChatsSorterContext } from '../chat.types';
 import { SorterService } from 'src/modules/sorter/sorter.service';
-import { AppPlatform } from 'src/app.types';
 
 @Injectable()
 export class ChatService {
@@ -36,11 +35,7 @@ export class ChatService {
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
-  async getChats(
-    args: ChatsArgs,
-    identity: Identity,
-    platform: AppPlatform | null,
-  ): Promise<ChatListDto> {
+  async getChats(args: ChatsArgs, identity: Identity): Promise<ChatListDto> {
     const { limit, offset, filter, ordersBy = [] } = args;
 
     const database = getAdminDatabase(this.firebaseService.getDefaultApp());
@@ -63,7 +58,7 @@ export class ChatService {
     const hasPagination =
       typeof limit === 'number' && typeof offset === 'number';
 
-    let chatEdges = filterChats({ identity, platform, filter, chats });
+    let chatEdges = filterChats({ identity, filter, chats });
 
     const total = chatEdges.length;
 

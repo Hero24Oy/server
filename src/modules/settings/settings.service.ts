@@ -9,18 +9,15 @@ import { Settings } from './settings.types';
 
 @Injectable()
 export class SettingsService {
-  async getSettings(
-    app: FirebaseAppInstance,
-  ): Promise<SettingsDto | null> {
+  async getSettings(app: FirebaseAppInstance): Promise<SettingsDto | null> {
     const database = getDatabase(app);
 
     const settingsSnapshot = await get(
       ref(database, `${FirebaseDatabasePath.SETTINGS}`),
     );
 
-    const Settings: Settings | null = settingsSnapshot.val();
+    const settings: Settings | null = settingsSnapshot.val();
 
-    return Settings
+    return settings;
   }
-
 }

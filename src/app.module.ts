@@ -18,7 +18,6 @@ import { ChatModule } from './modules/chat/chat.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
-import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
 
 @Module({
   imports: [
@@ -54,7 +53,6 @@ import { PlatformSpecifierModule } from './modules/platform-specifier/platform-s
     AuthModule,
     NewsModule,
     SettingsModule,
-    PlatformSpecifierModule,
   ],
   providers: [AppResolver],
 })

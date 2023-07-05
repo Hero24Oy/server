@@ -1,4 +1,6 @@
+import { Scope } from './auth.constants';
+
 export type Identity = {
   id: string;
-  isAdmin: boolean;
+  scope: Scope;
 };
