@@ -1,27 +1,11 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestSubscription, SUBSCRIPTION_INTERVAL } from 'hero24-types';
 
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-
-type OfferRequestSubscriptionShape = {
-  subscriptionId: string;
-  subscriptionType: SUBSCRIPTION_INTERVAL;
-  initialRequest?: MaybeType<boolean>;
-  priceDiscount?: MaybeType<number>;
-  discountFormat?: MaybeType<'fixed' | 'percentage'>;
-  currentAnchorDate: Date;
-  nextAnchorDate: Date;
-};
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 @ObjectType()
-export class OfferRequestSubscriptionDto
-  extends FirebaseGraphQLAdapter<
-    OfferRequestSubscriptionShape,
-    OfferRequestSubscription
-  >
-  implements OfferRequestSubscriptionShape
-{
+export class OfferRequestSubscriptionDto {
   @Field(() => String)
   subscriptionId: string;
 
@@ -43,29 +27,33 @@ export class OfferRequestSubscriptionDto
   @Field(() => Date)
   nextAnchorDate: Date;
 
-  protected toFirebaseType(): TypeSafeRequired<OfferRequestSubscription> {
-    return {
-      subscriptionId: this.subscriptionId,
-      subscriptionType: this.subscriptionType,
-      initialRequest: this.initialRequest ?? undefined,
-      priceDiscount: this.priceDiscount ?? undefined,
-      discountFormat: this.discountFormat ?? undefined,
-      currentAnchorDate: +new Date(this.currentAnchorDate),
-      nextAnchorDate: +new Date(this.nextAnchorDate),
-    };
-  }
-
-  protected fromFirebaseType(
-    subscription: OfferRequestSubscription,
-  ): TypeSafeRequired<OfferRequestSubscriptionShape> {
-    return {
-      subscriptionId: subscription.subscriptionId,
-      subscriptionType: subscription.subscriptionType,
-      initialRequest: subscription.initialRequest,
-      priceDiscount: subscription.priceDiscount,
-      discountFormat: subscription.discountFormat,
-      currentAnchorDate: new Date(subscription.currentAnchorDate),
-      nextAnchorDate: new Date(subscription.nextAnchorDate),
-    };
-  }
+  static adapter: FirebaseAdapter<
+    OfferRequestSubscription,
+    OfferRequestSubscriptionDto
+  >;
 }
+
+OfferRequestSubscriptionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      subscriptionId: external.subscriptionId,
+      subscriptionType: external.subscriptionType,
+      initialRequest: external.initialRequest ?? undefined,
+      priceDiscount: external.priceDiscount ?? undefined,
+      discountFormat: external.discountFormat ?? undefined,
+      currentAnchorDate: +new Date(external.currentAnchorDate),
+      nextAnchorDate: +new Date(external.nextAnchorDate),
+    };
+  },
+  toExternal(internal) {
+    return {
+      subscriptionId: internal.subscriptionId,
+      subscriptionType: internal.subscriptionType,
+      initialRequest: internal.initialRequest,
+      priceDiscount: internal.priceDiscount,
+      discountFormat: internal.discountFormat,
+      currentAnchorDate: new Date(internal.currentAnchorDate),
+      nextAnchorDate: new Date(internal.nextAnchorDate),
+    };
+  },
+});

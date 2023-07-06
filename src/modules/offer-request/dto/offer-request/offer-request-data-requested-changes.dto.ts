@@ -1,16 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType } from 'src/modules/common/common.types';
 
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from './offer-request-data-requested-changes-changed-questions.dto';
-
-type RequestedChangesShape = {
-  created: Date;
-  reason?: MaybeType<string>;
-  changedQuestions: OfferRequestDataRequestedChangesChangedQuestionsDto;
-};
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 type RequestedChangesDB = Exclude<
   OfferRequestDB['data']['requestedChanges'],
@@ -18,10 +12,7 @@ type RequestedChangesDB = Exclude<
 >;
 
 @ObjectType()
-export class OfferRequestDataRequestedChangesDto
-  extends FirebaseGraphQLAdapter<RequestedChangesShape, RequestedChangesDB>
-  implements RequestedChangesShape
-{
+export class OfferRequestDataRequestedChangesDto {
   @Field(() => Date)
   created: Date;
 
@@ -31,24 +22,31 @@ export class OfferRequestDataRequestedChangesDto
   @Field(() => OfferRequestDataRequestedChangesChangedQuestionsDto)
   changedQuestions: OfferRequestDataRequestedChangesChangedQuestionsDto;
 
-  protected toFirebaseType(): TypeSafeRequired<RequestedChangesDB> {
-    return {
-      reason: this.reason ?? undefined,
-      created: +new Date(this.created),
-      changedQuestions: this.changedQuestions.toFirebase(),
-    };
-  }
+  static adapter: FirebaseAdapter<
+    RequestedChangesDB,
+    OfferRequestDataRequestedChangesDto
+  >;
+}
 
-  protected fromFirebaseType(
-    requestedChanges: RequestedChangesDB,
-  ): TypeSafeRequired<RequestedChangesShape> {
+OfferRequestDataRequestedChangesDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
     return {
-      reason: requestedChanges.reason,
-      created: new Date(requestedChanges.created),
+      reason: external.reason ?? undefined,
+      created: +new Date(external.created),
       changedQuestions:
-        new OfferRequestDataRequestedChangesChangedQuestionsDto().fromFirebase(
-          requestedChanges.changedQuestions,
+        OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toInternal(
+          external.changedQuestions,
         ),
     };
-  }
-}
+  },
+  toExternal(internal) {
+    return {
+      reason: internal.reason,
+      created: new Date(internal.created),
+      changedQuestions:
+        OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toExternal(
+          internal.changedQuestions,
+        ),
+    };
+  },
+});

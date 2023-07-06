@@ -1,23 +1,13 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, REFUND_STATUS } from 'hero24-types';
 
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-
-type OfferRequestRefundShape = {
-  updatedAt: Date;
-  amount: number;
-  message?: MaybeType<string>;
-  status: REFUND_STATUS;
-};
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 type RefundDB = Exclude<OfferRequestDB['refund'], undefined>;
 
 @ObjectType()
-export class OfferRequestRefundDto
-  extends FirebaseGraphQLAdapter<OfferRequestRefundShape, RefundDB>
-  implements OfferRequestRefundShape
-{
+export class OfferRequestRefundDto {
   @Field(() => Date)
   updatedAt: Date;
 
@@ -30,23 +20,24 @@ export class OfferRequestRefundDto
   @Field(() => String)
   status: REFUND_STATUS;
 
-  protected toFirebaseType(): TypeSafeRequired<RefundDB> {
-    return {
-      amount: this.amount,
-      message: this.message ?? undefined,
-      status: this.status,
-      updatedAt: +this.updatedAt,
-    };
-  }
-
-  protected fromFirebaseType(
-    refund: RefundDB,
-  ): TypeSafeRequired<OfferRequestRefundShape> {
-    return {
-      amount: refund.amount,
-      message: refund.message,
-      status: refund.status,
-      updatedAt: new Date(refund.updatedAt),
-    };
-  }
+  static adapter: FirebaseAdapter<RefundDB, OfferRequestRefundDto>;
 }
+
+OfferRequestRefundDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      amount: external.amount,
+      message: external.message ?? undefined,
+      status: external.status,
+      updatedAt: +external.updatedAt,
+    };
+  },
+  toExternal(internal) {
+    return {
+      amount: internal.amount,
+      message: internal.message,
+      status: internal.status,
+      updatedAt: new Date(internal.updatedAt),
+    };
+  },
+});

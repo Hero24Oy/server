@@ -1,26 +1,12 @@
 import { Field, Int, Float, ObjectType } from '@nestjs/graphql';
 import { PackageDB } from 'hero24-types';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType } from 'src/modules/common/common.types';
 
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-
-type PackageShape = {
-  id: string;
-  name: TranslationFieldDto;
-  description: TranslationFieldDto;
-  order: number;
-  pricePerHour: number;
-  recommendedDuration?: MaybeType<number>;
-  citiesIncluded?: MaybeType<string[]>;
-  citiesExcluded?: MaybeType<string[]>;
-};
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 @ObjectType()
-export class PackageDto
-  extends FirebaseGraphQLAdapter<PackageShape, PackageDB, { id: string }>
-  implements PackageShape
-{
+export class PackageDto {
   @Field(() => String)
   id: string;
 
@@ -45,30 +31,33 @@ export class PackageDto
   @Field(() => [String], { nullable: true })
   citiesExcluded?: MaybeType<string[]>;
 
-  protected toFirebaseType(): TypeSafeRequired<PackageDB> {
-    return {
-      cities_excluded: this.citiesExcluded ?? undefined,
-      cities_included: this.citiesIncluded ?? undefined,
-      description: this.description,
-      name: this.name,
-      order: this.order,
-      pricePerHour: this.pricePerHour,
-      recommendedDuration: this.recommendedDuration ?? undefined,
-    };
-  }
-
-  protected fromFirebaseType(
-    firebase: PackageDB & { id: string },
-  ): TypeSafeRequired<PackageShape> {
-    return {
-      citiesExcluded: firebase.cities_excluded,
-      citiesIncluded: firebase.cities_included,
-      description: firebase.description,
-      id: firebase.id,
-      name: firebase.name,
-      order: firebase.order,
-      pricePerHour: firebase.pricePerHour,
-      recommendedDuration: firebase.recommendedDuration,
-    };
-  }
+  static adapter: FirebaseAdapter<PackageDB & { id: string }, PackageDto>;
 }
+
+PackageDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      id: external.id,
+      cities_excluded: external.citiesExcluded ?? undefined,
+      cities_included: external.citiesIncluded ?? undefined,
+      description: external.description,
+      name: external.name,
+      order: external.order,
+      pricePerHour: external.pricePerHour,
+      recommendedDuration: external.recommendedDuration ?? undefined,
+    };
+  },
+
+  toExternal(internal) {
+    return {
+      citiesExcluded: internal.cities_excluded,
+      citiesIncluded: internal.cities_included,
+      description: internal.description,
+      id: internal.id,
+      name: internal.name,
+      order: internal.order,
+      pricePerHour: internal.pricePerHour,
+      recommendedDuration: internal.recommendedDuration,
+    };
+  },
+});

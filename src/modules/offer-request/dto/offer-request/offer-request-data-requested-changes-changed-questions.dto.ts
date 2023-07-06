@@ -7,63 +7,59 @@ import {
   OfferRequestQuestionDto,
   createOfferRequestQuestionDto,
 } from '../offer-request-question/offer-request-question.dto';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
 import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
-
-type ChangedQuestionsShape = {
-  before: OfferRequestQuestionDto[];
-  after: OfferRequestQuestionDto[];
-};
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 type ChangedQuestionsDB = Required<
   OfferRequestDB['data']
 >['requestedChanges']['changedQuestions'];
 
 @ObjectType()
-export class OfferRequestDataRequestedChangesChangedQuestionsDto
-  extends FirebaseGraphQLAdapter<ChangedQuestionsShape, ChangedQuestionsDB>
-  implements ChangedQuestionsShape
-{
+export class OfferRequestDataRequestedChangesChangedQuestionsDto {
   @Field(() => [OfferRequestQuestionDto])
   before: OfferRequestQuestionDto[];
 
   @Field(() => [OfferRequestQuestionDto])
   after: OfferRequestQuestionDto[];
 
-  protected toFirebaseType(): TypeSafeRequired<ChangedQuestionsDB> {
-    const before = offerRequestQuestionsToTree(
-      this.before.map((question) => question.toFirebase()),
-      QUESTION_FLAT_ID_NAME,
-    );
-    const after = offerRequestQuestionsToTree(
-      this.after.map((question) => question.toFirebase()),
-      QUESTION_FLAT_ID_NAME,
-    );
-
-    return omitUndefined({
-      before,
-      after,
-    });
-  }
-
-  protected fromFirebaseType(
-    changedQuestions: ChangedQuestionsDB,
-  ): TypeSafeRequired<ChangedQuestionsShape> {
-    const beforeQuestions = offerRequestQuestionsToArray(
-      changedQuestions.before,
-      QUESTION_FLAT_ID_NAME,
-    );
-    const afterQuestions = offerRequestQuestionsToArray(
-      changedQuestions.after,
-      QUESTION_FLAT_ID_NAME,
-    );
-
-    return {
-      before: beforeQuestions.map(createOfferRequestQuestionDto),
-      after: afterQuestions.map(createOfferRequestQuestionDto),
-    };
-  }
+  static adapter: FirebaseAdapter<
+    ChangedQuestionsDB,
+    OfferRequestDataRequestedChangesChangedQuestionsDto
+  >;
 }
+
+OfferRequestDataRequestedChangesChangedQuestionsDto.adapter =
+  new FirebaseAdapter({
+    toInternal(external) {
+      const before = offerRequestQuestionsToTree(
+        external.before.map((question) => question.toFirebase()),
+        QUESTION_FLAT_ID_NAME,
+      );
+      const after = offerRequestQuestionsToTree(
+        external.after.map((question) => question.toFirebase()),
+        QUESTION_FLAT_ID_NAME,
+      );
+
+      return omitUndefined({
+        before,
+        after,
+      });
+    },
+    toExternal(internal) {
+      const beforeQuestions = offerRequestQuestionsToArray(
+        internal.before,
+        QUESTION_FLAT_ID_NAME,
+      );
+      const afterQuestions = offerRequestQuestionsToArray(
+        internal.after,
+        QUESTION_FLAT_ID_NAME,
+      );
+
+      return {
+        before: beforeQuestions.map(createOfferRequestQuestionDto),
+        after: afterQuestions.map(createOfferRequestQuestionDto),
+      };
+    },
+  });

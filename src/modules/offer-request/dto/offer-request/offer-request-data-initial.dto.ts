@@ -7,40 +7,18 @@ import {
   createOfferRequestQuestionDto,
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType } from 'src/modules/common/common.types';
 import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
 import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
-
-interface OfferRequestDataInitialShape {
-  buyerProfile: string;
-  fixedDuration?: MaybeType<number>;
-  fixedPrice?: MaybeType<number>;
-  createdAt: Date;
-  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
-  sendInvoiceWith?: MaybeType<'sms' | 'email'>;
-  prepaid?: MaybeType<'waiting' | 'paid'>;
-  postpaid?: MaybeType<'no' | 'yes'>;
-  questions: OfferRequestQuestionDto[];
-  addresses: AddressesAnsweredDto;
-  category: string;
-  package?: MaybeType<PackageDto>;
-  promotionDisabled?: MaybeType<boolean>;
-}
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];
 
 @ObjectType()
-export class OfferRequestDataInitialDto
-  extends FirebaseGraphQLAdapter<
-    OfferRequestDataInitialShape,
-    OfferRequestDataInitialDB
-  >
-  implements OfferRequestDataInitialShape
-{
+export class OfferRequestDataInitialDto {
   @Field(() => String)
   buyerProfile: string;
 
@@ -80,58 +58,61 @@ export class OfferRequestDataInitialDto
   @Field(() => Boolean, { nullable: true })
   promotionDisabled?: MaybeType<boolean>;
 
-  protected toFirebaseType(): TypeSafeRequired<OfferRequestDataInitialDB> {
-    const questions = this.questions.map((question) => question.toFirebase());
+  static adapter: FirebaseAdapter<
+    OfferRequestDataInitialDB,
+    OfferRequestDataInitialDto
+  >;
+}
+
+OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    const questions = external.questions.map((question) =>
+      question.toFirebase(),
+    );
 
     return {
-      prepaid: this.prepaid ?? undefined,
-      postpaid: this.postpaid ?? undefined,
-      promotionDisabled: this.promotionDisabled ?? undefined,
-      fixedDuration: this.fixedDuration ?? undefined,
-      fixedPrice: this.fixedPrice ?? undefined,
-      prePayWith: this.prePayWith ?? undefined,
-      sendInvoiceWith: this.sendInvoiceWith ?? undefined,
-      buyerProfile: this.buyerProfile,
-      addresses: this.addresses,
-      category: this.category,
-      createdAt: +new Date(this.createdAt),
-      package: this.package
-        ? {
-            ...this.package.toFirebase(),
-            id: this.package.id,
-          }
+      prepaid: external.prepaid ?? undefined,
+      postpaid: external.postpaid ?? undefined,
+      promotionDisabled: external.promotionDisabled ?? undefined,
+      fixedDuration: external.fixedDuration ?? undefined,
+      fixedPrice: external.fixedPrice ?? undefined,
+      prePayWith: external.prePayWith ?? undefined,
+      sendInvoiceWith: external.sendInvoiceWith ?? undefined,
+      buyerProfile: external.buyerProfile,
+      addresses: external.addresses,
+      category: external.category,
+      createdAt: +new Date(external.createdAt),
+      package: external.package
+        ? PackageDto.adapter.toInternal(external.package)
         : undefined,
       questions: offerRequestQuestionsToTree(questions, QUESTION_FLAT_ID_NAME),
     };
-  }
-
-  protected fromFirebaseType(
-    data: OfferRequestDataInitialDB,
-  ): TypeSafeRequired<OfferRequestDataInitialShape> {
+  },
+  toExternal(internal) {
     const questions = offerRequestQuestionsToArray(
-      data.questions,
+      internal.questions,
       QUESTION_FLAT_ID_NAME,
     );
 
     return {
-      fixedPrice: data.fixedPrice,
-      prePayWith: data.prePayWith,
-      sendInvoiceWith: data.sendInvoiceWith,
-      prepaid: data.prepaid,
-      postpaid: data.postpaid,
-      promotionDisabled: data.promotionDisabled,
-      buyerProfile: data.buyerProfile,
-      category: data.category,
-      fixedDuration: data.fixedDuration,
-      createdAt: new Date(data.createdAt),
+      fixedPrice: internal.fixedPrice,
+      prePayWith: internal.prePayWith,
+      sendInvoiceWith: internal.sendInvoiceWith,
+      prepaid: internal.prepaid,
+      postpaid: internal.postpaid,
+      promotionDisabled: internal.promotionDisabled,
+      buyerProfile: internal.buyerProfile,
+      category: internal.category,
+      fixedDuration: internal.fixedDuration,
+      createdAt: new Date(internal.createdAt),
       questions: questions.map(createOfferRequestQuestionDto),
       addresses:
-        data.addresses.type === 'basic'
-          ? new BasicAddressesDto(data.addresses)
-          : new DeliveryAddressesDto(data.addresses),
-      package: data.package
-        ? new PackageDto().fromFirebase(data.package)
+        internal.addresses.type === 'basic'
+          ? new BasicAddressesDto(internal.addresses)
+          : new DeliveryAddressesDto(internal.addresses),
+      package: internal.package
+        ? PackageDto.adapter.toExternal(internal.package)
         : undefined,
     };
-  }
-}
+  },
+});

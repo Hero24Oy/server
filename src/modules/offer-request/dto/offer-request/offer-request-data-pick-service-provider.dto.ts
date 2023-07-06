@@ -1,52 +1,45 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, PickStrategy } from 'hero24-types';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 type PickServiceProviderDB = Exclude<
   OfferRequestDB['data']['pickServiceProvider'],
   undefined
 >;
-type PickServiceProviderShape = {
-  preferred?: MaybeType<string[]>;
-  pickStrategy: PickStrategy;
-};
 
 @ObjectType()
-export class OfferRequestDataPickServiceProviderDto
-  extends FirebaseGraphQLAdapter<
-    PickServiceProviderShape,
-    PickServiceProviderDB
-  >
-  implements PickServiceProviderShape
-{
+export class OfferRequestDataPickServiceProviderDto {
   @Field(() => [String], { nullable: true })
   preferred?: string[];
 
   @Field(() => String)
   pickStrategy: PickStrategy;
 
-  protected toFirebaseType(): TypeSafeRequired<PickServiceProviderDB> {
-    return {
-      pickStrategy: this.pickStrategy,
-      preferred: this.preferred
-        ? convertListToFirebaseMap(this.preferred)
-        : undefined,
-    };
-  }
-
-  protected fromFirebaseType(
-    serviceProviderPicker: PickServiceProviderDB,
-  ): TypeSafeRequired<PickServiceProviderShape> {
-    return {
-      pickStrategy: serviceProviderPicker.pickStrategy,
-      preferred: serviceProviderPicker.preferred
-        ? convertFirebaseMapToList(serviceProviderPicker.preferred)
-        : undefined,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    PickServiceProviderDB,
+    OfferRequestDataPickServiceProviderDto
+  >;
 }
+
+OfferRequestDataPickServiceProviderDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      pickStrategy: external.pickStrategy,
+      preferred: external.preferred
+        ? convertListToFirebaseMap(external.preferred)
+        : undefined,
+    };
+  },
+  toExternal(internal) {
+    return {
+      pickStrategy: internal.pickStrategy,
+      preferred: internal.preferred
+        ? convertFirebaseMapToList(internal.preferred)
+        : undefined,
+    };
+  },
+});

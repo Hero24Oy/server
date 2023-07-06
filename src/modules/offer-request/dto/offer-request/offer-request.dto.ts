@@ -5,48 +5,16 @@ import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 import { OfferRequestChatDto } from './offer-request-chat.dto';
 import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
 import { OfferRequestSubscriptionDto } from './offer-request-subscription.dto';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
-
-type OfferRequestShape = {
-  id: string;
-  data: OfferRequestDataDto;
-  chats?: MaybeType<OfferRequestChatDto[]>;
-  subscription?: MaybeType<OfferRequestSubscriptionDto>;
-  stripeSubscriptionId?: MaybeType<string>;
-  stripePaymentIntentId?: MaybeType<string>;
-  customerVAT?: MaybeType<number>;
-  serviceProviderVAT?: MaybeType<number>;
-  netvisorSalesOrderId?: MaybeType<string>;
-  netvisorSalesInvoiceNumber?: MaybeType<number>;
-  minimumDuration?: MaybeType<number>;
-  sendToNetvisor?: MaybeType<number>;
-  isApproved?: MaybeType<boolean>;
-  isApprovedByBuyer?: MaybeType<boolean>;
-  offers?: MaybeType<string[]>;
-  fees?: MaybeType<string[]>;
-  paymentParamsId?: MaybeType<string>; // legacy
-  paymentInfoId?: MaybeType<string>;
-  paymentTransactions?: MaybeType<string[]>;
-  offerRequestChanged?: MaybeType<boolean>;
-  offerRrequestChangeAccepted?: MaybeType<boolean>;
-  refund?: MaybeType<OfferRequestRefundDto>;
-};
 
 @ObjectType()
-export class OfferRequestDto
-  extends FirebaseGraphQLAdapter<
-    OfferRequestShape,
-    OfferRequestDB,
-    { id: string }
-  >
-  implements OfferRequestShape
-{
+export class OfferRequestDto {
   @Field(() => String)
   id: string;
 
@@ -113,78 +81,94 @@ export class OfferRequestDto
   @Field(() => OfferRequestRefundDto, { nullable: true })
   refund?: MaybeType<OfferRequestRefundDto>;
 
-  protected toFirebaseType(): TypeSafeRequired<OfferRequestDB> {
-    return {
-      data: this.data.toFirebase(),
-      offers: this.offers ? convertListToFirebaseMap(this.offers) : undefined,
-      fees: this.fees ? convertListToFirebaseMap(this.fees) : undefined,
-      paymentTransactions: this.paymentTransactions
-        ? convertListToFirebaseMap(this.paymentTransactions)
-        : undefined,
-      refund: this.refund ? this.refund.toFirebase() : undefined,
-      subscription: this.subscription
-        ? this.subscription.toFirebase()
-        : undefined,
-      chats: this.chats
-        ? Object.fromEntries(
-            this.chats.map((chat) => [chat.sellerId, chat.toFirebase()]),
-          )
-        : undefined,
-      stripeSubscriptionId: this.stripeSubscriptionId ?? undefined,
-      stripePaymentIntentId: this.stripePaymentIntentId ?? undefined,
-      customerVAT: this.customerVAT ?? undefined,
-      serviceProviderVAT: this.serviceProviderVAT ?? undefined,
-      netvisorSalesOrderId: this.netvisorSalesOrderId ?? undefined,
-      netvisorSalesInvoiceNumber: this.netvisorSalesInvoiceNumber ?? undefined,
-      minimumDuration: this.minimumDuration ?? undefined,
-      sendToNetvisor: this.sendToNetvisor ?? undefined,
-      isApproved: this.isApproved ?? undefined,
-      isApprovedByBuyer: this.isApprovedByBuyer ?? undefined,
-      paymentParamsId: this.paymentParamsId ?? undefined,
-      paymentInfoId: this.paymentInfoId ?? undefined,
-      offerRequestChanged: this.offerRequestChanged ?? undefined,
-      offerRrequestChangeAccepted:
-        this.offerRrequestChangeAccepted ?? undefined,
-    };
-  }
-
-  protected fromFirebaseType(
-    shape: OfferRequestDB & { id: string },
-  ): TypeSafeRequired<OfferRequestShape> {
-    return {
-      id: shape.id,
-      stripeSubscriptionId: shape.stripeSubscriptionId,
-      stripePaymentIntentId: shape.stripePaymentIntentId,
-      customerVAT: shape.customerVAT,
-      serviceProviderVAT: shape.serviceProviderVAT,
-      netvisorSalesOrderId: shape.netvisorSalesOrderId,
-      netvisorSalesInvoiceNumber: shape.netvisorSalesInvoiceNumber,
-      minimumDuration: shape.minimumDuration,
-      sendToNetvisor: shape.sendToNetvisor,
-      isApproved: shape.isApproved,
-      isApprovedByBuyer: shape.isApprovedByBuyer,
-      paymentParamsId: shape.paymentParamsId,
-      paymentInfoId: shape.paymentInfoId,
-      offerRequestChanged: shape.offerRequestChanged,
-      offerRrequestChangeAccepted: shape.offerRrequestChangeAccepted,
-
-      data: new OfferRequestDataDto().fromFirebase(shape.data),
-      offers: shape.offers ? convertFirebaseMapToList(shape.offers) : undefined,
-      fees: shape.fees ? convertFirebaseMapToList(shape.fees) : undefined,
-      paymentTransactions:
-        shape.paymentTransactions &&
-        convertFirebaseMapToList(shape.paymentTransactions),
-      refund: shape.refund
-        ? new OfferRequestRefundDto().fromFirebase(shape.refund)
-        : undefined,
-      subscription: shape.subscription
-        ? new OfferRequestSubscriptionDto().fromFirebase(shape.subscription)
-        : undefined,
-      chats: shape.chats
-        ? Object.values(shape.chats).map((chat) =>
-            new OfferRequestChatDto().fromFirebase(chat),
-          )
-        : undefined,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    OfferRequestDB & { id: string },
+    OfferRequestDto
+  >;
 }
+
+OfferRequestDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      id: external.id,
+      data: OfferRequestDataDto.adapter.toInternal(external.data),
+      offers: external.offers
+        ? convertListToFirebaseMap(external.offers)
+        : undefined,
+      fees: external.fees ? convertListToFirebaseMap(external.fees) : undefined,
+      paymentTransactions: external.paymentTransactions
+        ? convertListToFirebaseMap(external.paymentTransactions)
+        : undefined,
+      refund: external.refund
+        ? OfferRequestRefundDto.adapter.toInternal(external.refund)
+        : undefined,
+      subscription: external.subscription
+        ? OfferRequestSubscriptionDto.adapter.toInternal(external.subscription)
+        : undefined,
+      chats: external.chats
+        ? Object.fromEntries(
+            external.chats.map((chat) => [
+              chat.sellerId,
+              OfferRequestChatDto.adapter.toInternal(chat),
+            ]),
+          )
+        : undefined,
+      stripeSubscriptionId: external.stripeSubscriptionId ?? undefined,
+      stripePaymentIntentId: external.stripePaymentIntentId ?? undefined,
+      customerVAT: external.customerVAT ?? undefined,
+      serviceProviderVAT: external.serviceProviderVAT ?? undefined,
+      netvisorSalesOrderId: external.netvisorSalesOrderId ?? undefined,
+      netvisorSalesInvoiceNumber:
+        external.netvisorSalesInvoiceNumber ?? undefined,
+      minimumDuration: external.minimumDuration ?? undefined,
+      sendToNetvisor: external.sendToNetvisor ?? undefined,
+      isApproved: external.isApproved ?? undefined,
+      isApprovedByBuyer: external.isApprovedByBuyer ?? undefined,
+      paymentParamsId: external.paymentParamsId ?? undefined,
+      paymentInfoId: external.paymentInfoId ?? undefined,
+      offerRequestChanged: external.offerRequestChanged ?? undefined,
+      offerRrequestChangeAccepted:
+        external.offerRrequestChangeAccepted ?? undefined,
+    };
+  },
+
+  toExternal(internal) {
+    return {
+      id: internal.id,
+      stripeSubscriptionId: internal.stripeSubscriptionId,
+      stripePaymentIntentId: internal.stripePaymentIntentId,
+      customerVAT: internal.customerVAT,
+      serviceProviderVAT: internal.serviceProviderVAT,
+      netvisorSalesOrderId: internal.netvisorSalesOrderId,
+      netvisorSalesInvoiceNumber: internal.netvisorSalesInvoiceNumber,
+      minimumDuration: internal.minimumDuration,
+      sendToNetvisor: internal.sendToNetvisor,
+      isApproved: internal.isApproved,
+      isApprovedByBuyer: internal.isApprovedByBuyer,
+      paymentParamsId: internal.paymentParamsId,
+      paymentInfoId: internal.paymentInfoId,
+      offerRequestChanged: internal.offerRequestChanged,
+      offerRrequestChangeAccepted: internal.offerRrequestChangeAccepted,
+
+      data: OfferRequestDataDto.adapter.toExternal(internal.data),
+      offers: internal.offers
+        ? convertFirebaseMapToList(internal.offers)
+        : undefined,
+      fees: internal.fees ? convertFirebaseMapToList(internal.fees) : undefined,
+      paymentTransactions:
+        internal.paymentTransactions &&
+        convertFirebaseMapToList(internal.paymentTransactions),
+      refund: internal.refund
+        ? OfferRequestRefundDto.adapter.toExternal(internal.refund)
+        : undefined,
+      subscription: internal.subscription
+        ? OfferRequestSubscriptionDto.adapter.toExternal(internal.subscription)
+        : undefined,
+      chats: internal.chats
+        ? Object.values(internal.chats).map((chat) =>
+            OfferRequestChatDto.adapter.toExternal(chat),
+          )
+        : undefined,
+    };
+  },
+});

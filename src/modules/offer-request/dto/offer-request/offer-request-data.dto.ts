@@ -1,31 +1,18 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, OFFER_REQUEST_STATUS } from 'hero24-types';
 
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+
 import { OfferRequestDataChangesAcceptedDto } from './offer-request-data-changes-accepted.dto';
 import { OfferRequestDataInitialDto } from './offer-request-data-initial.dto';
 import { OfferRequestDataPickServiceProviderDto } from './offer-request-data-pick-service-provider.dto';
 import { OfferRequestDataRequestedChangesDto } from './offer-request-data-requested-changes.dto';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
 
 type OfferRequestDataDB = OfferRequestDB['data'];
 
-type OfferRequestDataShape = {
-  actualStartTime?: MaybeType<Date>;
-  reviewed?: MaybeType<boolean>;
-  status: OFFER_REQUEST_STATUS;
-  initial: OfferRequestDataInitialDto;
-  lastAgreedStartTime?: MaybeType<Date>;
-  requestedChanges?: MaybeType<OfferRequestDataRequestedChangesDto>;
-  changesAccepted?: MaybeType<OfferRequestDataChangesAcceptedDto>;
-  pickServiceProvider?: MaybeType<OfferRequestDataPickServiceProviderDto>;
-};
-
 @ObjectType()
-export class OfferRequestDataDto
-  extends FirebaseGraphQLAdapter<OfferRequestDataShape, OfferRequestDataDB>
-  implements OfferRequestDataShape
-{
+export class OfferRequestDataDto {
   @Field(() => Date, { nullable: true })
   actualStartTime?: MaybeType<Date>;
 
@@ -50,50 +37,67 @@ export class OfferRequestDataDto
   @Field(() => OfferRequestDataPickServiceProviderDto, { nullable: true })
   pickServiceProvider?: MaybeType<OfferRequestDataPickServiceProviderDto>;
 
-  protected toFirebaseType(): TypeSafeRequired<OfferRequestDataDB> {
+  static adapter: FirebaseAdapter<OfferRequestDataDB, OfferRequestDataDto>;
+}
+
+OfferRequestDataDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
     return {
-      reviewed: this.reviewed ?? undefined,
-      status: this.status,
-      changesAccepted: this.changesAccepted?.toFirebase(),
-      initial: this.initial.toFirebase(),
-      requestedChanges: this.requestedChanges?.toFirebase(),
-      pickServiceProvider: this.pickServiceProvider?.toFirebase(),
-      actualStartTime: this.actualStartTime ? +this.actualStartTime : undefined,
-      lastAgreedStartTime: this.lastAgreedStartTime
-        ? +this.lastAgreedStartTime
-        : undefined,
-    };
-  }
-  protected fromFirebaseType(
-    data: OfferRequestDataDB,
-  ): TypeSafeRequired<OfferRequestDataShape> {
-    return {
-      reviewed: data.reviewed,
-      changesAccepted: data.changesAccepted
-        ? new OfferRequestDataChangesAcceptedDto().fromFirebase(
-            data.changesAccepted,
+      reviewed: external.reviewed ?? undefined,
+      status: external.status,
+      changesAccepted: external.changesAccepted
+        ? OfferRequestDataChangesAcceptedDto.adapter.toInternal(
+            external.changesAccepted,
           )
         : undefined,
-      status: data.status,
-      initial: new OfferRequestDataInitialDto().fromFirebase(data.initial),
-      requestedChanges:
-        data.requestedChanges &&
-        new OfferRequestDataRequestedChangesDto().fromFirebase(
-          data.requestedChanges,
-        ),
+      initial: OfferRequestDataInitialDto.adapter.toInternal(external.initial),
+      requestedChanges: external.requestedChanges
+        ? OfferRequestDataRequestedChangesDto.adapter.toInternal(
+            external.requestedChanges,
+          )
+        : undefined,
+      pickServiceProvider: external.pickServiceProvider
+        ? OfferRequestDataPickServiceProviderDto.adapter.toInternal(
+            external.pickServiceProvider,
+          )
+        : undefined,
+      actualStartTime: external.actualStartTime
+        ? +external.actualStartTime
+        : undefined,
+      lastAgreedStartTime: external.lastAgreedStartTime
+        ? +external.lastAgreedStartTime
+        : undefined,
+    };
+  },
+  toExternal(internal) {
+    return {
+      reviewed: internal.reviewed,
+      changesAccepted: internal.changesAccepted
+        ? OfferRequestDataChangesAcceptedDto.adapter.toExternal(
+            internal.changesAccepted,
+          )
+        : undefined,
+      status: internal.status,
+      initial: OfferRequestDataInitialDto.adapter.toExternal(internal.initial),
+      requestedChanges: internal.requestedChanges
+        ? OfferRequestDataRequestedChangesDto.adapter.toExternal(
+            internal.requestedChanges,
+          )
+        : null,
+
       pickServiceProvider:
-        data.pickServiceProvider &&
-        new OfferRequestDataPickServiceProviderDto().fromFirebase(
-          data.pickServiceProvider,
+        internal.pickServiceProvider &&
+        OfferRequestDataPickServiceProviderDto.adapter.toExternal(
+          internal.pickServiceProvider,
         ),
       actualStartTime:
-        typeof data.actualStartTime === 'number'
-          ? new Date(data.actualStartTime)
+        typeof internal.actualStartTime === 'number'
+          ? new Date(internal.actualStartTime)
           : undefined,
       lastAgreedStartTime:
-        typeof data.lastAgreedStartTime === 'number'
-          ? new Date(data.lastAgreedStartTime)
+        typeof internal.lastAgreedStartTime === 'number'
+          ? new Date(internal.lastAgreedStartTime)
           : undefined,
     };
-  }
-}
+  },
+});
