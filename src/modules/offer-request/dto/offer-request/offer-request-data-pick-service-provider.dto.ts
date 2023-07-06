@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, PickStrategy } from 'hero24-types';
 import {
   convertFirebaseMapToList,
@@ -12,6 +12,7 @@ type PickServiceProviderDB = Exclude<
 >;
 
 @ObjectType()
+@InputType('OfferRequestDataPickServiceProviderInput')
 export class OfferRequestDataPickServiceProviderDto {
   @Field(() => [String], { nullable: true })
   preferred?: string[];

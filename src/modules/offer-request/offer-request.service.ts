@@ -53,7 +53,7 @@ export class OfferRequestService {
     offerRequestsSnapshot.forEach((snapshot) => {
       if (snapshot.key) {
         offerRequests.push(
-          new OfferRequestDto().fromFirebase({
+          OfferRequestDto.adapter.toExternal({
             ...snapshot.val(),
             id: snapshot.key,
           }),
@@ -78,7 +78,7 @@ export class OfferRequestService {
       return null;
     }
 
-    return new OfferRequestDto().fromFirebase({
+    return OfferRequestDto.adapter.toExternal({
       ...offerRequest,
       id: offerRequestId,
     });
@@ -143,7 +143,7 @@ export class OfferRequestService {
     const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
       subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
     } = omitUndefined({
-      data: new OfferRequestDataInput(data).toFirebase(),
+      data: OfferRequestDataInput.adapter.toInternal(data),
       customerVAT: customerVat ?? undefined,
       subscription: subscription ?? undefined,
       serviceProviderVAT: serviceProviderVAT ?? undefined,

@@ -1,4 +1,4 @@
-import { Field, Int, Float, ObjectType } from '@nestjs/graphql';
+import { Field, Int, Float, ObjectType, InputType } from '@nestjs/graphql';
 import { PackageDB } from 'hero24-types';
 import { MaybeType } from 'src/modules/common/common.types';
 
@@ -6,6 +6,7 @@ import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dt
 import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 @ObjectType()
+@InputType('PackageInput')
 export class PackageDto {
   @Field(() => String)
   id: string;

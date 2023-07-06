@@ -17,6 +17,6 @@ export class FirebaseAdapter<FirebaseType, DtoType>
   }
 
   public toExternal(internal: FirebaseType): TypeSafeRequired<DtoType> {
-    return this.adapter.toExternal(internal);
+    return this.adapter.toExternal(internal) as DtoType;
   }
 }

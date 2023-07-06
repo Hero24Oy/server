@@ -1,61 +1,54 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
-import {
-  BaseOfferRequestQuestionDB,
-  BaseOfferRequestQuestionShape,
-  OfferRequestBaseQuestionDto,
-} from './offer-request-base-question.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+
+import { MaybeType } from 'src/modules/common/common.types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+
+import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
+import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type QuestionType = 'image';
 
-type OfferRequestImageQuestionAdapterShape =
-  BaseOfferRequestQuestionShape<QuestionType> & {
-    images?: MaybeType<string[]>;
-    imageCount?: MaybeType<number>;
-  };
-
-type PlainOfferRequestBaseQuestion = PlainOfferRequestQuestion & {
+type PlainOfferRequestImageQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
-export type OfferRequestImageQuestionInputShape =
-  OfferRequestImageQuestionAdapterShape;
-
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 @InputType('OfferRequestImageQuestionInput')
-export class OfferRequestImageQuestionDto extends OfferRequestBaseQuestionDto<
-  QuestionType,
-  OfferRequestImageQuestionAdapterShape,
-  PlainOfferRequestBaseQuestion
-> {
+export class OfferRequestImageQuestionDto extends OfferRequestBaseQuestionDto<QuestionType> {
   @Field(() => [String], { nullable: true })
   images?: MaybeType<string[]>;
 
   @Field(() => Int, { nullable: true })
   imageCount?: MaybeType<number>;
 
-  protected toFirebaseType(): TypeSafeRequired<
-    PlainOfferRequestBaseQuestion & BaseOfferRequestQuestionDB<QuestionType>
-  > {
-    return {
-      ...this.toBaseFirebaseType(),
-      images: this.images ? convertListToFirebaseMap(this.images) : null,
-      imageCount: this.imageCount || 0,
-    };
-  }
-
-  protected fromFirebaseType(
-    firebase: PlainOfferRequestBaseQuestion,
-  ): TypeSafeRequired<OfferRequestImageQuestionAdapterShape> {
-    return {
-      ...this.fromBaseFirebaseType(firebase),
-      images: firebase.images && convertFirebaseMapToList(firebase.images),
-      imageCount: firebase.imageCount,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    PlainOfferRequestImageQuestion,
+    OfferRequestImageQuestionDto
+  >;
 }
+
+OfferRequestImageQuestionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+      type: 'image' as QuestionType,
+      images: external.images
+        ? convertListToFirebaseMap(external.images)
+        : null,
+      imageCount: external.imageCount || 0,
+    };
+  },
+
+  toExternal(internal) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+      type: 'image' as QuestionType,
+      images: internal.images && convertFirebaseMapToList(internal.images),
+      imageCount: internal.imageCount,
+    };
+  },
+});

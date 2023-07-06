@@ -4,7 +4,7 @@ import { OfferRequestDB } from 'hero24-types';
 import { AddressesAnsweredDto } from './addresses-answered.dto';
 import {
   OfferRequestQuestionDto,
-  createOfferRequestQuestionDto,
+  offerRequestQuestionAdapter,
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
 import { MaybeType } from 'src/modules/common/common.types';
@@ -12,8 +12,8 @@ import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
-import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];
 
@@ -67,7 +67,7 @@ export class OfferRequestDataInitialDto {
 OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
   toInternal(external) {
     const questions = external.questions.map((question) =>
-      question.toFirebase(),
+      offerRequestQuestionAdapter.toInternal(question),
     );
 
     return {
@@ -85,14 +85,13 @@ OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
       package: external.package
         ? PackageDto.adapter.toInternal(external.package)
         : undefined,
-      questions: offerRequestQuestionsToTree(questions, QUESTION_FLAT_ID_NAME),
+      questions: offerRequestQuestionsToTree(
+        questions as PlainOfferRequestQuestion[],
+      ),
     };
   },
   toExternal(internal) {
-    const questions = offerRequestQuestionsToArray(
-      internal.questions,
-      QUESTION_FLAT_ID_NAME,
-    );
+    const questions = offerRequestQuestionsToArray(internal.questions);
 
     return {
       fixedPrice: internal.fixedPrice,
@@ -105,7 +104,12 @@ OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
       category: internal.category,
       fixedDuration: internal.fixedDuration,
       createdAt: new Date(internal.createdAt),
-      questions: questions.map(createOfferRequestQuestionDto),
+      questions: questions.map(
+        (question) =>
+          offerRequestQuestionAdapter.toExternal(
+            question,
+          ) as OfferRequestQuestionDto,
+      ),
       addresses:
         internal.addresses.type === 'basic'
           ? new BasicAddressesDto(internal.addresses)

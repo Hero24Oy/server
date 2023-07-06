@@ -1,25 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { OfferRequestDB } from 'hero24-types';
-import {
-  OfferRequestDataInitialInput,
-  OfferRequestInitialDataInputShape,
-} from './offer-request-data-initial.input';
-import {
-  OfferRequestDataPickServiceProviderInput,
-  PickServiceProviderInputShape,
-} from './offer-request-data-pick-service-provider.input';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
-
-type OfferRequestDataInputShape = {
-  initial: OfferRequestInitialDataInputShape;
-  pickServiceProvider: PickServiceProviderInputShape;
-};
-
-type OfferRequestDataShape = {
-  initial: OfferRequestDataInitialInput;
-  pickServiceProvider: OfferRequestDataPickServiceProviderInput;
-};
+import { OFFER_REQUEST_STATUS, OfferRequestDB } from 'hero24-types';
+import { OfferRequestDataInitialInput } from './offer-request-data-initial.input';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { OfferRequestDataPickServiceProviderDto } from '../offer-request/offer-request-data-pick-service-provider.dto';
 
 type OfferRequestDataCreationDB = Pick<
   OfferRequestDB['data'],
@@ -27,36 +10,33 @@ type OfferRequestDataCreationDB = Pick<
 >;
 
 @InputType()
-export class OfferRequestDataInput extends FirebaseGraphQLAdapter<
-  OfferRequestDataShape,
-  OfferRequestDataCreationDB
-> {
-  constructor(shape?: OfferRequestDataInputShape) {
-    super(
-      shape && {
-        pickServiceProvider: new OfferRequestDataPickServiceProviderInput(
-          shape.pickServiceProvider,
-        ),
-        initial: new OfferRequestDataInitialInput(shape.initial),
-      },
-    );
-  }
-
+export class OfferRequestDataInput {
   @Field(() => OfferRequestDataInitialInput)
   initial: OfferRequestDataInitialInput;
 
-  @Field(() => OfferRequestDataPickServiceProviderInput)
-  pickServiceProvider: OfferRequestDataPickServiceProviderInput;
+  @Field(() => OfferRequestDataPickServiceProviderDto)
+  pickServiceProvider: OfferRequestDataPickServiceProviderDto;
 
-  protected toFirebaseType(): TypeSafeRequired<OfferRequestDataCreationDB> {
-    return {
-      status: 'open',
-      initial: this.initial.toFirebase(),
-      pickServiceProvider: this.pickServiceProvider.toFirebase(),
-    };
-  }
-
-  public fromFirebaseType(): this {
-    throw new Error('Should never use');
-  }
+  static adapter: FirebaseAdapter<
+    OfferRequestDataCreationDB,
+    OfferRequestDataInput
+  >;
 }
+
+OfferRequestDataInput.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      status: 'open' as OFFER_REQUEST_STATUS,
+      initial: OfferRequestDataInitialInput.adapter.toInternal(
+        external.initial,
+      ),
+      pickServiceProvider:
+        OfferRequestDataPickServiceProviderDto.adapter.toInternal(
+          external.pickServiceProvider,
+        ),
+    };
+  },
+  toExternal() {
+    throw new Error('Should be never used');
+  },
+});

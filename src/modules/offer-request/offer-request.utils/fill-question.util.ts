@@ -1,12 +1,15 @@
 import { OfferRequestQuestion } from 'hero24-types';
 import {
   DependencyId,
-  PlainOfferRequestQuestion,
+  OmittedDependencyIdPlainOfferRequestQuestion,
 } from '../offer-request-questions.types';
 
 export const fillQuestion = (
-  question: PlainOfferRequestQuestion,
-  questionById: Record<DependencyId, PlainOfferRequestQuestion>,
+  question: OmittedDependencyIdPlainOfferRequestQuestion,
+  questionById: Record<
+    DependencyId,
+    OmittedDependencyIdPlainOfferRequestQuestion
+  >,
 ): OfferRequestQuestion => {
   switch (question.type) {
     case 'checkbox':

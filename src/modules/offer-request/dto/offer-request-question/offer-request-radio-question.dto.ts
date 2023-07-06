@@ -1,77 +1,52 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
-import {
-  BaseOfferRequestQuestionDB,
-  BaseOfferRequestQuestionShape,
-  OfferRequestBaseQuestionDto,
-} from './offer-request-base-question.dto';
-import {
-  OfferRequestQuestionOptionDto,
-  OfferRequestQuestionOptionInputShape,
-} from './offer-request-question-option.dto';
+
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
+import { OfferRequestQuestionOptionDto } from './offer-request-question-option.dto';
 
 type QuestionType = 'radio';
-
-type OfferRequestRadioQuestionAdapterShape =
-  BaseOfferRequestQuestionShape<QuestionType> & {
-    selectedOption?: MaybeType<string>;
-    options: OfferRequestQuestionOptionDto[];
-  };
 
 type PlainOfferRequestRadioQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
-export type OfferRequestRadioQuestionInputShape =
-  BaseOfferRequestQuestionShape<QuestionType> & {
-    selectedOption?: MaybeType<string>;
-    options: OfferRequestQuestionOptionInputShape[];
-  };
-
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 @InputType('OfferRequestRadioQuestionInput')
-export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<
-  QuestionType,
-  OfferRequestRadioQuestionAdapterShape,
-  PlainOfferRequestRadioQuestion
-> {
-  constructor(shape?: OfferRequestRadioQuestionInputShape) {
-    super(
-      shape && {
-        ...shape,
-        options: shape.options.map(
-          (option) => new OfferRequestQuestionOptionDto(option),
-        ),
-      },
-    );
-  }
-
+export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<QuestionType> {
   @Field(() => String, { nullable: true })
   selectedOption?: MaybeType<string>;
 
   @Field(() => [OfferRequestQuestionOptionDto])
   options: OfferRequestQuestionOptionDto[];
 
-  protected toFirebaseType(): TypeSafeRequired<
-    PlainOfferRequestRadioQuestion & BaseOfferRequestQuestionDB<QuestionType>
-  > {
-    return {
-      ...this.toBaseFirebaseType(),
-      selectedOption: this.selectedOption || null,
-      options: this.options.map((option) => option.toFirebase()),
-    };
-  }
+  static adapter: FirebaseAdapter<
+    PlainOfferRequestRadioQuestion,
+    OfferRequestRadioQuestionDto
+  >;
+}
 
-  protected fromFirebaseType(
-    firebase: PlainOfferRequestRadioQuestion,
-  ): TypeSafeRequired<OfferRequestRadioQuestionAdapterShape> {
+OfferRequestRadioQuestionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
     return {
-      ...this.fromBaseFirebaseType(firebase),
-      selectedOption: firebase.selectedOption,
-      options: firebase.options.map((option) =>
-        new OfferRequestQuestionOptionDto().fromFirebase(option),
+      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+      type: 'radio' as QuestionType,
+      selectedOption: external.selectedOption || null,
+      options: external.options.map((option) =>
+        OfferRequestQuestionOptionDto.adapter.toInternal(option),
       ),
     };
-  }
-}
+  },
+  toExternal(internal) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+      type: 'radio' as QuestionType,
+      selectedOption: internal.selectedOption,
+      options: internal.options.map((option) =>
+        OfferRequestQuestionOptionDto.adapter.toExternal(option),
+      ),
+    };
+  },
+});

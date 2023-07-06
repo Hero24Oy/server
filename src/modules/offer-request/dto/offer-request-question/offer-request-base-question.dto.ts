@@ -1,26 +1,14 @@
 import { Field, InputType, Int, InterfaceType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
-import {
-  MaybeType,
-  RecordType,
-  TypeSafeRequired,
-} from 'src/modules/common/common.types';
+
+import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { FirebaseGraphQLAdapter } from 'src/modules/firebase/firebase.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+
 import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
 
-export type BaseOfferRequestQuestionShape<
-  Type extends OfferRequestQuestion['type'],
-> = {
-  id: string;
-  [QUESTION_FLAT_ID_NAME]?: string; // undefined for the root question
-  name?: MaybeType<TranslationFieldDto>;
-  order: number;
-  type: Type;
-};
-
-export type BaseOfferRequestQuestionDB<
-  Type extends OfferRequestQuestion['type'],
+type BaseOfferRequestQuestionDB<
+  Type extends OfferRequestQuestion['type'] = OfferRequestQuestion['type'],
 > = Pick<OfferRequestQuestion, 'id' | 'name' | 'order'> & {
   [QUESTION_FLAT_ID_NAME]?: string;
   type: Type;
@@ -29,19 +17,8 @@ export type BaseOfferRequestQuestionDB<
 @InterfaceType()
 @InputType({ isAbstract: true })
 export abstract class OfferRequestBaseQuestionDto<
-    Type extends OfferRequestQuestion['type'],
-    Shape extends RecordType,
-    FirebaseT extends RecordType,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    ExpandT extends RecordType = {},
-  >
-  extends FirebaseGraphQLAdapter<
-    Shape & BaseOfferRequestQuestionShape<Type>,
-    FirebaseT & BaseOfferRequestQuestionDB<Type>,
-    ExpandT
-  >
-  implements BaseOfferRequestQuestionShape<Type>
-{
+  Type extends OfferRequestQuestion['type'] = OfferRequestQuestion['type'],
+> {
   @Field(() => String)
   id: string;
 
@@ -57,27 +34,29 @@ export abstract class OfferRequestBaseQuestionDto<
   @Field(() => String)
   type: Type;
 
-  protected toBaseFirebaseType(): TypeSafeRequired<
-    BaseOfferRequestQuestionDB<Type>
-  > {
-    return {
-      id: this.id,
-      [QUESTION_FLAT_ID_NAME]: this[QUESTION_FLAT_ID_NAME],
-      name: this.name || null,
-      order: this.order,
-      type: this.type,
-    };
-  }
-
-  protected fromBaseFirebaseType(
-    firebase: BaseOfferRequestQuestionDB<Type>,
-  ): TypeSafeRequired<BaseOfferRequestQuestionShape<Type>> {
-    return {
-      id: firebase.id,
-      [QUESTION_FLAT_ID_NAME]: firebase[QUESTION_FLAT_ID_NAME],
-      name: firebase.name,
-      order: firebase.order || 0,
-      type: firebase.type,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    BaseOfferRequestQuestionDB,
+    OfferRequestBaseQuestionDto
+  >;
 }
+
+OfferRequestBaseQuestionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      id: external.id,
+      [QUESTION_FLAT_ID_NAME]: external[QUESTION_FLAT_ID_NAME],
+      name: external.name || null,
+      order: external.order,
+      type: external.type,
+    };
+  },
+  toExternal(internal) {
+    return {
+      id: internal.id,
+      [QUESTION_FLAT_ID_NAME]: internal[QUESTION_FLAT_ID_NAME],
+      name: internal.name,
+      order: internal.order || 0,
+      type: internal.type,
+    };
+  },
+});

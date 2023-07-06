@@ -1,58 +1,49 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
+
+import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import {
-  BaseOfferRequestQuestionDB,
-  BaseOfferRequestQuestionShape,
-  OfferRequestBaseQuestionDto,
-} from './offer-request-base-question.dto';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 
 type QuestionType = 'textarea';
-
-type OfferRequestTextAreaQuestionAdapterShape =
-  BaseOfferRequestQuestionShape<QuestionType> & {
-    placeholder?: MaybeType<TranslationFieldDto>;
-    value?: MaybeType<string>;
-  };
 
 type PlainOfferRequestTextAreaQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
-export type OfferRequestTextAreaQuestionInputShape =
-  OfferRequestTextAreaQuestionAdapterShape;
-
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 @InputType('OfferRequestTextAreaQuestionInput')
-export class OfferRequestTextAreaQuestionDto extends OfferRequestBaseQuestionDto<
-  QuestionType,
-  OfferRequestTextAreaQuestionAdapterShape,
-  PlainOfferRequestTextAreaQuestion
-> {
+export class OfferRequestTextAreaQuestionDto extends OfferRequestBaseQuestionDto<QuestionType> {
   @Field(() => TranslationFieldDto, { nullable: true })
   placeholder?: MaybeType<TranslationFieldDto>;
 
   @Field(() => String, { nullable: true })
   value?: MaybeType<string>;
 
-  protected toFirebaseType(): TypeSafeRequired<
-    PlainOfferRequestTextAreaQuestion & BaseOfferRequestQuestionDB<QuestionType>
-  > {
-    return {
-      ...this.toBaseFirebaseType(),
-      placeholder: this.placeholder || null,
-      value: this.value || null,
-    };
-  }
-
-  protected fromFirebaseType(
-    firebase: PlainOfferRequestTextAreaQuestion,
-  ): TypeSafeRequired<OfferRequestTextAreaQuestionAdapterShape> {
-    return {
-      ...this.fromBaseFirebaseType(firebase),
-      placeholder: firebase.placeholder,
-      value: firebase.value,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    PlainOfferRequestTextAreaQuestion,
+    OfferRequestTextAreaQuestionDto
+  >;
 }
+
+OfferRequestTextAreaQuestionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+      type: 'textarea' as QuestionType,
+      placeholder: external.placeholder || null,
+      value: external.value || null,
+    };
+  },
+
+  toExternal(internal) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+      type: 'textarea' as QuestionType,
+      placeholder: internal.placeholder,
+      value: internal.value,
+    };
+  },
+});

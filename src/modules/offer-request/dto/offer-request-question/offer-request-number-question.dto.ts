@@ -1,58 +1,48 @@
 import { Field, Float, InputType, ObjectType } from '@nestjs/graphql';
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
+
+import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import {
-  BaseOfferRequestQuestionDB,
-  BaseOfferRequestQuestionShape,
-  OfferRequestBaseQuestionDto,
-} from './offer-request-base-question.dto';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 
 type QuestionType = 'number';
-
-type OfferRequestNumberQuestionAdapterShape =
-  BaseOfferRequestQuestionShape<QuestionType> & {
-    placeholder?: MaybeType<TranslationFieldDto>;
-    numericValue?: MaybeType<number>;
-  };
 
 type PlainOfferRequestNumberQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
-export type OfferRequestNumberQuestionInputShape =
-  OfferRequestNumberQuestionAdapterShape;
-
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 @InputType('OfferRequestNumberQuestionInput')
-export class OfferRequestNumberQuestionDto extends OfferRequestBaseQuestionDto<
-  QuestionType,
-  OfferRequestNumberQuestionAdapterShape,
-  PlainOfferRequestNumberQuestion
-> {
+export class OfferRequestNumberQuestionDto extends OfferRequestBaseQuestionDto<QuestionType> {
   @Field(() => TranslationFieldDto, { nullable: true })
   placeholder?: MaybeType<TranslationFieldDto>;
 
   @Field(() => Float, { nullable: true })
   numericValue?: MaybeType<number>;
 
-  protected toFirebaseType(): TypeSafeRequired<
-    PlainOfferRequestNumberQuestion & BaseOfferRequestQuestionDB<QuestionType>
-  > {
-    return {
-      ...this.toBaseFirebaseType(),
-      placeholder: this.placeholder || null,
-      value: this.numericValue || null,
-    };
-  }
-
-  protected fromFirebaseType(
-    firebase: PlainOfferRequestNumberQuestion,
-  ): TypeSafeRequired<OfferRequestNumberQuestionAdapterShape> {
-    return {
-      ...this.fromBaseFirebaseType(firebase),
-      placeholder: firebase.placeholder,
-      numericValue: firebase.value,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    PlainOfferRequestNumberQuestion,
+    OfferRequestNumberQuestionDto
+  >;
 }
+
+OfferRequestNumberQuestionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+      type: 'number' as QuestionType,
+      placeholder: external.placeholder || null,
+      value: external.numericValue || null,
+    };
+  },
+  toExternal(internal) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toInternal(internal),
+      type: 'number' as QuestionType,
+      placeholder: internal.placeholder,
+      numericValue: internal.value,
+    };
+  },
+});

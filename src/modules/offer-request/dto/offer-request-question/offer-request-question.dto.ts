@@ -10,6 +10,7 @@ import { OfferRequestNumberQuestionDto } from './offer-request-number-question.d
 import { OfferRequestRadioQuestionDto } from './offer-request-radio-question.dto';
 import { OfferRequestTextAreaQuestionDto } from './offer-request-text-area-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 export const OfferRequestQuestionDto = createUnionType({
   name: 'OfferRequestQuestionDto',
@@ -47,25 +48,52 @@ export const OfferRequestQuestionDto = createUnionType({
 
 export type OfferRequestQuestionDto = typeof OfferRequestQuestionDto;
 
-export const createOfferRequestQuestionDto = (
-  question: PlainOfferRequestQuestion,
-): OfferRequestQuestionDto => {
-  switch (question.type) {
-    case 'radio':
-      return new OfferRequestRadioQuestionDto().fromFirebase(question);
-    case 'checkbox':
-      return new OfferRequestCheckBoxQuestionDto().fromFirebase(question);
-    case 'date':
-      return new OfferRequestDateQuestionDto().fromFirebase(question);
-    case 'image':
-      return new OfferRequestImageQuestionDto().fromFirebase(question);
-    case 'list':
-      return new OfferRequestListPickerDto().fromFirebase(question);
-    case 'number':
-      return new OfferRequestNumberQuestionDto().fromFirebase(question);
-    case 'textarea':
-      return new OfferRequestTextAreaQuestionDto().fromFirebase(question);
-    case 'number_input':
-      return new OfferRequestNumberInputQuestionDto().fromFirebase(question);
-  }
-};
+export const offerRequestQuestionAdapter = new FirebaseAdapter<
+  PlainOfferRequestQuestion,
+  OfferRequestQuestionDto
+>({
+  toInternal(external) {
+    const question = external as OfferRequestQuestionDto;
+
+    switch (question.type) {
+      case 'radio':
+        return OfferRequestRadioQuestionDto.adapter.toInternal(question);
+      case 'checkbox':
+        return OfferRequestCheckBoxQuestionDto.adapter.toInternal(question);
+      case 'date':
+        return OfferRequestDateQuestionDto.adapter.toInternal(question);
+      case 'image':
+        return OfferRequestImageQuestionDto.adapter.toInternal(question);
+      case 'list':
+        return OfferRequestListPickerDto.adapter.toInternal(question);
+      case 'number':
+        return OfferRequestNumberQuestionDto.adapter.toInternal(question);
+      case 'textarea':
+        return OfferRequestTextAreaQuestionDto.adapter.toInternal(question);
+      case 'number_input':
+        return OfferRequestNumberInputQuestionDto.adapter.toInternal(question);
+    }
+  },
+  toExternal(internal) {
+    const question = internal as PlainOfferRequestQuestion;
+
+    switch (question.type) {
+      case 'radio':
+        return OfferRequestRadioQuestionDto.adapter.toExternal(question);
+      case 'checkbox':
+        return OfferRequestCheckBoxQuestionDto.adapter.toExternal(question);
+      case 'date':
+        return OfferRequestDateQuestionDto.adapter.toExternal(question);
+      case 'image':
+        return OfferRequestImageQuestionDto.adapter.toExternal(question);
+      case 'list':
+        return OfferRequestListPickerDto.adapter.toExternal(question);
+      case 'number':
+        return OfferRequestNumberQuestionDto.adapter.toExternal(question);
+      case 'textarea':
+        return OfferRequestTextAreaQuestionDto.adapter.toExternal(question);
+      case 'number_input':
+        return OfferRequestNumberInputQuestionDto.adapter.toExternal(question);
+    }
+  },
+});

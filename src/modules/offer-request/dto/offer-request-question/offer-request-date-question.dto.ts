@@ -1,38 +1,22 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 
-import { MaybeType, TypeSafeRequired } from 'src/modules/common/common.types';
+import { MaybeType } from 'src/modules/common/common.types';
 import { SuitableTimeDto } from 'src/modules/common/dto/suitable-time/suitable-time.dto';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
-import {
-  BaseOfferRequestQuestionDB,
-  BaseOfferRequestQuestionShape,
-  OfferRequestBaseQuestionDto,
-} from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 
 type QuestionType = 'date';
 
-type OfferRequestDateQuestionAdapterShape =
-  BaseOfferRequestQuestionShape<QuestionType> & {
-    preferredTime?: MaybeType<Date>;
-    suitableTimesCount?: MaybeType<number>;
-    suitableTimes?: MaybeType<SuitableTimeDto[]>;
-  };
-
-type PlainOfferRequestDateQuestion = PlainOfferRequestQuestion & {
-  type: QuestionType;
-};
-
-export type OfferRequestDateQuestionInputShape =
-  OfferRequestDateQuestionAdapterShape;
+type PlainOfferRequestDateQuestion = Extract<
+  PlainOfferRequestQuestion,
+  { type: QuestionType }
+>;
 
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
 @InputType('OfferRequestDateQuestionInput')
-export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto<
-  QuestionType,
-  OfferRequestDateQuestionAdapterShape,
-  PlainOfferRequestDateQuestion
-> {
+export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto<QuestionType> {
   @Field(() => Date, { nullable: true })
   preferredTime?: MaybeType<Date>;
 
@@ -42,32 +26,36 @@ export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto<
   @Field(() => [SuitableTimeDto], { nullable: true })
   suitableTimes?: MaybeType<SuitableTimeDto[]>;
 
-  protected toFirebaseType(): TypeSafeRequired<
-    PlainOfferRequestDateQuestion & BaseOfferRequestQuestionDB<QuestionType>
-  > {
-    return {
-      ...this.toBaseFirebaseType(),
-      preferredTime: this.preferredTime ? +this.preferredTime : null,
-      suitableTimesCount: this.suitableTimesCount || null,
-      suitableTimes: this.suitableTimes
-        ? SuitableTimeDto.convertToFirebaseTime(this.suitableTimes)
-        : null,
-    };
-  }
-
-  protected fromFirebaseType(
-    firebase: PlainOfferRequestDateQuestion,
-  ): TypeSafeRequired<OfferRequestDateQuestionAdapterShape> {
-    return {
-      ...this.fromBaseFirebaseType(firebase),
-      preferredTime:
-        typeof firebase.preferredTime === 'number'
-          ? new Date(firebase.preferredTime)
-          : null,
-      suitableTimesCount: firebase.suitableTimesCount,
-      suitableTimes: firebase.suitableTimes
-        ? SuitableTimeDto.convertFromFirebaseTime(firebase.suitableTimes)
-        : null,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    PlainOfferRequestDateQuestion,
+    OfferRequestDateQuestionDto
+  >;
 }
+
+OfferRequestDateQuestionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+      type: 'date' as QuestionType,
+      preferredTime: external.preferredTime ? +external.preferredTime : null,
+      suitableTimesCount: external.suitableTimesCount || null,
+      suitableTimes: external.suitableTimes
+        ? SuitableTimeDto.convertToFirebaseTime(external.suitableTimes)
+        : null,
+    };
+  },
+  toExternal(internal) {
+    return {
+      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+      type: 'date' as QuestionType,
+      preferredTime:
+        typeof internal.preferredTime === 'number'
+          ? new Date(internal.preferredTime)
+          : null,
+      suitableTimesCount: internal.suitableTimesCount,
+      suitableTimes: internal.suitableTimes
+        ? SuitableTimeDto.convertFromFirebaseTime(internal.suitableTimes)
+        : null,
+    };
+  },
+});

@@ -1,16 +1,15 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
 
 import {
   OfferRequestQuestionDto,
-  createOfferRequestQuestionDto,
+  offerRequestQuestionAdapter,
 } from '../offer-request-question/offer-request-question.dto';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
-import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type ChangedQuestionsDB = Required<
   OfferRequestDB['data']
@@ -33,33 +32,36 @@ export class OfferRequestDataRequestedChangesChangedQuestionsDto {
 OfferRequestDataRequestedChangesChangedQuestionsDto.adapter =
   new FirebaseAdapter({
     toInternal(external) {
-      const before = offerRequestQuestionsToTree(
-        external.before.map((question) => question.toFirebase()),
-        QUESTION_FLAT_ID_NAME,
-      );
-      const after = offerRequestQuestionsToTree(
-        external.after.map((question) => question.toFirebase()),
-        QUESTION_FLAT_ID_NAME,
+      const before = external.before.map(
+        (question) =>
+          offerRequestQuestionAdapter.toInternal(
+            question,
+          ) as PlainOfferRequestQuestion,
       );
 
-      return omitUndefined({
-        before,
-        after,
-      });
-    },
-    toExternal(internal) {
-      const beforeQuestions = offerRequestQuestionsToArray(
-        internal.before,
-        QUESTION_FLAT_ID_NAME,
-      );
-      const afterQuestions = offerRequestQuestionsToArray(
-        internal.after,
-        QUESTION_FLAT_ID_NAME,
+      const after = external.after.map(
+        (question) =>
+          offerRequestQuestionAdapter.toInternal(
+            question,
+          ) as PlainOfferRequestQuestion,
       );
 
       return {
-        before: beforeQuestions.map(createOfferRequestQuestionDto),
-        after: afterQuestions.map(createOfferRequestQuestionDto),
+        before: offerRequestQuestionsToTree(before),
+        after: offerRequestQuestionsToTree(after),
+      };
+    },
+    toExternal(internal) {
+      const beforeQuestions = offerRequestQuestionsToArray(internal.before);
+      const afterQuestions = offerRequestQuestionsToArray(internal.after);
+
+      return {
+        before: beforeQuestions.map((question) =>
+          offerRequestQuestionAdapter.toExternal(question),
+        ) as OfferRequestQuestionDto[],
+        after: afterQuestions.map((question) =>
+          offerRequestQuestionAdapter.toExternal(question),
+        ) as OfferRequestQuestionDto[],
       };
     },
   });

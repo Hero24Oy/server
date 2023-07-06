@@ -1,19 +1,15 @@
 import { OfferRequestQuestion } from 'hero24-types';
 import { v4 as uuidV4 } from 'uuid';
 
-import {
-  DependencyId,
-  PlainOfferRequestQuestion,
-  WithDependencyId,
-} from '../offer-request-questions.types';
+import { PlainOfferRequestQuestion } from '../offer-request-questions.types';
+import { QUESTION_FLAT_ID_NAME } from '../offer-request.constants';
 
-export const offerRequestQuestionsToArray = <Name extends string>(
+export const offerRequestQuestionsToArray = (
   questions: OfferRequestQuestion[],
-  idFieldName: Name,
-): WithDependencyId<PlainOfferRequestQuestion, Name>[] => {
-  const subQuestions: WithDependencyId<PlainOfferRequestQuestion, Name>[] = [];
-  const mainQuestions: WithDependencyId<PlainOfferRequestQuestion, Name>[] =
-    questions.map((question) => {
+): PlainOfferRequestQuestion[] => {
+  const subQuestions: PlainOfferRequestQuestion[] = [];
+  const mainQuestions: PlainOfferRequestQuestion[] = questions.map(
+    (question) => {
       switch (question.type) {
         case 'checkbox':
         case 'radio':
@@ -22,18 +18,17 @@ export const offerRequestQuestionsToArray = <Name extends string>(
             options: question.options.map((option) => {
               const flattenSubQuestions = offerRequestQuestionsToArray(
                 option.questions || [],
-                idFieldName,
               );
 
               const mainSubQuestions = flattenSubQuestions
-                .filter((question) => !(idFieldName in question))
+                .filter((question) => !(QUESTION_FLAT_ID_NAME in question))
                 .map((question) => ({
                   ...question,
-                  [idFieldName]: uuidV4(),
+                  [QUESTION_FLAT_ID_NAME]: uuidV4(),
                 }));
 
               const subSubQuestions = flattenSubQuestions.filter(
-                (question) => idFieldName in question,
+                (question) => QUESTION_FLAT_ID_NAME in question,
               );
 
               subQuestions.push(...subSubQuestions);
@@ -42,8 +37,7 @@ export const offerRequestQuestionsToArray = <Name extends string>(
               return {
                 ...option,
                 questions: mainSubQuestions.map(
-                  (question) =>
-                    (question as Record<Name, DependencyId>)[idFieldName],
+                  (question) => question[QUESTION_FLAT_ID_NAME],
                 ),
               };
             }),
@@ -51,7 +45,8 @@ export const offerRequestQuestionsToArray = <Name extends string>(
         default:
           return question;
       }
-    });
+    },
+  );
 
   return [...mainQuestions, ...subQuestions];
 };
