@@ -36,7 +36,7 @@ OfferRequestNumberQuestionDto.adapter = new FirebaseAdapter({
     value: external.numericValue || null,
   }),
   toExternal: (internal) => ({
-    ...OfferRequestBaseQuestionDto.adapter.toInternal(internal),
+    ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
     type: 'number' as QuestionType,
     placeholder: internal.placeholder,
     numericValue: internal.value,
