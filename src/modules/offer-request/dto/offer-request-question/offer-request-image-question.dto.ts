@@ -32,23 +32,16 @@ export class OfferRequestImageQuestionDto extends OfferRequestBaseQuestionDto<Qu
 }
 
 OfferRequestImageQuestionDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-      type: 'image' as QuestionType,
-      images: external.images
-        ? convertListToFirebaseMap(external.images)
-        : null,
-      imageCount: external.imageCount || 0,
-    };
-  },
-
-  toExternal(internal) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-      type: 'image' as QuestionType,
-      images: internal.images && convertFirebaseMapToList(internal.images),
-      imageCount: internal.imageCount,
-    };
-  },
+  toInternal: (external) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+    type: 'image' as QuestionType,
+    images: external.images ? convertListToFirebaseMap(external.images) : null,
+    imageCount: external.imageCount || 0,
+  }),
+  toExternal: (internal) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+    type: 'image' as QuestionType,
+    images: internal.images && convertFirebaseMapToList(internal.images),
+    imageCount: internal.imageCount,
+  }),
 });

@@ -29,21 +29,16 @@ export class OfferRequestTextAreaQuestionDto extends OfferRequestBaseQuestionDto
 }
 
 OfferRequestTextAreaQuestionDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-      type: 'textarea' as QuestionType,
-      placeholder: external.placeholder || null,
-      value: external.value || null,
-    };
-  },
-
-  toExternal(internal) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-      type: 'textarea' as QuestionType,
-      placeholder: internal.placeholder,
-      value: internal.value,
-    };
-  },
+  toInternal: (external) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+    type: 'textarea' as QuestionType,
+    placeholder: external.placeholder || null,
+    value: external.value || null,
+  }),
+  toExternal: (internal) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+    type: 'textarea' as QuestionType,
+    placeholder: internal.placeholder,
+    value: internal.value,
+  }),
 });

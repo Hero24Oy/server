@@ -24,20 +24,16 @@ export class OfferRequestRefundDto {
 }
 
 OfferRequestRefundDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      amount: external.amount,
-      message: external.message ?? undefined,
-      status: external.status,
-      updatedAt: +external.updatedAt,
-    };
-  },
-  toExternal(internal) {
-    return {
-      amount: internal.amount,
-      message: internal.message,
-      status: internal.status,
-      updatedAt: new Date(internal.updatedAt),
-    };
-  },
+  toInternal: (external) => ({
+    amount: external.amount,
+    message: external.message ?? undefined,
+    status: external.status,
+    updatedAt: +external.updatedAt,
+  }),
+  toExternal: (internal) => ({
+    amount: internal.amount,
+    message: internal.message,
+    status: internal.status,
+    updatedAt: new Date(internal.updatedAt),
+  }),
 });

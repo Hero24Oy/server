@@ -24,18 +24,14 @@ export class OfferRequestDataInput {
 }
 
 OfferRequestDataInput.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      status: 'open' as OFFER_REQUEST_STATUS,
-      initial: OfferRequestDataInitialInput.adapter.toInternal(
-        external.initial,
+  toInternal: (external) => ({
+    status: 'open' as OFFER_REQUEST_STATUS,
+    initial: OfferRequestDataInitialInput.adapter.toInternal(external.initial),
+    pickServiceProvider:
+      OfferRequestDataPickServiceProviderDto.adapter.toInternal(
+        external.pickServiceProvider,
       ),
-      pickServiceProvider:
-        OfferRequestDataPickServiceProviderDto.adapter.toInternal(
-          external.pickServiceProvider,
-        ),
-    };
-  },
+  }),
   toExternal() {
     throw new Error('Should be never used');
   },

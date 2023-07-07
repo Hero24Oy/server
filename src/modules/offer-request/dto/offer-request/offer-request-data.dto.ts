@@ -41,63 +41,59 @@ export class OfferRequestDataDto {
 }
 
 OfferRequestDataDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      reviewed: external.reviewed ?? undefined,
-      status: external.status,
-      changesAccepted: external.changesAccepted
-        ? OfferRequestDataChangesAcceptedDto.adapter.toInternal(
-            external.changesAccepted,
-          )
-        : undefined,
-      initial: OfferRequestDataInitialDto.adapter.toInternal(external.initial),
-      requestedChanges: external.requestedChanges
-        ? OfferRequestDataRequestedChangesDto.adapter.toInternal(
-            external.requestedChanges,
-          )
-        : undefined,
-      pickServiceProvider: external.pickServiceProvider
-        ? OfferRequestDataPickServiceProviderDto.adapter.toInternal(
-            external.pickServiceProvider,
-          )
-        : undefined,
-      actualStartTime: external.actualStartTime
-        ? +external.actualStartTime
-        : undefined,
-      lastAgreedStartTime: external.lastAgreedStartTime
-        ? +external.lastAgreedStartTime
-        : undefined,
-    };
-  },
-  toExternal(internal) {
-    return {
-      reviewed: internal.reviewed,
-      changesAccepted: internal.changesAccepted
-        ? OfferRequestDataChangesAcceptedDto.adapter.toExternal(
-            internal.changesAccepted,
-          )
-        : undefined,
-      status: internal.status,
-      initial: OfferRequestDataInitialDto.adapter.toExternal(internal.initial),
-      requestedChanges: internal.requestedChanges
-        ? OfferRequestDataRequestedChangesDto.adapter.toExternal(
-            internal.requestedChanges,
-          )
-        : null,
+  toInternal: (external) => ({
+    reviewed: external.reviewed ?? undefined,
+    status: external.status,
+    changesAccepted: external.changesAccepted
+      ? OfferRequestDataChangesAcceptedDto.adapter.toInternal(
+          external.changesAccepted,
+        )
+      : undefined,
+    initial: OfferRequestDataInitialDto.adapter.toInternal(external.initial),
+    requestedChanges: external.requestedChanges
+      ? OfferRequestDataRequestedChangesDto.adapter.toInternal(
+          external.requestedChanges,
+        )
+      : undefined,
+    pickServiceProvider: external.pickServiceProvider
+      ? OfferRequestDataPickServiceProviderDto.adapter.toInternal(
+          external.pickServiceProvider,
+        )
+      : undefined,
+    actualStartTime: external.actualStartTime
+      ? +external.actualStartTime
+      : undefined,
+    lastAgreedStartTime: external.lastAgreedStartTime
+      ? +external.lastAgreedStartTime
+      : undefined,
+  }),
+  toExternal: (internal) => ({
+    reviewed: internal.reviewed,
+    changesAccepted: internal.changesAccepted
+      ? OfferRequestDataChangesAcceptedDto.adapter.toExternal(
+          internal.changesAccepted,
+        )
+      : undefined,
+    status: internal.status,
+    initial: OfferRequestDataInitialDto.adapter.toExternal(internal.initial),
+    requestedChanges: internal.requestedChanges
+      ? OfferRequestDataRequestedChangesDto.adapter.toExternal(
+          internal.requestedChanges,
+        )
+      : null,
 
-      pickServiceProvider:
-        internal.pickServiceProvider &&
-        OfferRequestDataPickServiceProviderDto.adapter.toExternal(
-          internal.pickServiceProvider,
-        ),
-      actualStartTime:
-        typeof internal.actualStartTime === 'number'
-          ? new Date(internal.actualStartTime)
-          : undefined,
-      lastAgreedStartTime:
-        typeof internal.lastAgreedStartTime === 'number'
-          ? new Date(internal.lastAgreedStartTime)
-          : undefined,
-    };
-  },
+    pickServiceProvider:
+      internal.pickServiceProvider &&
+      OfferRequestDataPickServiceProviderDto.adapter.toExternal(
+        internal.pickServiceProvider,
+      ),
+    actualStartTime:
+      typeof internal.actualStartTime === 'number'
+        ? new Date(internal.actualStartTime)
+        : undefined,
+    lastAgreedStartTime:
+      typeof internal.lastAgreedStartTime === 'number'
+        ? new Date(internal.lastAgreedStartTime)
+        : undefined,
+  }),
 });

@@ -29,24 +29,20 @@ export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<Qu
 }
 
 OfferRequestRadioQuestionDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-      type: 'radio' as QuestionType,
-      selectedOption: external.selectedOption || null,
-      options: external.options.map((option) =>
-        OfferRequestQuestionOptionDto.adapter.toInternal(option),
-      ),
-    };
-  },
-  toExternal(internal) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-      type: 'radio' as QuestionType,
-      selectedOption: internal.selectedOption,
-      options: internal.options.map((option) =>
-        OfferRequestQuestionOptionDto.adapter.toExternal(option),
-      ),
-    };
-  },
+  toInternal: (external) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+    type: 'radio' as QuestionType,
+    selectedOption: external.selectedOption || null,
+    options: external.options.map((option) =>
+      OfferRequestQuestionOptionDto.adapter.toInternal(option),
+    ),
+  }),
+  toExternal: (internal) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+    type: 'radio' as QuestionType,
+    selectedOption: internal.selectedOption,
+    options: internal.options.map((option) =>
+      OfferRequestQuestionOptionDto.adapter.toExternal(option),
+    ),
+  }),
 });

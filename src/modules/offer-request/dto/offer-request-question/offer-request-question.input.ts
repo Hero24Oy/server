@@ -12,7 +12,7 @@ import { OfferRequestDateQuestionDto } from './offer-request-date-question.dto';
 import { OfferRequestImageQuestionDto } from './offer-request-image-question.dto';
 import { OfferRequestNumberInputQuestionDto } from './offer-request-number-input-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
-import { offerRequestQuestionAdapter } from './offer-request-question.dto';
+import { OfferRequestQuestionAdapter } from './offer-request-question.dto';
 
 @InputType()
 export class OfferRequestQuestionInput {
@@ -59,7 +59,7 @@ OfferRequestQuestionInput.adapter = new FirebaseAdapter({
       external.textarea;
 
     if (question) {
-      return offerRequestQuestionAdapter.toInternal(question);
+      return OfferRequestQuestionAdapter.toInternal(question);
     }
 
     throw new Error("Question wasn't provided");

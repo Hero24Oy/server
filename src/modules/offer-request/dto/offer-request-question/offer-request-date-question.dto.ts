@@ -33,29 +33,25 @@ export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto<Que
 }
 
 OfferRequestDateQuestionDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-      type: 'date' as QuestionType,
-      preferredTime: external.preferredTime ? +external.preferredTime : null,
-      suitableTimesCount: external.suitableTimesCount || null,
-      suitableTimes: external.suitableTimes
-        ? SuitableTimeDto.convertToFirebaseTime(external.suitableTimes)
+  toInternal: (external) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+    type: 'date' as QuestionType,
+    preferredTime: external.preferredTime ? +external.preferredTime : null,
+    suitableTimesCount: external.suitableTimesCount || null,
+    suitableTimes: external.suitableTimes
+      ? SuitableTimeDto.convertToFirebaseTime(external.suitableTimes)
+      : null,
+  }),
+  toExternal: (internal) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+    type: 'date' as QuestionType,
+    preferredTime:
+      typeof internal.preferredTime === 'number'
+        ? new Date(internal.preferredTime)
         : null,
-    };
-  },
-  toExternal(internal) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-      type: 'date' as QuestionType,
-      preferredTime:
-        typeof internal.preferredTime === 'number'
-          ? new Date(internal.preferredTime)
-          : null,
-      suitableTimesCount: internal.suitableTimesCount,
-      suitableTimes: internal.suitableTimes
-        ? SuitableTimeDto.convertFromFirebaseTime(internal.suitableTimes)
-        : null,
-    };
-  },
+    suitableTimesCount: internal.suitableTimesCount,
+    suitableTimes: internal.suitableTimes
+      ? SuitableTimeDto.convertFromFirebaseTime(internal.suitableTimes)
+      : null,
+  }),
 });

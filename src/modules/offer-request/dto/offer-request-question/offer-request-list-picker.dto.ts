@@ -29,20 +29,16 @@ export class OfferRequestListPickerDto extends OfferRequestBaseQuestionDto<Quest
 }
 
 OfferRequestListPickerDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-      type: 'list' as QuestionType,
-      placeholder: external.placeholder || null,
-      value: external.numericValue || null,
-    };
-  },
-  toExternal(internal) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-      type: 'list' as QuestionType,
-      placeholder: internal.placeholder,
-      numericValue: internal.value,
-    };
-  },
+  toInternal: (external) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+    type: 'list' as QuestionType,
+    placeholder: external.placeholder || null,
+    value: external.numericValue || null,
+  }),
+  toExternal: (internal) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
+    type: 'list' as QuestionType,
+    placeholder: internal.placeholder,
+    numericValue: internal.value,
+  }),
 });

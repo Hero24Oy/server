@@ -29,20 +29,16 @@ export class OfferRequestNumberQuestionDto extends OfferRequestBaseQuestionDto<Q
 }
 
 OfferRequestNumberQuestionDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-      type: 'number' as QuestionType,
-      placeholder: external.placeholder || null,
-      value: external.numericValue || null,
-    };
-  },
-  toExternal(internal) {
-    return {
-      ...OfferRequestBaseQuestionDto.adapter.toInternal(internal),
-      type: 'number' as QuestionType,
-      placeholder: internal.placeholder,
-      numericValue: internal.value,
-    };
-  },
+  toInternal: (external) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
+    type: 'number' as QuestionType,
+    placeholder: external.placeholder || null,
+    value: external.numericValue || null,
+  }),
+  toExternal: (internal) => ({
+    ...OfferRequestBaseQuestionDto.adapter.toInternal(internal),
+    type: 'number' as QuestionType,
+    placeholder: internal.placeholder,
+    numericValue: internal.value,
+  }),
 });

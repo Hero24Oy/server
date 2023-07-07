@@ -32,22 +32,18 @@ export class OfferRequestQuestionOptionDto {
 }
 
 OfferRequestQuestionOptionDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      id: external.id,
-      name: external.name || null,
-      questions: external.questions || null,
-      order: external.order ?? null,
-      checked: external.checked ?? null,
-    };
-  },
-  toExternal(internal) {
-    return {
-      id: internal.id,
-      checked: internal.checked,
-      name: internal.name,
-      order: internal.order,
-      questions: internal.questions,
-    };
-  },
+  toInternal: (external) => ({
+    id: external.id,
+    name: external.name || null,
+    questions: external.questions || null,
+    order: external.order ?? null,
+    checked: external.checked ?? null,
+  }),
+  toExternal: (internal) => ({
+    id: internal.id,
+    checked: internal.checked,
+    name: internal.name,
+    order: internal.order,
+    questions: internal.questions,
+  }),
 });

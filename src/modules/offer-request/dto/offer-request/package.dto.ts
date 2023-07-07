@@ -36,29 +36,24 @@ export class PackageDto {
 }
 
 PackageDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      id: external.id,
-      cities_excluded: external.citiesExcluded ?? undefined,
-      cities_included: external.citiesIncluded ?? undefined,
-      description: external.description,
-      name: external.name,
-      order: external.order,
-      pricePerHour: external.pricePerHour,
-      recommendedDuration: external.recommendedDuration ?? undefined,
-    };
-  },
-
-  toExternal(internal) {
-    return {
-      citiesExcluded: internal.cities_excluded,
-      citiesIncluded: internal.cities_included,
-      description: internal.description,
-      id: internal.id,
-      name: internal.name,
-      order: internal.order,
-      pricePerHour: internal.pricePerHour,
-      recommendedDuration: internal.recommendedDuration,
-    };
-  },
+  toInternal: (external) => ({
+    id: external.id,
+    cities_excluded: external.citiesExcluded ?? undefined,
+    cities_included: external.citiesIncluded ?? undefined,
+    description: external.description,
+    name: external.name,
+    order: external.order,
+    pricePerHour: external.pricePerHour,
+    recommendedDuration: external.recommendedDuration ?? undefined,
+  }),
+  toExternal: (internal) => ({
+    citiesExcluded: internal.cities_excluded,
+    citiesIncluded: internal.cities_included,
+    description: internal.description,
+    id: internal.id,
+    name: internal.name,
+    order: internal.order,
+    pricePerHour: internal.pricePerHour,
+    recommendedDuration: internal.recommendedDuration,
+  }),
 });

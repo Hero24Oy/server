@@ -15,17 +15,12 @@ export class OfferRequestChatDto {
 }
 
 OfferRequestChatDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      chatId: external.chatId,
-      sellerProfile: external.sellerId,
-    };
-  },
-
-  toExternal(internal) {
-    return {
-      chatId: internal.chatId,
-      sellerId: internal.sellerProfile,
-    };
-  },
+  toInternal: (external) => ({
+    chatId: external.chatId,
+    sellerProfile: external.sellerId,
+  }),
+  toExternal: (internal) => ({
+    chatId: internal.chatId,
+    sellerId: internal.sellerProfile,
+  }),
 });

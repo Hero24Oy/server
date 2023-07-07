@@ -29,24 +29,20 @@ export class OfferRequestDataRequestedChangesDto {
 }
 
 OfferRequestDataRequestedChangesDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      reason: external.reason ?? undefined,
-      created: +new Date(external.created),
-      changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toInternal(
-          external.changedQuestions,
-        ),
-    };
-  },
-  toExternal(internal) {
-    return {
-      reason: internal.reason,
-      created: new Date(internal.created),
-      changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toExternal(
-          internal.changedQuestions,
-        ),
-    };
-  },
+  toInternal: (external) => ({
+    reason: external.reason ?? undefined,
+    created: +new Date(external.created),
+    changedQuestions:
+      OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toInternal(
+        external.changedQuestions,
+      ),
+  }),
+  toExternal: (internal) => ({
+    reason: internal.reason,
+    created: new Date(internal.created),
+    changedQuestions:
+      OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toExternal(
+        internal.changedQuestions,
+      ),
+  }),
 });

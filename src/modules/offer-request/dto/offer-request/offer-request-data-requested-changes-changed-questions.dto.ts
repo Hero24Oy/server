@@ -5,7 +5,7 @@ import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interface
 
 import {
   OfferRequestQuestionDto,
-  offerRequestQuestionAdapter,
+  OfferRequestQuestionAdapter,
 } from '../offer-request-question/offer-request-question.dto';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
@@ -34,14 +34,14 @@ OfferRequestDataRequestedChangesChangedQuestionsDto.adapter =
     toInternal(external) {
       const before = external.before.map(
         (question) =>
-          offerRequestQuestionAdapter.toInternal(
+          OfferRequestQuestionAdapter.toInternal(
             question,
           ) as PlainOfferRequestQuestion,
       );
 
       const after = external.after.map(
         (question) =>
-          offerRequestQuestionAdapter.toInternal(
+          OfferRequestQuestionAdapter.toInternal(
             question,
           ) as PlainOfferRequestQuestion,
       );
@@ -57,10 +57,10 @@ OfferRequestDataRequestedChangesChangedQuestionsDto.adapter =
 
       return {
         before: beforeQuestions.map((question) =>
-          offerRequestQuestionAdapter.toExternal(question),
+          OfferRequestQuestionAdapter.toExternal(question),
         ) as OfferRequestQuestionDto[],
         after: afterQuestions.map((question) =>
-          offerRequestQuestionAdapter.toExternal(question),
+          OfferRequestQuestionAdapter.toExternal(question),
         ) as OfferRequestQuestionDto[],
       };
     },

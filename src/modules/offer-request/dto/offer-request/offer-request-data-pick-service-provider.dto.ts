@@ -27,20 +27,16 @@ export class OfferRequestDataPickServiceProviderDto {
 }
 
 OfferRequestDataPickServiceProviderDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      pickStrategy: external.pickStrategy,
-      preferred: external.preferred
-        ? convertListToFirebaseMap(external.preferred)
-        : undefined,
-    };
-  },
-  toExternal(internal) {
-    return {
-      pickStrategy: internal.pickStrategy,
-      preferred: internal.preferred
-        ? convertFirebaseMapToList(internal.preferred)
-        : undefined,
-    };
-  },
+  toInternal: (external) => ({
+    pickStrategy: external.pickStrategy,
+    preferred: external.preferred
+      ? convertListToFirebaseMap(external.preferred)
+      : undefined,
+  }),
+  toExternal: (internal) => ({
+    pickStrategy: internal.pickStrategy,
+    preferred: internal.preferred
+      ? convertFirebaseMapToList(internal.preferred)
+      : undefined,
+  }),
 });

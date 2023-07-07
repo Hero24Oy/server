@@ -48,7 +48,7 @@ export const OfferRequestQuestionDto = createUnionType({
 
 export type OfferRequestQuestionDto = typeof OfferRequestQuestionDto;
 
-export const offerRequestQuestionAdapter = new FirebaseAdapter<
+export const OfferRequestQuestionAdapter = new FirebaseAdapter<
   PlainOfferRequestQuestion,
   OfferRequestQuestionDto
 >({

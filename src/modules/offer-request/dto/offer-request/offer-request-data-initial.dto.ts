@@ -4,7 +4,7 @@ import { OfferRequestDB } from 'hero24-types';
 import { AddressesAnsweredDto } from './addresses-answered.dto';
 import {
   OfferRequestQuestionDto,
-  offerRequestQuestionAdapter,
+  OfferRequestQuestionAdapter,
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
 import { MaybeType } from 'src/modules/common/common.types';
@@ -67,7 +67,7 @@ export class OfferRequestDataInitialDto {
 OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
   toInternal(external) {
     const questions = external.questions.map((question) =>
-      offerRequestQuestionAdapter.toInternal(question),
+      OfferRequestQuestionAdapter.toInternal(question),
     );
 
     return {
@@ -106,7 +106,7 @@ OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
       createdAt: new Date(internal.createdAt),
       questions: questions.map(
         (question) =>
-          offerRequestQuestionAdapter.toExternal(
+          OfferRequestQuestionAdapter.toExternal(
             question,
           ) as OfferRequestQuestionDto,
       ),

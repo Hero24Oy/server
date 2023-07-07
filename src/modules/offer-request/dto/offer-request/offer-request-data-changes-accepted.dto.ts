@@ -20,17 +20,12 @@ export class OfferRequestDataChangesAcceptedDto {
 }
 
 OfferRequestDataChangesAcceptedDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      detailsChangeAccepted: external.detailsChangeAccepted,
-      timeChangeAccepted: external.timeChangeAccepted,
-    };
-  },
-
-  toExternal(internal) {
-    return {
-      detailsChangeAccepted: internal.detailsChangeAccepted,
-      timeChangeAccepted: internal.timeChangeAccepted,
-    };
-  },
+  toInternal: (external) => ({
+    detailsChangeAccepted: external.detailsChangeAccepted,
+    timeChangeAccepted: external.timeChangeAccepted,
+  }),
+  toExternal: (internal) => ({
+    detailsChangeAccepted: internal.detailsChangeAccepted,
+    timeChangeAccepted: internal.timeChangeAccepted,
+  }),
 });

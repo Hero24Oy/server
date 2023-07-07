@@ -41,22 +41,18 @@ export abstract class OfferRequestBaseQuestionDto<
 }
 
 OfferRequestBaseQuestionDto.adapter = new FirebaseAdapter({
-  toInternal(external) {
-    return {
-      id: external.id,
-      [QUESTION_FLAT_ID_NAME]: external[QUESTION_FLAT_ID_NAME],
-      name: external.name || null,
-      order: external.order,
-      type: external.type,
-    };
-  },
-  toExternal(internal) {
-    return {
-      id: internal.id,
-      [QUESTION_FLAT_ID_NAME]: internal[QUESTION_FLAT_ID_NAME],
-      name: internal.name,
-      order: internal.order || 0,
-      type: internal.type,
-    };
-  },
+  toInternal: (external) => ({
+    id: external.id,
+    [QUESTION_FLAT_ID_NAME]: external[QUESTION_FLAT_ID_NAME],
+    name: external.name || null,
+    order: external.order,
+    type: external.type,
+  }),
+  toExternal: (internal) => ({
+    id: internal.id,
+    [QUESTION_FLAT_ID_NAME]: internal[QUESTION_FLAT_ID_NAME],
+    name: internal.name,
+    order: internal.order || 0,
+    type: internal.type,
+  }),
 });
