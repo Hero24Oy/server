@@ -1,12 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ref, getDatabase, get, set, serverTimestamp } from 'firebase/database';
+import { ref, getDatabase, set, serverTimestamp } from 'firebase/database';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { UserMergeDto } from './dto/user-merge/user-merge.dto';
-import { UserMergeDB } from 'hero24-types';
 import { UserMergeInput } from './dto/user-merge/user-merge.input';
 import { FirebaseService } from '../firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
@@ -34,21 +33,22 @@ export class UserMergeService {
   async startUserMerge(
     userMergeInput: UserMergeInput,
     app: FirebaseAppInstance,
-  ): Promise<UserMergeDto | null> {
+  ): Promise<UserMergeInput> {
     const database = getDatabase(app);
-    if (!userMergeInput.userId) {
-      return null;
-    }
+
+    let newUserMerge = {
+      ...userMergeInput,
+      createdAt: serverTimestamp(),
+    };
+
     await set(
       ref(
         database,
         `${FirebaseDatabasePath.USER_MERGES}/${userMergeInput.userId}`,
       ),
-      userMergeInput,
+      newUserMerge,
     );
 
-    const userMerge = await this.getUserMergeByUserId(userMergeInput.userId);
-
-    return userMerge;
+    return userMergeInput;
   }
 }

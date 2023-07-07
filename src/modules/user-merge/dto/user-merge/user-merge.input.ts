@@ -1,16 +1,16 @@
 import { Field, InputType } from '@nestjs/graphql';
-
+import MergeStatus from './merge-status.dto';
 
 @InputType()
 export class UserMergeInput {
-  @Field(() => String, { nullable: true })
-  userId?: string;
+  @Field(() => String)
+  userId: string;
 
   @Field(() => String, { nullable: true })
   emailToSearch?: string;
 
-  @Field(() => String, { nullable: true })
-  emailStatus?: string;
+  @Field(() => MergeStatus)
+  emailStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
   emailVerifiedByUser?: boolean;
@@ -18,8 +18,8 @@ export class UserMergeInput {
   @Field(() => String, { nullable: true })
   phoneToSearch?: string;
 
-  @Field(() => String, { nullable: true })
-  phoneStatus?: string;
+  @Field(() => MergeStatus)
+  phoneStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
   phoneVerifiedByUser?: boolean;

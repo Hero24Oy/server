@@ -5,7 +5,7 @@ import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { UserMergeDto } from './dto/user-merge/user-merge.dto';
-import { UserMergeService } from './userMerge.service';
+import { UserMergeService } from './user-merge.service';
 import { UserMergeInput } from './dto/user-merge/user-merge.input';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { PubSub } from 'graphql-subscriptions';
@@ -18,22 +18,12 @@ export class UserMergeResolver {
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
-  @Query(() => UserMergeDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
-  async getUserMergeByUserId(
-    @Args('userId') userId: string,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserMergeDto | null> {
-    return await this.UserMergeService.getUserMergeByUserId(userId);
-  }
-
   @Mutation(() => UserMergeDto)
   @UseFilters(FirebaseExceptionFilter)
   async startUserMerge(
     @Args('userMergeInput') userMergeInput: UserMergeInput,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserMergeDto | null> {
-    console.log(userMergeInput);
     return await this.UserMergeService.startUserMerge(userMergeInput, app);
   }
 

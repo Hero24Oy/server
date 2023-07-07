@@ -1,6 +1,6 @@
 import { Inject, Module } from '@nestjs/common';
 import { UserMergeResolver } from './user-merge.resolver';
-import { UserMergeService } from './userMerge.service';
+import { UserMergeService } from './user-merge.service';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
 import { FirebaseService } from '../firebase/firebase.service';
