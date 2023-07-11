@@ -1,5 +1,6 @@
 import { Scalar, CustomScalar } from '@nestjs/graphql';
 import { Kind, ValueNode } from 'graphql';
+import moment from 'moment';
 
 @Scalar('Date', () => Date)
 export class DateScalar implements CustomScalar<number, Date> {
@@ -10,12 +11,12 @@ export class DateScalar implements CustomScalar<number, Date> {
   }
 
   serialize(value: Date): number {
-    return +new Date(value);
+    return value.getTime();
   }
 
   parseLiteral(ast: ValueNode): Date {
     if (ast.kind === Kind.INT) {
-      return new Date(ast.value);
+      return moment(+ast.value).toDate();
     }
 
     return null as unknown as Date;

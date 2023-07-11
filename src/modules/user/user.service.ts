@@ -30,7 +30,7 @@ export class UserService {
 
     const user: UserDB | null = userSnapshot.val();
 
-    return user && UserDto.convertFromFirebaseType(userId, user);
+    return user && UserDto.adapter.toExternal({ id: userId, ...user });
   }
 
   async getUsers(
@@ -53,7 +53,7 @@ export class UserService {
 
     let users = Object.entries(
       (usersSnapshot.val() as Record<string, UserDB>) || {},
-    ).map(([id, user]) => UserDto.convertFromFirebaseType(id, user));
+    ).map(([id, user]) => UserDto.adapter.toExternal({ id, ...user }));
 
     const isPaginationEnabled =
       typeof limit === 'number' && typeof offset === 'number';
@@ -97,7 +97,10 @@ export class UserService {
 
     let updatedUserId = userId || null;
 
-    const newUserData = UserDataInput.convertToFirebaseType(data);
+    const newUserData: UserDB['data'] = {
+      ...UserDataInput.adapter.toInternal(data),
+      createdAt: Date.now(),
+    };
 
     if (isCreatedFromWeb && userId) {
       // admin
@@ -137,9 +140,14 @@ export class UserService {
     const { userId } = args;
     const database = getDatabase(app);
 
+    const updatedUserData: Omit<Partial<UserDB['data']>, 'createdAt'> = {
+      ...PartialUserDataInput.adapter.toInternal(args.data),
+      updatedAt: Date.now(),
+    };
+
     await update(
       ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
-      PartialUserDataInput.convertToFirebaseType(args.data),
+      updatedUserData,
     );
 
     return this.getUserById(userId, app) as Promise<UserDto>;
