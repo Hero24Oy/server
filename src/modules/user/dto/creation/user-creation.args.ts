@@ -1,4 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
+
 import { UserDataInput } from './user-data.input';
 
 @ArgsType()

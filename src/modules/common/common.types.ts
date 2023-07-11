@@ -25,3 +25,17 @@ export type BaseGuardActivator<
   context: AppGraphQLContext,
   providers: Providers,
 ) => boolean | Promise<boolean>;
+
+export interface Adapter<InternalType, ExternalType> {
+  toExternal(internal: InternalType): ExternalType;
+  toInternal(external: ExternalType): InternalType;
+}
+
+export type OptionalKeys<T> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [K in keyof T]-?: {} extends Pick<T, K> ? K : never;
+}[keyof T];
+
+export type TypeSafeRequired<T> = Omit<T, OptionalKeys<T>> & {
+  [Key in OptionalKeys<T>]: T[Key] | undefined;
+};
