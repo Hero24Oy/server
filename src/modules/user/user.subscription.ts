@@ -1,6 +1,7 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { isEqual } from 'lodash';
 import { PubSub } from 'graphql-subscriptions';
+import { ApiException } from '@hubspot/api-client/lib/codegen/crm/contacts';
 
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import {
@@ -13,7 +14,7 @@ import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
 import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
 import { HubSpotService } from '../hub-spot/hub-spot.service';
 import { UserService } from './user.service';
-import { ApiException } from '@hubspot/api-client/lib/codegen/crm/contacts';
+import { HubSpotContactProperties } from '../hub-spot/hub-spot-contact/hub-spot-contact.types';
 
 @Injectable()
 export class UserSubscription implements SubscriptionService {
@@ -66,7 +67,7 @@ export class UserSubscription implements SubscriptionService {
     try {
       const { hubSpotContactId } = user;
 
-      const properties = {
+      const properties: HubSpotContactProperties = {
         email: user.data.email,
         firstname: user.data.firstName || '',
         lastname: user.data.lastName || '',
