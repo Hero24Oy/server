@@ -9,13 +9,13 @@ import { SettingsService } from './settings.service';
 
 @Resolver()
 export class SettingsResolver {
-  constructor(private SettingsService: SettingsService) {}
+  constructor(private settingsService: SettingsService) {}
 
   @Query(() => SettingsDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   async settings(
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<SettingsDto | null> {
-    return this.SettingsService.getSettings(app);
+    return this.settingsService.getSettings(app);
   }
 }
