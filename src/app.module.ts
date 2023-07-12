@@ -19,8 +19,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
-import { N8nModule } from './modules/n8n/n8n.module';
 import { HubSpotModule } from './modules/hub-spot/hub-spot.module';
+import { SubscriberModule } from './modules/subscriber/subscriber.module';
 
 @Module({
   imports: [
@@ -57,7 +57,7 @@ import { HubSpotModule } from './modules/hub-spot/hub-spot.module';
     NewsModule,
     SettingsModule,
     PlatformSpecifierModule,
-    N8nModule,
+    SubscriberModule,
     HubSpotModule,
   ],
   providers: [AppResolver],

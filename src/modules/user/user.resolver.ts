@@ -30,15 +30,14 @@ export class UserResolver {
 
   @Query(() => UserDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
-  async user(
-    @Args('id') userId: string,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserDto | null> {
-    return this.userService.getUserById(userId, app);
+  @UseGuards(AuthGuard)
+  async user(@Args('id') userId: string): Promise<UserDto | null> {
+    return this.userService.getUserById(userId);
   }
 
   @Query(() => UserListDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async users(
     @Args() args: UsersArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -48,6 +47,7 @@ export class UserResolver {
 
   @Query(() => String)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async phone(
     @Args('userId') userId: string,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -57,6 +57,7 @@ export class UserResolver {
 
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async createUser(
     @Args() args: UserCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -82,10 +83,7 @@ export class UserResolver {
       USER_UPDATED_SUBSCRIPTION,
     );
 
-    const beforeUpdateUser = await this.userService.getUserById(
-      args.userId,
-      app,
-    );
+    const beforeUpdateUser = await this.userService.getUserById(args.userId);
 
     if (!beforeUpdateUser) {
       throw new Error(`User not found`);
@@ -100,6 +98,7 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async unbindUserOfferRequests(
     @Args('userId', { type: () => String }) userId: string,
     @Args('offerRequestIds', { type: () => [String] })

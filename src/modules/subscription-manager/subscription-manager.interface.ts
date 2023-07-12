@@ -1,5 +1,5 @@
 type Unsubscribe = () => Promise<void> | void;
 
-export interface N8nWebhookSubscriptionService {
+export interface SubscriptionService {
   subscribe(): Promise<Unsubscribe> | Unsubscribe;
 }

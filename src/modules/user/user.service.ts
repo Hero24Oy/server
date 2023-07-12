@@ -18,15 +18,13 @@ import { FirebaseService } from '../firebase/firebase.service';
 export class UserService {
   constructor(private firebaseService: FirebaseService) {}
 
-  async getUserById(
-    userId: string,
-    app: FirebaseAppInstance,
-  ): Promise<UserDto | null> {
-    const database = getDatabase(app);
+  async getUserById(userId: string): Promise<UserDto | null> {
+    const database = this.firebaseService.getDefaultApp().database();
 
-    const userSnapshot = await get(
-      ref(database, `${FirebaseDatabasePath.USERS}/${userId}`),
-    );
+    const userSnapshot = await database
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .get();
 
     const user: UserDB | null = userSnapshot.val();
 
@@ -130,7 +128,7 @@ export class UserService {
       throw new Error(`The user can't be created`);
     }
 
-    return this.getUserById(updatedUserId, app) as Promise<UserDto>;
+    return this.getUserById(updatedUserId) as Promise<UserDto>;
   }
 
   async editUserData(
@@ -150,7 +148,7 @@ export class UserService {
       updatedUserData,
     );
 
-    return this.getUserById(userId, app) as Promise<UserDto>;
+    return this.getUserById(userId) as Promise<UserDto>;
   }
 
   async unbindUserOfferRequests(
@@ -209,5 +207,15 @@ export class UserService {
       .once('value');
 
     return snapshot.val() || null;
+  }
+
+  async setHubSpotContactId(userId: string, hubSpotContactId?: string) {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    await database
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('hubSpotContactId')
+      .set(hubSpotContactId || null);
   }
 }

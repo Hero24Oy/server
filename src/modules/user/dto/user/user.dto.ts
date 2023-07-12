@@ -67,7 +67,13 @@ export class UserDto {
   @Field(() => String, { nullable: true })
   mergedTo?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<UserDB & { id: string }, UserDto>;
+  // We don't need to send hubSpotContactId on client for now. Only for internal usage
+  hubSpotContactId?: MaybeType<string>;
+
+  static adapter: FirebaseAdapter<
+    UserDB & { id: string; hubSpotContactId?: string },
+    UserDto
+  >;
 }
 
 UserDto.adapter = new FirebaseAdapter({
@@ -98,6 +104,7 @@ UserDto.adapter = new FirebaseAdapter({
     mergedUsers:
       internal.mergedUsers && convertFirebaseMapToList(internal.mergedUsers),
     mergedTo: internal.mergedTo,
+    hubSpotContactId: internal.hubSpotContactId,
   }),
   toInternal: (external) => ({
     id: external.id,
@@ -128,5 +135,6 @@ UserDto.adapter = new FirebaseAdapter({
       ? convertListToFirebaseMap(external.mergedUsers)
       : undefined,
     mergedTo: external.mergedTo ?? undefined,
+    hubSpotContactId: external.hubSpotContactId ?? undefined,
   }),
 });
