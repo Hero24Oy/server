@@ -6,8 +6,8 @@ export class UserMergeInput {
   @Field(() => String)
   userId: string;
 
-  @Field(() => String, { nullable: true })
-  emailToSearch?: string;
+  @Field(() => String)
+  emailToSearch: string;
 
   @Field(() => MergeStatus)
   emailStatus: MergeStatus;
@@ -15,8 +15,8 @@ export class UserMergeInput {
   @Field(() => Boolean, { nullable: true })
   emailVerifiedByUser?: boolean;
 
-  @Field(() => String, { nullable: true })
-  phoneToSearch?: string;
+  @Field(() => String)
+  phoneToSearch: string;
 
   @Field(() => MergeStatus)
   phoneStatus: MergeStatus;

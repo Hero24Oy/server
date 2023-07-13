@@ -1,31 +1,33 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserMergeDB } from 'hero24-types';
 import MergeStatus from './merge-status.dto';
+import { omitUndefined } from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
 
 @ObjectType()
 export class UserMergeDto {
-  @Field(() => String, { nullable: true })
-  userId?: string;
+  @Field(() => String)
+  userId: string;
 
-  @Field(() => String, { nullable: true })
-  emailToSearch?: string;
+  @Field(() => String)
+  emailToSearch: string;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   emailStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
-  emailVerifiedByUser?: boolean;
+  emailVerifiedByUser?: MaybeType<boolean>;
 
-  @Field(() => String, { nullable: true })
-  phoneToSearch?: string;
+  @Field(() => String)
+  phoneToSearch: string;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   phoneStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
-  phoneVerifiedByUser?: boolean;
+  phoneVerifiedByUser?: MaybeType<boolean>;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Number)
   createdAt?: number;
 
   static convertFromFirebaseType(userMerge: UserMergeDB): UserMergeDto {
@@ -39,5 +41,13 @@ export class UserMergeDto {
       phoneVerifiedByUser: userMerge.phoneVerifiedByUser,
       createdAt: userMerge.createdAt,
     };
+  }
+
+  static convertToFirebaseType(
+    userMergeData: UserMergeDto,
+  ): Omit<UserMergeDB, 'createdAt'> {
+    return omitUndefined({
+      ...userMergeData,
+    });
   }
 }

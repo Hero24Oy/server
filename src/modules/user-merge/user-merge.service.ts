@@ -1,15 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ref, getDatabase, set, serverTimestamp } from 'firebase/database';
+import { serverTimestamp } from 'firebase/database';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { UserMergeDto } from './dto/user-merge/user-merge.dto';
 import { UserMergeInput } from './dto/user-merge/user-merge.input';
 import { FirebaseService } from '../firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
+import { UserMergeDB } from 'hero24-types';
+import { Identity } from '../auth/auth.types';
 
 @Injectable()
 export class UserMergeService {
@@ -25,29 +26,29 @@ export class UserMergeService {
       .ref(`${FirebaseDatabasePath.USER_MERGES}/${userId}`)
       .once('value');
 
-    const userMerge: UserMergeDto | null = userMergeSnapshot.val();
+    const userMerge: UserMergeDB | null = userMergeSnapshot.val();
 
-    return userMerge && userMerge;
+    return userMerge && UserMergeDto.convertFromFirebaseType(userMerge);
   }
 
   async startUserMerge(
     userMergeInput: UserMergeInput,
-    app: FirebaseAppInstance,
+    identity: Identity,
   ): Promise<UserMergeInput> {
-    const database = getDatabase(app);
+    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
 
-    let newUserMerge = {
-      ...userMergeInput,
-      createdAt: serverTimestamp(),
-    };
+    let newUserMerge: Omit<UserMergeDB, 'createdAt'> =
+      UserMergeDto.convertToFirebaseType({
+        ...userMergeInput,
+        userId: identity.id
+      });
 
-    await set(
-      ref(
-        database,
-        `${FirebaseDatabasePath.USER_MERGES}/${userMergeInput.userId}`,
-      ),
-      newUserMerge,
-    );
+    await database
+      .ref(`${FirebaseDatabasePath.USER_MERGES}/${userMergeInput.userId}`)
+      .set({
+        ...newUserMerge,
+        createdAt: serverTimestamp(),
+      });
 
     return userMergeInput;
   }
