@@ -20,6 +20,7 @@ import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
 import { N8nModule } from './modules/n8n/n8n.module';
+import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { N8nModule } from './modules/n8n/n8n.module';
     SettingsModule,
     PlatformSpecifierModule,
     N8nModule,
+    UserMergeModule,
   ],
   providers: [AppResolver],
 })
