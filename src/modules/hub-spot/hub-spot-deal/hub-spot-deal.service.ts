@@ -6,6 +6,7 @@ import {
   HubSpotDealObject,
   HubSpotDealProperties,
 } from './hub-spot-deal.types';
+import { AssociationCategory } from '../hub-spot-assotiation/hub-spot-assotiation.constants';
 
 @Injectable()
 export class HubSpotDealService {
@@ -24,7 +25,7 @@ export class HubSpotDealService {
           },
           types: [
             {
-              associationCategory: 'HUBSPOT_DEFINED',
+              associationCategory: AssociationCategory.HUB_SPOT_DEFINED,
               associationTypeId: AssociationTypes.dealToContact,
             },
           ],
