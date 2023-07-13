@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { SubscriptionService } from './subscription-manager.interface';
+import { SUBSCRIPTIONS_PROVIDER } from './subscription-manager.constants';
 
 @Injectable()
 export class SubscriptionManagerService implements SubscriptionService {
-  private subscriptions: SubscriptionService[];
-
-  constructor(...subscriptions: SubscriptionService[]) {
-    this.subscriptions = subscriptions;
-  }
+  constructor(
+    @Inject(SUBSCRIPTIONS_PROVIDER)
+    private subscriptions: SubscriptionService[],
+  ) {}
 
   async subscribe() {
     const unsubscribes = await Promise.all(
