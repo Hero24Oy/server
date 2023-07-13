@@ -16,7 +16,7 @@ export class HubSpotDealService {
     properties: HubSpotDealProperties,
     contactId: string,
   ): Promise<HubSpotDealObject> {
-    this.hubSpotClientService.client.crm.deals.basicApi.create({
+    return this.hubSpotClientService.client.crm.deals.basicApi.create({
       properties,
       associations: [
         {
@@ -32,6 +32,5 @@ export class HubSpotDealService {
         },
       ],
     });
-    throw new Error('Error');
   }
 }
