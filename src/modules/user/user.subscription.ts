@@ -12,7 +12,7 @@ import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
 import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
-import { HubSpotService } from '../hub-spot/hub-spot.service';
+import { HubSpotContactService } from '../hub-spot/hub-spot-contact/hub-spot-contact.service';
 import { UserService } from './user.service';
 import { HubSpotContactProperties } from '../hub-spot/hub-spot-contact/hub-spot-contact.types';
 
@@ -22,7 +22,7 @@ export class UserSubscription implements SubscriptionService {
 
   constructor(
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
-    private hubSpotService: HubSpotService,
+    private hubSpotContactService: HubSpotContactService,
     private userService: UserService,
   ) {}
 
@@ -64,30 +64,29 @@ export class UserSubscription implements SubscriptionService {
   }
 
   private async createOrUpdateContact(user: UserDto) {
-    try {
-      const { hubSpotContactId } = user;
+    const properties: HubSpotContactProperties = {
+      email: user.data.email,
+      firstname: user.data.firstName || '',
+      lastname: user.data.lastName || '',
+    };
 
-      const properties: HubSpotContactProperties = {
-        email: user.data.email,
-        firstname: user.data.firstName || '',
-        lastname: user.data.lastName || '',
-      };
+    try {
+      const { hubSpotContactId, id: userId } = user;
 
       if (hubSpotContactId) {
-        await this.hubSpotService.client.crm.contacts.basicApi.update(
+        await this.hubSpotContactService.updateContact(
           hubSpotContactId,
-          { properties },
+          properties,
         );
+
         return;
       }
 
-      const { id } =
-        await this.hubSpotService.client.crm.contacts.basicApi.create({
-          properties,
-          associations: [],
-        });
+      const { id: contactId } = await this.hubSpotContactService.createContact(
+        properties,
+      );
 
-      await this.userService.setHubSpotContactId(user.id, id);
+      await this.userService.setHubSpotContactId(userId, contactId);
     } catch (err) {
       const error = err as ApiException<unknown>;
 
@@ -101,37 +100,19 @@ export class UserSubscription implements SubscriptionService {
 
   private async handleAlreadyExistContactConflict(user: UserDto) {
     try {
-      const hubSpotClient = this.hubSpotService.client;
+      const { data, id: userId } = user;
+      const { email } = data;
 
-      const { total, results } =
-        await hubSpotClient.crm.contacts.searchApi.doSearch({
-          sorts: [],
-          properties: [],
-          limit: 1,
-          after: 0,
-          filterGroups: [
-            {
-              filters: [
-                {
-                  propertyName: 'email',
-                  operator: 'EQ',
-                  value: user.data.email,
-                },
-              ],
-            },
-          ],
-        });
+      const contact = await this.hubSpotContactService.strictFindContactByEmail(
+        email,
+      );
 
-      if (total !== 1) {
-        return;
-      }
+      const { id: contactId } = contact;
 
-      const [contact] = results;
-
-      await this.userService.setHubSpotContactId(user.id, contact.id);
+      await this.userService.setHubSpotContactId(userId, contactId);
       await this.createOrUpdateContact({
         ...user,
-        hubSpotContactId: contact.id,
+        hubSpotContactId: contactId,
       });
     } catch (err) {
       this.logger.error(err);

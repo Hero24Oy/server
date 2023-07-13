@@ -5,14 +5,14 @@ import { FirebaseModule } from '../firebase/firebase.module';
 import { UserSubscription } from './user.subscription';
 import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
-import { HubSpotModule } from '../hub-spot/hub-spot.module';
+import { HubSpotContactModule } from '../hub-spot/hub-spot-contact/hub-spot-contact.module';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQLPubsubModule, HubSpotModule, UserModule],
+      imports: [GraphQLPubsubModule, HubSpotContactModule, UserModule],
       subscriptions: [UserSubscription],
     }),
   ],

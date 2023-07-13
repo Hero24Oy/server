@@ -19,7 +19,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
-import { HubSpotModule } from './modules/hub-spot/hub-spot.module';
 import { SubscriberModule } from './modules/subscriber/subscriber.module';
 
 @Module({
@@ -58,7 +57,6 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
     SettingsModule,
     PlatformSpecifierModule,
     SubscriberModule,
-    HubSpotModule,
   ],
   providers: [AppResolver],
 })

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as HubSpot from '@hubspot/api-client';
 
 @Injectable()
-export class HubSpotService {
+export class HubSpotClientService {
   public readonly client: HubSpot.Client;
 
   constructor(configService: ConfigService) {
