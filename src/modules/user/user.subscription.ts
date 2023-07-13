@@ -1,20 +1,19 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { isEqual } from 'lodash';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
-import { ApiException } from '@hubspot/api-client/lib/codegen/crm/contacts';
+import { isEqual } from 'lodash';
 
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
+import { HubSpotContactService } from '../hub-spot/hub-spot-contact/hub-spot-contact.service';
+import { HubSpotContactProperties } from '../hub-spot/hub-spot-contact/hub-spot-contact.types';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
+import { UserDto } from './dto/user/user.dto';
+import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
+import { UserService } from './user.service';
 import {
   USER_CREATED_SUBSCRIPTION,
   USER_UPDATED_SUBSCRIPTION,
 } from './user.constants';
-import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
-import { UserDto } from './dto/user/user.dto';
-import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
-import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
-import { HubSpotContactService } from '../hub-spot/hub-spot-contact/hub-spot-contact.service';
-import { UserService } from './user.service';
-import { HubSpotContactProperties } from '../hub-spot/hub-spot-contact/hub-spot-contact.types';
 
 @Injectable()
 export class UserSubscription implements SubscriptionService {
@@ -63,7 +62,7 @@ export class UserSubscription implements SubscriptionService {
     );
   }
 
-  private async createOrUpdateContact(user: UserDto) {
+  private async createOrUpdateContact(user: UserDto): Promise<void> {
     const properties: HubSpotContactProperties = {
       email: user.data.email,
       firstname: user.data.firstName || '',
@@ -71,49 +70,12 @@ export class UserSubscription implements SubscriptionService {
     };
 
     try {
-      const { hubSpotContactId, id: userId } = user;
-
-      if (hubSpotContactId) {
-        await this.hubSpotContactService.updateContact(
-          hubSpotContactId,
-          properties,
-        );
-
-        return;
-      }
-
-      const { id: contactId } = await this.hubSpotContactService.createContact(
+      const contact = await this.hubSpotContactService.upsertContact(
         properties,
+        user.hubSpotContactId,
       );
 
-      await this.userService.setHubSpotContactId(userId, contactId);
-    } catch (err) {
-      const error = err as ApiException<unknown>;
-
-      if (error.code === HttpStatus.CONFLICT) {
-        return this.handleAlreadyExistContactConflict(user);
-      }
-
-      this.logger.error(error);
-    }
-  }
-
-  private async handleAlreadyExistContactConflict(user: UserDto) {
-    try {
-      const { data, id: userId } = user;
-      const { email } = data;
-
-      const contact = await this.hubSpotContactService.strictFindContactByEmail(
-        email,
-      );
-
-      const { id: contactId } = contact;
-
-      await this.userService.setHubSpotContactId(userId, contactId);
-      await this.createOrUpdateContact({
-        ...user,
-        hubSpotContactId: contactId,
-      });
+      await this.userService.setHubSpotContactId(user.id, contact.id);
     } catch (err) {
       this.logger.error(err);
     }

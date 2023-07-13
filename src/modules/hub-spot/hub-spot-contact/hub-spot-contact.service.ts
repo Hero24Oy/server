@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { ApiException } from '@hubspot/api-client/lib/codegen/crm/contacts';
+
+import { MaybeType } from 'src/modules/common/common.types';
 
 import { HubSpotClientService } from '../hub-spot-client/hub-spot-client.service';
 import {
@@ -10,6 +13,30 @@ import {
 @Injectable()
 export class HubSpotContactService {
   constructor(private hubSpotClientService: HubSpotClientService) {}
+
+  async upsertContact(
+    properties: HubSpotContactProperties,
+    contactId?: MaybeType<string>,
+    associations: HubSpotContactAssociationsForObject[] = [],
+  ) {
+    try {
+      if (contactId) {
+        return await this.updateContact(contactId, properties);
+      }
+
+      return await this.createContact(properties, associations);
+    } catch (err) {
+      const error = err as ApiException<unknown>;
+
+      if (error.code === HttpStatus.CONFLICT) {
+        const contact = await this.strictFindContactByEmail(properties.email);
+
+        return this.updateContact(contact.id, properties);
+      }
+
+      throw err;
+    }
+  }
 
   async createContact(
     properties: HubSpotContactProperties,
