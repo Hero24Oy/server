@@ -17,6 +17,10 @@ export class OfferHubSpotSubscription implements SubscriptionService {
   ) {}
 
   public subscribe() {
+    return this.subscribeOnOfferCreation();
+  }
+
+  private subscribeOnOfferCreation() {
     const offerRef = this.firebaseService
       .getDefaultApp()
       .database()
