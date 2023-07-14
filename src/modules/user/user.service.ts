@@ -31,6 +31,16 @@ export class UserService {
     return user && UserDto.adapter.toExternal({ id: userId, ...user });
   }
 
+  async strictGetUserById(userId: string): Promise<UserDto> {
+    const user = await this.getUserById(userId);
+
+    if (!user) {
+      throw new Error(`User with id ${userId} was not found`);
+    }
+
+    return user;
+  }
+
   async getUsers(
     args: UsersArgs,
     app: FirebaseAppInstance,

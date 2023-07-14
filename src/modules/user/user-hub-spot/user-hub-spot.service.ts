@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { isEqual } from 'lodash';
 
-import { HubSpotContactProperties } from '../../hub-spot/hub-spot-contact/hub-spot-contact.types';
+import {
+  HubSpotContactObject,
+  HubSpotContactProperties,
+} from '../../hub-spot/hub-spot-contact/hub-spot-contact.types';
 import { HubSpotContactService } from '../../hub-spot/hub-spot-contact/hub-spot-contact.service';
 import { UserDto } from '../dto/user/user.dto';
 import { UserService } from '../user.service';
@@ -15,7 +18,9 @@ export class UserHubSpotService {
 
   private logger = new Logger(UserHubSpotService.name);
 
-  public async upsertContact(user: UserDto): Promise<void> {
+  public async upsertContact(
+    user: UserDto,
+  ): Promise<HubSpotContactObject | null> {
     const properties: HubSpotContactProperties = {
       email: user.data.email,
       firstname: user.data.firstName || '',
@@ -29,9 +34,25 @@ export class UserHubSpotService {
       );
 
       await this.userService.setHubSpotContactId(user.id, contact.id);
+
+      return contact;
     } catch (err) {
       this.logger.error(err);
+
+      return null;
     }
+  }
+
+  public async strictUpsertContact(
+    user: UserDto,
+  ): Promise<HubSpotContactObject> {
+    const contact = await this.upsertContact(user);
+
+    if (!contact) {
+      throw new Error("Contact couldn't be created or updated");
+    }
+
+    return contact;
   }
 
   public shouldUpdateContact(user: UserDto, previous: UserDto) {

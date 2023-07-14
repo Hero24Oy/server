@@ -9,6 +9,6 @@ import { UserHubSpotModule } from './user-hub-spot/user-hub-spot.module';
 @Module({
   imports: [FirebaseModule, GraphQLPubsubModule, UserHubSpotModule],
   providers: [UserResolver, UserService],
-  exports: [UserService],
+  exports: [UserService, UserHubSpotModule],
 })
 export class UserModule {}
