@@ -1,5 +1,6 @@
-import { Client as HubSpotClient } from '@hubspot/api-client';
 import fs from 'fs';
+import { Client as HubSpotClient } from '@hubspot/api-client';
+import { capitalize } from 'lodash';
 
 const NOT_STRING_AND_NOT_NUMBER_REGEXP = /[^a-zA-Z0-9]/g;
 const MULTIPLE_DASH_REGEXP = /_+/g;
@@ -12,9 +13,9 @@ const prepareLabel = (label: string): string => {
 };
 
 const serializeEnum = (name: string, record: Record<string, string>) => {
-  const camelized = `${name[0].toUpperCase()}${name.slice(1).toLowerCase()}`;
+  const capitalized = capitalize(name);
 
-  return `export enum HubSpot${camelized}Property {
+  return `export enum HubSpot${capitalized}Property {
   ${Object.entries(record)
     .sort(([lhs], [rhs]) => lhs.localeCompare(rhs))
     .map(([label, name]) => `${label} = "${name}",`)
@@ -29,7 +30,6 @@ const print = (path: string, data: string) => {
   });
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type CreatePropertiesEnum = {
   saveFilePath: string;
   hubSpotObjectType: string;
