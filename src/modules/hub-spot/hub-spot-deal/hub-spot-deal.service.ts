@@ -33,4 +33,13 @@ export class HubSpotDealService {
       ],
     });
   }
+
+  async updateDeal(
+    dealId: string,
+    properties: HubSpotDealProperties,
+  ): Promise<HubSpotDealObject> {
+    return this.hubSpotClientService.client.crm.deals.basicApi.update(dealId, {
+      properties,
+    });
+  }
 }
