@@ -83,19 +83,13 @@ export class OfferRequestService {
 
     const category: string | null = categorySnapshot.val();
 
-    if (!isString(category)) {
-      throw new Error(
-        `Category was not found for offer request with id ${offerRequestId}`,
-      );
-    }
-
     return category;
   }
 
   async strictGetCategoryIdByOfferRequestId(
     offerRequestId: string,
   ): Promise<string> {
-    const category = this.getCategoryIdByOfferRequestId(offerRequestId);
+    const category = await this.getCategoryIdByOfferRequestId(offerRequestId);
 
     if (!isString(category)) {
       throw new Error(

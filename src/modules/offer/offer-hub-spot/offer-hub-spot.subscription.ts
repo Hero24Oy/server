@@ -56,14 +56,22 @@ export class OfferHubSpotSubscription implements SubscriptionService {
   }
 
   private childChangedHandler = createOfferEventHandler(async (offer) => {
-    if (!offer.hubSpotDealId) {
-      return;
-    }
+    try {
+      if (!offer.hubSpotDealId) {
+        return;
+      }
 
-    await this.offerHubSpotService.updateDeal(offer);
+      await this.offerHubSpotService.updateDeal(offer);
+    } catch (err) {
+      this.logger.error(err);
+    }
   });
 
   private childAddedHandler = createOfferEventHandler(async (offer) => {
-    await this.offerHubSpotService.createDeal(offer);
+    try {
+      await this.offerHubSpotService.createDeal(offer);
+    } catch (err) {
+      this.logger.error(err);
+    }
   });
 }
