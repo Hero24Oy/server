@@ -1,7 +1,12 @@
-import { DataSnapshot, EventType, Reference } from 'firebase-admin/database';
+import {
+  DataSnapshot,
+  EventType,
+  Query,
+  Reference,
+} from 'firebase-admin/database';
 
 export const subscribeOnFirebaseEvent = (
-  ref: Reference,
+  ref: Reference | Query,
   eventType: EventType,
   eventHandler: (snapshot: DataSnapshot) => void,
 ) => {
