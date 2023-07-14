@@ -44,10 +44,14 @@ export class OfferDataDto {
 OfferDataDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     extensions: internal.extensions
-      ? internal.extensions.map(PurchaseDto.adapter.toExternal)
+      ? internal.extensions.map((purchase) =>
+          PurchaseDto.adapter.toExternal(purchase),
+        )
       : null,
     workTime: internal.workTime
-      ? internal.workTime.map(WorkTimeDto.adapter.toExternal)
+      ? internal.workTime.map((workTime) =>
+          WorkTimeDto.adapter.toExternal(workTime),
+        )
       : null,
     actualStartTime: isNumber(internal.actualStartTime)
       ? new Date(internal.actualStartTime)
@@ -63,10 +67,14 @@ OfferDataDto.adapter = new FirebaseAdapter({
   }),
   toInternal: (external) => ({
     extensions: external.extensions
-      ? external.extensions.map(PurchaseDto.adapter.toInternal)
+      ? external.extensions.map((purchase) =>
+          PurchaseDto.adapter.toInternal(purchase),
+        )
       : undefined,
     workTime: external.workTime
-      ? external.workTime.map(WorkTimeDto.adapter.toInternal)
+      ? external.workTime.map((workTime) =>
+          WorkTimeDto.adapter.toInternal(workTime),
+        )
       : undefined,
     actualStartTime: external.actualStartTime
       ? Number(external.actualStartTime)

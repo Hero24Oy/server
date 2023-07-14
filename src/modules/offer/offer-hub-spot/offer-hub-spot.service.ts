@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { OfferDto } from '../dto/offer/offer.dto';
-import { HubSpotDealProperties } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.types';
+import {
+  HubSpotDealObject,
+  HubSpotDealProperties,
+} from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.types';
 import { HubSpotDealService } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.service';
 import { UserService } from 'src/modules/user/user.service';
 import { UserHubSpotService } from 'src/modules/user/user-hub-spot/user-hub-spot.service';
@@ -27,7 +30,42 @@ export class OfferHubSpotService {
     this.dealOwner = this.configService.getOrThrow('hubSpot.dealOwner');
   }
 
-  async createDeal(offer: OfferDto) {
+  async createDeal(offer: OfferDto): Promise<HubSpotDealObject> {
+    const { sellerProfileId, buyerProfileId } = offer.data.initial;
+
+    const buyerUser = await this.userService.strictGetUserById(buyerProfileId);
+    const sellerUser = await this.userService.strictGetUserById(
+      sellerProfileId,
+    );
+
+    const buyerHubSpotContactId = await this.getHubSpotContactId(buyerUser);
+    const sellerHubSpotContactId = await this.getHubSpotContactId(sellerUser);
+
+    const properties = await this.prepareDealProperties(offer);
+
+    const deal = await this.hubSpotDealService.createDeal(properties, [
+      buyerHubSpotContactId,
+      sellerHubSpotContactId,
+    ]);
+
+    await this.offerService.setHubSpotDealId(offer.id, deal.id);
+
+    return deal;
+  }
+
+  public async updateDeal(offer: OfferDto): Promise<HubSpotDealObject> {
+    if (!offer.hubSpotDealId) {
+      throw new Error('Offer must have hub spot deal id for update');
+    }
+
+    const properties = await this.prepareDealProperties(offer);
+
+    return this.hubSpotDealService.updateDeal(offer.hubSpotDealId, properties);
+  }
+
+  private async prepareDealProperties(
+    offer: OfferDto,
+  ): Promise<HubSpotDealProperties> {
     const {
       purchase: { pricePerHour, duration },
       sellerProfileId,
@@ -38,9 +76,6 @@ export class OfferHubSpotService {
     const sellerUser = await this.userService.strictGetUserById(
       sellerProfileId,
     );
-
-    const buyerHubSpotContactId = await this.getHubSpotContactId(buyerUser);
-    const sellerHubSpotContactId = await this.getHubSpotContactId(sellerUser);
 
     const closeDate = new Date(
       offer.data.initial.agreedStartTime,
@@ -65,14 +100,7 @@ export class OfferHubSpotService {
       [HubSpotDealProperty.DEAL_STAGE]: dealStage,
     };
 
-    const deal = await this.hubSpotDealService.createDeal(properties, [
-      buyerHubSpotContactId,
-      sellerHubSpotContactId,
-    ]);
-
-    await this.offerService.setHubSpotDealId(offer.id, deal.id);
-
-    return deal;
+    return properties;
   }
 
   private async getHubSpotContactId(user: UserDto) {
