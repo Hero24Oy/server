@@ -30,4 +30,14 @@ export class OfferService {
 
     return offer;
   }
+
+  async setHubSpotDealId(offerId: string, dealId: string | null) {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .child(offerId)
+      .child('hubSpotDealId')
+      .set(dealId);
+  }
 }
