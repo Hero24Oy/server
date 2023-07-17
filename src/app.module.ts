@@ -22,6 +22,7 @@ import { PlatformSpecifierModule } from './modules/platform-specifier/platform-s
 import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
+import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { PriceCalculatorModule } from './modules/price-calculator/price-calculat
     SubscriberModule,
     OfferModule,
     PriceCalculatorModule,
+    UserMergeModule,
   ],
   providers: [AppResolver],
 })

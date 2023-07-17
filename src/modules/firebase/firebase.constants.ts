@@ -13,6 +13,7 @@ export enum FirebaseDatabasePath {
   NEWS = 'news',
   SETTINGS = 'settings',
   OFFERS = 'offers',
+  USER_MERGES = 'userMerges',
 }
 
 export const MAX_TRYING_COUNT = 3;
