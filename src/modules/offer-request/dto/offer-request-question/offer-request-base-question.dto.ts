@@ -3,7 +3,7 @@ import { OfferRequestQuestion } from 'hero24-types';
 
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
 

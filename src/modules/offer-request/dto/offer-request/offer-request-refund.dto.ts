@@ -2,7 +2,7 @@ import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, REFUND_STATUS } from 'hero24-types';
 
 import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 type RefundDB = Exclude<OfferRequestDB['refund'], undefined>;
 

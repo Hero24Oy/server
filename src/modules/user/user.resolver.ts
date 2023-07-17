@@ -1,4 +1,4 @@
-import { Inject, UseFilters } from '@nestjs/common';
+import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { FirebaseApp } from '../firebase/firebase.decorator';
@@ -19,6 +19,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class UserResolver {
@@ -72,6 +73,7 @@ export class UserResolver {
 
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async editUserData(
     @Args() args: UserDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,

@@ -5,7 +5,7 @@ import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';

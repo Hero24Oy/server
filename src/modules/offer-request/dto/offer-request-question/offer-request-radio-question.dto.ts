@@ -1,7 +1,7 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 
 import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';

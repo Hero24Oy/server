@@ -1,10 +1,13 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { UserDB } from 'hero24-types';
+
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import {
   convertFirebaseMapToList,
-  executeIfDefined,
-  timestampToDate,
+  convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
+
 import { UserDataDto } from './user-data.dto';
 import { UserOfferDto } from './user-offer.dto';
 
@@ -17,98 +20,113 @@ export class UserDto {
   data: UserDataDto;
 
   @Field(() => String, { nullable: true })
-  stripeCustomerId?: string;
+  stripeCustomerId?: MaybeType<string>;
 
   @Field(() => Boolean, { nullable: true })
-  isCreatedFromWeb?: boolean;
+  isCreatedFromWeb?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
-  isAdmin?: boolean;
+  isAdmin?: MaybeType<boolean>;
 
   @Field(() => Float, { nullable: true })
-  netvisorCustomerId?: number;
+  netvisorCustomerId?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  netvisorSellerId?: number;
+  netvisorSellerId?: MaybeType<number>;
 
   @Field(() => Boolean, { nullable: true })
-  phoneVerified?: boolean;
+  phoneVerified?: MaybeType<boolean>;
 
   @Field(() => [UserOfferDto], { nullable: true })
-  offers?: UserOfferDto[];
+  offers?: MaybeType<UserOfferDto[]>;
 
   @Field(() => [String], { nullable: true })
-  offerRequests?: string[];
+  offerRequests?: MaybeType<string[]>;
 
   @Field(() => [String], { nullable: true })
-  transactions?: string[];
+  transactions?: MaybeType<string[]>;
 
   @Field(() => [String], { nullable: true })
-  paymentTransactions?: string[];
+  paymentTransactions?: MaybeType<string[]>;
 
   @Field(() => Boolean, { nullable: true })
-  hasBuyerProfile?: boolean;
+  hasBuyerProfile?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
-  hasSellerProfile?: boolean;
+  hasSellerProfile?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
-  isApprovedSeller?: boolean;
+  isApprovedSeller?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
-  isBlocked?: boolean;
+  isBlocked?: MaybeType<boolean>;
 
   @Field(() => [String], { nullable: true })
-  mergedUsers?: string[];
+  mergedUsers?: MaybeType<string[]>;
 
   @Field(() => String, { nullable: true })
-  mergedTo?: string;
+  mergedTo?: MaybeType<string>;
 
-  static convertFromFirebaseType(id: string, user: UserDB): UserDto {
-    return {
-      id,
-      ...user,
-      data: {
-        ...user.data,
-        pushToken: convertFirebaseMapToList(user.data.pushToken || {}),
-        addresses: Object.entries(user.data.addresses || {}).map(
-          ([key, address]) => ({ key, address }),
-        ),
-        createdAt: new Date(user.data.createdAt),
-        updatedAt: executeIfDefined(
-          user.data.updatedAt,
-          timestampToDate,
-          undefined,
-        ),
-        birthDate: executeIfDefined(
-          user.data.birthDate,
-          timestampToDate,
-          undefined,
-        ),
-        deletedAt: executeIfDefined(
-          user.data.deletedAt,
-          timestampToDate,
-          undefined,
-        ),
-        lastAskedReviewTime: executeIfDefined(
-          user.data.lastAskedReviewTime,
-          timestampToDate,
-          undefined,
-        ),
-      },
-      offerRequests: convertFirebaseMapToList(user.offerRequests || {}),
-      transactions: convertFirebaseMapToList(user.transactions || {}),
-      paymentTransactions: convertFirebaseMapToList(
-        user.paymentTransactions || {},
-      ),
-      mergedUsers: convertFirebaseMapToList(user.mergedUsers || {}),
-      offers: Object.entries(user.offers || {}).map(
-        ([offerId, { offerRequestId }]) => ({ offerId, offerRequestId }),
-      ),
-      isBlocked:
-        typeof user.isBlocked === 'string'
-          ? user.isBlocked === 'true'
-          : user.isBlocked,
-    };
-  }
+  static adapter: FirebaseAdapter<UserDB & { id: string }, UserDto>;
 }
+
+UserDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    id: internal.id,
+    data: UserDataDto.adapter.toExternal(internal.data),
+    stripeCustomerId: internal.stripeCustomerId,
+    isCreatedFromWeb: internal.isCreatedFromWeb,
+    isAdmin: internal.isAdmin,
+    netvisorCustomerId: internal.netvisorCustomerId,
+    netvisorSellerId: internal.netvisorSellerId,
+    phoneVerified: internal.phoneVerified,
+    offers:
+      internal.offers &&
+      (UserOfferDto.adapter.toExternal(internal.offers) as UserOfferDto[]),
+    offerRequests:
+      internal.offerRequests &&
+      convertFirebaseMapToList(internal.offerRequests),
+    transactions:
+      internal.transactions && convertFirebaseMapToList(internal.transactions),
+    paymentTransactions:
+      internal.paymentTransactions &&
+      convertFirebaseMapToList(internal.paymentTransactions),
+    hasBuyerProfile: internal.hasBuyerProfile,
+    hasSellerProfile: internal.hasSellerProfile,
+    isApprovedSeller: internal.isApprovedSeller,
+    isBlocked: internal.isBlocked,
+    mergedUsers:
+      internal.mergedUsers && convertFirebaseMapToList(internal.mergedUsers),
+    mergedTo: internal.mergedTo,
+  }),
+  toInternal: (external) => ({
+    id: external.id,
+    data: UserDataDto.adapter.toInternal(external.data),
+    stripeCustomerId: external.stripeCustomerId ?? undefined,
+    isCreatedFromWeb: external.isCreatedFromWeb ?? undefined,
+    isAdmin: external.isAdmin ?? undefined,
+    netvisorCustomerId: external.netvisorCustomerId ?? undefined,
+    netvisorSellerId: external.netvisorSellerId ?? undefined,
+    phoneVerified: external.phoneVerified ?? undefined,
+    offers: external.offers
+      ? (UserOfferDto.adapter.toInternal(external.offers) as UserDB['offers'])
+      : undefined,
+    offerRequests: external.offerRequests
+      ? convertListToFirebaseMap(external.offerRequests)
+      : undefined,
+    transactions: external.transactions
+      ? convertListToFirebaseMap(external.transactions)
+      : undefined,
+    paymentTransactions: external.paymentTransactions
+      ? convertListToFirebaseMap(external.paymentTransactions)
+      : undefined,
+    hasBuyerProfile: external.hasBuyerProfile ?? undefined,
+    hasSellerProfile: external.hasSellerProfile ?? undefined,
+    isApprovedSeller: external.isApprovedSeller ?? undefined,
+    isBlocked: external.isBlocked ?? undefined,
+    mergedUsers: external.mergedUsers
+      ? convertListToFirebaseMap(external.mergedUsers)
+      : undefined,
+    mergedTo: external.mergedTo ?? undefined,
+  }),
+});

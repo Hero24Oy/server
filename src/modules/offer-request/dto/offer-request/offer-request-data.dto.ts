@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, OFFER_REQUEST_STATUS } from 'hero24-types';
 
 import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestDataChangesAcceptedDto } from './offer-request-data-changes-accepted.dto';
 import { OfferRequestDataInitialDto } from './offer-request-data-initial.dto';

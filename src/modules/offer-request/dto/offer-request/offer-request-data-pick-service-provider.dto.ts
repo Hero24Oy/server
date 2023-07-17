@@ -4,7 +4,7 @@ import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 type PickServiceProviderDB = Exclude<
   OfferRequestDB['data']['pickServiceProvider'],

@@ -1,13 +1,14 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { AddressInput } from 'src/modules/common/dto/address/address.input';
+
+import { AddressDto } from 'src/modules/common/dto/address/address.dto';
 
 @InputType()
 export class BasicAddressesInput {
   @Field(() => String)
   type = 'basic' as const;
 
-  @Field(() => AddressInput)
-  main: AddressInput;
+  @Field(() => AddressDto)
+  main: AddressDto;
 }
 
 @InputType()
@@ -15,11 +16,11 @@ export class DeliveryAddressesInput {
   @Field(() => String)
   type = 'delivery' as const;
 
-  @Field(() => AddressInput)
-  from: AddressInput;
+  @Field(() => AddressDto)
+  from: AddressDto;
 
-  @Field(() => AddressInput)
-  to: AddressInput;
+  @Field(() => AddressDto)
+  to: AddressDto;
 }
 
 @InputType()

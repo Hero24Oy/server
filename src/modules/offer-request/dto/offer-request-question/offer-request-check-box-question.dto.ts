@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 import { OfferRequestQuestionOptionDto } from './offer-request-question-option.dto';

@@ -12,7 +12,7 @@ import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
 type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];

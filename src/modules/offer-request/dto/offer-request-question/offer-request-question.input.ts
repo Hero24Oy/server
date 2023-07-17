@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 
 import { TypeSafeRequired } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestRadioQuestionDto } from './offer-request-radio-question.dto';
 import { OfferRequestCheckBoxQuestionDto } from './offer-request-check-box-question.dto';

@@ -4,7 +4,7 @@ import { AddressesAnsweredInput } from './addresses-answered.input';
 import { OfferRequestQuestionInput } from '../offer-request-question/offer-request-question.input';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { OfferRequestDataInitialDto } from '../offer-request/offer-request-data-initial.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase-adapter.interfaces';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { PackageDto } from '../offer-request/package.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 
