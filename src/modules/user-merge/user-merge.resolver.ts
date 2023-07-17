@@ -1,5 +1,11 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Context, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Mutation,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { UserMergeDto } from './dto/user-merge/user-merge.dto';
@@ -24,11 +30,12 @@ export class UserMergeResolver {
     @Args('userMergeInput') userMergeInput: UserMergeInput,
     @Context('identity') identity: Identity,
   ): Promise<UserMergeDto | null> {
-    return await this.userMergeService.startUserMerge(userMergeInput, identity);
+    return this.userMergeService.startUserMerge(userMergeInput, identity);
   }
 
   @Subscription(() => UserMergeDto)
   @UseGuards(AuthGuard)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   subscribeToUserMerge(@Args('userId') userId: string) {
     return this.pubSub.asyncIterator('userMerge');
   }

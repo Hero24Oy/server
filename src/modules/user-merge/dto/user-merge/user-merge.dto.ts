@@ -1,8 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserMergeDB } from 'hero24-types';
-import MergeStatus from './merge-status.dto';
-import { omitUndefined } from 'src/modules/common/common.utils';
+
 import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+import MergeStatus from './merge-status.dto';
 
 @ObjectType()
 export class UserMergeDto {
@@ -12,7 +14,7 @@ export class UserMergeDto {
   @Field(() => String)
   emailToSearch: string;
 
-  @Field(() => String)
+  @Field(() => MergeStatus)
   emailStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
@@ -21,33 +23,37 @@ export class UserMergeDto {
   @Field(() => String)
   phoneToSearch: string;
 
-  @Field(() => String)
+  @Field(() => MergeStatus)
   phoneStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
   phoneVerifiedByUser?: MaybeType<boolean>;
 
-  @Field(() => Number)
-  createdAt?: number;
+  @Field(() => Date)
+  createdAt: Date;
 
-  static convertFromFirebaseType(userMerge: UserMergeDB): UserMergeDto {
-    return {
-      userId: userMerge.userId,
-      emailToSearch: userMerge.emailToSearch,
-      emailStatus: userMerge.emailStatus as MergeStatus,
-      emailVerifiedByUser: userMerge.emailVerifiedByUser,
-      phoneToSearch: userMerge.phoneToSearch,
-      phoneStatus: userMerge.phoneStatus as MergeStatus,
-      phoneVerifiedByUser: userMerge.phoneVerifiedByUser,
-      createdAt: userMerge.createdAt,
-    };
-  }
-
-  static convertToFirebaseType(
-    userMergeData: UserMergeDto,
-  ): Omit<UserMergeDB, 'createdAt'> {
-    return omitUndefined({
-      ...userMergeData,
-    });
-  }
+  static adapter: FirebaseAdapter<UserMergeDB, UserMergeDto>;
 }
+
+UserMergeDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    userId: internal.userId,
+    emailToSearch: internal.emailToSearch,
+    emailStatus: internal.emailStatus as MergeStatus,
+    emailVerifiedByUser: internal.emailVerifiedByUser,
+    phoneToSearch: internal.phoneToSearch,
+    phoneStatus: internal.phoneStatus as MergeStatus,
+    phoneVerifiedByUser: internal.phoneVerifiedByUser,
+    createdAt: new Date(internal.createdAt),
+  }),
+  toInternal: (external) => ({
+    userId: external.userId,
+    emailToSearch: external.emailToSearch,
+    emailStatus: external.emailStatus,
+    emailVerifiedByUser: external.emailVerifiedByUser ?? undefined,
+    phoneToSearch: external.phoneToSearch,
+    phoneStatus: external.phoneStatus,
+    phoneVerifiedByUser: external.phoneVerifiedByUser ?? undefined,
+    createdAt: Number(external.createdAt),
+  }),
+});

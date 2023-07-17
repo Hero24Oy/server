@@ -38,7 +38,7 @@ export class UserMergeModule {
 
     const rootUserMergeRef = database.ref(FirebaseDatabasePath.USER_MERGES);
 
-    const unsubscribes = [
+    UserMergeModule.unsubscribes = [
       subscribeOnFirebaseEvent(
         rootUserMergeRef,
         'child_changed',
