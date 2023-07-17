@@ -1,6 +1,6 @@
 import { registerEnumType } from '@nestjs/graphql';
 
-enum MergeStatus {
+export enum MergeStatus {
   processing = 'processing',
   completed = 'completed',
   notFound = 'not-found',
@@ -10,5 +10,3 @@ enum MergeStatus {
 registerEnumType(MergeStatus, {
   name: 'MergeStatus',
 });
-
-export default MergeStatus;

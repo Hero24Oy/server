@@ -4,7 +4,7 @@ import { UserMergeDB } from 'hero24-types';
 import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import MergeStatus from './merge-status.dto';
+import { MergeStatus } from './merge-status.dto';
 
 @ObjectType()
 export class UserMergeDto {
