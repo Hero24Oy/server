@@ -2,7 +2,6 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { UserMergeDB } from 'hero24-types';
 import MergeStatus from './merge-status.dto';
 import { omitUndefined } from 'src/modules/common/common.utils';
-import { MaybeType } from 'src/modules/common/common.types';
 
 @ObjectType()
 export class UserMergeDto {
@@ -16,7 +15,7 @@ export class UserMergeDto {
   emailStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
-  emailVerifiedByUser?: MaybeType<boolean>;
+  emailVerifiedByUser?: boolean;
 
   @Field(() => String)
   phoneToSearch: string;
@@ -25,7 +24,7 @@ export class UserMergeDto {
   phoneStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
-  phoneVerifiedByUser?: MaybeType<boolean>;
+  phoneVerifiedByUser?: boolean;
 
   @Field(() => Number)
   createdAt?: number;
