@@ -1,4 +1,4 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { FirebaseApp } from '../firebase/firebase.decorator';
@@ -10,6 +10,7 @@ import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { SellerService } from './seller.service';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class SellerResolver {
@@ -17,15 +18,14 @@ export class SellerResolver {
 
   @Query(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
-  async seller(
-    @Args('id') sellerId: string,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<SellerProfileDto | null> {
-    return this.sellerService.getSellerById(sellerId, app);
+  @UseGuards(AuthGuard)
+  async seller(@Args('id') sellerId: string): Promise<SellerProfileDto | null> {
+    return this.sellerService.getSellerById(sellerId);
   }
 
   @Query(() => SellerProfileListDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async sellers(
     @Args() args: SellersArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -35,6 +35,7 @@ export class SellerResolver {
 
   @Query(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async isSellerApproved(
     @Args('id') id: string,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -44,6 +45,7 @@ export class SellerResolver {
 
   @Mutation(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async createSeller(
     @Args() args: SellerProfileCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -53,6 +55,7 @@ export class SellerResolver {
 
   @Mutation(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async editSellerData(
     @Args() args: SellerProfileDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -62,6 +65,7 @@ export class SellerResolver {
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async attachCategoryToSeller(
     @Args('sellerId') sellerId: string,
     @Args('categoryId') categoryId: string,
@@ -72,6 +76,7 @@ export class SellerResolver {
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async unattachCategoryFromSeller(
     @Args('sellerId') sellerId: string,
     @Args('categoryId') categoryId: string,
@@ -86,6 +91,7 @@ export class SellerResolver {
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async removeReviewFromSeller(
     @Args('sellerId') sellerId: string,
     @Args('reviewId') reviewId: string,
@@ -96,6 +102,7 @@ export class SellerResolver {
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async setIsSellerApproved(
     @Args('sellerId') sellerId: string,
     @Args('isApproved') isApproved: boolean,

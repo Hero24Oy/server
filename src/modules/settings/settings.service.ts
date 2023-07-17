@@ -16,7 +16,7 @@ export class SettingsService {
       ref(database, `${FirebaseDatabasePath.SETTINGS}`),
     );
 
-    const settings: Settings | null = settingsSnapshot.val();
+    const settings: Settings | null = settingsSnapshot.val(); // Todo: add settings adapter
 
     return settings;
   }

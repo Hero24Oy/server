@@ -14,5 +14,6 @@ import { OFFER_REQUEST_FILTERS } from './offer-request.filers';
     FiltererModule.create(OFFER_REQUEST_FILTERS),
   ],
   providers: [OfferRequestResolver, OfferRequestService],
+  exports: [OfferRequestService],
 })
 export class OfferRequestModule {}

@@ -16,20 +16,29 @@ import { FirebaseService } from '../firebase/firebase.service';
 export class SellerService {
   constructor(private firebaseService: FirebaseService) {}
 
-  async getSellerById(
-    sellerId: string,
-    app: FirebaseAppInstance,
-  ): Promise<SellerProfileDto | null> {
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.SELLER_PROFILES, sellerId];
+  async getSellerById(sellerId: string): Promise<SellerProfileDto | null> {
+    const database = this.firebaseService.getDefaultApp().database();
 
-    const snapshot = await get(ref(database, path.join('/')));
+    const snapshot = await database
+      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+      .child(sellerId)
+      .get();
 
     const candidate = snapshot.val();
 
     return (
       candidate && SellerProfileDto.convertFromFirebaseType(candidate, sellerId)
     );
+  }
+
+  async strictGetSellerById(sellerId: string): Promise<SellerProfileDto> {
+    const seller = await this.getSellerById(sellerId);
+
+    if (!seller) {
+      throw new Error(`Seller profile with id ${sellerId} was not found`);
+    }
+
+    return seller;
   }
 
   async getSellers(
@@ -89,7 +98,7 @@ export class SellerService {
       SellerProfileDataInput.convertToFirebaseType(data),
     );
 
-    return this.getSellerById(id, app);
+    return this.getSellerById(id);
   }
 
   async editSellerData(
@@ -107,7 +116,7 @@ export class SellerService {
       PartialSellerProfileDataInput.convertToFirebaseType(data),
     );
 
-    return this.getSellerById(id, app);
+    return this.getSellerById(id);
   }
 
   async attachCategoryToSeller(

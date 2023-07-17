@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { get, getDatabase, push, ref } from 'firebase/database';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
+import { isNumber, isString } from 'lodash';
+
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
@@ -9,7 +11,6 @@ import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
 import { FirebaseService } from '../firebase/firebase.service';
-import { isNumber } from 'lodash';
 import { omitUndefined } from '../common/common.utils';
 import { Identity } from '../auth/auth.types';
 import { Scope } from '../auth/auth.constants';
@@ -162,5 +163,37 @@ export class OfferRequestService {
       createdRef.key as string,
       app,
     ) as Promise<OfferRequestDto>;
+  }
+
+  async getCategoryIdByOfferRequestId(
+    offerRequestId: string,
+  ): Promise<string | null> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const categorySnapshot = await database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('category')
+      .get();
+
+    const category: string | null = categorySnapshot.val();
+
+    return category;
+  }
+
+  async strictGetCategoryIdByOfferRequestId(
+    offerRequestId: string,
+  ): Promise<string> {
+    const category = await this.getCategoryIdByOfferRequestId(offerRequestId);
+
+    if (!isString(category)) {
+      throw new Error(
+        `Category was not found for offer request with id ${offerRequestId}`,
+      );
+    }
+
+    return category;
   }
 }
