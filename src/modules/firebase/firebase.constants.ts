@@ -12,6 +12,7 @@ export enum FirebaseDatabasePath {
   ADMIN_USERS = 'adminUsers',
   NEWS = 'news',
   SETTINGS = 'settings',
+  OFFERS = 'offers',
   USER_MERGES = 'userMerges',
 }
 

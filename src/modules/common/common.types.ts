@@ -39,3 +39,9 @@ export type OptionalKeys<T> = {
 export type TypeSafeRequired<T> = Omit<T, OptionalKeys<T>> & {
   [Key in OptionalKeys<T>]: T[Key] | undefined;
 };
+
+export type EnumToString<T> = T extends `${infer S}` ? S : never;
+
+export type Keys<T> = keyof T;
+
+export type Values<T> = T[Keys<T>];

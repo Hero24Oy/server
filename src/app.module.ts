@@ -19,7 +19,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
-import { N8nModule } from './modules/n8n/n8n.module';
+import { SubscriberModule } from './modules/subscriber/subscriber.module';
+import { OfferModule } from './modules/offer/offer.module';
+import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
 @Module({
@@ -57,7 +59,9 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     NewsModule,
     SettingsModule,
     PlatformSpecifierModule,
-    N8nModule,
+    SubscriberModule,
+    OfferModule,
+    PriceCalculatorModule,
     UserMergeModule,
   ],
   providers: [AppResolver],
