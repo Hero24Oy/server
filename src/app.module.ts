@@ -23,6 +23,7 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
+import { CategoriesModule } from './modules/buyer/categories/categories.module';
 import { GraphQLConnectionParams } from './app.types';
 
 @Module({
@@ -68,6 +69,7 @@ import { GraphQLConnectionParams } from './app.types';
     OfferModule,
     PriceCalculatorModule,
     UserMergeModule,
+    CategoriesModule,
   ],
   providers: [AppResolver],
 })
