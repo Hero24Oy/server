@@ -25,6 +25,7 @@ import { PriceCalculatorModule } from './modules/price-calculator/price-calculat
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 import { GraphQLConnectionParams } from './app.types';
 import { FeeModule } from './modules/fee/fee.module';
+import { StripeModule } from './modules/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { FeeModule } from './modules/fee/fee.module';
     PriceCalculatorModule,
     UserMergeModule,
     FeeModule,
+    StripeModule,
   ],
   providers: [AppResolver],
 })
