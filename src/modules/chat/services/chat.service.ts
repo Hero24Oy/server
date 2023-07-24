@@ -23,6 +23,10 @@ import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { ChatMemberDB, ChatsSorterContext } from '../chat.types';
 import { SorterService } from 'src/modules/sorter/sorter.service';
 import { AppPlatform } from 'src/app.types';
+import {
+  paginate,
+  preparePaginatedResult,
+} from 'src/modules/common/common.utils';
 
 @Injectable()
 export class ChatService {
@@ -48,7 +52,7 @@ export class ChatService {
       .ref(FirebaseDatabasePath.CHATS)
       .once('value');
 
-    const chats: ChatDto[] = [];
+    let nodes: ChatDto[] = [];
 
     chatsSnapshot.forEach((snapshot) => {
       if (!snapshot.key) {
@@ -57,32 +61,23 @@ export class ChatService {
 
       const chat: ChatDB = snapshot.val();
 
-      chats.push(ChatDto.convertFromFirebaseType(chat, snapshot.key));
+      nodes.push(ChatDto.convertFromFirebaseType(chat, snapshot.key));
     });
 
-    const hasPagination =
-      typeof limit === 'number' && typeof offset === 'number';
+    nodes = filterChats({ identity, filter, chats: nodes, platform });
+    nodes = this.chatsSorter.sort(nodes, ordersBy, {
+      identity,
+    });
 
-    let chatEdges = filterChats({ identity, platform, filter, chats });
+    const total = nodes.length;
+    nodes = paginate({ nodes, offset, limit });
 
-    const total = chatEdges.length;
-
-    chatEdges = this.chatsSorter.sort(chatEdges, ordersBy, { identity });
-
-    if (hasPagination) {
-      chatEdges = chatEdges.slice(offset, limit + offset);
-    }
-
-    const edges = chatEdges.map((chat) => ({ node: chat, cursor: chat.id }));
-
-    const chatsDto: ChatListDto = {
-      edges,
-      endCursor: edges[edges.length - 1]?.cursor || null,
-      hasNextPage: !hasPagination ? false : offset + limit < total,
+    return preparePaginatedResult({
+      nodes,
       total,
-    };
-
-    return chatsDto;
+      limit,
+      offset,
+    });
   }
 
   async getChatById(

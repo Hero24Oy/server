@@ -6,6 +6,7 @@ import { FirebaseService } from '../../firebase/firebase.service';
 import { OfferHubSpotService } from './offer-hub-spot.service';
 import { createOfferEventHandler } from '../offer.utils';
 import { Reference } from 'firebase-admin/database';
+import { skipFirst } from 'src/modules/common/common.utils';
 
 @Injectable()
 export class OfferHubSpotSubscription implements SubscriptionService {
@@ -33,18 +34,11 @@ export class OfferHubSpotSubscription implements SubscriptionService {
   private subscribeOnOfferCreation(offerRef: Reference) {
     // Firebase child added event calls on every exist item first, than on every creation event.
     // So we should skip every exists items using limit to last 1 so as not to retrieve all items
-    const offerQuery = offerRef.limitToLast(1);
-
-    let lastSkipped = false;
-
-    return subscribeOnFirebaseEvent(offerQuery, 'child_added', (snapshot) => {
-      if (!lastSkipped) {
-        lastSkipped = true;
-        return;
-      }
-
-      this.childAddedHandler(snapshot);
-    });
+    return subscribeOnFirebaseEvent(
+      offerRef.limitToLast(1),
+      'child_added',
+      skipFirst(this.childAddedHandler),
+    );
   }
 
   private subscribeOnOfferChanges(offerRef: Reference) {

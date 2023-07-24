@@ -15,6 +15,7 @@ import {
   createNewsUpdatedEventHandler,
 } from './news.event-handlers';
 import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
+import { skipFirst } from '../common/common.utils';
 
 @Module({
   imports: [FirebaseModule, GraphQLPubsubModule],
@@ -47,9 +48,11 @@ export class NewsModule {
         createNewsUpdatedEventHandler(pubsub),
       ),
       subscribeOnFirebaseEvent(
-        rootNewsRef,
+        // Firebase child added event calls on every exist item first, than on every creation event.
+        // So we should skip every exists items using limit to last 1 so as not to retrieve all items
+        rootNewsRef.limitToLast(1),
         'child_added',
-        createNewsAddedEventHandler(pubsub),
+        skipFirst(createNewsAddedEventHandler(pubsub)),
       ),
       subscribeOnFirebaseEvent(
         rootNewsRef,
