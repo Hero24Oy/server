@@ -24,6 +24,7 @@ import { OfferModule } from './modules/offer/offer.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 import { GraphQLConnectionParams } from './app.types';
+import { StripeModule } from './modules/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { GraphQLConnectionParams } from './app.types';
     OfferModule,
     PriceCalculatorModule,
     UserMergeModule,
+    StripeModule,
   ],
   providers: [AppResolver],
 })
