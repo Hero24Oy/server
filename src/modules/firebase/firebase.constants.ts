@@ -14,6 +14,7 @@ export enum FirebaseDatabasePath {
   SETTINGS = 'settings',
   OFFERS = 'offers',
   USER_MERGES = 'userMerges',
+  FEES = 'fees',
 }
 
 export const MAX_TRYING_COUNT = 3;
