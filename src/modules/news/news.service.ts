@@ -6,10 +6,13 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { NewsDto } from './dto/news/news.dto';
 import { NewsCreationInput } from './dto/creation/news-creation-input';
 import { NewsEditingInput } from './dto/editing/news-editing.input';
-import { omitUndefined } from '../common/common.utils';
+import {
+  omitUndefined,
+  paginate,
+  preparePaginatedResult,
+} from '../common/common.utils';
 import { NewsListDto } from './dto/news-list/news-list.dto';
 import { NewsListArgs } from './dto/news-list/news-list.args';
-import { isNumber } from 'lodash';
 import { isNewsActive } from './news.utils/is-news-active.util';
 
 @Injectable()
@@ -68,27 +71,23 @@ export class NewsService {
 
     const { offset, limit, filter } = args;
 
-    let edges = newsList;
-    const total = edges.length;
-
-    const isPaginationProvided = isNumber(offset) && isNumber(limit);
+    let nodes = newsList;
 
     if (typeof filter?.isActive === 'boolean') {
-      edges = edges.filter((news) =>
+      nodes = nodes.filter((news) =>
         isNewsActive(news) ? filter.isActive : !filter.isActive,
       );
     }
 
-    if (isPaginationProvided) {
-      edges = edges.slice(offset, offset + limit);
-    }
+    const total = nodes.length;
+    nodes = paginate({ nodes, offset, limit });
 
-    return {
+    return preparePaginatedResult({
+      limit,
+      offset,
+      nodes,
       total,
-      edges: edges.map((node) => ({ node, cursor: node.id })),
-      hasNextPage: isPaginationProvided ? offset + limit < total : false,
-      endCursor: edges[edges.length - 1]?.id,
-    };
+    });
   }
 
   async createNews(input: NewsCreationInput): Promise<NewsDto> {

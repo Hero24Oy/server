@@ -23,6 +23,9 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
+import { GraphQLConnectionParams } from './app.types';
+import { FeeModule } from './modules/fee/fee.module';
+import { StripeModule } from './modules/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -42,6 +45,10 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
         autoSchemaFile: true,
         subscriptions: {
           'graphql-ws': true,
+          'subscriptions-transport-ws': {
+            onConnect: (connectionParams: GraphQLConnectionParams) =>
+              graphQLManagerService.createContext({ connectionParams }),
+          },
         },
         playground: configService.get<boolean>('app.isDevelopment'),
         context: async (ctx) => graphQLManagerService.createContext(ctx),
@@ -63,6 +70,8 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     OfferModule,
     PriceCalculatorModule,
     UserMergeModule,
+    FeeModule,
+    StripeModule,
   ],
   providers: [AppResolver],
 })

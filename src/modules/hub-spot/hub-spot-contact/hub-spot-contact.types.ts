@@ -12,6 +12,7 @@ export type HubSpotContactProperties = {
   [HubSpotContactProperty.EMAIL]: string;
   [HubSpotContactProperty.FIRST_NAME]: string;
   [HubSpotContactProperty.LAST_NAME]: string;
+  [HubSpotContactProperty.PHONE_NUMBER]: string;
 };
 
 export type HubSpotContactObject = SimplePublicObject;

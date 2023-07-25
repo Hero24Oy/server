@@ -8,6 +8,7 @@ import {
 import { HubSpotContactService } from '../../hub-spot/hub-spot-contact/hub-spot-contact.service';
 import { UserDto } from '../dto/user/user.dto';
 import { UserService } from '../user.service';
+import { HubSpotContactProperty } from 'src/modules/hub-spot/hub-spot-contact/hub-spot-contact.constants';
 
 @Injectable()
 export class UserHubSpotService {
@@ -21,11 +22,7 @@ export class UserHubSpotService {
   public async upsertContact(
     user: UserDto,
   ): Promise<HubSpotContactObject | null> {
-    const properties: HubSpotContactProperties = {
-      email: user.data.email,
-      firstname: user.data.firstName || '',
-      lastname: user.data.lastName || '',
-    };
+    const properties = this.prepareContactProperties(user);
 
     try {
       const contact = await this.hubSpotContactService.upsertContact(
@@ -60,6 +57,15 @@ export class UserHubSpotService {
       this.getCompareValues(user),
       this.getCompareValues(previous),
     );
+  }
+
+  private prepareContactProperties(user: UserDto): HubSpotContactProperties {
+    return {
+      [HubSpotContactProperty.EMAIL]: user.data.email,
+      [HubSpotContactProperty.FIRST_NAME]: user.data.firstName || '',
+      [HubSpotContactProperty.LAST_NAME]: user.data.lastName || '',
+      [HubSpotContactProperty.PHONE_NUMBER]: user.data.phone || '',
+    };
   }
 
   private getCompareValues = (compareUser: UserDto) => [
