@@ -3,13 +3,15 @@ import { Client as HubSpotClient } from '@hubspot/api-client';
 import { capitalize } from 'lodash';
 
 const NOT_STRING_AND_NOT_NUMBER_REGEXP = /[^a-zA-Z0-9]/g;
-const MULTIPLE_DASH_REGEXP = /_+/g;
+const MULTIPLE_UNDERSCORE_REGEXP = /_+/g;
+const FIRST_OR_LATEST_UNDERSCORE_REGEXP = /(^_)|(_$)/g;
 
 const prepareLabel = (label: string): string => {
   return label
     .toUpperCase()
     .replace(NOT_STRING_AND_NOT_NUMBER_REGEXP, '_')
-    .replace(MULTIPLE_DASH_REGEXP, '_');
+    .replace(MULTIPLE_UNDERSCORE_REGEXP, '_')
+    .replace(FIRST_OR_LATEST_UNDERSCORE_REGEXP, '');
 };
 
 const serializeEnum = (name: string, record: Record<string, string>) => {

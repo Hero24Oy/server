@@ -17,4 +17,7 @@ export type HubSpotDealProperties = {
   [HubSpotDealProperty.DEAL_OWNER]: string;
   [HubSpotDealProperty.DEAL_STAGE]: HubSpotDealStage;
   [HubSpotDealProperty.CLOSE_DATE]: string;
+  [HubSpotDealProperty.ACTUAL_DURATION]: string;
+  [HubSpotDealProperty.EXTRA_TIME]: string;
+  [HubSpotDealProperty.MATERIAL_FEE]: string;
 };

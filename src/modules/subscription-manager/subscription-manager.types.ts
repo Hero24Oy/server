@@ -7,3 +7,5 @@ export type SubscriptionRegistrationOptions = {
   subscriptions: ParentType<SubscriptionService>[];
   imports?: ModuleMetadata['imports'];
 };
+
+export type Unsubscribe = () => Promise<void> | void;

@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PubSub } from 'graphql-subscriptions';
 
+import { HubSpotSubscription } from 'src/modules/hub-spot/hub-spot-subscription.interface';
+
 import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
-import { SubscriptionService } from '../../subscription-manager/subscription-manager.interface';
 import { UserUpdatedDto } from '../dto/subscriptions/user-updated.dto';
 import { UserCreatedDto } from '../dto/subscriptions/user-created.dto';
 import {
@@ -12,11 +14,14 @@ import {
 import { UserHubSpotService } from './user-hub-spot.service';
 
 @Injectable()
-export class UserHubSpotSubscription implements SubscriptionService {
+export class UserHubSpotSubscription extends HubSpotSubscription {
   constructor(
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
     private userHubSpotService: UserHubSpotService,
-  ) {}
+    protected configService: ConfigService,
+  ) {
+    super();
+  }
 
   public async subscribe(): Promise<() => Promise<void>> {
     const subscriptionIds = await Promise.all([
