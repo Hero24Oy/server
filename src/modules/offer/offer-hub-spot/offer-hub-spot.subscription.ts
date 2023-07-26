@@ -1,21 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
-
-import { SubscriptionService } from '../../subscription-manager/subscription-manager.interface';
-import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
-import { FirebaseService } from '../../firebase/firebase.service';
-import { OfferHubSpotService } from './offer-hub-spot.service';
-import { createOfferEventHandler } from '../offer.utils';
+import { ConfigService } from '@nestjs/config';
 import { Reference } from 'firebase-admin/database';
 import { skipFirst } from 'src/modules/common/common.utils';
 
+import { HubSpotSubscription } from 'src/modules/hub-spot/hub-spot-subscription.interface';
+
+import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
+import { FirebaseService } from '../../firebase/firebase.service';
+import { createOfferEventHandler } from '../offer.utils';
+import { OfferHubSpotService } from './offer-hub-spot.service';
+
 @Injectable()
-export class OfferHubSpotSubscription implements SubscriptionService {
+export class OfferHubSpotSubscription extends HubSpotSubscription {
   private logger = new Logger(OfferHubSpotSubscription.name);
 
   constructor(
     private firebaseService: FirebaseService,
     private offerHubSpotService: OfferHubSpotService,
-  ) {}
+    protected configService: ConfigService,
+  ) {
+    super();
+  }
 
   public subscribe() {
     const offerRef = this.firebaseService

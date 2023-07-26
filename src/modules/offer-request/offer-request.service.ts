@@ -131,4 +131,18 @@ export class OfferRequestService {
 
     return buyerId;
   }
+
+  async getFeeIdsByOfferRequestId(offerRequestId: string): Promise<string[]> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const feesSnapshot = await database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(offerRequestId)
+      .child('fees')
+      .get();
+
+    const fees: Record<string, true> | null = feesSnapshot.val();
+
+    return Object.keys(fees || {});
+  }
 }
