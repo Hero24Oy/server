@@ -138,6 +138,7 @@ export class OfferHubSpotService {
       [HubSpotDealProperty.ACTUAL_DURATION]: `${workedDuration}`,
       [HubSpotDealProperty.EXTRA_TIME]: `${extensionDuration}`,
       [HubSpotDealProperty.MATERIAL_FEE]: `${feeTotal}`,
+      [HubSpotDealProperty.DEAL_NAME]: `${categoryId} ${buyerUser.data.name}`,
     };
 
     return properties;
