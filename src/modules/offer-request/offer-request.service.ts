@@ -99,4 +99,50 @@ export class OfferRequestService {
 
     return category;
   }
+
+  async getBuyerIdByOfferRequestId(
+    offerRequestId: string,
+  ): Promise<string | null> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const buyerIdSnapshot = await database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('buyerProfile')
+      .get();
+
+    const buyerId: string | null = buyerIdSnapshot.val();
+
+    return buyerId;
+  }
+
+  async strictGetBuyerIdByOfferRequestId(
+    offerRequestId: string,
+  ): Promise<string> {
+    const buyerId = await this.getBuyerIdByOfferRequestId(offerRequestId);
+
+    if (!buyerId) {
+      throw new Error(
+        `Buyer id was not found for offer request ${offerRequestId}`,
+      );
+    }
+
+    return buyerId;
+  }
+
+  async getFeeIdsByOfferRequestId(offerRequestId: string): Promise<string[]> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const feesSnapshot = await database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(offerRequestId)
+      .child('fees')
+      .get();
+
+    const fees: Record<string, true> | null = feesSnapshot.val();
+
+    return Object.keys(fees || {});
+  }
 }

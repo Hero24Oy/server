@@ -37,10 +37,10 @@ export class UserMergeService {
   ): Promise<UserMergeInput> {
     const database = getAdminDatabase(this.firebaseService.getDefaultApp());
 
-    let newUserMerge: Omit<UserMergeDB, 'createdAt'> =
+    const newUserMerge: Omit<UserMergeDB, 'createdAt'> =
       UserMergeDto.convertToFirebaseType({
         ...userMergeInput,
-        userId: identity.id
+        userId: identity.id,
       });
 
     await database

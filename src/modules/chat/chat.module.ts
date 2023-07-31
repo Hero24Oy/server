@@ -23,6 +23,7 @@ import {
   createChatAddedEventHandler,
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
+import { skipFirst } from '../common/common.utils';
 
 @Module({
   imports: [
@@ -68,9 +69,11 @@ export class ChatModule {
         createChatUpdatedEventHandler(pubsub),
       ),
       subscribeOnFirebaseEvent(
-        chatsRef,
+        // Firebase child added event calls on every exist item first, than on every creation event.
+        // So we should skip every exists items using limit to last 1 so as not to retrieve all items
+        chatsRef.limitToLast(1),
         'child_added',
-        createChatAddedEventHandler(pubsub),
+        skipFirst(createChatAddedEventHandler(pubsub)),
       ),
     ];
 

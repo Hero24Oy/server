@@ -11,6 +11,7 @@ import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseService } from '../firebase/firebase.service';
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 
 @Injectable()
 export class SellerService {
@@ -60,27 +61,17 @@ export class SellerService {
       SellerProfileDto.convertFromFirebaseType(sellerProfile, id),
     );
 
-    const total = sellers.length;
+    let nodes = sellers;
 
-    if (typeof offset === 'number' && typeof limit === 'number') {
-      const edges = sellers
-        .slice(offset, limit)
-        .map((node) => ({ node, cursor: node.id }));
+    const total = nodes.length;
+    nodes = paginate({ nodes, limit, offset });
 
-      return {
-        edges,
-        total,
-        hasNextPage: total > offset + limit,
-        endCursor: edges[edges.length - 1]?.cursor || null,
-      };
-    }
-
-    return {
-      edges: sellers.map((node) => ({ node, cursor: node.id })),
+    return preparePaginatedResult({
+      nodes,
       total,
-      hasNextPage: false,
-      endCursor: sellers[sellers.length - 1]?.id || null,
-    };
+      offset,
+      limit,
+    });
   }
 
   async createSeller(
