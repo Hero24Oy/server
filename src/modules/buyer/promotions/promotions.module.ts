@@ -9,7 +9,7 @@ import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
 import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
 import { PromotionsResolver } from './promotions.resolver';
 import { PromotionsService } from './promotions.service';
-import { createPromotionsAddedEventHandler, createPromotionsUpdatedEventHandler } from './promotions.event-handlers';
+import { createPromotionsAddedEventHandler, createPromotionsRemovedEventHandler, createPromotionsUpdatedEventHandler } from './promotions.event-handlers';
 
 @Module({
   imports: [FirebaseModule, GraphQLPubsubModule],
@@ -51,7 +51,7 @@ export class PromotionsModule {
           subscribeOnFirebaseEvent(
               rootPromotionsRef,
               'child_removed',
-              createPromotionsUpdatedEventHandler(pubsub),
+              createPromotionsRemovedEventHandler(pubsub),
           ),
     ];
   }

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { CreatePromotionInput, PromotionDto } from './dto/promotion.dto';
 import { omitUndefined } from 'src/modules/common/common.utils';
+import { PromotionDB } from 'hero24-types';
+import { PromotionEditingInput } from './dto/promotion-editing.input';
 
 @Injectable()
 export class PromotionsService {
@@ -16,9 +18,12 @@ export class PromotionsService {
       .child(id)
       .once('value');
 
-    const promotion: PromotionDto | null = promotionSnapshot.val();
+    
+    const promotion: PromotionDB | null = promotionSnapshot.val();
 
-    return promotion;
+    return (
+      (promotion && PromotionDto.convertFromFirebaseType(promotion, id)) || null
+    );
   }
 
   async strictGetPromotion(id: string): Promise<PromotionDto> {
@@ -51,7 +56,7 @@ export class PromotionsService {
     return promotions;
   }
 
-  async createPromotion(promotion: PromotionDto): Promise<PromotionDto> {
+  async createPromotion(promotion: CreatePromotionInput): Promise<PromotionDto> {
     const app = this.firebaseService.getDefaultApp();
     const database = app.database();
 
@@ -64,14 +69,37 @@ export class PromotionsService {
     return this.strictGetPromotion(key);
   }
 
-  async updatePromotion(input: CreatePromotionInput): Promise<PromotionDto> {
+  async updatePromotion(input: PromotionEditingInput): Promise<PromotionDto> {
     const app = this.firebaseService.getDefaultApp();
     const database = app.database();
 
-    const promotionUpdates = omitUndefined<Partial<PromotionDto>>(input);
+    const newData = omitUndefined({
+      categoryId: input.categoryId || undefined,
+      discount: input.discount || undefined,
+      discountFormat: input.discountFormat || undefined,
+      startDate: input.startDate || undefined,
+      endDate: input.endDate || undefined,
+      description: input.description || undefined,
+    });
 
-    await database.ref('promotions').child(input.categoryId).update(input);
+    const promotionUpdates = omitUndefined<any>({
+      data: {
+        ...newData,
+      }
+    });
 
-    return this.strictGetPromotion(input.categoryId);
+    await database
+      .ref('promotions')
+      .child(input.id)
+      .update(promotionUpdates);
+
+    return this.strictGetPromotion(input.id);
+  }
+
+  async deletePromotion(id: string): Promise<void> {
+    const app = this.firebaseService.getDefaultApp();
+    const database = app.database();
+
+    await database.ref('promotions').child(id).remove();
   }
 }

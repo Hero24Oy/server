@@ -9,6 +9,8 @@ export const createPromotionsEventHandler =
     if (!snapshot.key) {
       return;
     }
-
-    eventEmitter(pubsub, snapshot.val());
+    eventEmitter(
+      pubsub,
+      PromotionDto.convertFromFirebaseType(snapshot.val(), snapshot.key),
+    );
   };
