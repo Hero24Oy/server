@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { OfferDB, OfferRequestDB } from 'hero24-types';
+import { OfferDB } from 'hero24-types';
 
 import { FirebaseService } from '../firebase/firebase.service';
 import { OfferDto } from './dto/offer/offer.dto';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { MaybeType } from '../common/common.types';
+import { OfferRequestService } from '../offer-request/offer-request.service';
+import { FirebaseAppInstance } from '../firebase/firebase.types';
 
 @Injectable()
 export class OfferService {
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    private readonly offerRequestService: OfferRequestService,
+  ) {}
 
   async getOfferById(offerId: string): Promise<OfferDto | null> {
     const database = this.firebaseService.getDefaultApp().database();
@@ -61,77 +65,26 @@ export class OfferService {
     return true;
   }
 
-  async approvePrepaidOffer(
-    offerId: string,
-    offerRequestId: string,
-  ): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    const offerSnapshot = await offerRef.once('value');
-    const offer: OfferDB = offerSnapshot.val();
-
-    const agreedStartTime: MaybeType<
-      OfferDB['data']['initial']['agreedStartTime']
-    > = offer.data.initial.agreedStartTime;
-
-    if (!agreedStartTime) {
-      throw new Error('Could not find offered time! (should never happen)');
-    }
-
-    const offerRequestRef = database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
-      .child(offerRequestId);
-    const offerRequestSnapshot = await offerRequestRef.once('value');
-
-    if (!offerRequestSnapshot.exists()) {
-      throw new Error('OfferRequest not found! (should never happen)');
-    }
-
-    const offerRequestValues: OfferRequestDB = await offerRequestSnapshot.val();
-
-    const updatedQuestions: OfferRequestDB['data']['initial']['questions'] =
-      offerRequestValues.data.initial.questions.map((question) => {
-        if (question.type === 'date') {
-          question.preferredTime = agreedStartTime;
-          question.suitableTimes = null;
-          question.suitableTimesCount = null;
-        }
-        return question;
-      });
-
-    await offerRequestRef
-      .child('data')
-      .child('initial')
-      .child('questions')
-      .set(updatedQuestions);
-
-    await offerRef.child('status').set('accepted');
-
-    return true;
-  }
-
   async approveCompletedOffer(
     offerId: string,
     offerRequestId: string,
+    app: FirebaseAppInstance,
   ): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    const offerSnapshot = await offerRef.once('value');
-    const offer: OfferDB = offerSnapshot.val();
+    const offer = await this.strictGetOfferById(offerId);
 
     if (!offer || offer.status !== 'completed') {
       throw new Error(`Offer must be completed to approve`);
     }
 
-    const offerRequestRef = database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
-      .child(offerRequestId);
+    const offerRequest = await this.offerRequestService.getOfferRequestById(
+      offerRequestId,
+      app,
+    );
 
-    const offerRequest = await offerRequestRef.once('value');
-
-    if (!offerRequest.exists()) {
+    if (offerRequest) {
       throw new Error('OfferRequest not found! (should never happen)');
     }
 

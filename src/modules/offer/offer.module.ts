@@ -12,17 +12,18 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { updateOfferEventHandler } from './offer.event-handlers';
+import { OfferRequestService } from '../offer-request/offer-request.service';
 
 @Module({
   imports: [FirebaseModule, OfferHubSpotModule, GraphQLPubsubModule],
-  providers: [OfferService, OfferResolver],
+  providers: [OfferService, OfferResolver, OfferRequestService],
   exports: [OfferService],
 })
 export class OfferModule {
   static unsubscribes: Array<() => Promise<void> | void> = [];
 
   constructor(
-    private firebaseService: FirebaseService,
+    private readonly firebaseService: FirebaseService,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
