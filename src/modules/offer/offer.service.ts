@@ -50,11 +50,20 @@ export class OfferService {
       .set(dealId);
   }
 
-  async markOfferAsSeen(offerId: string): Promise<boolean> {
+  async markOfferAsSeenByBuyer(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     await offerRef.child('buyerData').child('seenByBuyer').set(true);
+
+    return true;
+  }
+
+  async markOfferAsSeenBySeller(offerId: string): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+    await offerRef.child('data').child('seenBySeller').set(true);
 
     return true;
   }

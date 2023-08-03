@@ -19,11 +19,18 @@ export class OfferResolver {
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  markOfferAsSeenByBuyer(@Args('offerId') offerId: string): Promise<boolean> {
+    return this.offerService.markOfferAsSeenByBuyer(offerId);
+  }
+
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
-  markOfferAsSeen(@Args('offerId') offerId: string): Promise<boolean> {
-    return this.offerService.markOfferAsSeen(offerId);
+  markOfferAsSeenBySeller(@Args('offerId') offerId: string): Promise<boolean> {
+    return this.offerService.markOfferAsSeenBySeller(offerId);
   }
 
   @UseGuards(AuthGuard)
