@@ -153,4 +153,14 @@ export class OfferService {
 
     return true;
   }
+
+  async declineOfferChanges(offerId: string): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+
+    await offerRef.child('status').set(OfferStatus.CANCELLED);
+
+    return true;
+  }
 }

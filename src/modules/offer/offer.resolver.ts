@@ -100,4 +100,11 @@ export class OfferResolver {
   ): Promise<boolean> {
     return this.offerService.markJobCompleted(offerId, input);
   }
+
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  declineOfferChanges(@Args('offerId') offerId: string): Promise<boolean> {
+    return this.offerService.declineOfferChanges(offerId);
+  }
 }
