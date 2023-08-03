@@ -11,6 +11,7 @@ import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
+import { OfferStatusInput } from './dto/editing/offer-status.input';
 
 @Resolver()
 export class OfferResolver {
@@ -106,5 +107,15 @@ export class OfferResolver {
   @UseFilters(FirebaseExceptionFilter)
   declineOfferChanges(@Args('offerId') offerId: string): Promise<boolean> {
     return this.offerService.declineOfferChanges(offerId);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  updateOfferStatus(
+    @Args('offerId') offerId: string,
+    @Args('input') input: OfferStatusInput,
+  ): Promise<boolean> {
+    return this.offerService.updateOfferStatus(offerId, input);
   }
 }

@@ -9,6 +9,7 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferStatus } from './offer.constants';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
+import { OfferStatusInput } from './dto/editing/offer-status.input';
 
 @Injectable()
 export class OfferService {
@@ -143,7 +144,7 @@ export class OfferService {
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
 
     // mark status completed
-    await offerRef.update({ status: OfferStatus.COMPLETED });
+    await this.updateOfferStatus(offerId, { status: OfferStatus.COMPLETED });
     await offerRef.child('data').update({
       actualStartTime: args.actualStartTime,
       actualCompletedTime: args.actualCompletedTime,
@@ -155,11 +156,19 @@ export class OfferService {
   }
 
   async declineOfferChanges(offerId: string): Promise<boolean> {
+    await this.updateOfferStatus(offerId, { status: OfferStatus.CANCELLED });
+
+    return true;
+  }
+
+  async updateOfferStatus(
+    offerId: string,
+    input: OfferStatusInput,
+  ): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-
-    await offerRef.child('status').set(OfferStatus.CANCELLED);
+    await offerRef.child('status').set(input.status);
 
     return true;
   }
