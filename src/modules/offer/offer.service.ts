@@ -7,6 +7,8 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { OfferRequestService } from '../offer-request/offer-request.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
+import { OfferStatus } from './offer.constants';
+import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 
 @Injectable()
 export class OfferService {
@@ -119,6 +121,26 @@ export class OfferService {
       timeToExtend: args.extendedDuration,
       reasonToExtend: args.reasonToExtend,
     });
+
+    return true;
+  }
+
+  async markJobCompleted(
+    offerId: string,
+    args: OfferCompletedInput,
+  ): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+
+    // mark status completed
+    await offerRef.update({ status: OfferStatus.COMPLETED });
+    await offerRef.child('data').update({
+      actualStartTime: args.actualStartTime,
+      actualCompletedTime: args.actualCompletedTime,
+      isPaused: false,
+    });
+    offerRef.child('data').child('workTime').set(args.workTime);
 
     return true;
   }

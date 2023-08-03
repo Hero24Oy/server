@@ -10,6 +10,7 @@ import { OfferDto } from './dto/offer/offer.dto';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
+import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 
 @Resolver()
 export class OfferResolver {
@@ -81,5 +82,15 @@ export class OfferResolver {
     @Args('input') input: OfferExtendInput,
   ): Promise<boolean> {
     return this.offerService.extendOfferDuration(offerId, input);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  markJobCompleted(
+    @Args('offerId') offerId: string,
+    @Args('input') input: OfferCompletedInput,
+  ): Promise<boolean> {
+    return this.offerService.markJobCompleted(offerId, input);
   }
 }
