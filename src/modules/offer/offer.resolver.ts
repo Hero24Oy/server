@@ -9,6 +9,7 @@ import { OFFER_UPDATED_SUBSCRIPTION } from './offer.constants';
 import { OfferDto } from './dto/offer/offer.dto';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { OfferExtendInput } from './dto/editing/offer-extend.input';
 
 @Resolver()
 export class OfferResolver {
@@ -62,5 +63,23 @@ export class OfferResolver {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   subscribeOnOfferUpdated(@Args('offerId') _offerId: string) {
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
+  }
+
+  // TODO add auth guards
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  cancelRequestToExtend(@Args('offerId') offerId: string): Promise<boolean> {
+    return this.offerService.cancelRequestToExtend(offerId);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  extendOfferDuration(
+    @Args('offerId') offerId: string,
+    @Args('input') input: OfferExtendInput,
+  ): Promise<boolean> {
+    return this.offerService.extendOfferDuration(offerId, input);
   }
 }
