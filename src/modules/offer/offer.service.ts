@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { OfferDB } from 'hero24-types';
+import moment from 'moment';
 
 import { FirebaseService } from '../firebase/firebase.service';
 import { OfferDto } from './dto/offer/offer.dto';
+import { WorkTimeDto } from './dto/work-time.dto';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { OfferRequestService } from '../offer-request/offer-request.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
@@ -10,6 +12,7 @@ import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferStatus } from './offer.constants';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
+import { UpdatedDateDB } from './types';
 
 @Injectable()
 export class OfferService {
@@ -193,6 +196,47 @@ export class OfferService {
         },
       ],
     });
+
+    return true;
+  }
+
+  async toggleJobStatus(offerId: string): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
+    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+    const offer = await this.strictGetOfferById(offerId);
+    const isOfferPaused = offer.data.isPaused;
+
+    const updatedDate: UpdatedDateDB = {
+      isPaused: !isOfferPaused,
+      workTime:
+        // because of casting number type to date, extra step is need, as in db we store date as number
+        offer.data.workTime?.map(
+          WorkTimeDto.adapter.toInternal.bind(WorkTimeDto), // this context is lost, so bind it
+        ) || [],
+    };
+
+    if (!isOfferPaused) {
+      updatedDate.workTime[updatedDate.workTime.length - 1].endTime =
+        Date.now();
+    } else {
+      const time =
+        updatedDate.workTime[updatedDate.workTime.length - 1].endTime;
+
+      const startTime = typeof time === 'number' ? moment(time) : moment();
+      const endTime = moment();
+
+      const pauseDuration = endTime.diff(startTime, 'milliseconds');
+
+      updatedDate.pauseDurationMS = offer.data.pauseDurationMS
+        ? pauseDuration + offer.data.pauseDurationMS
+        : pauseDuration;
+
+      updatedDate.workTime.push({
+        startTime: Date.now(),
+      });
+    }
+
+    await offerRef.child('data').update(updatedDate);
 
     return true;
   }

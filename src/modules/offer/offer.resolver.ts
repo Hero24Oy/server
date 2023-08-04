@@ -125,4 +125,11 @@ export class OfferResolver {
   startJob(@Args('offerId') offerId: string): Promise<boolean> {
     return this.offerService.startJob(offerId);
   }
+
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  toggleJobStatus(@Args('offerId') offerId: string): Promise<boolean> {
+    return this.offerService.toggleJobStatus(offerId);
+  }
 }
