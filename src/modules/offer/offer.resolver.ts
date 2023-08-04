@@ -45,16 +45,8 @@ export class OfferResolver {
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
-  approveCompletedOffer(
-    @Args('offerId') offerId: string,
-    @Args('offerRequestId') offerRequestId: string,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<boolean> {
-    return this.offerService.approveCompletedOffer(
-      offerId,
-      offerRequestId,
-      app,
-    );
+  approveCompletedOffer(@Args('offerId') offerId: string): Promise<boolean> {
+    return this.offerService.approveCompletedOffer(offerId);
   }
 
   @UseGuards(AuthGuard)

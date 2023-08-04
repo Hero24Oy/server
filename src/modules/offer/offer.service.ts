@@ -7,7 +7,6 @@ import { OfferDto } from './dto/offer/offer.dto';
 import { WorkTimeDto } from './dto/work-time.dto';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { OfferRequestService } from '../offer-request/offer-request.service';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferStatus } from './offer.constants';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
@@ -85,11 +84,7 @@ export class OfferService {
     return true;
   }
 
-  async approveCompletedOffer(
-    offerId: string,
-    offerRequestId: string,
-    app: FirebaseAppInstance,
-  ): Promise<boolean> {
+  async approveCompletedOffer(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
@@ -97,15 +92,6 @@ export class OfferService {
 
     if (!offer || offer.status !== 'completed') {
       throw new Error(`Offer must be completed to approve`);
-    }
-
-    const offerRequest = await this.offerRequestService.getOfferRequestById(
-      offerRequestId,
-      app,
-    );
-
-    if (!offerRequest) {
-      throw new Error('OfferRequest not found! (should never happen)');
     }
 
     await offerRef.child('isApproved').set(true);
