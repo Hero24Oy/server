@@ -12,6 +12,7 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
+import { OfferChangeInput } from './dto/editing/offer-change.input';
 
 @Resolver()
 export class OfferResolver {
@@ -131,5 +132,15 @@ export class OfferResolver {
   @UseFilters(FirebaseExceptionFilter)
   toggleJobStatus(@Args('offerId') offerId: string): Promise<boolean> {
     return this.offerService.toggleJobStatus(offerId);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  acceptOfferChanges(
+    @Args('offerId') offerId: string,
+    @Args('input') input: OfferChangeInput,
+  ): Promise<boolean> {
+    return this.offerService.acceptOfferChanges(offerId, input);
   }
 }

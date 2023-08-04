@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { OfferDB } from 'hero24-types';
 import moment from 'moment';
+import { OfferDB, OfferRequestDB } from 'hero24-types';
 
 import { FirebaseService } from '../firebase/firebase.service';
 import { OfferDto } from './dto/offer/offer.dto';
@@ -13,7 +13,11 @@ import { OfferStatus } from './offer.constants';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { UpdatedDateDB } from './types';
+import { OfferChangeInput } from './dto/editing/offer-change.input';
+import { differenceWith, isEqual } from 'lodash';
+import { isDateQuestion } from './offer.utils';
 
+// TODO split into different services
 @Injectable()
 export class OfferService {
   constructor(
@@ -100,7 +104,7 @@ export class OfferService {
       app,
     );
 
-    if (offerRequest) {
+    if (!offerRequest) {
       throw new Error('OfferRequest not found! (should never happen)');
     }
 
@@ -237,6 +241,77 @@ export class OfferService {
     }
 
     await offerRef.child('data').update(updatedDate);
+
+    return true;
+  }
+
+  async acceptOfferChanges(
+    offerId: string,
+    input: OfferChangeInput,
+  ): Promise<boolean> {
+    console.log('chanigng');
+    const database = this.firebaseService.getDefaultApp().database();
+    const { agreedStartTime } = input;
+
+    const isAcceptTimeChanges = typeof agreedStartTime === 'number';
+    const isAcceptDetailsChanges = !isAcceptTimeChanges;
+
+    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+
+    const offer = await this.strictGetOfferById(offerId);
+
+    const offerRequestRef = database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(offer.data.initial.offerRequestId);
+
+    const offerRequestSnapshot = await offerRequestRef.once('value');
+
+    const offerRequest: OfferRequestDB = offerRequestSnapshot.val();
+
+    const {
+      requestedChanges,
+      initial: { questions },
+    } = offerRequest.data;
+
+    if (!requestedChanges) {
+      throw new Error('OfferRequest does not have requestedChanges!');
+    }
+
+    const {
+      changedQuestions: { after },
+    } = requestedChanges;
+
+    const differences = differenceWith(after, questions, isEqual);
+
+    const dateQuestion = differences.find(isDateQuestion);
+    const otherChanges = differences.filter(
+      (question) => !isDateQuestion(question),
+    );
+
+    if (isAcceptTimeChanges && dateQuestion) {
+      await offerRef
+        .child('data')
+        .child('initial')
+        .child('agreedStartTime')
+        .set(agreedStartTime);
+    }
+
+    const changesAccepted = {
+      detailsChangeAccepted: isAcceptDetailsChanges || !otherChanges.length,
+      timeChangeAccepted: isAcceptTimeChanges || !dateQuestion,
+    };
+
+    await offerRequestRef
+      .child('data')
+      .child('changesAccepted')
+      .update(changesAccepted);
+
+    if (
+      changesAccepted.detailsChangeAccepted &&
+      changesAccepted.timeChangeAccepted
+    ) {
+      await offerRef.child('data').child('requestedChangesAccepted').set(true);
+    }
 
     return true;
   }

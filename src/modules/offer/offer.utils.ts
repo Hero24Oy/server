@@ -1,5 +1,10 @@
 import { DataSnapshot } from 'firebase-admin/database';
-import { OfferDB } from 'hero24-types';
+import {
+  DateQuestionDB,
+  OfferDB,
+  OfferRequestQuestion,
+  QuestionDB,
+} from 'hero24-types';
 
 import { OfferDto } from './dto/offer/offer.dto';
 
@@ -18,3 +23,9 @@ export const createOfferEventHandler =
       }),
     );
   };
+
+export function isDateQuestion(
+  question: QuestionDB | OfferRequestQuestion,
+): question is DateQuestionDB {
+  return (question as DateQuestionDB).type === 'date';
+}
