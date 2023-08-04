@@ -12,11 +12,16 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { updateOfferEventHandler } from './offer.event-handlers';
-import { OfferRequestService } from '../offer-request/offer-request.service';
+import { OfferRequestModule } from '../offer-request/offer-request.module';
 
 @Module({
-  imports: [FirebaseModule, OfferHubSpotModule, GraphQLPubsubModule],
-  providers: [OfferService, OfferResolver, OfferRequestService],
+  imports: [
+    FirebaseModule,
+    OfferHubSpotModule,
+    GraphQLPubsubModule,
+    OfferRequestModule,
+  ],
+  providers: [OfferService, OfferResolver],
   exports: [OfferService],
 })
 export class OfferModule {
