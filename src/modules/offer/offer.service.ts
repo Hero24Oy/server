@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { OfferDB, OfferRequestDB } from 'hero24-types';
 
@@ -6,23 +6,30 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { OfferDto } from './dto/offer/offer.dto';
 import { WorkTimeDto } from './dto/work-time.dto';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { OfferRequestService } from '../offer-request/offer-request.service';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
-import { OfferStatus } from './offer.constants';
+import { OFFER_UPDATED_SUBSCRIPTION, OfferStatus } from './offer.constants';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { UpdatedDateDB } from './types';
 import { OfferChangeInput } from './dto/editing/offer-change.input';
 import { differenceWith, isEqual } from 'lodash';
 import { isDateQuestion } from './offer.utils';
+import { PubSub } from 'graphql-subscriptions';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 // TODO split into different services
 @Injectable()
 export class OfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
-    private readonly offerRequestService: OfferRequestService,
+    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
+
+  async offerUpdated(offer: OfferDto): Promise<void> {
+    return this.pubSub.publish(OFFER_UPDATED_SUBSCRIPTION, {
+      [OFFER_UPDATED_SUBSCRIPTION]: offer,
+    });
+  }
 
   async getOfferById(offerId: string): Promise<OfferDto | null> {
     const database = this.firebaseService.getDefaultApp().database();

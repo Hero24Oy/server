@@ -7,8 +7,6 @@ import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { OFFER_UPDATED_SUBSCRIPTION } from './offer.constants';
 import { OfferDto } from './dto/offer/offer.dto';
-import { FirebaseApp } from '../firebase/firebase.decorator';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
@@ -49,7 +47,7 @@ export class OfferResolver {
     return this.offerService.approveCompletedOffer(offerId);
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Subscription(() => OfferDto, {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
