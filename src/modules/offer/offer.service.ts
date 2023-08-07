@@ -308,4 +308,51 @@ export class OfferService {
 
     return true;
   }
+
+  async approvePrepaidOffer(
+    offerId: string,
+    offerRequestId: string,
+  ): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+    const offer = await this.strictGetOfferById(offerId);
+
+    const agreedStartTime = offer.data.initial.agreedStartTime;
+
+    if (!agreedStartTime) {
+      throw new Error('Could not find offered time! (should never happen)');
+    }
+
+    const offerRequestRef = database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(offerRequestId);
+
+    const offerRequest = await offerRequestRef.once('value');
+
+    if (!offerRequest.exists()) {
+      throw new Error('OfferRequest not found! (should never happen)');
+    }
+
+    const offerRequestValues: OfferRequestDB = await offerRequest.val();
+    const updatedQuestions: OfferRequestDB['data']['initial']['questions'] =
+      offerRequestValues.data.initial.questions.map((question) => {
+        if (question.type === 'date') {
+          question.preferredTime = agreedStartTime.getTime();
+          question.suitableTimes = null;
+          question.suitableTimesCount = null;
+        }
+        return question;
+      });
+
+    await offerRequestRef
+      .child('data')
+      .child('initial')
+      .child('questions')
+      .set(updatedQuestions);
+
+    await offerRef.child('status').set(OfferStatus.ACCEPTED);
+
+    return true;
+  }
 }

@@ -133,4 +133,14 @@ export class OfferResolver {
   ): Promise<boolean> {
     return this.offerService.acceptOfferChanges(offerId, input);
   }
+
+  // @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  approvePrepaidOffer(
+    @Args('offerId') offerId: string,
+    @Args('offerRequestId') offerRequestId: string,
+  ): Promise<boolean> {
+    return this.offerService.approvePrepaidOffer(offerId, offerRequestId);
+  }
 }
