@@ -355,4 +355,12 @@ export class OfferService {
 
     return true;
   }
+
+  async getOffers(offerIds: string[]): Promise<OfferDto[]> {
+    const offers = await Promise.all(
+      offerIds.map((offerId) => this.strictGetOfferById(offerId)),
+    );
+
+    return offers;
+  }
 }

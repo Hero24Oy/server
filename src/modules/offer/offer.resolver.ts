@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { OfferService } from './offer.service';
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
@@ -52,16 +52,18 @@ export class OfferResolver {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
-      variables: { offerId: OfferDto['id'] },
+      variables: { offerIds: OfferDto['id'][] },
     ) => {
-      const { offerId } = variables;
+      const { offerIds } = variables;
 
-      return payload[OFFER_UPDATED_SUBSCRIPTION].id === offerId;
+      return offerIds.includes(payload[OFFER_UPDATED_SUBSCRIPTION].id);
     },
   })
   @UseFilters(FirebaseExceptionFilter)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  subscribeOnOfferUpdated(@Args('offerId') _offerId: string) {
+  subscribeOnOfferUpdated(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Args('offerIds', { type: () => [String] }) _offerIds: string[],
+  ) {
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
   }
 
@@ -142,5 +144,14 @@ export class OfferResolver {
     @Args('offerRequestId') offerRequestId: string,
   ): Promise<boolean> {
     return this.offerService.approvePrepaidOffer(offerId, offerRequestId);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Query(() => [OfferDto])
+  @UseFilters(FirebaseExceptionFilter)
+  offers(
+    @Args('offerIds', { type: () => [String] }) offerIds: string[],
+  ): Promise<OfferDto[]> {
+    return this.offerService.getOffers(offerIds);
   }
 }

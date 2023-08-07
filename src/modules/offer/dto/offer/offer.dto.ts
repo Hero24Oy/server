@@ -41,7 +41,7 @@ export class OfferDto {
   @Field(() => OfferEarningsDto, { nullable: true })
   earnings?: MaybeType<OfferEarningsDto>;
 
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true })
   preDayReminderSent?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
