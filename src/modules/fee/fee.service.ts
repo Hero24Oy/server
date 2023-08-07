@@ -1,23 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { FeeDB } from 'hero24-types';
 
+import { Identity } from '../auth/auth.types';
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { FeeDto } from './dto/fee/fee.dto';
-import { FeeListArgs } from './dto/fee-list/fee-list.args';
-import { Identity } from '../auth/auth.types';
-import { FeeListDto } from './dto/fee-list/fee-list.dto';
-import { paginate, preparePaginatedResult } from '../common/common.utils';
+import { OfferRequestService } from '../offer-request/offer-request.service';
+import { SorterService } from '../sorter/sorter.service';
+
 import { FeeCreationArgs } from './dto/creation/fee-creation.args';
 import { FeeCreationInput } from './dto/creation/fee-creation.input';
-import { OfferRequestService } from '../offer-request/offer-request.service';
+import { FeeDto } from './dto/fee/fee.dto';
+import { FeeListArgs } from './dto/fee-list/fee-list.args';
+import { FeeListDto } from './dto/fee-list/fee-list.dto';
 import { FeeEditingArgs } from './dto/editing/fee-editing.args';
 import { FeeDataDto } from './dto/fee/fee-data.dto';
+import { FeeListOrderColumn } from './dto/fee-list/fee-list-order-column.enum';
+import { filterFees } from './fee.utils/filter-fees.util';
+import { FeeListSorterContext } from './fee.types';
 
 @Injectable()
 export class FeeService {
   constructor(
     private firebaseService: FirebaseService,
+    private chatsSorter: SorterService<
+      FeeListOrderColumn,
+      FeeDto,
+      FeeListSorterContext
+    >,
     private offerRequestService: OfferRequestService,
   ) {}
 
@@ -57,12 +67,16 @@ export class FeeService {
   }
 
   async getFeeList(args: FeeListArgs, identity: Identity): Promise<FeeListDto> {
-    const { offset, limit } = args;
+    const { offset, limit, filter, ordersBy } = args;
 
     let nodes = await this.getAllFees();
 
-    if (!identity.isAdmin) {
-      nodes = nodes.filter((fee) => fee.userId === identity.id);
+    nodes = filterFees({ filter, fees: nodes });
+
+    if (ordersBy) {
+      nodes = this.chatsSorter.sort(nodes, ordersBy, {
+        identity,
+      });
     }
 
     const total = nodes.length;
