@@ -62,7 +62,7 @@ export class ChatService {
 
       const chat: ChatDB = snapshot.val();
 
-      nodes.push(ChatDto.convertFromFirebaseType(chat, snapshot.key));
+      nodes.push(ChatDto.adapter.toExternal({ ...chat, id: snapshot.key }));
     });
 
     nodes = filterChats({ identity, filter, chats: nodes, platform });
@@ -95,7 +95,7 @@ export class ChatService {
       throw new Error(`Chat isn't existed`);
     }
 
-    return ChatDto.convertFromFirebaseType(chat, chatId);
+    return ChatDto.adapter.toExternal({ ...chat, id: chatId });
   }
 
   async getChat(
@@ -107,9 +107,9 @@ export class ChatService {
     const path = [FirebaseDatabasePath.CHATS, chatId];
     const chatSnapshot = await get(ref(database, path.join('/')));
 
-    const chat: ChatDB = chatSnapshot.val();
+    const chat: ChatDB | null = chatSnapshot.val();
 
-    return chat && ChatDto.convertFromFirebaseType(chat, chatId);
+    return chat && ChatDto.adapter.toExternal({ ...chat, id: chatId });
   }
 
   async getUnseenAdminChatsCount(): Promise<number> {
@@ -144,10 +144,10 @@ export class ChatService {
         return;
       }
 
-      const chat = ChatDto.convertFromFirebaseType(
-        snapshot.val(),
-        snapshot.key,
-      );
+      const chat = ChatDto.adapter.toExternal({
+        ...snapshot.val(),
+        id: snapshot.key,
+      });
 
       const member = chat.members.find((member) => member.id === identity.id);
 

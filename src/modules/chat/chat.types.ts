@@ -7,12 +7,6 @@ import { Identity } from '../auth/auth.types';
 import { ComparePicker, SortablePrimitives } from '../sorter/sorter.types';
 import { ChatDto } from './dto/chat/chat.dto';
 
-export enum ChatMemberRole {
-  SELLER = 'seller',
-  CUSTOMER = 'buyer',
-  ADMIN = 'admin',
-}
-
 export type ChatGuardProviders = {
   chatService: ChatService;
   chatMessageService: ChatMessageService;

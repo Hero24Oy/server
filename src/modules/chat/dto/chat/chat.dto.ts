@@ -6,6 +6,8 @@ import { MaybeType } from 'src/modules/common/common.types';
 import { ChatMessageDto } from './chat-message.dto';
 import { ChatMemberDto } from './chat-member.dto';
 import { isNumber, max } from 'lodash';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 
 @ObjectType()
 export class ChatDto {
@@ -45,27 +47,59 @@ export class ChatDto {
   @Field(() => Date, { nullable: true })
   lastMessageDate?: MaybeType<Date>;
 
-  static convertFromFirebaseType(chat: ChatDB, id: string): ChatDto {
+  static adapter: FirebaseAdapter<
+    ChatDB & { id: string },
+    Omit<ChatDto, 'messages'>
+  >;
+}
+
+ChatDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => {
     const lastMessageDate = max(
-      Object.values(chat.data.members)
+      Object.values(internal.data.members)
         .map((member) => member.lastMessageDate)
         .filter(isNumber),
     );
 
     return {
-      id,
-      createdAt: new Date(chat.data.initial.createdAt),
-      inviteAdmin: chat.data.inviteAdmin,
-      isAboutReclamation: chat.data.isAboutReclamation,
-      offerId: chat.data.initial.offer,
-      offerRequestId: chat.data.initial.offerRequest,
-      reasonGiven: chat.data.reasonGiven,
-      seenByAdmin: chat.data.seenByAdmin,
-      messageIds: Object.keys(chat.data.messages || {}),
-      members: Object.entries(chat.data.members).map(([id, member]) =>
+      id: internal.id,
+      createdAt: new Date(internal.data.initial.createdAt),
+      inviteAdmin: internal.data.inviteAdmin,
+      isAboutReclamation: internal.data.isAboutReclamation,
+      offerId: internal.data.initial.offer,
+      offerRequestId: internal.data.initial.offerRequest,
+      reasonGiven: internal.data.reasonGiven,
+      seenByAdmin: internal.data.seenByAdmin,
+      messageIds: Object.keys(internal.data.messages || {}),
+      members: Object.entries(internal.data.members).map(([id, member]) =>
         ChatMemberDto.convertFromFirebaseType(member, id),
       ),
       lastMessageDate: lastMessageDate ? new Date(lastMessageDate) : null,
     };
-  }
-}
+  },
+  toInternal: (external) => ({
+    id: external.id,
+    data: {
+      initial: {
+        createdAt: +external.createdAt,
+        offer: external.offerId ?? undefined,
+        offerRequest: external.offerRequestId ?? undefined,
+      },
+      inviteAdmin: external.inviteAdmin ?? undefined,
+      isAboutReclamation: external.isAboutReclamation ?? undefined,
+      reasonGiven: external.reasonGiven ?? undefined,
+      seenByAdmin: external.seenByAdmin ?? undefined,
+      messages: convertListToFirebaseMap(external.messageIds),
+      members: Object.fromEntries(
+        external.members.map((member) => [
+          member.id,
+          {
+            role: member.id,
+            lastMessageDate: member.lastMessageDate,
+            lastOpened: member.lastOpened,
+          } as ChatDB['data']['members'][string],
+        ]),
+      ),
+    },
+  }),
+});
