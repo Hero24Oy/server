@@ -11,6 +11,7 @@ import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { OfferChangeInput } from './dto/editing/offer-change.input';
+import { OfferArgs } from './dto/offer/offer.args';
 
 @Resolver()
 export class OfferResolver {
@@ -150,8 +151,8 @@ export class OfferResolver {
   @Query(() => [OfferDto])
   @UseFilters(FirebaseExceptionFilter)
   offers(
-    @Args('offerIds', { type: () => [String] }) offerIds: string[],
+    @Args({ type: () => OfferArgs }) args: OfferArgs,
   ): Promise<OfferDto[]> {
-    return this.offerService.getOffers(offerIds);
+    return this.offerService.getOffers(args);
   }
 }

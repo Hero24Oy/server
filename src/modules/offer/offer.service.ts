@@ -17,8 +17,7 @@ import { isDateQuestion } from './offer.utils/is-date-quesiton.util';
 import { filterOffers } from './offer.utils/filter-offers.util';
 import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { filterOffers } from './offer.utils/filter-offers.util';
-import { isDateQuestion } from './offer.utils/is-date-quesiton.util';
+import { OfferArgs } from './dto/offer/offer.args';
 
 // TODO split into different services
 @Injectable()
@@ -359,11 +358,30 @@ export class OfferService {
     return true;
   }
 
-  async getOffers(offerIds: string[]): Promise<OfferDto[]> {
-    const offers = await Promise.all(
-      offerIds.map((offerId) => this.strictGetOfferById(offerId)),
-    );
+  async getOffers(args: OfferArgs): Promise<OfferDto[]> {
+    const database = this.firebaseService.getDefaultApp().database();
+    const { limit, filter, offset, ordersBy } = args;
 
-    return offers;
+    const offersSnapshot = await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .once('value');
+
+    let nodes: OfferDto[] = [];
+
+    offersSnapshot.forEach((snapshot) => {
+      if (!snapshot.key) {
+        return;
+      }
+
+      const offer: OfferDB = snapshot.val();
+      nodes.push(OfferDto.adapter.toExternal({ ...offer, id: snapshot.key }));
+    });
+
+    nodes = filterOffers({ offers: nodes, filter });
+    // const offers = await Promise.all(
+    //   offerIds.map((offerId) => this.strictGetOfferById(offerId)),
+    // );
+    // return offers;
+    return nodes;
   }
 }
