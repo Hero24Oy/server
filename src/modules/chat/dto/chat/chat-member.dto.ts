@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { ChatMemberDB } from '../../chat.types';
 import { ChatMemberRole } from './chat-member-role.enum';
@@ -19,31 +20,43 @@ export class ChatMemberDto {
   @Field(() => Date, { nullable: true })
   lastMessageDate?: MaybeType<Date>;
 
+  // Field resolver
   @Field(() => String, { nullable: true })
   userName?: MaybeType<string>;
 
+  // Field resolver
   @Field(() => String, { nullable: true })
   avatar?: MaybeType<string>;
 
+  // Field resolver
   @Field(() => String, { nullable: true })
   buyerName?: MaybeType<string>;
 
+  // Field resolver
   @Field(() => String, { nullable: true })
   sellerName?: MaybeType<string>;
 
-  static convertFromFirebaseType(
-    chatMember: ChatMemberDB,
-    id: string,
-  ): ChatMemberDto {
-    return {
-      id,
-      lastOpened: chatMember.lastOpened
-        ? new Date(chatMember.lastOpened)
-        : null,
-      role: chatMember.role as ChatMemberRole,
-      lastMessageDate: chatMember.lastMessageDate
-        ? new Date(chatMember.lastMessageDate)
-        : null,
-    };
-  }
+  static adapter: FirebaseAdapter<
+    ChatMemberDB & { id: string },
+    Omit<ChatMemberDto, 'avatar' | 'buyerName' | 'sellerName' | 'userName'>
+  >;
 }
+
+ChatMemberDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    id: internal.id,
+    lastOpened: internal.lastOpened ? new Date(internal.lastOpened) : null,
+    role: internal.role as ChatMemberRole,
+    lastMessageDate: internal.lastMessageDate
+      ? new Date(internal.lastMessageDate)
+      : null,
+  }),
+  toInternal: (external) => ({
+    id: external.id,
+    lastOpened: external.lastOpened ? Number(external.lastOpened) : undefined,
+    role: external.role,
+    lastMessageDate: external.lastMessageDate
+      ? Number(external.lastMessageDate)
+      : null,
+  }),
+});

@@ -72,7 +72,7 @@ ChatDto.adapter = new FirebaseAdapter({
       seenByAdmin: internal.data.seenByAdmin,
       messageIds: Object.keys(internal.data.messages || {}),
       members: Object.entries(internal.data.members).map(([id, member]) =>
-        ChatMemberDto.convertFromFirebaseType(member, id),
+        ChatMemberDto.adapter.toExternal({ ...member, id }),
       ),
       lastMessageDate: lastMessageDate ? new Date(lastMessageDate) : null,
     };
@@ -91,14 +91,9 @@ ChatDto.adapter = new FirebaseAdapter({
       seenByAdmin: external.seenByAdmin ?? undefined,
       messages: convertListToFirebaseMap(external.messageIds),
       members: Object.fromEntries(
-        external.members.map((member) => [
-          member.id,
-          {
-            role: member.id,
-            lastMessageDate: member.lastMessageDate,
-            lastOpened: member.lastOpened,
-          } as ChatDB['data']['members'][string],
-        ]),
+        external.members
+          .map(ChatMemberDto.adapter.toInternal)
+          .map(({ id, ...member }) => [id, member]),
       ),
     },
   }),
