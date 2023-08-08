@@ -1,4 +1,4 @@
-import { Field, Float, InputType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class WorkTimeInput {
@@ -11,11 +11,11 @@ export class WorkTimeInput {
 
 @InputType()
 export class OfferCompletedInput {
-  @Field(() => Float)
-  actualStartTime: number;
+  @Field(() => Date)
+  actualStartTime: Date;
 
-  @Field(() => Float)
-  actualCompletedTime: number;
+  @Field(() => Date)
+  actualCompletedTime: Date;
 
   @Field(() => [WorkTimeInput])
   workTime: WorkTimeInput[];
