@@ -2,14 +2,15 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 import { MaybeType } from 'src/modules/common/common.types';
 
-import { ChatMemberDB, ChatMemberRole } from '../../chat.types';
+import { ChatMemberDB } from '../../chat.types';
+import { ChatMemberRole } from './chat-member-role.enum';
 
 @ObjectType()
 export class ChatMemberDto {
   @Field(() => String)
   id: string;
 
-  @Field(() => String)
+  @Field(() => ChatMemberRole)
   role: ChatMemberRole;
 
   @Field(() => Date, { nullable: true })

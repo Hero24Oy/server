@@ -1,7 +1,7 @@
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
 import { ChatMemberDto } from '../dto/chat/chat-member.dto';
-import { ChatMemberRole } from '../chat.types';
+import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
 import { AppGraphQLContext } from 'src/app.types';
 
 @Resolver(() => ChatMemberDto)
