@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { get, getDatabase, ref, set, update } from 'firebase/database';
+import { BuyerProfileDB } from 'hero24-types';
+
+import { getDatabase, ref, set, update } from 'firebase/database';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
@@ -11,21 +13,42 @@ import { FirebaseService } from '../firebase/firebase.service';
 export class BuyerService {
   constructor(private firebaseService: FirebaseService) {}
 
-  async getBuyerById(
-    buyerId: string,
-    app: FirebaseAppInstance,
-  ): Promise<BuyerProfileDto | null> {
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.BUYER_PROFILES, buyerId];
+  async getAllBuyers(): Promise<BuyerProfileDto[]> {
+    const database = this.firebaseService.getDefaultApp().database();
+    const buyersRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
 
-    const snapshot = await get(ref(database, path.join('/')));
+    const buyersSnapshot = await buyersRef.get();
+    const buyers: Record<string, BuyerProfileDB> = buyersSnapshot.val() || {};
 
-    const candidate = snapshot.val();
+    return Object.entries(buyers).map(([id, buyerProfile]) =>
+      BuyerProfileDto.adapter.toExternal({ id, ...buyerProfile }),
+    );
+  }
+
+  async getBuyerById(buyerId: string): Promise<BuyerProfileDto | null> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const snapshot = await database
+      .ref(FirebaseDatabasePath.BUYER_PROFILES)
+      .child(buyerId)
+      .get();
+
+    const candidate: BuyerProfileDB | null = snapshot.val();
 
     return (
       candidate &&
       BuyerProfileDto.adapter.toExternal({ id: buyerId, ...candidate })
     );
+  }
+
+  async strictGetBuyerProfileById(buyerId: string): Promise<BuyerProfileDto> {
+    const buyer = await this.getBuyerById(buyerId);
+
+    if (!buyer) {
+      throw new Error(`Buyer with id ${buyerId}`);
+    }
+
+    return buyer;
   }
 
   async createBuyer(
@@ -38,7 +61,7 @@ export class BuyerService {
     const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
     await set(ref(database, path.join('/')), data);
 
-    return this.getBuyerById(id, app) as Promise<BuyerProfileDto>;
+    return this.strictGetBuyerProfileById(id);
   }
 
   async editBuyer(
@@ -51,7 +74,7 @@ export class BuyerService {
     const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
     await update(ref(database, path.join('/')), data);
 
-    return this.getBuyerById(id, app) as Promise<BuyerProfileDto>;
+    return this.strictGetBuyerProfileById(id);
   }
 
   async getFullAccessedBuyerNameById(buyerId: string): Promise<string> {
