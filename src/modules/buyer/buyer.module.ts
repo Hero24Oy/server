@@ -3,7 +3,7 @@ import { BuyerResolver } from './buyer.resolver';
 import { BuyerService } from './buyer.service';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { GraphQLContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
-import { BuyerContext } from './buyer.conext';
+import { BuyerContext } from './buyer.context';
 
 @Module({
   imports: [

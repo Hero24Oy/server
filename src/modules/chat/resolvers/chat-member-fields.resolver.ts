@@ -1,21 +1,11 @@
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
-import { UserService } from 'src/modules/user/user.service';
-import { BuyerService } from 'src/modules/buyer/buyer.service';
-import { SellerService } from 'src/modules/seller/seller.service';
-
 import { ChatMemberDto } from '../dto/chat/chat-member.dto';
 import { ChatMemberRole } from '../chat.types';
 import { AppGraphQLContext } from 'src/app.types';
 
 @Resolver(() => ChatMemberDto)
 export class ChatMemberFieldsResolver {
-  constructor(
-    private userService: UserService,
-    private buyerService: BuyerService,
-    private sellerService: SellerService,
-  ) {}
-
   @ResolveField(() => String, { nullable: true })
   async userName(
     @Parent() parent: ChatMemberDto,
@@ -51,15 +41,16 @@ export class ChatMemberFieldsResolver {
   }
 
   @ResolveField(() => String, { nullable: true })
-  async sellerName(@Parent() parent: ChatMemberDto) {
+  async sellerName(
+    @Parent() parent: ChatMemberDto,
+    @Context() { sellerLoader }: AppGraphQLContext,
+  ) {
     if (parent.role !== ChatMemberRole.SELLER) {
       return null;
     }
 
-    const sellerName = await this.sellerService.getFullAccessedSellerNameById(
-      parent.id,
-    );
+    const seller = await sellerLoader.load(parent.id);
 
-    return sellerName;
+    return seller?.data.companyName;
   }
 }

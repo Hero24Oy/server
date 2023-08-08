@@ -14,9 +14,6 @@ import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { ChatMessageService } from './services/chat-message.service';
 import { ChatMessageResolver } from './resolvers/chat-message.resolver';
 import { ChatMemberFieldsResolver } from './resolvers/chat-member-fields.resolver';
-import { UserModule } from '../user/user.module';
-import { SellerModule } from '../seller/seller.module';
-import { BuyerModule } from '../buyer/buyer.module';
 import { SorterModule } from '../sorter/sorter.module';
 import { CHAT_SORTERS } from './chat.sorters';
 import {
@@ -29,9 +26,6 @@ import { skipFirst } from '../common/common.utils';
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
-    UserModule,
-    SellerModule,
-    BuyerModule,
     SorterModule.create(CHAT_SORTERS),
   ],
   providers: [
