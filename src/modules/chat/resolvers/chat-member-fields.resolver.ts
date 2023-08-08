@@ -37,16 +37,17 @@ export class ChatMemberFieldsResolver {
   }
 
   @ResolveField(() => String, { nullable: true })
-  async buyerName(@Parent() parent: ChatMemberDto) {
+  async buyerName(
+    @Parent() parent: ChatMemberDto,
+    @Context() { buyerLoader }: AppGraphQLContext,
+  ) {
     if (parent.role === ChatMemberRole.ADMIN) {
       return null;
     }
 
-    const buyerName = await this.buyerService.getFullAccessedBuyerNameById(
-      parent.id,
-    );
+    const buyer = await buyerLoader.load(parent.id);
 
-    return buyerName;
+    return buyer?.data.displayName;
   }
 
   @ResolveField(() => String, { nullable: true })

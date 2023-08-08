@@ -77,17 +77,13 @@ export class BuyerService {
     return this.strictGetBuyerProfileById(id);
   }
 
-  async getFullAccessedBuyerNameById(buyerId: string): Promise<string> {
-    const app = this.firebaseService.getDefaultApp();
+  async getBuyerByIds(
+    buyerIds: readonly string[],
+  ): Promise<Array<BuyerProfileDto | null>> {
+    const buyers = await this.getAllBuyers();
 
-    const snapshot = await app
-      .database()
-      .ref(FirebaseDatabasePath.BUYER_PROFILES)
-      .child(buyerId)
-      .child('data')
-      .child('displayName')
-      .once('value');
+    const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
-    return snapshot.val() || null;
+    return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
   }
 }
