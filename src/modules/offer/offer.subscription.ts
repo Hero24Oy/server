@@ -5,7 +5,7 @@ import { skipFirst } from 'src/modules/common/common.utils';
 import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
 import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
-import { createOfferEventHandler } from './offer.utils';
+import { createOfferEventHandler } from './offer.utils/create-offer-event-handler.util';
 import { OfferService } from './offer.service';
 
 @Injectable()

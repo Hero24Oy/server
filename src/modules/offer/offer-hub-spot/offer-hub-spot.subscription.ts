@@ -7,7 +7,7 @@ import { HubSpotSubscription } from 'src/modules/hub-spot/hub-spot-subscription.
 
 import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
 import { FirebaseService } from '../../firebase/firebase.service';
-import { createOfferEventHandler } from '../offer.utils';
+import { createOfferEventHandler } from '../offer.utils/create-offer-event-handler.util';
 import { OfferHubSpotService } from './offer-hub-spot.service';
 
 @Injectable()

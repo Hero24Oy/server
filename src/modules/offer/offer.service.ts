@@ -13,9 +13,12 @@ import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { UpdatedDateDB } from './types';
 import { OfferChangeInput } from './dto/editing/offer-change.input';
 import { differenceWith, isEqual } from 'lodash';
-import { isDateQuestion } from './offer.utils';
+import { isDateQuestion } from './offer.utils/is-date-quesiton.util';
+import { filterOffers } from './offer.utils/filter-offers.util';
 import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { filterOffers } from './offer.utils/filter-offers.util';
+import { isDateQuestion } from './offer.utils/is-date-quesiton.util';
 
 // TODO split into different services
 @Injectable()
