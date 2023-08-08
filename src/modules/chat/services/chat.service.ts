@@ -27,6 +27,7 @@ import {
   paginate,
   preparePaginatedResult,
 } from 'src/modules/common/common.utils';
+import { ChatCreationArgs } from '../dto/creation/chat-creation.args';
 
 @Injectable()
 export class ChatService {
@@ -172,6 +173,35 @@ export class ChatService {
     });
 
     return unseenChatsCount;
+  }
+
+  async createChat(
+    args: ChatCreationArgs,
+    identity: Identity,
+    app: FirebaseAppInstance,
+  ): Promise<ChatDto> {
+    const { offerRequestId, role } = args;
+
+    const database = this.firebaseService.getDefaultApp().database();
+    const chatsRef = database.ref(FirebaseDatabasePath.CHATS);
+
+    const chat: ChatDB = {
+      data: {
+        members: {
+          [identity.id]: {
+            role,
+          },
+        },
+        initial: {
+          createdAt: Date.now(),
+          offerRequest: offerRequestId,
+        },
+      },
+    };
+
+    const ref = await chatsRef.push(chat);
+
+    return this.getChatById(ref.key || '', app);
   }
 
   async setChatSeenByAdmin(

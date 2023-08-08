@@ -36,6 +36,7 @@ import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated
 import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { AuthIdentity } from 'src/modules/auth/auth.decorator';
+import { ChatCreationArgs } from '../dto/creation/chat-creation.args';
 
 @Resolver()
 export class ChatResolver {
@@ -74,6 +75,16 @@ export class ChatResolver {
   @UseGuards(AuthGuard)
   async unseenChatsCount(@AuthIdentity() identity: Identity): Promise<number> {
     return this.chatService.getUnseenChatsCount(identity);
+  }
+
+  @Mutation(() => ChatDto)
+  @UseGuards(AuthGuard)
+  async createChat(
+    @Args() args: ChatCreationArgs,
+    @AuthIdentity() identity: Identity,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<ChatDto> {
+    return this.chatService.createChat(args, identity, app);
   }
 
   @Mutation(() => Boolean)
