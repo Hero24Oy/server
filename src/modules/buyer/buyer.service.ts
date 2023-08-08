@@ -23,7 +23,8 @@ export class BuyerService {
     const candidate = snapshot.val();
 
     return (
-      candidate && BuyerProfileDto.convertFromFirebaseType(candidate, buyerId)
+      candidate &&
+      BuyerProfileDto.adapter.toExternal({ id: buyerId, ...candidate })
     );
   }
 

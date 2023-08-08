@@ -1,7 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BuyerProfileDB } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class BuyerProfileDataDto {
@@ -9,24 +10,23 @@ export class BuyerProfileDataDto {
   displayName: string;
 
   @Field(() => String, { nullable: true })
-  photoURL?: string;
+  photoURL?: MaybeType<string>;
 
   @Field(() => Boolean, { nullable: true })
-  isCreatedFromWeb?: boolean;
+  isCreatedFromWeb?: MaybeType<boolean>;
 
-  static convertFromFirebaseType(
-    buyerProfileData: BuyerProfileDB['data'],
-  ): BuyerProfileDataDto {
-    return {
-      ...buyerProfileData,
-    };
-  }
-
-  static convertToFirebaseType(
-    buyerProfileData: BuyerProfileDataDto,
-  ): BuyerProfileDB['data'] {
-    return omitUndefined({
-      ...buyerProfileData,
-    });
-  }
+  static adapter: FirebaseAdapter<BuyerProfileDB['data'], BuyerProfileDataDto>;
 }
+
+BuyerProfileDataDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    displayName: internal.displayName,
+    isCreatedFromWeb: internal.isCreatedFromWeb,
+    photoURL: internal.photoURL,
+  }),
+  toInternal: (external) => ({
+    displayName: external.displayName,
+    isCreatedFromWeb: external.isCreatedFromWeb ?? undefined,
+    photoURL: external.photoURL ?? undefined,
+  }),
+});
