@@ -6,12 +6,12 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { OFFER_UPDATED_SUBSCRIPTION } from './offer.constants';
-import { OfferDto } from './dto/offer/offer.dto';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { OfferChangeInput } from './dto/editing/offer-change.input';
-import { OfferArgs } from './dto/offer/offer.args';
+import { OfferDto } from './dto/offer/offer.dto';
+import { OfferArgs } from './dto/offers/offers.args';
 
 @Resolver()
 export class OfferResolver {

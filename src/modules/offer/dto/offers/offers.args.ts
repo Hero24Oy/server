@@ -1,8 +1,8 @@
 import { ArgsType, Field } from '@nestjs/graphql';
 import { PaginationArgs } from 'src/modules/common/dto/pagination.args';
-import { OffersOrderInput } from './offer-order.input';
+import { OffersOrderInput } from './offers-order.input';
 import { MaybeType } from 'src/modules/common/common.types';
-import { OffersFilterInput } from './offer-filter.input';
+import { OffersFilterInput } from './offers-filter.input';
 
 @ArgsType()
 export class OfferArgs extends PaginationArgs {

@@ -3,7 +3,7 @@ import isBoolean from 'lodash/isBoolean';
 
 import { MaybeType } from '../../common/common.types';
 import { OfferDto } from '../dto/offer/offer.dto';
-import { OffersFilterInput } from '../dto/offer/offer-filter.input';
+import { OffersFilterInput } from '../dto/offers/offers-filter.input';
 
 type FilterOffersProps = {
   offers: OfferDto[];

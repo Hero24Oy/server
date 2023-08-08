@@ -3,11 +3,10 @@ import moment from 'moment';
 import { OfferDB, OfferRequestDB } from 'hero24-types';
 
 import { FirebaseService } from '../firebase/firebase.service';
-import { OfferDto } from './dto/offer/offer.dto';
-import { WorkTimeDto } from './dto/work-time.dto';
+import { WorkTimeDto } from './dto/offer/work-time.dto';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
-import { OFFER_UPDATED_SUBSCRIPTION, OfferStatus } from './offer.constants';
+import { OFFER_UPDATED_SUBSCRIPTION } from './offer.constants';
 import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { UpdatedDateDB } from './types';
@@ -17,7 +16,9 @@ import { isDateQuestion } from './offer.utils/is-date-quesiton.util';
 import { filterOffers } from './offer.utils/filter-offers.util';
 import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { OfferArgs } from './dto/offer/offer.args';
+import { OfferDto } from './dto/offer/offer.dto';
+import { OfferArgs } from './dto/offers/offers.args';
+import { OfferStatus } from './dto/offer/offer-status.enum';
 
 // TODO split into different services
 @Injectable()

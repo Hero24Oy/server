@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { SortOrder } from 'src/modules/common/sort-order/sort-order.enum';
-import { OfferOrderColumn } from './offer-order.enum';
+import { OfferOrderColumn } from './offers-order.enum';
 
 @InputType()
 export class OffersOrderInput {

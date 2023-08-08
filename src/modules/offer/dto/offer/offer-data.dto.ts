@@ -6,8 +6,8 @@ import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferInitialDataDto } from './offer-initial-data.dto';
-import { PurchaseDto } from '../purchase.dto';
-import { WorkTimeDto } from '../work-time.dto';
+import { PurchaseDto } from './purchase.dto';
+import { WorkTimeDto } from './work-time.dto';
 
 @ObjectType()
 export class OfferDataDto {
