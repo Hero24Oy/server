@@ -1,6 +1,9 @@
+import DataLoader from 'dataloader';
 import { Request, Response } from 'express';
+
 import { Identity } from './modules/auth/auth.types';
 import { FirebaseAppInstance } from './modules/firebase/firebase.types';
+import { UserDto } from './modules/user/dto/user/user.dto';
 
 export type GraphQLConnectionParams = {
   authorization?: string;
@@ -24,4 +27,5 @@ export type AppGraphQLContext = {
   identity: Identity | null;
   app: FirebaseAppInstance;
   platform: AppPlatform | null;
+  userLoader: DataLoader<string, UserDto | null>;
 };
