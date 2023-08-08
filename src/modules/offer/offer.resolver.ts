@@ -12,6 +12,7 @@ import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { OfferChangeInput } from './dto/editing/offer-change.input';
 import { OfferDto } from './dto/offer/offer.dto';
 import { OfferArgs } from './dto/offers/offers.args';
+import { OfferListDto } from './dto/offers/offer-list.dto';
 
 @Resolver()
 export class OfferResolver {
@@ -148,11 +149,11 @@ export class OfferResolver {
   }
 
   // @UseGuards(AuthGuard)
-  @Query(() => [OfferDto])
+  @Query(() => OfferListDto)
   @UseFilters(FirebaseExceptionFilter)
   offers(
     @Args({ type: () => OfferArgs }) args: OfferArgs,
-  ): Promise<OfferDto[]> {
+  ): Promise<OfferListDto> {
     return this.offerService.getOffers(args);
   }
 }

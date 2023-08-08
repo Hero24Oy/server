@@ -19,12 +19,17 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { OfferDto } from './dto/offer/offer.dto';
 import { OfferArgs } from './dto/offers/offers.args';
 import { OfferStatus } from './dto/offer/offer-status.enum';
+import { SorterService } from '../sorter/sorter.service';
+import { OfferOrderColumn } from './dto/offers/offers-order.enum';
+import { paginate, preparePaginatedResult } from '../common/common.utils';
+import { OfferListDto } from './dto/offers/offer-list.dto';
 
 // TODO split into different services
 @Injectable()
 export class OfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
+    private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
@@ -359,9 +364,9 @@ export class OfferService {
     return true;
   }
 
-  async getOffers(args: OfferArgs): Promise<OfferDto[]> {
+  async getOffers(args: OfferArgs): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
-    const { limit, filter, offset, ordersBy } = args;
+    const { limit, filter, offset, ordersBy = [] } = args;
 
     const offersSnapshot = await database
       .ref(FirebaseDatabasePath.OFFERS)
@@ -379,10 +384,16 @@ export class OfferService {
     });
 
     nodes = filterOffers({ offers: nodes, filter });
-    // const offers = await Promise.all(
-    //   offerIds.map((offerId) => this.strictGetOfferById(offerId)),
-    // );
-    // return offers;
-    return nodes;
+    nodes = this.offerSorter.sort(nodes, ordersBy, null);
+
+    const total = nodes.length;
+    nodes = paginate({ nodes, limit, offset });
+
+    return preparePaginatedResult({
+      nodes,
+      total,
+      limit,
+      offset,
+    });
   }
 }

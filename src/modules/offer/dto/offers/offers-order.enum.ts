@@ -1,7 +1,7 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum OfferOrderColumn {
-  OFFER = 'id',
+  ID = 'id',
   STATUS = 'status',
 }
 

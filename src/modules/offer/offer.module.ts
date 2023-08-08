@@ -9,11 +9,14 @@ import { SubscriptionManagerModule } from '../subscription-manager/subscription-
 import { OfferHubSpotSubscription } from './offer-hub-spot/offer-hub-spot.subscription';
 import { OfferSubscription } from './offer.subscription';
 import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
+import { OFFER_SORTERS } from './offer.sorters';
+import { SorterModule } from '../sorter/sorter.module';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
+    SorterModule.create(OFFER_SORTERS),
     SubscriptionManagerModule.forFeature({
       imports: [FirebaseModule, OfferHubSpotModule, OfferModule],
       subscriptions: [OfferHubSpotSubscription, OfferSubscription],

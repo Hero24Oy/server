@@ -10,5 +10,5 @@ export class OfferArgs extends PaginationArgs {
   filter?: MaybeType<OffersFilterInput>;
 
   @Field(() => [OffersOrderInput], { nullable: true })
-  ordersBy?: MaybeType<OffersOrderInput[]>;
+  ordersBy?: OffersOrderInput[];
 }
