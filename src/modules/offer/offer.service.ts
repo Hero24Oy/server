@@ -24,7 +24,6 @@ import { OfferOrderColumn } from './dto/offers/offers-order.enum';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { OfferListDto } from './dto/offers/offer-list.dto';
 
-// TODO split into different services
 @Injectable()
 export class OfferService {
   constructor(

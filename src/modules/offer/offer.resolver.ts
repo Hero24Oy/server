@@ -21,7 +21,7 @@ export class OfferResolver {
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   markOfferAsSeenByBuyer(@Args('offerId') offerId: string): Promise<boolean> {
@@ -49,7 +49,7 @@ export class OfferResolver {
     return this.offerService.approveCompletedOffer(offerId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Subscription(() => OfferDto, {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
@@ -69,15 +69,14 @@ export class OfferResolver {
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
   }
 
-  // TODO add auth guards
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   cancelRequestToExtend(@Args('offerId') offerId: string): Promise<boolean> {
     return this.offerService.cancelRequestToExtend(offerId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   extendOfferDuration(
@@ -87,7 +86,7 @@ export class OfferResolver {
     return this.offerService.extendOfferDuration(offerId, input);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   markJobCompleted(
@@ -97,14 +96,14 @@ export class OfferResolver {
     return this.offerService.markJobCompleted(offerId, input);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   declineOfferChanges(@Args('offerId') offerId: string): Promise<boolean> {
     return this.offerService.declineOfferChanges(offerId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   updateOfferStatus(
@@ -114,21 +113,21 @@ export class OfferResolver {
     return this.offerService.updateOfferStatus(offerId, input);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   startJob(@Args('offerId') offerId: string): Promise<boolean> {
     return this.offerService.startJob(offerId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   toggleJobStatus(@Args('offerId') offerId: string): Promise<boolean> {
     return this.offerService.toggleJobStatus(offerId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   acceptOfferChanges(
@@ -138,7 +137,7 @@ export class OfferResolver {
     return this.offerService.acceptOfferChanges(offerId, input);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   approvePrepaidOffer(
@@ -148,7 +147,7 @@ export class OfferResolver {
     return this.offerService.approvePrepaidOffer(offerId, offerRequestId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Query(() => OfferListDto)
   @UseFilters(FirebaseExceptionFilter)
   offers(

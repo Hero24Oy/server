@@ -45,21 +45,18 @@ export const filterOffers = (props: FilterOffersProps) => {
     offers = offers.filter(({ id }) => ids.includes(id));
   }
 
-  // TODO ? what should we do if value is undefined
   if (isArray(netvisorOrderIds)) {
     offers = offers.filter(({ netvisorOrderId }) =>
       netvisorOrderId ? netvisorOrderIds.includes(netvisorOrderId) : false,
     );
   }
 
-  // TODO ? what should we do if value is undefined
   if (isArray(chatIds)) {
     offers = offers.filter(({ chatId }) =>
       chatId ? chatIds.includes(chatId) : false,
     );
   }
 
-  // TODO ? what should we do if value is undefined
   if (isArray(hubSpotDealIds)) {
     offers = offers.filter(({ hubSpotDealId }) =>
       hubSpotDealId ? hubSpotDealIds.includes(hubSpotDealId) : false,
