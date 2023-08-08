@@ -25,10 +25,11 @@ export class SellerService {
       .child(sellerId)
       .get();
 
-    const candidate = snapshot.val();
+    const candidate: SellerProfileDB | null = snapshot.val();
 
     return (
-      candidate && SellerProfileDto.convertFromFirebaseType(candidate, sellerId)
+      candidate &&
+      SellerProfileDto.adapter.toExternal({ ...candidate, id: sellerId })
     );
   }
 
@@ -58,7 +59,7 @@ export class SellerService {
       sellersSnapshot.val() || {};
 
     const sellers = Object.entries(sellersRecord).map(([id, sellerProfile]) =>
-      SellerProfileDto.convertFromFirebaseType(sellerProfile, id),
+      SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
     );
 
     let nodes = sellers;
