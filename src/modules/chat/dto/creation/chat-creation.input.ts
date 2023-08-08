@@ -1,8 +1,8 @@
-import { ArgsType, Field } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { ChatMemberRole } from '../chat/chat-member-role.enum';
 
-@ArgsType()
-export class ChatCreationArgs {
+@InputType()
+export class ChatCreationInput {
   @Field(() => String)
   offerRequestId: string;
 

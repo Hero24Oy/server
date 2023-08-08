@@ -27,7 +27,7 @@ import {
   paginate,
   preparePaginatedResult,
 } from 'src/modules/common/common.utils';
-import { ChatCreationArgs } from '../dto/creation/chat-creation.args';
+import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 
 @Injectable()
 export class ChatService {
@@ -176,11 +176,11 @@ export class ChatService {
   }
 
   async createChat(
-    args: ChatCreationArgs,
+    input: ChatCreationInput,
     identity: Identity,
     app: FirebaseAppInstance,
   ): Promise<ChatDto> {
-    const { offerRequestId, role } = args;
+    const { offerRequestId, role } = input;
 
     const database = this.firebaseService.getDefaultApp().database();
     const chatsRef = database.ref(FirebaseDatabasePath.CHATS);
