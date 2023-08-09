@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { PubSub } from 'graphql-subscriptions';
 import moment from 'moment';
+import isEqual from 'lodash/isEqual';
+import differenceWith from 'lodash/differenceWith';
 import { OfferDB, OfferRequestDB } from 'hero24-types';
 
 import { FirebaseService } from '../firebase/firebase.service';
@@ -11,10 +14,8 @@ import { OfferCompletedInput } from './dto/editing/offer-completed.input';
 import { OfferStatusInput } from './dto/editing/offer-status.input';
 import { UpdatedDateDB } from './types';
 import { OfferChangeInput } from './dto/editing/offer-change.input';
-import { differenceWith, isEqual } from 'lodash';
 import { isDateQuestion } from './offer.utils/is-date-quesiton.util';
 import { filterOffers } from './offer.utils/filter-offers.util';
-import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { OfferDto } from './dto/offer/offer.dto';
 import { OfferArgs } from './dto/offers/offers.args';
@@ -23,11 +24,15 @@ import { SorterService } from '../sorter/sorter.service';
 import { OfferOrderColumn } from './dto/offers/offers-order.enum';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { OfferListDto } from './dto/offers/offer-list.dto';
+import { UserService } from '../user/user.service';
+import { Identity } from '../auth/auth.types';
+import { Questions } from './offer.types';
 
 @Injectable()
 export class OfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
+    private readonly userService: UserService,
     private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
@@ -342,7 +347,7 @@ export class OfferService {
     }
 
     const offerRequestValues: OfferRequestDB = await offerRequest.val();
-    const updatedQuestions: OfferRequestDB['data']['initial']['questions'] =
+    const updatedQuestions: Questions =
       offerRequestValues.data.initial.questions.map((question) => {
         if (question.type === 'date') {
           question.preferredTime = agreedStartTime.getTime();
@@ -363,9 +368,10 @@ export class OfferService {
     return true;
   }
 
-  async getOffers(args: OfferArgs): Promise<OfferListDto> {
+  // TODO new offers is not being added
+  async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
-    const { limit, filter, offset, ordersBy = [] } = args;
+    const { limit, offset, filter, ordersBy = [] } = args;
 
     const offersSnapshot = await database
       .ref(FirebaseDatabasePath.OFFERS)
@@ -373,15 +379,37 @@ export class OfferService {
 
     let nodes: OfferDto[] = [];
 
+    // * if there are no ids provided, just push all offers (for admin panel)
+    const shouldFetchAllOffers = !filter?.ids && identity.isAdmin;
+
     offersSnapshot.forEach((snapshot) => {
       if (!snapshot.key) {
         return;
       }
 
       const offer: OfferDB = snapshot.val();
-      nodes.push(OfferDto.adapter.toExternal({ ...offer, id: snapshot.key }));
+      const offerConverted = OfferDto.adapter.toExternal({
+        ...offer,
+        id: snapshot.key,
+      });
+
+      if (shouldFetchAllOffers) {
+        nodes.push(offerConverted);
+        return;
+      }
+
+      if (filter?.ids?.includes(snapshot.key)) {
+        nodes.push(offerConverted);
+        return;
+      }
+
+      if (offerConverted.data.initial.buyerProfileId === identity.id) {
+        nodes.push(offerConverted);
+        return;
+      }
     });
 
+    // * we don't need to filter by id, as we did it in forEach loop above
     nodes = filterOffers({ offers: nodes, filter });
     nodes = this.offerSorter.sort(nodes, ordersBy, null);
 

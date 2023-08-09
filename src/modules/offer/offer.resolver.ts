@@ -1,9 +1,10 @@
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { OfferService } from './offer.service';
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { PubSub } from 'graphql-subscriptions';
+
+import { OfferService } from './offer.service';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { OFFER_UPDATED_SUBSCRIPTION } from './offer.constants';
 import { OfferExtendInput } from './dto/editing/offer-extend.input';
@@ -13,12 +14,14 @@ import { OfferChangeInput } from './dto/editing/offer-change.input';
 import { OfferDto } from './dto/offer/offer.dto';
 import { OfferArgs } from './dto/offers/offers.args';
 import { OfferListDto } from './dto/offers/offer-list.dto';
+import { Identity } from '../auth/auth.types';
+import { AuthIdentity } from '../auth/auth.decorator';
 
 @Resolver()
 export class OfferResolver {
   constructor(
     private readonly offerService: OfferService,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -54,7 +57,7 @@ export class OfferResolver {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
-      variables: { offerIds: OfferDto['id'][] },
+      variables: { offerIds: string[] },
     ) => {
       const { offerIds } = variables;
 
@@ -147,12 +150,15 @@ export class OfferResolver {
     return this.offerService.approvePrepaidOffer(offerId, offerRequestId);
   }
 
-  @UseGuards(AuthGuard)
+  // TODO test this
+  // TODO auth guards
+  // @UseGuards(AuthGuard)
   @Query(() => OfferListDto)
   @UseFilters(FirebaseExceptionFilter)
   offers(
     @Args({ type: () => OfferArgs }) args: OfferArgs,
+    @AuthIdentity() identity: Identity,
   ): Promise<OfferListDto> {
-    return this.offerService.getOffers(args);
+    return this.offerService.getOffers(args, identity);
   }
 }

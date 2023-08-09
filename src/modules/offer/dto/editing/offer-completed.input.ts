@@ -1,4 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
+
 import { WorkTimeInput } from './work-time.input';
 
 @InputType()

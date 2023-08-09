@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reference } from 'firebase-admin/database';
-import { skipFirst } from 'src/modules/common/common.utils';
 
+import { skipFirst } from 'src/modules/common/common.utils';
 import { HubSpotSubscription } from 'src/modules/hub-spot/hub-spot-subscription.interface';
 
 import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';

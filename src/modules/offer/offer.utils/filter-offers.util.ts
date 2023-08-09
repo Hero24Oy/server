@@ -30,6 +30,10 @@ export const filterOffers = (props: FilterOffersProps) => {
 
   let offers = rawOffers;
 
+  if (isArray(ids)) {
+    offers = offers.filter(({ id }) => ids.includes(id));
+  }
+
   if (isBoolean(isApproved)) {
     offers = offers.filter(
       ({ isApproved: offerIsApproved }) =>
@@ -39,10 +43,6 @@ export const filterOffers = (props: FilterOffersProps) => {
 
   if (isArray(statuses)) {
     offers = offers.filter(({ status }) => statuses.includes(status));
-  }
-
-  if (isArray(ids)) {
-    offers = offers.filter(({ id }) => ids.includes(id));
   }
 
   if (isArray(netvisorOrderIds)) {
