@@ -24,7 +24,6 @@ import { SorterService } from '../sorter/sorter.service';
 import { OfferOrderColumn } from './dto/offers/offers-order.enum';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { OfferListDto } from './dto/offers/offer-list.dto';
-import { UserService } from '../user/user.service';
 import { Identity } from '../auth/auth.types';
 import { Questions } from './offer.types';
 
@@ -32,7 +31,6 @@ import { Questions } from './offer.types';
 export class OfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
-    private readonly userService: UserService,
     private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
@@ -254,7 +252,6 @@ export class OfferService {
     offerId: string,
     input: OfferChangeInput,
   ): Promise<boolean> {
-    console.log('chanigng');
     const database = this.firebaseService.getDefaultApp().database();
     const { agreedStartTime } = input;
 

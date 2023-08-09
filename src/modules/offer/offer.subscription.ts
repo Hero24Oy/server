@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reference } from 'firebase-admin/database';
+
 import { skipFirst } from 'src/modules/common/common.utils';
 
 import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
@@ -11,8 +12,6 @@ import { OfferService } from './offer.service';
 
 @Injectable()
 export class OfferSubscription implements SubscriptionService {
-  private logger = new Logger(OfferSubscription.name);
-
   constructor(
     private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
