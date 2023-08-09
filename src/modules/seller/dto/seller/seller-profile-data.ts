@@ -1,11 +1,9 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
 
-import {
-  convertFirebaseMapToList,
-  convertListToFirebaseMap,
-  omitUndefined,
-} from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class SellerProfileDataDto {
@@ -19,10 +17,10 @@ export class SellerProfileDataDto {
   companyEmail: string;
 
   @Field(() => String, { nullable: true })
-  heroBIOText?: string;
+  heroBIOText?: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
-  categories?: string[];
+  categories?: MaybeType<string[]>;
 
   @Field(() => String)
   companyVAT: string;
@@ -40,36 +38,57 @@ export class SellerProfileDataDto {
   postalCode: string;
 
   @Field(() => Float, { nullable: true })
-  yearsOfExperience?: number;
+  yearsOfExperience?: MaybeType<number>;
 
   @Field(() => [String], { nullable: true })
-  workAreas?: string[];
+  workAreas?: MaybeType<string[]>;
 
   @Field(() => String, { nullable: true })
-  certificate?: string;
+  certificate?: MaybeType<string>;
 
   @Field(() => Float, { nullable: true })
-  weeksOfSentPurchaseInvoices?: number;
+  weeksOfSentPurchaseInvoices?: MaybeType<number>;
 
-  static convertFromFirebaseType(
-    sellerProfileData: SellerProfileDB['data'],
-  ): SellerProfileDataDto {
-    return {
-      ...sellerProfileData,
-      categories:
-        sellerProfileData.categories &&
-        convertFirebaseMapToList(sellerProfileData.categories),
-    };
-  }
-
-  static convertToFirebaseType(
-    sellerProfileData: SellerProfileDataDto,
-  ): SellerProfileDB['data'] {
-    return omitUndefined({
-      ...sellerProfileData,
-      categories:
-        sellerProfileData.categories &&
-        convertListToFirebaseMap(sellerProfileData.categories),
-    });
-  }
+  static adapter: FirebaseAdapter<
+    SellerProfileDB['data'],
+    SellerProfileDataDto
+  >;
 }
+
+SellerProfileDataDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    photoURL: internal.photoURL,
+    companyName: internal.companyName,
+    companyEmail: internal.companyEmail,
+    heroBIOText: internal.heroBIOText,
+    categories: internal.categories ? Object.keys(internal.categories) : null,
+    companyVAT: internal.companyVAT,
+    langs: internal.langs,
+    city: internal.city,
+    streetAddress: internal.streetAddress,
+    postalCode: internal.postalCode,
+    yearsOfExperience: internal.yearsOfExperience,
+    workAreas: internal.workAreas,
+    certificate: internal.certificate,
+    weeksOfSentPurchaseInvoices: internal.weeksOfSentPurchaseInvoices,
+  }),
+  toInternal: (external) => ({
+    photoURL: external.photoURL,
+    companyName: external.companyName,
+    companyEmail: external.companyEmail,
+    heroBIOText: external.heroBIOText ?? undefined,
+    categories: external.categories
+      ? convertListToFirebaseMap(external.categories)
+      : undefined,
+    companyVAT: external.companyVAT,
+    langs: external.langs,
+    city: external.city,
+    streetAddress: external.streetAddress,
+    postalCode: external.postalCode,
+    yearsOfExperience: external.yearsOfExperience ?? undefined,
+    workAreas: external.workAreas ?? undefined,
+    certificate: external.certificate ?? undefined,
+    weeksOfSentPurchaseInvoices:
+      external.weeksOfSentPurchaseInvoices ?? undefined,
+  }),
+});

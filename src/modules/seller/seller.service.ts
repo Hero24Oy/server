@@ -25,10 +25,11 @@ export class SellerService {
       .child(sellerId)
       .get();
 
-    const candidate = snapshot.val();
+    const candidate: SellerProfileDB | null = snapshot.val();
 
     return (
-      candidate && SellerProfileDto.convertFromFirebaseType(candidate, sellerId)
+      candidate &&
+      SellerProfileDto.adapter.toExternal({ ...candidate, id: sellerId })
     );
   }
 
@@ -40,6 +41,21 @@ export class SellerService {
     }
 
     return seller;
+  }
+
+  async getAllSellers(): Promise<SellerProfileDto[]> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const sellerProfilesSnapshot = await database
+      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+      .get();
+
+    const sellerProfiles: Record<string, SellerProfileDB> =
+      sellerProfilesSnapshot.val() || {};
+
+    return Object.entries(sellerProfiles).map(([id, sellerProfile]) =>
+      SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
+    );
   }
 
   async getSellers(
@@ -58,7 +74,7 @@ export class SellerService {
       sellersSnapshot.val() || {};
 
     const sellers = Object.entries(sellersRecord).map(([id, sellerProfile]) =>
-      SellerProfileDto.convertFromFirebaseType(sellerProfile, id),
+      SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
     );
 
     let nodes = sellers;
@@ -199,19 +215,13 @@ export class SellerService {
     return true;
   }
 
-  async getFullAccessedSellerNameById(
-    sellerId: string,
-  ): Promise<string | null> {
-    const app = this.firebaseService.getDefaultApp();
+  async getSellerByIds(
+    sellerIds: readonly string[],
+  ): Promise<(SellerProfileDto | null)[]> {
+    const sellers = await this.getAllSellers();
 
-    const snapshot = await app
-      .database()
-      .ref(FirebaseDatabasePath.SELLER_PROFILES)
-      .child(sellerId)
-      .child('data')
-      .child('companyName')
-      .once('value');
+    const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
 
-    return snapshot.val() || null;
+    return sellerIds.map((sellerId) => sellerById.get(sellerId) || null);
   }
 }

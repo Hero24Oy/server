@@ -27,6 +27,7 @@ import {
   paginate,
   preparePaginatedResult,
 } from 'src/modules/common/common.utils';
+import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 
 @Injectable()
 export class ChatService {
@@ -61,7 +62,7 @@ export class ChatService {
 
       const chat: ChatDB = snapshot.val();
 
-      nodes.push(ChatDto.convertFromFirebaseType(chat, snapshot.key));
+      nodes.push(ChatDto.adapter.toExternal({ ...chat, id: snapshot.key }));
     });
 
     nodes = filterChats({ identity, filter, chats: nodes, platform });
@@ -94,7 +95,7 @@ export class ChatService {
       throw new Error(`Chat isn't existed`);
     }
 
-    return ChatDto.convertFromFirebaseType(chat, chatId);
+    return ChatDto.adapter.toExternal({ ...chat, id: chatId });
   }
 
   async getChat(
@@ -106,9 +107,9 @@ export class ChatService {
     const path = [FirebaseDatabasePath.CHATS, chatId];
     const chatSnapshot = await get(ref(database, path.join('/')));
 
-    const chat: ChatDB = chatSnapshot.val();
+    const chat: ChatDB | null = chatSnapshot.val();
 
-    return chat && ChatDto.convertFromFirebaseType(chat, chatId);
+    return chat && ChatDto.adapter.toExternal({ ...chat, id: chatId });
   }
 
   async getUnseenAdminChatsCount(): Promise<number> {
@@ -143,10 +144,10 @@ export class ChatService {
         return;
       }
 
-      const chat = ChatDto.convertFromFirebaseType(
-        snapshot.val(),
-        snapshot.key,
-      );
+      const chat = ChatDto.adapter.toExternal({
+        ...snapshot.val(),
+        id: snapshot.key,
+      });
 
       const member = chat.members.find((member) => member.id === identity.id);
 
@@ -172,6 +173,35 @@ export class ChatService {
     });
 
     return unseenChatsCount;
+  }
+
+  async createChat(
+    input: ChatCreationInput,
+    identity: Identity,
+    app: FirebaseAppInstance,
+  ): Promise<ChatDto> {
+    const { offerRequestId, role } = input;
+
+    const database = this.firebaseService.getDefaultApp().database();
+    const chatsRef = database.ref(FirebaseDatabasePath.CHATS);
+
+    const chat: ChatDB = {
+      data: {
+        members: {
+          [identity.id]: {
+            role,
+          },
+        },
+        initial: {
+          createdAt: Date.now(),
+          offerRequest: offerRequestId,
+        },
+      },
+    };
+
+    const ref = await chatsRef.push(chat);
+
+    return this.getChatById(ref.key || '', app);
   }
 
   async setChatSeenByAdmin(
