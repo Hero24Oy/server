@@ -9,6 +9,6 @@ export const createCategoriesEventHandler =
     if (!snapshot.key) {
       return;
     }
-    console.log('createCategoriesEventHandler', snapshot.val());
+
     eventEmitter(pubsub, snapshot.val());
   };
