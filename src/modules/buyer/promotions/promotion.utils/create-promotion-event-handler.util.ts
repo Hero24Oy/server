@@ -11,6 +11,6 @@ export const createPromotionsEventHandler =
     }
     eventEmitter(
       pubsub,
-      PromotionDto.convertFromFirebaseType(snapshot.val(), snapshot.key),
+      PromotionDto.adapter.toExternal({ ...snapshot.val(), id: snapshot.key }),
     );
   };

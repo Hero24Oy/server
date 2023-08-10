@@ -1,5 +1,7 @@
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, Float, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { PromotionDB } from 'hero24-types';
+import { timestampToDate } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class PromotionDto {
@@ -9,54 +11,43 @@ export class PromotionDto {
   @Field(() => String)
   categoryId: string;
 
-  @Field(() => Number)
+  @Field(() => Float)
   discount: number;
 
   @Field(() => String)
   discountFormat: 'fixed' | 'percentage';
 
-  @Field(() => Number)
-  startDate: number;
+  @Field(() => Date)
+  startDate: Date;
 
-  @Field(() => Number)
-  endDate: number;
+  @Field(() => Date)
+  endDate: Date;
 
   @Field(() => String)
   description: string;
 
-  static convertFromFirebaseType(
-    promotion: PromotionDB,
-    id: string,
-  ): PromotionDto {
-    return {
-      id: id,
-      categoryId: promotion.data.categoryId,
-      discount: promotion.data.discount,
-      discountFormat: promotion.data.discountFormat,
-      startDate: promotion.data.startDate,
-      endDate: promotion.data.endDate,
-      description: promotion.data.description,
-    };
-  }
+  static adapter: FirebaseAdapter<PromotionDB & { id: string }, PromotionDto>
 }
 
-@InputType()
-export class CreatePromotionInput {
-  @Field()
-  categoryId: string;
-
-  @Field()
-  discount: number;
-
-  @Field()
-  discountFormat: 'fixed' | 'percentage';
-
-  @Field()
-  startDate: number;
-
-  @Field()
-  endDate: number;
-
-  @Field()
-  description: string;
-}
+PromotionDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    id: internal.id,
+    categoryId: internal.data.categoryId,
+    discount: internal.data.discount,
+    discountFormat: internal.data.discountFormat,
+    startDate: timestampToDate(internal.data.startDate),
+    endDate: timestampToDate(internal.data.endDate),
+    description: internal.data.description
+  }),
+  toInternal: (external) => ({
+    id: external.id,
+    data: {
+      categoryId: external.categoryId,
+      discount: external.discount,
+      discountFormat: external.discountFormat,
+      startDate: external.startDate.getTime(),
+      endDate: external.endDate.getTime(),
+      description: external.description
+    }
+  }),
+});

@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
-import { CreatePromotionInput, PromotionDto } from './dto/promotion.dto';
+import { PromotionDto } from './dto/promotion.dto';
 import { omitUndefined } from 'src/modules/common/common.utils';
 import { PromotionDB } from 'hero24-types';
 import { PromotionEditingInput } from './dto/promotion-editing.input';
+import { PromotionCreationInput } from './dto/promotion-creation.input';
+import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 
 @Injectable()
-export class PromotionsService {
+export class PromotionService {
   constructor(private firebaseService: FirebaseService) {}
 
   async getPromotion(id: string): Promise<PromotionDto | null> {
@@ -18,11 +20,11 @@ export class PromotionsService {
       .child(id)
       .once('value');
 
-    
     const promotion: PromotionDB | null = promotionSnapshot.val();
 
     return (
-      (promotion && PromotionDto.convertFromFirebaseType(promotion, id)) || null
+      (promotion && PromotionDto.adapter.toExternal({ ...promotion, id })) ||
+      null
     );
   }
 
@@ -46,17 +48,19 @@ export class PromotionsService {
     promotionsSnapshot.forEach((promotionSnapshot) => {
       if (promotionSnapshot.key) {
         promotions.push(
-          PromotionDto.convertFromFirebaseType(
-            promotionSnapshot.val(),
-            promotionSnapshot.key,
-          ),
+          PromotionDto.adapter.toExternal({
+            ...promotionSnapshot.val(),
+            id: promotionSnapshot.key,
+          }),
         );
       }
     });
     return promotions;
   }
 
-  async createPromotion(promotion: CreatePromotionInput): Promise<PromotionDto> {
+  async createPromotion(
+    promotion: PromotionCreationInput,
+  ): Promise<PromotionDto> {
     const app = this.firebaseService.getDefaultApp();
     const database = app.database();
 
@@ -83,14 +87,13 @@ export class PromotionsService {
     });
 
     const promotionUpdates = omitUndefined<any>({
-      data: {
-        ...newData,
-      }
+      ...newData,
     });
 
     await database
-      .ref('promotions')
+      .ref(FirebaseDatabasePath.PROMOTIONS)
       .child(input.id)
+      .child('data')
       .update(promotionUpdates);
 
     return this.strictGetPromotion(input.id);
@@ -100,6 +103,6 @@ export class PromotionsService {
     const app = this.firebaseService.getDefaultApp();
     const database = app.database();
 
-    await database.ref('promotions').child(id).remove();
+    await database.ref(FirebaseDatabasePath.PROMOTIONS).child(id).remove();
   }
 }

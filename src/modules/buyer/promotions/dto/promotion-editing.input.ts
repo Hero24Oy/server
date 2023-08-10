@@ -1,9 +1,9 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql';
-import { PromotionsCreationInput } from './promotion-creation.args';
+import { PromotionCreationInput } from './promotion-creation.input';
 
 @InputType()
 export class PromotionEditingInput extends PartialType(
-  PromotionsCreationInput,
+  PromotionCreationInput,
 ) {
   @Field(() => String)
   id: string;
