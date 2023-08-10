@@ -1,21 +1,22 @@
 import { Inject, UseFilters } from '@nestjs/common';
 import { Resolver, Subscription } from '@nestjs/graphql';
-import { CategoriesService } from './categories.service';
+import { CategoryService } from './category.service';
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
 import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { CategoriesDto } from './dto/categories.dto';
+import { CategoryDto } from './dto/category.dto';
+import { CATEGORIES_UPDATED_SUBSCRIPTION } from './category.constants';
 
 @Resolver()
-export class CategoriesResolver {
+export class CategoryResolver {
   constructor(
-    private categoriesService: CategoriesService,
+    private categoryService: CategoryService,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
-  @Subscription(() => CategoriesDto)
+  @Subscription(() => CategoryDto)
   @UseFilters(FirebaseExceptionFilter)
   categoriesUpdated() {
-    return this.pubSub.asyncIterator('categoriesUpdated');
+    return this.pubSub.asyncIterator(CATEGORIES_UPDATED_SUBSCRIPTION);
   }
 }

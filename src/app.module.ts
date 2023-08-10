@@ -23,7 +23,7 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
-import { CategoriesModule } from './modules/buyer/categories/categories.module';
+import { CategoryModule } from './modules/buyer/category/category.module';
 import { GraphQLConnectionParams } from './app.types';
 import { FeeModule } from './modules/fee/fee.module';
 import { StripeModule } from './modules/stripe/stripe.module';
@@ -71,7 +71,7 @@ import { StripeModule } from './modules/stripe/stripe.module';
     OfferModule,
     PriceCalculatorModule,
     UserMergeModule,
-    CategoriesModule,
+    CategoryModule,
     FeeModule,
     StripeModule,
   ],

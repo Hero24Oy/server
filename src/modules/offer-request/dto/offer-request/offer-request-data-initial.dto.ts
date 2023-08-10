@@ -12,7 +12,7 @@ import {
   OfferRequestQuestionDto,
   offerRequestQuestionDtoConvertor,
 } from '../offer-request-question/offer-request-question.dto';
-import { PackageDto } from './package.dto';
+import { PackageDto } from 'src/modules/common/dto/package/package.dto';
 
 @ObjectType()
 export class OfferRequestDataInitialDto {

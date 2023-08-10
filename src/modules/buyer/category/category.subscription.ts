@@ -1,0 +1,58 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { Reference } from 'firebase-admin/database';
+import { PubSub } from 'graphql-subscriptions';
+
+import { skipFirst } from '../../common/common.utils';
+import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
+import { FirebaseService } from '../../firebase/firebase.service';
+import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
+import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
+import { createCategoriesUpdatedEventHandler } from './category.event-handler';
+import { SubscriptionService } from '../../subscription-manager/subscription-manager.interface';
+
+@Injectable()
+export class CategorySubscription implements SubscriptionService {
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+  ) {}
+
+  public async subscribe(): Promise<() => Promise<void>> {
+    const app = this.firebaseService.getDefaultApp();
+    const database = app.database();
+    const rootCategoriesRef = database.ref(FirebaseDatabasePath.CATEGORIES);
+
+    const subscriptions = await Promise.all([
+      this.subscribeOnCategoryUpdates(rootCategoriesRef, this.pubSub),
+      this.subscribeOnCategoryCreation(rootCategoriesRef, this.pubSub),
+    ]);
+
+    return async () => {
+      await Promise.all(subscriptions.map((unsubscribe) => unsubscribe()));
+    };
+  }
+
+  private async subscribeOnCategoryUpdates(
+    rootCategoriesRef: Reference,
+    pubsub: PubSub,
+  ) {
+    return subscribeOnFirebaseEvent(
+      rootCategoriesRef,
+      'child_changed',
+      createCategoriesUpdatedEventHandler(pubsub),
+    );
+  }
+
+  private async subscribeOnCategoryCreation(
+    rootCategoriesRef: Reference,
+    pubsub: PubSub,
+  ) {
+    return subscribeOnFirebaseEvent(
+      // Firebase child added event calls on every exist item first, than on every creation event.
+      // So we should skip every exists items using limit to last 1 so as not to retrieve all items
+      rootCategoriesRef.limitToLast(1),
+      'child_added',
+      skipFirst(createCategoriesUpdatedEventHandler(pubsub)),
+    );
+  }
+}
