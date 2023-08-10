@@ -400,7 +400,10 @@ export class OfferService {
         return;
       }
 
-      if (offerConverted.data.initial.buyerProfileId === identity.id) {
+      if (
+        offerConverted.data.initial.buyerProfileId === identity.id ||
+        offerConverted.data.initial.sellerProfileId === identity.id
+      ) {
         nodes.push(offerConverted);
         return;
       }

@@ -16,6 +16,7 @@ import { OfferArgs } from './dto/offers/offers.args';
 import { OfferListDto } from './dto/offers/offer-list.dto';
 import { Identity } from '../auth/auth.types';
 import { AuthIdentity } from '../auth/auth.decorator';
+import { AppGraphQLContext } from 'src/app.types';
 
 @Resolver()
 export class OfferResolver {
@@ -58,16 +59,28 @@ export class OfferResolver {
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
       variables: { offerIds: string[] },
+      { identity }: AppGraphQLContext,
     ) => {
-      const { offerIds } = variables;
+      // if ids are provided, filter by them
+      if (variables.offerIds) {
+        return variables.offerIds.includes(
+          payload[OFFER_UPDATED_SUBSCRIPTION].id,
+        );
+      }
 
-      return offerIds.includes(payload[OFFER_UPDATED_SUBSCRIPTION].id);
+      const { buyerProfileId, sellerProfileId } =
+        payload[OFFER_UPDATED_SUBSCRIPTION].data.initial;
+
+      return (
+        buyerProfileId === identity?.id || sellerProfileId === identity?.id
+      );
     },
   })
   @UseFilters(FirebaseExceptionFilter)
   subscribeOnOfferUpdated(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Args('offerIds', { type: () => [String] }) _offerIds: string[],
+    @Args('offerIds', { type: () => [String], nullable: true })
+    _offerIds: string[],
+    @AuthIdentity() _identity: Identity,
   ) {
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
   }
