@@ -8,13 +8,13 @@ import { SubscriptionService } from '../subscription-manager/subscription-manage
 import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { createOfferEventHandler } from './offer.utils/create-offer-event-handler.util';
-import { OfferService } from './offer.service';
+import { CommonOfferService } from './services/common-offer.service';
 
 @Injectable()
 export class OfferSubscription implements SubscriptionService {
   constructor(
     private readonly firebaseService: FirebaseService,
-    private readonly offerService: OfferService,
+    private readonly commonOfferService: CommonOfferService,
     protected readonly configService: ConfigService,
   ) {}
 
@@ -51,10 +51,10 @@ export class OfferSubscription implements SubscriptionService {
   }
 
   private childChangedHandler = createOfferEventHandler((offer) => {
-    this.offerService.offerUpdated(offer);
+    this.commonOfferService.offerUpdated(offer);
   });
 
   private childAddedHandler = createOfferEventHandler((offer) => {
-    this.offerService.offerUpdated(offer);
+    this.commonOfferService.offerUpdated(offer);
   });
 }

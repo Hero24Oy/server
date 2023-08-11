@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { FirebaseModule } from '../firebase/firebase.module';
-import { OfferService } from './offer.service';
 import { OfferRequestModule } from '../offer-request/offer-request.module';
 import { OfferHubSpotModule } from './offer-hub-spot/offer-hub-spot.module';
 import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
@@ -14,6 +13,9 @@ import { UserModule } from '../user/user.module';
 import { BuyerOfferResolver } from './resolvers/buyer-offer.resolver';
 import { SellerOfferResolver } from './resolvers/seller-offer.resolver';
 import { CommonOfferResolver } from './resolvers/common-offer.resolver';
+import { BuyerOfferService } from './services/buyer-offer.service';
+import { SellerOfferService } from './services/seller-offer.service';
+import { CommonOfferService } from './services/common-offer.service';
 
 @Module({
   imports: [
@@ -28,11 +30,13 @@ import { CommonOfferResolver } from './resolvers/common-offer.resolver';
     OfferRequestModule,
   ],
   providers: [
-    OfferService,
+    BuyerOfferService,
+    SellerOfferService,
+    CommonOfferService,
     BuyerOfferResolver,
     SellerOfferResolver,
     CommonOfferResolver,
   ],
-  exports: [OfferService],
+  exports: [BuyerOfferService, SellerOfferService, CommonOfferService],
 })
 export class OfferModule {}

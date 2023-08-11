@@ -13,12 +13,12 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
-import { OfferService } from '../offer.service';
+import { CommonOfferService } from '../services/common-offer.service';
 
 @Resolver()
 export class CommonOfferResolver {
   constructor(
-    private readonly offerService: OfferService,
+    private readonly commonOfferService: CommonOfferService,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
@@ -70,6 +70,6 @@ export class CommonOfferResolver {
     @Args({ type: () => OfferArgs }) args: OfferArgs,
     @Args('isBuyer', { nullable: true, defaultValue: true }) isBuyer: boolean,
   ): Promise<OfferListDto> {
-    return this.offerService.getOffers(args, identity, isBuyer);
+    return this.commonOfferService.getOffers(args, identity, isBuyer);
   }
 }

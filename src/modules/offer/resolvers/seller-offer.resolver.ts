@@ -1,29 +1,28 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { PubSub } from 'graphql-subscriptions';
+import { UseFilters, UseGuards } from '@nestjs/common';
 
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
 import { OfferExtendInput } from '../dto/editing/offer-extend.input';
-import { OfferService } from '../offer.service';
 import { OfferStatusInput } from '../dto/editing/offer-status.input';
+import { SellerOfferService } from '../services/seller-offer.service';
+import { CommonOfferService } from '../services/common-offer.service';
 
 @Resolver()
 export class SellerOfferResolver {
   constructor(
-    private readonly offerService: OfferService,
-    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+    private readonly sellerOfferService: SellerOfferService,
+    private readonly commonOfferService: CommonOfferService,
   ) {}
 
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   markOfferAsSeenBySeller(@Args('offerId') offerId: string): Promise<boolean> {
-    return this.offerService.markOfferAsSeenBySeller(offerId);
+    return this.sellerOfferService.markOfferAsSeenBySeller(offerId);
   }
 
   @UseGuards(AuthGuard)
@@ -33,14 +32,14 @@ export class SellerOfferResolver {
     @Args('offerId') offerId: string,
     @Args('input') input: OfferExtendInput,
   ): Promise<boolean> {
-    return this.offerService.extendOfferDuration(offerId, input);
+    return this.sellerOfferService.extendOfferDuration(offerId, input);
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   cancelRequestToExtend(@Args('offerId') offerId: string): Promise<boolean> {
-    return this.offerService.cancelRequestToExtend(offerId);
+    return this.sellerOfferService.cancelRequestToExtend(offerId);
   }
 
   @UseGuards(AuthGuard)
@@ -50,28 +49,28 @@ export class SellerOfferResolver {
     @Args('offerId') offerId: string,
     @Args('input') input: OfferCompletedInput,
   ): Promise<boolean> {
-    return this.offerService.markJobCompleted(offerId, input);
+    return this.sellerOfferService.markJobCompleted(offerId, input);
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   declineOfferChanges(@Args('offerId') offerId: string): Promise<boolean> {
-    return this.offerService.declineOfferChanges(offerId);
+    return this.sellerOfferService.declineOfferChanges(offerId);
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   startJob(@Args('offerId') offerId: string): Promise<boolean> {
-    return this.offerService.startJob(offerId);
+    return this.sellerOfferService.startJob(offerId);
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   toggleJobStatus(@Args('offerId') offerId: string): Promise<boolean> {
-    return this.offerService.toggleJobStatus(offerId);
+    return this.sellerOfferService.toggleJobStatus(offerId);
   }
 
   @UseGuards(AuthGuard)
@@ -81,7 +80,7 @@ export class SellerOfferResolver {
     @Args('offerId') offerId: string,
     @Args('input') input: OfferStatusInput,
   ): Promise<boolean> {
-    return this.offerService.updateOfferStatus(offerId, input);
+    return this.commonOfferService.updateOfferStatus(offerId, input);
   }
 
   @UseGuards(AuthGuard)
@@ -91,6 +90,6 @@ export class SellerOfferResolver {
     @Args('offerId') offerId: string,
     @Args('input') input: OfferChangeInput,
   ): Promise<boolean> {
-    return this.offerService.acceptOfferChanges(offerId, input);
+    return this.sellerOfferService.acceptOfferChanges(offerId, input);
   }
 }
