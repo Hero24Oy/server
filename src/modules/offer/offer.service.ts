@@ -365,8 +365,11 @@ export class OfferService {
     return true;
   }
 
-  // TODO new offers is not being added
-  async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
+  async getOffers(
+    args: OfferArgs,
+    identity: Identity,
+    isBuyer = true,
+  ): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
     const { limit, offset, filter, ordersBy = [] } = args;
 
@@ -400,8 +403,17 @@ export class OfferService {
         return;
       }
 
+      // fetch buyer offers by default
       if (
-        offerConverted.data.initial.buyerProfileId === identity.id ||
+        isBuyer &&
+        offerConverted.data.initial.buyerProfileId === identity.id
+      ) {
+        nodes.push(offerConverted);
+        return;
+      }
+
+      if (
+        !isBuyer &&
         offerConverted.data.initial.sellerProfileId === identity.id
       ) {
         nodes.push(offerConverted);

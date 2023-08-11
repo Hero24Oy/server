@@ -58,7 +58,7 @@ export class OfferResolver {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
-      variables: { offerIds: string[] },
+      variables: { offerIds: string[]; isBuyer: boolean },
       { identity }: AppGraphQLContext,
     ) => {
       // if ids are provided, filter by them
@@ -68,18 +68,26 @@ export class OfferResolver {
         );
       }
 
+      if (identity?.isAdmin) {
+        return true;
+      }
+
       const { buyerProfileId, sellerProfileId } =
         payload[OFFER_UPDATED_SUBSCRIPTION].data.initial;
 
-      return (
-        buyerProfileId === identity?.id || sellerProfileId === identity?.id
-      );
+      if (variables.isBuyer) {
+        return buyerProfileId === identity?.id;
+      } else {
+        return sellerProfileId === identity?.id;
+      }
     },
   })
   @UseFilters(FirebaseExceptionFilter)
   subscribeOnOfferUpdated(
     @Args('offerIds', { type: () => [String], nullable: true })
     _offerIds: string[],
+    @Args('isBuyer', { nullable: true })
+    _isBuyer: boolean,
     @AuthIdentity() _identity: Identity,
   ) {
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
@@ -169,9 +177,10 @@ export class OfferResolver {
   @Query(() => OfferListDto)
   @UseFilters(FirebaseExceptionFilter)
   offers(
-    @Args({ type: () => OfferArgs }) args: OfferArgs,
     @AuthIdentity() identity: Identity,
+    @Args({ type: () => OfferArgs }) args: OfferArgs,
+    @Args('isBuyer', { nullable: true, defaultValue: true }) isBuyer: boolean,
   ): Promise<OfferListDto> {
-    return this.offerService.getOffers(args, identity);
+    return this.offerService.getOffers(args, identity, isBuyer);
   }
 }
