@@ -22,10 +22,7 @@ export class PromotionService {
 
     const promotion: PromotionDB | null = promotionSnapshot.val();
 
-    return (
-      (promotion && PromotionDto.adapter.toExternal({ ...promotion, id })) ||
-      null
-    );
+    return promotion && PromotionDto.adapter.toExternal({ ...promotion, id });
   }
 
   async strictGetPromotion(id: string): Promise<PromotionDto> {
@@ -86,15 +83,11 @@ export class PromotionService {
       description: input.description || undefined,
     });
 
-    const promotionUpdates = omitUndefined<any>({
-      ...newData,
-    });
-
     await database
       .ref(FirebaseDatabasePath.PROMOTIONS)
       .child(input.id)
       .child('data')
-      .update(promotionUpdates);
+      .update(newData);
 
     return this.strictGetPromotion(input.id);
   }

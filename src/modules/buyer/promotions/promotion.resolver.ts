@@ -12,6 +12,7 @@ import {
 } from './promotion.constants';
 import { PromotionEditingInput } from './dto/promotion-editing.input';
 import { PromotionCreationInput } from './dto/promotion-creation.input';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @Resolver()
 export class PromotionResolver {
@@ -21,6 +22,7 @@ export class PromotionResolver {
   ) {}
 
   @Query(() => PromotionDto, { nullable: true })
+  @UseGuards(AuthGuard)
   async getPromotion(
     @Args('id') promotionId: string,
   ): Promise<PromotionDto | null> {
@@ -28,6 +30,7 @@ export class PromotionResolver {
   }
 
   @Query(() => [PromotionDto], { nullable: true })
+  @UseGuards(AuthGuard)
   async getPromotions(): Promise<PromotionDto[]> {
     let promotions = await this.promotionService.getPromotions();
     return promotions;
@@ -51,8 +54,8 @@ export class PromotionResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(AdminGuard)
-  async removePromotion(@Args('id') PromotionId: string): Promise<boolean> {
-    await this.promotionService.deletePromotion(PromotionId);
+  async removePromotion(@Args('id') promotionId: string): Promise<boolean> {
+    await this.promotionService.deletePromotion(promotionId);
 
     return true;
   }
@@ -60,6 +63,7 @@ export class PromotionResolver {
   @Subscription(() => PromotionDto, {
     name: PROMOTION_ADDED_SUBSCRIPTION,
   })
+  @UseGuards(AuthGuard)
   async promotionAdded() {
     return this.pubSub.asyncIterator(PROMOTION_ADDED_SUBSCRIPTION);
   }
@@ -67,6 +71,7 @@ export class PromotionResolver {
   @Subscription(() => PromotionDto, {
     name: PROMOTION_UPDATED_SUBSCRIPTION,
   })
+  @UseGuards(AuthGuard)
   async promotionUpdated() {
     return this.pubSub.asyncIterator(PROMOTION_UPDATED_SUBSCRIPTION);
   }
@@ -74,6 +79,7 @@ export class PromotionResolver {
   @Subscription(() => PromotionDto, {
     name: PROMOTION_REMOVED_SUBSCRIPTION,
   })
+  @UseGuards(AuthGuard)
   async promotionRemoved() {
     return this.pubSub.asyncIterator(PROMOTION_REMOVED_SUBSCRIPTION);
   }
