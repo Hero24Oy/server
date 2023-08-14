@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import moment from 'moment';
 import isEqual from 'lodash/isEqual';
 import differenceWith from 'lodash/differenceWith';
@@ -19,12 +19,16 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { hydrateOffer } from '../offer.utils/prepopulate-offer.util';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
+import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
+import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 
 @Injectable()
 export class SellerOfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
     private readonly commonOfferService: CommonOfferService,
+    private readonly offerRequestService: OfferRequestService,
   ) {}
 
   async markOfferAsSeenBySeller(offerId: string): Promise<boolean> {
@@ -282,5 +286,46 @@ export class SellerOfferService {
     await createdOfferRef.set(OfferDto.adapter.toInternal(offerHydrated));
 
     return offerHydrated;
+  }
+
+  async declineOfferRequest(
+    offerRequestId: string,
+    sellerId: string,
+    app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
+    const offerRequest = await this.offerRequestService.getOfferRequestById(
+      offerRequestId,
+      app,
+    );
+
+    if (!offerRequest) {
+      throw new Error('Offer request is not found');
+    }
+
+    if (
+      !offerRequest.data.pickServiceProvider?.preferred ||
+      !offerRequest.data.pickServiceProvider.preferred.includes(sellerId)
+    ) {
+      throw new NotFoundException('Given user is not in the preferred list');
+    }
+
+    const updatedPreferredMap: Record<string, boolean | null> = {
+      ...convertListToFirebaseMap(
+        offerRequest.data.pickServiceProvider.preferred,
+      ),
+      [sellerId]: null,
+    };
+
+    const preferredRef = database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(offerRequestId)
+      .child('data')
+      .child('pickServiceProvider')
+      .child('preferred');
+
+    await preferredRef.update(updatedPreferredMap);
+
+    return true;
   }
 }

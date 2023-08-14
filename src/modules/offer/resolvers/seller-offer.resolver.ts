@@ -13,6 +13,10 @@ import { CommonOfferService } from '../services/common-offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
+import { AuthIdentity } from 'src/modules/auth/auth.decorator';
+import { Identity } from 'src/modules/auth/auth.types';
+import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
+import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 
 @Resolver()
 export class SellerOfferResolver {
@@ -110,5 +114,20 @@ export class SellerOfferResolver {
     @Args('input') acceptanceGuard: AcceptanceGuardInput,
   ): Promise<boolean> {
     return this.sellerOfferService.createAcceptanceGuard(acceptanceGuard);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  declineOfferRequest(
+    @Args('offerRequestId') offerRequestId: string,
+    @AuthIdentity() { id: sellerId }: Identity,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<boolean> {
+    return this.sellerOfferService.declineOfferRequest(
+      offerRequestId,
+      sellerId,
+      app,
+    );
   }
 }
