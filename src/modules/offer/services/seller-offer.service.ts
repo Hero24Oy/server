@@ -55,15 +55,15 @@ export class SellerOfferService {
 
   async extendOfferDuration(
     offerId: string,
-    args: OfferExtendInput,
+    { reasonToExtend, timeToExtend }: OfferExtendInput,
   ): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
 
     await offerRef.update({
-      timeToExtend: args.extendedDuration,
-      reasonToExtend: args.reasonToExtend,
+      timeToExtend,
+      reasonToExtend,
     });
 
     return true;
@@ -167,12 +167,11 @@ export class SellerOfferService {
 
   async acceptOfferChanges(
     offerId: string,
-    input: OfferChangeInput,
+    { agreedStartTime }: OfferChangeInput,
   ): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
-    const { agreedStartTime } = input;
 
-    const isAcceptTimeChanges = typeof agreedStartTime === 'number';
+    const isAcceptTimeChanges = typeof agreedStartTime !== 'undefined'; // TODO check this
     const isAcceptDetailsChanges = !isAcceptTimeChanges;
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);

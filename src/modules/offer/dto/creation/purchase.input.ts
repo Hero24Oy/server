@@ -1,13 +1,9 @@
-import { Field, Float, InputType } from '@nestjs/graphql';
+import { InputType, PickType } from '@nestjs/graphql';
+import { PurchaseDto } from '../offer/purchase.dto';
 
 @InputType()
-export class PurchaseInput {
-  @Field(() => Float)
-  pricePerHour: number;
-
-  @Field(() => Float)
-  duration: number;
-
-  // set by server
-  readonly createdAt: number;
-}
+export class PurchaseInput extends PickType(
+  PurchaseDto,
+  ['pricePerHour', 'duration'],
+  InputType,
+) {}

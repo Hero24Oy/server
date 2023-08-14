@@ -1,8 +1,7 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { MaybeType } from 'src/modules/common/common.types';
+import { InputType, PartialType, PickType } from '@nestjs/graphql';
+import { InitialDataInput } from '../creation/initial-data.input';
 
 @InputType()
-export class OfferChangeInput {
-  @Field(() => Int, { nullable: true })
-  agreedStartTime?: MaybeType<number>;
-}
+export class OfferChangeInput extends PartialType(
+  PickType(InitialDataInput, ['agreedStartTime']),
+) {}

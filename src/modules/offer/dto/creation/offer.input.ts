@@ -5,7 +5,4 @@ import { OfferDataInput } from './offer-data.input';
 export class OfferInput {
   @Field(() => OfferDataInput)
   data: OfferDataInput;
-
-  // set by server
-  readonly status: 'open';
 }

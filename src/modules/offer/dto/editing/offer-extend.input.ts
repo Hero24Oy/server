@@ -1,10 +1,9 @@
-import { Field, Float, InputType } from '@nestjs/graphql';
+import { InputType, PickType } from '@nestjs/graphql';
+import { OfferDto } from '../offer/offer.dto';
 
 @InputType()
-export class OfferExtendInput {
-  @Field(() => Float)
-  extendedDuration: number;
-
-  @Field(() => String)
-  reasonToExtend: string;
-}
+export class OfferExtendInput extends PickType(
+  OfferDto,
+  ['reasonToExtend', 'timeToExtend'],
+  InputType,
+) {}

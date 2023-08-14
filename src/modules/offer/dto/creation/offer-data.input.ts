@@ -5,7 +5,4 @@ import { InitialDataInput } from './initial-data.input';
 export class OfferDataInput {
   @Field(() => InitialDataInput)
   initial: InitialDataInput;
-
-  // set by server
-  readonly seenBySeller: true;
 }

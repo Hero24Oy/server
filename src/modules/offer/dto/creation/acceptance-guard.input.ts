@@ -1,10 +1,8 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { InputType, PickType } from '@nestjs/graphql';
+import { InitialDataInput } from './initial-data.input';
 
 @InputType()
-export class AcceptanceGuardInput {
-  @Field()
-  offerRequestId: string;
-
-  @Field()
-  sellerProfileId: string;
-}
+export class AcceptanceGuardInput extends PickType(InitialDataInput, [
+  'offerRequestId',
+  'sellerProfileId',
+]) {}

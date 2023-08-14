@@ -1,15 +1,13 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, PickType } from '@nestjs/graphql';
 
 import { WorkTimeInput } from './work-time.input';
+import { OfferDataDto } from '../offer/offer-data.dto';
 
 @InputType()
-export class OfferCompletedInput {
-  @Field(() => Date)
-  actualStartTime: Date;
-
-  @Field(() => Date)
-  actualCompletedTime: Date;
-
+export class OfferCompletedInput extends PickType(OfferDataDto, [
+  'actualStartTime',
+  'actualCompletedTime',
+]) {
   @Field(() => [WorkTimeInput])
   workTime: WorkTimeInput[];
 }
