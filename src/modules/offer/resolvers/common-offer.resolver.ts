@@ -1,5 +1,10 @@
 import { Args, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import {
+  Inject,
+  UnauthorizedException,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
 import { AppGraphQLContext } from 'src/app.types';
@@ -14,6 +19,8 @@ import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
 import { CommonOfferService } from '../services/common-offer.service';
+import { OfferRole } from '../dto/offer/offer-role.enum';
+import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 
 @Resolver()
 export class CommonOfferResolver {
@@ -27,9 +34,10 @@ export class CommonOfferResolver {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
-      variables: { offerIds: string[]; isBuyer: boolean },
+      variables: { offerIds: string[]; role: OfferRole },
       { identity }: AppGraphQLContext,
     ) => {
+      // ? what if provided offerId is not related to the user
       // if ids are provided, filter by them
       if (variables.offerIds) {
         return variables.offerIds.includes(
@@ -41,24 +49,28 @@ export class CommonOfferResolver {
         return true;
       }
 
-      const { buyerProfileId, sellerProfileId } =
-        payload[OFFER_UPDATED_SUBSCRIPTION].data.initial;
-
-      if (variables.isBuyer) {
-        return buyerProfileId === identity?.id;
-      } else {
-        return sellerProfileId === identity?.id;
-      }
+      return hasMatchingRole(
+        payload[OFFER_UPDATED_SUBSCRIPTION],
+        identity,
+        variables.role,
+      );
     },
   })
   @UseFilters(FirebaseExceptionFilter)
   subscribeOnOfferUpdated(
+    @AuthIdentity() { isAdmin }: Identity,
     @Args('offerIds', { type: () => [String], nullable: true })
-    _offerIds: string[],
-    @Args('isBuyer', { nullable: true })
-    _isBuyer: boolean,
-    @AuthIdentity() _identity: Identity,
+    _offerIds?: string[],
+    @Args('role', {
+      type: () => OfferRole,
+      nullable: true,
+    })
+    role?: OfferRole,
   ) {
+    if (!role && !isAdmin) {
+      throw new UnauthorizedException();
+    }
+
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
   }
 
@@ -68,8 +80,16 @@ export class CommonOfferResolver {
   offers(
     @AuthIdentity() identity: Identity,
     @Args({ type: () => OfferArgs }) args: OfferArgs,
-    @Args('isBuyer', { nullable: true, defaultValue: true }) isBuyer: boolean,
+    @Args('role', {
+      type: () => OfferRole,
+      nullable: true,
+    })
+    role?: OfferRole,
   ): Promise<OfferListDto> {
-    return this.commonOfferService.getOffers(args, identity, isBuyer);
+    if (!role && !identity.isAdmin) {
+      throw new UnauthorizedException();
+    }
+
+    return this.commonOfferService.getOffers(args, identity, role);
   }
 }

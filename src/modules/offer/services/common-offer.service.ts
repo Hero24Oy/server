@@ -18,6 +18,8 @@ import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
 import { filterOffers } from '../offer.utils/filter-offers.util';
+import { OfferRole } from '../dto/offer/offer-role.enum';
+import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 
 @Injectable()
 export class CommonOfferService {
@@ -105,7 +107,7 @@ export class CommonOfferService {
   async getOffers(
     args: OfferArgs,
     identity: Identity,
-    isBuyer = true,
+    role?: OfferRole,
   ): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
     const { limit, offset, filter, ordersBy = [] } = args;
@@ -130,29 +132,17 @@ export class CommonOfferService {
         id: snapshot.key,
       });
 
-      if (shouldFetchAllOffers) {
-        nodes.push(offerConverted);
-        return;
-      }
-
       if (filter?.ids?.includes(snapshot.key)) {
         nodes.push(offerConverted);
         return;
       }
 
-      // fetch buyer offers by default
-      if (
-        isBuyer &&
-        offerConverted.data.initial.buyerProfileId === identity.id
-      ) {
+      if (shouldFetchAllOffers) {
         nodes.push(offerConverted);
         return;
       }
 
-      if (
-        !isBuyer &&
-        offerConverted.data.initial.sellerProfileId === identity.id
-      ) {
+      if (hasMatchingRole(offerConverted, identity, role)) {
         nodes.push(offerConverted);
         return;
       }

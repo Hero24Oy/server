@@ -4,10 +4,11 @@ import { WorkTimeInput } from './work-time.input';
 import { OfferDataDto } from '../offer/offer-data.dto';
 
 @InputType()
-export class OfferCompletedInput extends PickType(OfferDataDto, [
-  'actualStartTime',
-  'actualCompletedTime',
-]) {
+export class OfferCompletedInput extends PickType(
+  OfferDataDto,
+  ['actualStartTime', 'actualCompletedTime'],
+  InputType,
+) {
   @Field(() => [WorkTimeInput])
   workTime: WorkTimeInput[];
 }

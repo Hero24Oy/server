@@ -171,7 +171,7 @@ export class SellerOfferService {
   ): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const isAcceptTimeChanges = typeof agreedStartTime !== 'undefined'; // TODO check this
+    const isAcceptTimeChanges = agreedStartTime;
     const isAcceptDetailsChanges = !isAcceptTimeChanges;
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
@@ -211,7 +211,7 @@ export class SellerOfferService {
         .child('data')
         .child('initial')
         .child('agreedStartTime')
-        .set(agreedStartTime);
+        .set(agreedStartTime.getTime());
     }
 
     const changesAccepted = {
