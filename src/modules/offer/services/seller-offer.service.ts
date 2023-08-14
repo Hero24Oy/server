@@ -15,6 +15,10 @@ import { WorkTimeDto } from '../dto/offer/work-time.dto';
 import { isDateQuestion } from '../offer.utils/is-date-quesiton.util';
 import { UpdatedDateDB } from '../types';
 import { CommonOfferService } from './common-offer.service';
+import { OfferDto } from '../dto/offer/offer.dto';
+import { OfferInput } from '../dto/creation/offer.input';
+import { hydrateOffer } from '../offer.utils/prepopulate-offer.util';
+import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 
 @Injectable()
 export class SellerOfferService {
@@ -161,7 +165,6 @@ export class SellerOfferService {
     offerId: string,
     input: OfferChangeInput,
   ): Promise<boolean> {
-    console.log('calling acceptOfferChanges');
     const database = this.firebaseService.getDefaultApp().database();
     const { agreedStartTime } = input;
 
@@ -226,5 +229,58 @@ export class SellerOfferService {
     }
 
     return true;
+  }
+
+  async createAcceptanceGuard({
+    offerRequestId,
+    sellerProfileId,
+  }: AcceptanceGuardInput): Promise<boolean> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const guard = database
+      .ref(FirebaseDatabasePath.OFFER_REQUEST_ACCEPTANCE_GUARDS)
+      .child(offerRequestId);
+
+    await new Promise<void>((resolve, reject) => {
+      guard.transaction(
+        (sellerId: string | null) => {
+          if (sellerId === null) {
+            return sellerProfileId;
+          }
+        },
+        (error, commited) => {
+          if (error) {
+            reject(error);
+          } else if (!commited) {
+            reject(new Error(`OfferRequest has been accepted`));
+          }
+
+          resolve();
+        },
+      );
+    });
+
+    return true;
+  }
+
+  async createOffer(offer: OfferInput): Promise<OfferDto> {
+    console.log('creating');
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const createdOfferRef = await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .push();
+
+    if (!createdOfferRef.key) {
+      throw new Error('Could not create offer');
+    }
+
+    const offerHydrated = hydrateOffer(offer, {
+      id: createdOfferRef.key,
+    });
+
+    await createdOfferRef.set(OfferDto.adapter.toInternal(offerHydrated));
+
+    return offerHydrated;
   }
 }

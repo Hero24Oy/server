@@ -131,7 +131,6 @@ OfferDto.adapter = new FirebaseAdapter({
     status: external.status,
     data: OfferDataDto.adapter.toInternal(external.data),
     buyerData: external.seenByBuyer ? { seenByBuyer: true } : undefined,
-    seenByBuyer: external.seenByBuyer,
     isApproved: external.isApproved,
     chat: external.chatId ?? undefined,
     timeToExtend: external.timeToExtend ?? undefined,

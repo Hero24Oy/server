@@ -70,8 +70,6 @@ export class CommonOfferService {
     offerId: string,
     input: OfferStatusInput,
   ): Promise<boolean> {
-    console.log('input', input);
-    console.log('offerId', offerId);
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);

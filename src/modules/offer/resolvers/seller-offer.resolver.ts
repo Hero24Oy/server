@@ -10,6 +10,9 @@ import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferStatusInput } from '../dto/editing/offer-status.input';
 import { SellerOfferService } from '../services/seller-offer.service';
 import { CommonOfferService } from '../services/common-offer.service';
+import { OfferDto } from '../dto/offer/offer.dto';
+import { OfferInput } from '../dto/creation/offer.input';
+import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 
 @Resolver()
 export class SellerOfferResolver {
@@ -91,5 +94,21 @@ export class SellerOfferResolver {
     @Args('input') input: OfferChangeInput,
   ): Promise<boolean> {
     return this.sellerOfferService.acceptOfferChanges(offerId, input);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => OfferDto)
+  @UseFilters(FirebaseExceptionFilter)
+  createOffer(@Args('input') offer: OfferInput): Promise<OfferDto> {
+    return this.sellerOfferService.createOffer(offer);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  createAcceptanceGuard(
+    @Args('input') acceptanceGuard: AcceptanceGuardInput,
+  ): Promise<boolean> {
+    return this.sellerOfferService.createAcceptanceGuard(acceptanceGuard);
   }
 }
