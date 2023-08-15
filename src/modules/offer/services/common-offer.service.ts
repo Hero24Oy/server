@@ -120,7 +120,7 @@ export class CommonOfferService {
     let nodes: OfferDto[] = [];
 
     // * if there are no ids provided, just push all offers (for admin panel)
-    const shouldFetchAllOffers = !filter?.ids && identity.isAdmin;
+    const shouldFetchAllOffers = !filter?.ids && identity.isAdmin && !role;
 
     offersSnapshot.forEach((snapshot) => {
       if (!snapshot.key) {
