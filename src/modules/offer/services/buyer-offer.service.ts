@@ -6,6 +6,7 @@ import { FirebaseService } from 'src/modules/firebase/firebase.service';
 
 import { Questions } from '../offer.types';
 import { CommonOfferService } from './common-offer.service';
+import { OfferAndRequestIdsInput } from '../dto/editing/offer-and-request-ids.input';
 
 @Injectable()
 export class BuyerOfferService {
@@ -17,8 +18,12 @@ export class BuyerOfferService {
   async markOfferAsSeenByBuyer(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    await offerRef.child('buyerData').child('seenByBuyer').set(true);
+    await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .child(offerId)
+      .child('buyerData')
+      .child('seenByBuyer')
+      .set(true);
 
     return true;
   }
@@ -26,8 +31,11 @@ export class BuyerOfferService {
   async declineExtendOffer(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    await offerRef.child('timeToExtend').set(0);
+    await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .child(offerId)
+      .child('timeToExtend')
+      .set(0);
 
     return true;
   }
@@ -35,22 +43,25 @@ export class BuyerOfferService {
   async approveCompletedOffer(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.commonOfferService.strictGetOfferById(offerId);
 
     if (!offer || offer.status !== 'completed') {
       throw new Error(`Offer must be completed to approve`);
     }
 
-    await offerRef.child('isApproved').set(true);
+    await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .child(offerId)
+      .child('isApproved')
+      .set(true);
 
     return true;
   }
 
-  async approvePrepaidOffer(
-    offerId: string,
-    offerRequestId: string,
-  ): Promise<boolean> {
+  async approvePrepaidOffer({
+    offerId,
+    offerRequestId,
+  }: OfferAndRequestIdsInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);

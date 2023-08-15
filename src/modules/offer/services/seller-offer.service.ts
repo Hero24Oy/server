@@ -32,8 +32,12 @@ export class SellerOfferService {
   async markOfferAsSeenBySeller(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    await offerRef.child('data').child('seenBySeller').set(true);
+    await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .child(offerId)
+      .child('data')
+      .child('seenBySeller')
+      .set(true);
 
     return true;
   }
@@ -41,9 +45,7 @@ export class SellerOfferService {
   async cancelRequestToExtend(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-
-    await offerRef.update({
+    await database.ref(FirebaseDatabasePath.OFFERS).child(offerId).update({
       timeToExtend: null,
       reasonToExtend: null,
     });
@@ -51,15 +53,14 @@ export class SellerOfferService {
     return true;
   }
 
-  async extendOfferDuration(
-    offerId: string,
-    { reasonToExtend, timeToExtend }: OfferExtendInput,
-  ): Promise<boolean> {
+  async extendOfferDuration({
+    reasonToExtend,
+    timeToExtend,
+    offerId,
+  }: OfferExtendInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-
-    await offerRef.update({
+    await database.ref(FirebaseDatabasePath.OFFERS).child(offerId).update({
       timeToExtend,
       reasonToExtend,
     });
@@ -67,16 +68,19 @@ export class SellerOfferService {
     return true;
   }
 
-  async markJobCompleted(
-    offerId: string,
-    { actualStartTime, actualCompletedTime, workTime }: OfferCompletedInput,
-  ): Promise<boolean> {
+  async markJobCompleted({
+    actualStartTime,
+    actualCompletedTime,
+    workTime,
+    offerId,
+  }: OfferCompletedInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
 
     // mark status completed
-    await this.commonOfferService.updateOfferStatus(offerId, {
+    await this.commonOfferService.updateOfferStatus({
+      offerId,
       status: OfferStatus.COMPLETED,
     });
     await offerRef.child('data').update({
@@ -95,7 +99,8 @@ export class SellerOfferService {
   }
 
   async declineOfferChanges(offerId: string): Promise<boolean> {
-    await this.commonOfferService.updateOfferStatus(offerId, {
+    await this.commonOfferService.updateOfferStatus({
+      offerId,
       status: OfferStatus.CANCELLED,
     });
 
@@ -105,23 +110,22 @@ export class SellerOfferService {
   async startJob(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerDataRef = database
-      .ref(FirebaseDatabasePath.OFFERS)
-      .child(offerId)
-      .child('data');
-
     const timestamp = Date.now();
 
-    await offerDataRef.update({
-      actualStartTime: timestamp,
-      isPaused: false,
-      workTime: [
-        {
-          startTime: timestamp,
-          endTime: null,
-        },
-      ],
-    });
+    await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .child(offerId)
+      .child('data')
+      .update({
+        actualStartTime: timestamp,
+        isPaused: false,
+        workTime: [
+          {
+            startTime: timestamp,
+            endTime: null,
+          },
+        ],
+      });
 
     return true;
   }
@@ -129,12 +133,11 @@ export class SellerOfferService {
   async toggleJobStatus(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.commonOfferService.strictGetOfferById(offerId);
 
     // on startJob workTime should be initialized
     if (!offer.data.workTime) {
-      throw new Error('offer.data.workTime is undefined');
+      throw new Error('WorkTime is undefined');
     }
 
     const isJobPaused = offer.data.isPaused;
@@ -163,15 +166,19 @@ export class SellerOfferService {
       ),
     };
 
-    await offerRef.child('data').update(updatedDateConverted);
+    await database
+      .ref(FirebaseDatabasePath.OFFERS)
+      .child(offerId)
+      .child('data')
+      .update(updatedDateConverted);
 
     return true;
   }
 
-  async acceptOfferChanges(
-    offerId: string,
-    { agreedStartTime }: OfferChangeInput,
-  ): Promise<boolean> {
+  async acceptOfferChanges({
+    agreedStartTime,
+    offerId,
+  }: OfferChangeInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const isAcceptTimeChanges = agreedStartTime;

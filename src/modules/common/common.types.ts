@@ -47,10 +47,10 @@ export type Keys<T> = keyof T;
 export type Values<T> = T[Keys<T>];
 
 export type DeeplyNonNullable<
-  T,
-  Keys extends keyof T = keyof T,
-> = T extends object
+  Type,
+  Keys extends keyof Type = keyof Type,
+> = Type extends object
   ? {
-      [Key in Keys]-?: NonNullable<T[Key]>;
+      [Key in Keys]-?: NonNullable<Type[Key]>;
     }
   : never;

@@ -21,7 +21,10 @@ import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
 import { CommonOfferService } from '../services/common-offer.service';
 import { OfferRole } from '../dto/offer/offer-role.enum';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
+import { OfferSubscriptionInput } from '../dto/offers/offers-subsribption.input';
 
+@UseGuards(AuthGuard)
+@UseFilters(FirebaseExceptionFilter)
 @Resolver()
 export class CommonOfferResolver {
   constructor(
@@ -29,26 +32,18 @@ export class CommonOfferResolver {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  @UseGuards(AuthGuard)
   @Query(() => OfferListDto)
-  @UseFilters(FirebaseExceptionFilter)
   offers(
     @AuthIdentity() identity: Identity,
-    @Args({ type: () => OfferArgs }) args: OfferArgs,
-    @Args('role', {
-      type: () => OfferRole,
-      nullable: true,
-    })
-    role?: OfferRole,
+    @Args('input') input: OfferArgs,
   ): Promise<OfferListDto> {
-    if (!role && !identity.isAdmin) {
+    if (!input.role && !identity.isAdmin) {
       throw new UnauthorizedException();
     }
 
-    return this.commonOfferService.getOffers(args, identity, role);
+    return this.commonOfferService.getOffers(input, identity);
   }
 
-  @UseGuards(AuthGuard)
   @Subscription(() => OfferDto, {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
@@ -75,18 +70,11 @@ export class CommonOfferResolver {
       );
     },
   })
-  @UseFilters(FirebaseExceptionFilter)
   subscribeOnOfferUpdated(
     @AuthIdentity() { isAdmin }: Identity,
-    @Args('offerIds', { type: () => [String], nullable: true })
-    _offerIds?: string[],
-    @Args('role', {
-      type: () => OfferRole,
-      nullable: true,
-    })
-    role?: OfferRole,
+    @Args('input') input: OfferSubscriptionInput,
   ) {
-    if (!role && !isAdmin) {
+    if (!input.role && !isAdmin) {
       throw new UnauthorizedException();
     }
 

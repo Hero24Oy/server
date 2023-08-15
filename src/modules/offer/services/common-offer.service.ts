@@ -19,7 +19,6 @@ import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
 import { filterOffers } from '../offer.utils/filter-offers.util';
-import { OfferRole } from '../dto/offer/offer-role.enum';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 
 @Injectable()
@@ -69,14 +68,14 @@ export class CommonOfferService {
       .set(dealId);
   }
 
-  async updateOfferStatus(
-    offerId: string,
-    input: OfferStatusInput,
-  ): Promise<boolean> {
+  async updateOfferStatus({
+    offerId,
+    status,
+  }: OfferStatusInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    await offerRef.child('status').set(input.status);
+    await offerRef.child('status').set(status);
 
     return true;
   }
@@ -105,11 +104,7 @@ export class CommonOfferService {
     return true;
   }
 
-  async getOffers(
-    args: OfferArgs,
-    identity: Identity,
-    role?: OfferRole,
-  ): Promise<OfferListDto> {
+  async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
     const { limit, offset, filter, ordersBy = [] } = args;
 
@@ -120,7 +115,7 @@ export class CommonOfferService {
     let nodes: OfferDto[] = [];
 
     // * if there are no ids provided, just push all offers (for admin panel)
-    const shouldFetchAllOffers = !filter?.ids && identity.isAdmin && !role;
+    const shouldFetchAllOffers = !filter?.ids && identity.isAdmin && !args.role;
 
     offersSnapshot.forEach((snapshot) => {
       if (!snapshot.key) {
@@ -143,7 +138,7 @@ export class CommonOfferService {
         return;
       }
 
-      if (hasMatchingRole(offerConverted, identity, role)) {
+      if (hasMatchingRole(offerConverted, identity, args.role)) {
         nodes.push(offerConverted);
         return;
       }
