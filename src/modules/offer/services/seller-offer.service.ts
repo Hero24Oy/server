@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OfferRequestDB } from 'hero24-types';
 
@@ -13,13 +12,14 @@ import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
 import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 import { WorkTimeDto } from '../dto/offer/work-time.dto';
-import { UpdatedDateDB } from '../types';
 import { CommonOfferService } from './common-offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { hydrateOffer } from '../offer.utils/prepopulate-offer.util';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
-import { getChangedQuestions } from '../offer.utils/get-changes';
+import { getChangedQuestions } from '../offer.utils/get-changes.util';
+import { unpauseJob } from '../offer.utils/unpause-job.uitl';
+import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
 
 @Injectable()
 export class SellerOfferService {
@@ -132,39 +132,38 @@ export class SellerOfferService {
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.commonOfferService.strictGetOfferById(offerId);
 
-    const isOfferPaused = offer.data.isPaused;
-
-    const updatedDate: UpdatedDateDB = {
-      isPaused: !isOfferPaused,
-      workTime:
-        // because of casting number type to date, extra step is need, as in db we store date as number
-        offer.data.workTime?.map(
-          WorkTimeDto.adapter.toInternal.bind(WorkTimeDto),
-        ) || [],
-    };
-
-    if (!isOfferPaused) {
-      updatedDate.workTime[updatedDate.workTime.length - 1].endTime =
-        Date.now();
-    } else {
-      const time =
-        updatedDate.workTime[updatedDate.workTime.length - 1].endTime;
-
-      const startTime = typeof time === 'number' ? moment(time) : moment();
-      const endTime = moment();
-
-      const pauseDuration = endTime.diff(startTime, 'milliseconds');
-
-      updatedDate.pauseDurationMS = offer.data.pauseDurationMS
-        ? pauseDuration + offer.data.pauseDurationMS
-        : pauseDuration;
-
-      updatedDate.workTime.push({
-        startTime: Date.now(),
-      });
+    // on startJob workTime should be initialized
+    if (!offer.data.workTime) {
+      throw new Error('offer.data.workTime is undefined');
     }
 
-    await offerRef.child('data').update(updatedDate);
+    const isJobPaused = offer.data.isPaused;
+
+    const updatedDate: UpdatedDateGraphql = {
+      isPaused: !isJobPaused,
+      workTime: offer.data.workTime,
+      pauseDurationMS: offer.data.pauseDurationMS || 0,
+    };
+
+    if (!isJobPaused) {
+      updatedDate.workTime[updatedDate.workTime.length - 1].endTime =
+        new Date();
+    } else {
+      const { pauseDurationMS, workTime } = unpauseJob(offer);
+
+      updatedDate.pauseDurationMS = pauseDurationMS;
+      updatedDate.workTime.push(workTime);
+    }
+
+    const updatedDateConverted: UpdatedDateDB = {
+      isPaused: updatedDate.isPaused,
+      pauseDurationMS: updatedDate.pauseDurationMS,
+      workTime: updatedDate.workTime.map((time) =>
+        WorkTimeDto.adapter.toInternal(time),
+      ),
+    };
+
+    await offerRef.child('data').update(updatedDateConverted);
 
     return true;
   }
