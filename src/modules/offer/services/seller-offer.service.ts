@@ -1,27 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import moment from 'moment';
-import isEqual from 'lodash/isEqual';
-import differenceWith from 'lodash/differenceWith';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { OfferRequestDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
+import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
+import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
 import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 import { WorkTimeDto } from '../dto/offer/work-time.dto';
-import { isDateQuestion } from '../offer.utils/is-date-quesiton.util';
 import { UpdatedDateDB } from '../types';
 import { CommonOfferService } from './common-offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { hydrateOffer } from '../offer.utils/prepopulate-offer.util';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
-import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { getChangedQuestions } from '../offer.utils/get-changes';
 
 @Injectable()
 export class SellerOfferService {
@@ -71,7 +69,7 @@ export class SellerOfferService {
 
   async markJobCompleted(
     offerId: string,
-    args: OfferCompletedInput,
+    { actualStartTime, actualCompletedTime, workTime }: OfferCompletedInput,
   ): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
@@ -82,17 +80,21 @@ export class SellerOfferService {
       status: OfferStatus.COMPLETED,
     });
     await offerRef.child('data').update({
-      actualStartTime: args.actualStartTime,
-      actualCompletedTime: args.actualCompletedTime,
+      actualStartTime: actualStartTime.getTime(),
+      actualCompletedTime: actualCompletedTime.getTime(),
       isPaused: false,
     });
-    offerRef.child('data').child('workTime').set(args.workTime);
+
+    const workTimeConverted = workTime.map((time) =>
+      WorkTimeDto.adapter.toInternal(time),
+    );
+
+    offerRef.child('data').child('workTime').set(workTimeConverted);
 
     return true;
   }
 
   async declineOfferChanges(offerId: string): Promise<boolean> {
-    console.log('declining offerChanges');
     await this.commonOfferService.updateOfferStatus(offerId, {
       status: OfferStatus.CANCELLED,
     });
@@ -126,8 +128,10 @@ export class SellerOfferService {
 
   async toggleJobStatus(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
+
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.commonOfferService.strictGetOfferById(offerId);
+
     const isOfferPaused = offer.data.isPaused;
 
     const updatedDate: UpdatedDateDB = {
@@ -135,7 +139,7 @@ export class SellerOfferService {
       workTime:
         // because of casting number type to date, extra step is need, as in db we store date as number
         offer.data.workTime?.map(
-          WorkTimeDto.adapter.toInternal.bind(WorkTimeDto), // this context is lost, so bind it
+          WorkTimeDto.adapter.toInternal.bind(WorkTimeDto),
         ) || [],
     };
 
@@ -175,35 +179,25 @@ export class SellerOfferService {
     const isAcceptDetailsChanges = !isAcceptTimeChanges;
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-
     const offer = await this.commonOfferService.strictGetOfferById(offerId);
 
     const offerRequestRef = database
       .ref(FirebaseDatabasePath.OFFER_REQUESTS)
       .child(offer.data.initial.offerRequestId);
-
     const offerRequestSnapshot = await offerRequestRef.once('value');
-
     const offerRequest: OfferRequestDB = offerRequestSnapshot.val();
 
-    const {
-      requestedChanges,
-      initial: { questions },
-    } = offerRequest.data;
-
-    if (!requestedChanges) {
-      throw new Error('OfferRequest does not have requestedChanges!');
+    if (!offerRequest.data.requestedChanges) {
+      throw new Error('OfferRequest does not have requested changes!');
     }
 
     const {
-      changedQuestions: { after },
-    } = requestedChanges;
-
-    const differences = differenceWith(after, questions, isEqual);
-
-    const dateQuestion = differences.find(isDateQuestion);
-    const otherChanges = differences.filter(
-      (question) => !isDateQuestion(question),
+      requestedChanges: { changedQuestions },
+      initial: { questions },
+    } = offerRequest.data;
+    const { dateQuestion, otherChanges } = getChangedQuestions(
+      changedQuestions,
+      questions,
     );
 
     if (isAcceptTimeChanges && dateQuestion) {
@@ -251,10 +245,10 @@ export class SellerOfferService {
             return sellerProfileId;
           }
         },
-        (error, commited) => {
+        (error, committed) => {
           if (error) {
             reject(error);
-          } else if (!commited) {
+          } else if (!committed) {
             reject(new Error(`OfferRequest has been accepted`));
           }
 
@@ -267,7 +261,6 @@ export class SellerOfferService {
   }
 
   async createOffer(offer: OfferInput): Promise<OfferDto> {
-    console.log('creating');
     const database = this.firebaseService.getDefaultApp().database();
 
     const createdOfferRef = await database

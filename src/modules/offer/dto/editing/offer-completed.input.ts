@@ -9,6 +9,12 @@ export class OfferCompletedInput extends PickType(
   ['actualStartTime', 'actualCompletedTime'],
   InputType,
 ) {
+  @Field(() => Date)
+  actualStartTime: Date;
+
+  @Field(() => Date)
+  actualCompletedTime: Date;
+
   @Field(() => [WorkTimeInput])
   workTime: WorkTimeInput[];
 }

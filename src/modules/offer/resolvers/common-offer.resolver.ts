@@ -30,6 +30,25 @@ export class CommonOfferResolver {
   ) {}
 
   @UseGuards(AuthGuard)
+  @Query(() => OfferListDto)
+  @UseFilters(FirebaseExceptionFilter)
+  offers(
+    @AuthIdentity() identity: Identity,
+    @Args({ type: () => OfferArgs }) args: OfferArgs,
+    @Args('role', {
+      type: () => OfferRole,
+      nullable: true,
+    })
+    role?: OfferRole,
+  ): Promise<OfferListDto> {
+    if (!role && !identity.isAdmin) {
+      throw new UnauthorizedException();
+    }
+
+    return this.commonOfferService.getOffers(args, identity, role);
+  }
+
+  @UseGuards(AuthGuard)
   @Subscription(() => OfferDto, {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
@@ -72,24 +91,5 @@ export class CommonOfferResolver {
     }
 
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
-  }
-
-  @UseGuards(AuthGuard)
-  @Query(() => OfferListDto)
-  @UseFilters(FirebaseExceptionFilter)
-  offers(
-    @AuthIdentity() identity: Identity,
-    @Args({ type: () => OfferArgs }) args: OfferArgs,
-    @Args('role', {
-      type: () => OfferRole,
-      nullable: true,
-    })
-    role?: OfferRole,
-  ): Promise<OfferListDto> {
-    if (!role && !identity.isAdmin) {
-      throw new UnauthorizedException();
-    }
-
-    return this.commonOfferService.getOffers(args, identity, role);
   }
 }

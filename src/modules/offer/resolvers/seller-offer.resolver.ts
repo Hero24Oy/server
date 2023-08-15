@@ -3,6 +3,10 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
+import { AuthIdentity } from 'src/modules/auth/auth.decorator';
+import { Identity } from 'src/modules/auth/auth.types';
+import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
+import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
@@ -13,10 +17,6 @@ import { CommonOfferService } from '../services/common-offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
-import { Identity } from 'src/modules/auth/auth.types';
-import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 
 @Resolver()
 export class SellerOfferResolver {

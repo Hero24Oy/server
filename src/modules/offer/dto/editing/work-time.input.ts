@@ -1,11 +1,16 @@
-import { InputType, PickType } from '@nestjs/graphql';
+import { Field, InputType, PickType } from '@nestjs/graphql';
+
 import { WorkTimeDto } from '../offer/work-time.dto';
 
 @InputType()
 export class WorkTimeInput extends PickType(
   WorkTimeDto,
-  ['endTime', 'startTime'],
+  ['startTime', 'endTime'],
   InputType,
 ) {
-  //? way to make nullable fields required?
+  @Field(() => Date)
+  startTime: Date;
+
+  @Field(() => Date)
+  endTime: Date;
 }

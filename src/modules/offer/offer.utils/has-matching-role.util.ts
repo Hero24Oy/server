@@ -1,4 +1,5 @@
 import { Identity } from 'src/modules/auth/auth.types';
+
 import { OfferRole } from '../dto/offer/offer-role.enum';
 import { OfferDto } from '../dto/offer/offer.dto';
 

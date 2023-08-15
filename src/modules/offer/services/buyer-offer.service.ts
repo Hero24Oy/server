@@ -81,7 +81,6 @@ export class BuyerOfferService {
       .child('questions')
       .set(updatedQuestions);
 
-    console.log('approving');
     await offerRef.child('status').set('accepted');
 
     return true;

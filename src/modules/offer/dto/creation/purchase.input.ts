@@ -1,4 +1,5 @@
 import { InputType, PickType } from '@nestjs/graphql';
+
 import { PurchaseDto } from '../offer/purchase.dto';
 
 @InputType()

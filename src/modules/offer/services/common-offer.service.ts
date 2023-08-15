@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { OfferDB } from 'hero24-types';
+
 import { Identity } from 'src/modules/auth/auth.types';
 import {
   paginate,
