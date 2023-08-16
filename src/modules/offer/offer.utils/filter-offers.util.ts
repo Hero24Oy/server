@@ -19,14 +19,7 @@ export const filterOffers = (props: FilterOffersProps) => {
     return rawOffers;
   }
 
-  const {
-    chatIds,
-    hubSpotDealIds,
-    ids,
-    isApproved,
-    netvisorOrderIds,
-    statuses,
-  } = filter;
+  const { chatIds, ids, isApproved, statuses } = filter;
 
   let offers = rawOffers;
 
@@ -45,21 +38,9 @@ export const filterOffers = (props: FilterOffersProps) => {
     offers = offers.filter(({ status }) => statuses.includes(status));
   }
 
-  if (isArray(netvisorOrderIds)) {
-    offers = offers.filter(({ netvisorOrderId }) =>
-      netvisorOrderId ? netvisorOrderIds.includes(netvisorOrderId) : false,
-    );
-  }
-
   if (isArray(chatIds)) {
     offers = offers.filter(({ chatId }) =>
       chatId ? chatIds.includes(chatId) : false,
-    );
-  }
-
-  if (isArray(hubSpotDealIds)) {
-    offers = offers.filter(({ hubSpotDealId }) =>
-      hubSpotDealId ? hubSpotDealIds.includes(hubSpotDealId) : false,
     );
   }
 

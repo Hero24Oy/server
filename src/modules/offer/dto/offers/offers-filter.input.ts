@@ -20,12 +20,6 @@ export class OffersFilterInput {
   })
   chatIds?: MaybeType<string[]>;
 
-  @Field(() => [String], { nullable: true })
-  netvisorOrderIds?: MaybeType<string[]>;
-
-  @Field(() => [String], { nullable: true })
-  hubSpotDealIds?: MaybeType<string[]>;
-
   @Field(() => [OfferStatus], { nullable: true })
   statuses?: MaybeType<OFFER_STATUS[]>;
 }
