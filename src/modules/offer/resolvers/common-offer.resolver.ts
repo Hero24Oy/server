@@ -19,7 +19,6 @@ import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
 import { CommonOfferService } from '../services/common-offer.service';
-import { OfferRole } from '../dto/offer/offer-role.enum';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { OfferSubscriptionInput } from '../dto/offers/offers-subsribption.input';
 
@@ -48,13 +47,13 @@ export class CommonOfferResolver {
     name: OFFER_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
-      variables: { offerIds: string[]; role: OfferRole },
+      variables: { input: OfferSubscriptionInput },
       { identity }: AppGraphQLContext,
     ) => {
       // ? what if provided offerId is not related to the user
       // if ids are provided, filter by them
-      if (variables.offerIds) {
-        return variables.offerIds.includes(
+      if (variables.input.offerIds) {
+        return variables.input.offerIds.includes(
           payload[OFFER_UPDATED_SUBSCRIPTION].id,
         );
       }
@@ -66,7 +65,7 @@ export class CommonOfferResolver {
       return hasMatchingRole(
         payload[OFFER_UPDATED_SUBSCRIPTION],
         identity,
-        variables.role,
+        variables.input.role,
       );
     },
   })
