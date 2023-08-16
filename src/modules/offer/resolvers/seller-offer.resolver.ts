@@ -3,8 +3,6 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
-import { Identity } from 'src/modules/auth/auth.types';
 import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
 import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 
@@ -18,7 +16,6 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
-import { OfferRequestIdInput } from '../dto/editing/offer-request-id.input';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)
@@ -80,8 +77,11 @@ export class SellerOfferResolver {
   }
 
   @Mutation(() => Boolean)
-  acceptOfferChanges(@Args('input') input: OfferChangeInput): Promise<boolean> {
-    return this.sellerOfferService.acceptOfferChanges(input);
+  acceptOfferChanges(
+    @FirebaseApp() app: FirebaseAppInstance,
+    @Args('input') input: OfferChangeInput,
+  ): Promise<boolean> {
+    return this.sellerOfferService.acceptOfferChanges(input, app);
   }
 
   @Mutation(() => OfferDto)
@@ -94,18 +94,5 @@ export class SellerOfferResolver {
     @Args('input') acceptanceGuard: AcceptanceGuardInput,
   ): Promise<boolean> {
     return this.sellerOfferService.createAcceptanceGuard(acceptanceGuard);
-  }
-
-  @Mutation(() => Boolean)
-  declineOfferRequest(
-    @AuthIdentity() { id: sellerId }: Identity,
-    @FirebaseApp() app: FirebaseAppInstance,
-    @Args('input') { offerRequestId }: OfferRequestIdInput,
-  ): Promise<boolean> {
-    return this.sellerOfferService.declineOfferRequest(
-      offerRequestId,
-      sellerId,
-      app,
-    );
   }
 }

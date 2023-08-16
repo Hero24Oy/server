@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { OfferRequestDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
 
-import { Questions } from '../offer.types';
 import { OfferService } from './offer.service';
-import { OfferAndRequestIdsInput } from '../dto/editing/offer-and-request-ids.input';
+import { OfferIdInput } from '../dto/editing/offer-id.input';
 
 @Injectable()
 export class BuyerOfferService {
@@ -58,39 +56,10 @@ export class BuyerOfferService {
     return true;
   }
 
-  async approvePrepaidOffer({
-    offerId,
-    offerRequestId,
-  }: OfferAndRequestIdsInput): Promise<boolean> {
+  async approvePrepaidOffer({ offerId }: OfferIdInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    const offer = await this.offerService.strictGetOfferById(offerId);
-
-    const agreedStartTime = offer.data.initial.agreedStartTime.getTime();
-
-    const offerRequestRef = database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
-      .child(offerRequestId);
-
-    const offerRequest = await offerRequestRef.once('value');
-
-    const offerRequestValues: OfferRequestDB = await offerRequest.val();
-    const updatedQuestions: Questions =
-      offerRequestValues.data.initial.questions.map((question) => {
-        if (question.type === 'date') {
-          question.preferredTime = agreedStartTime;
-          question.suitableTimes = null;
-          question.suitableTimesCount = null;
-        }
-        return question;
-      });
-
-    await offerRequestRef
-      .child('data')
-      .child('initial')
-      .child('questions')
-      .set(updatedQuestions);
 
     await offerRef.child('status').set('accepted');
 

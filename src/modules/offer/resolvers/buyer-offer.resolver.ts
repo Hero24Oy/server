@@ -6,7 +6,6 @@ import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception
 
 import { BuyerOfferService } from '../services/buyer-offer.service';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
-import { OfferAndRequestIdsInput } from '../dto/editing/offer-and-request-ids.input';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)
@@ -36,9 +35,7 @@ export class BuyerOfferResolver {
   }
 
   @Mutation(() => Boolean)
-  approvePrepaidOffer(
-    @Args('input') input: OfferAndRequestIdsInput,
-  ): Promise<boolean> {
+  approvePrepaidOffer(@Args('input') input: OfferIdInput): Promise<boolean> {
     return this.buyerOfferService.approvePrepaidOffer(input);
   }
 }

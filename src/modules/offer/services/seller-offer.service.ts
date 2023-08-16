@@ -1,11 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { OfferRequestDB } from 'hero24-types';
+import { Injectable } from '@nestjs/common';
 
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
 import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
@@ -175,10 +173,10 @@ export class SellerOfferService {
     return true;
   }
 
-  async acceptOfferChanges({
-    agreedStartTime,
-    offerId,
-  }: OfferChangeInput): Promise<boolean> {
+  async acceptOfferChanges(
+    { agreedStartTime, offerId }: OfferChangeInput,
+    app: FirebaseAppInstance,
+  ): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const isAcceptTimeChanges = agreedStartTime;
@@ -187,13 +185,12 @@ export class SellerOfferService {
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.offerService.strictGetOfferById(offerId);
 
-    const offerRequestRef = database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
-      .child(offer.data.initial.offerRequestId);
-    const offerRequestSnapshot = await offerRequestRef.once('value');
-    const offerRequest: OfferRequestDB = offerRequestSnapshot.val();
+    const offerRequest = await this.offerRequestService.getOfferRequestById(
+      offer.data.initial.offerRequestId,
+      app,
+    );
 
-    if (!offerRequest.data.requestedChanges) {
+    if (!offerRequest?.data.requestedChanges) {
       throw new Error('OfferRequest does not have requested changes!');
     }
 
@@ -218,11 +215,6 @@ export class SellerOfferService {
       detailsChangeAccepted: isAcceptDetailsChanges || !otherChanges.length,
       timeChangeAccepted: isAcceptTimeChanges || !dateQuestion,
     };
-
-    await offerRequestRef
-      .child('data')
-      .child('changesAccepted')
-      .update(changesAccepted);
 
     if (
       changesAccepted.detailsChangeAccepted &&
@@ -284,46 +276,5 @@ export class SellerOfferService {
     await createdOfferRef.set(OfferDto.adapter.toInternal(offerHydrated));
 
     return offerHydrated;
-  }
-
-  async declineOfferRequest(
-    offerRequestId: string,
-    sellerId: string,
-    app: FirebaseAppInstance,
-  ): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-    const offerRequest = await this.offerRequestService.getOfferRequestById(
-      offerRequestId,
-      app,
-    );
-
-    if (!offerRequest) {
-      throw new Error('Offer request is not found');
-    }
-
-    if (
-      !offerRequest.data.pickServiceProvider?.preferred ||
-      !offerRequest.data.pickServiceProvider.preferred.includes(sellerId)
-    ) {
-      throw new NotFoundException('Given user is not in the preferred list');
-    }
-
-    const updatedPreferredMap: Record<string, boolean | null> = {
-      ...convertListToFirebaseMap(
-        offerRequest.data.pickServiceProvider.preferred,
-      ),
-      [sellerId]: null,
-    };
-
-    const preferredRef = database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
-      .child(offerRequestId)
-      .child('data')
-      .child('pickServiceProvider')
-      .child('preferred');
-
-    await preferredRef.update(updatedPreferredMap);
-
-    return true;
   }
 }
