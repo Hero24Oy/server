@@ -12,10 +12,10 @@ import { SorterModule } from '../sorter/sorter.module';
 import { UserModule } from '../user/user.module';
 import { BuyerOfferResolver } from './resolvers/buyer-offer.resolver';
 import { SellerOfferResolver } from './resolvers/seller-offer.resolver';
-import { CommonOfferResolver } from './resolvers/common-offer.resolver';
+import { OfferResolver } from './resolvers/offer.resolver';
 import { BuyerOfferService } from './services/buyer-offer.service';
 import { SellerOfferService } from './services/seller-offer.service';
-import { CommonOfferService } from './services/common-offer.service';
+import { OfferService } from './services/offer.service';
 
 @Module({
   imports: [
@@ -32,11 +32,11 @@ import { CommonOfferService } from './services/common-offer.service';
   providers: [
     BuyerOfferService,
     SellerOfferService,
-    CommonOfferService,
+    OfferService,
     BuyerOfferResolver,
     SellerOfferResolver,
-    CommonOfferResolver,
+    OfferResolver,
   ],
-  exports: [BuyerOfferService, SellerOfferService, CommonOfferService],
+  exports: [BuyerOfferService, SellerOfferService, OfferService],
 })
 export class OfferModule {}

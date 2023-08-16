@@ -18,16 +18,16 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
-import { CommonOfferService } from '../services/common-offer.service';
+import { OfferService } from '../services/offer.service';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { OfferSubscriptionInput } from '../dto/offers/offers-subsribption.input';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)
 @Resolver()
-export class CommonOfferResolver {
+export class OfferResolver {
   constructor(
-    private readonly commonOfferService: CommonOfferService,
+    private readonly offerService: OfferService,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
@@ -40,7 +40,7 @@ export class CommonOfferResolver {
       throw new UnauthorizedException();
     }
 
-    return this.commonOfferService.getOffers(input, identity);
+    return this.offerService.getOffers(input, identity);
   }
 
   @Subscription(() => OfferDto, {

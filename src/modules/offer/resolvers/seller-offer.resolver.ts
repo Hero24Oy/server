@@ -13,7 +13,7 @@ import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
 import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferStatusInput } from '../dto/editing/offer-status.input';
 import { SellerOfferService } from '../services/seller-offer.service';
-import { CommonOfferService } from '../services/common-offer.service';
+import { OfferService } from '../services/offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
@@ -26,7 +26,7 @@ import { OfferRequestIdInput } from '../dto/editing/offer-request-id.input';
 export class SellerOfferResolver {
   constructor(
     private readonly sellerOfferService: SellerOfferService,
-    private readonly commonOfferService: CommonOfferService,
+    private readonly offerService: OfferService,
   ) {}
 
   @Mutation(() => Boolean)
@@ -76,7 +76,7 @@ export class SellerOfferResolver {
 
   @Mutation(() => Boolean)
   updateOfferStatus(@Args('input') input: OfferStatusInput): Promise<boolean> {
-    return this.commonOfferService.updateOfferStatus(input);
+    return this.offerService.updateOfferStatus(input);
   }
 
   @Mutation(() => Boolean)

@@ -19,7 +19,7 @@ import { RoundedNumber } from 'src/modules/price-calculator/price-calculator.mon
 import { OfferPriceCalculatorService } from '../offer-price-calculator/offer-price-calculator.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { HUB_SPOT_DEAL_STAGE_BY_OFFER_STATUS } from './offer-hub-spot.constants';
-import { CommonOfferService } from '../services/common-offer.service';
+import { OfferService } from '../services/offer.service';
 
 @Injectable()
 export class OfferHubSpotService {
@@ -31,7 +31,7 @@ export class OfferHubSpotService {
     private userService: UserService,
     private configService: ConfigService,
     private offerRequestService: OfferRequestService,
-    private commonOfferService: CommonOfferService,
+    private offerService: OfferService,
     private offerPriceCalculator: OfferPriceCalculatorService,
     private feePriceCalculator: FeePriceCalculatorService,
     private feeService: FeeService,
@@ -57,7 +57,7 @@ export class OfferHubSpotService {
       sellerHubSpotContactId,
     ]);
 
-    await this.commonOfferService.setHubSpotDealId(offer.id, deal.id);
+    await this.offerService.setHubSpotDealId(offer.id, deal.id);
 
     return deal;
   }

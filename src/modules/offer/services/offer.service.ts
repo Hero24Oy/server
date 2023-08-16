@@ -22,7 +22,7 @@ import { filterOffers } from '../offer.utils/filter-offers.util';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 
 @Injectable()
-export class CommonOfferService {
+export class OfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
     private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,

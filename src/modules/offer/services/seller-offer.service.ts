@@ -12,7 +12,7 @@ import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
 import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 import { WorkTimeDto } from '../dto/offer/work-time.dto';
-import { CommonOfferService } from './common-offer.service';
+import { OfferService } from './offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { hydrateOffer } from '../offer.utils/prepopulate-offer.util';
@@ -25,7 +25,7 @@ import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
 export class SellerOfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
-    private readonly commonOfferService: CommonOfferService,
+    private readonly offerService: OfferService,
     private readonly offerRequestService: OfferRequestService,
   ) {}
 
@@ -79,7 +79,7 @@ export class SellerOfferService {
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
 
     // mark status completed
-    await this.commonOfferService.updateOfferStatus({
+    await this.offerService.updateOfferStatus({
       offerId,
       status: OfferStatus.COMPLETED,
     });
@@ -99,7 +99,7 @@ export class SellerOfferService {
   }
 
   async declineOfferChanges(offerId: string): Promise<boolean> {
-    await this.commonOfferService.updateOfferStatus({
+    await this.offerService.updateOfferStatus({
       offerId,
       status: OfferStatus.CANCELLED,
     });
@@ -133,7 +133,7 @@ export class SellerOfferService {
   async toggleJobStatus(offerId: string): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const offer = await this.commonOfferService.strictGetOfferById(offerId);
+    const offer = await this.offerService.strictGetOfferById(offerId);
 
     // on startJob workTime should be initialized
     if (!offer.data.workTime) {
@@ -185,7 +185,7 @@ export class SellerOfferService {
     const isAcceptDetailsChanges = !isAcceptTimeChanges;
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-    const offer = await this.commonOfferService.strictGetOfferById(offerId);
+    const offer = await this.offerService.strictGetOfferById(offerId);
 
     const offerRequestRef = database
       .ref(FirebaseDatabasePath.OFFER_REQUESTS)
