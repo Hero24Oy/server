@@ -4,7 +4,7 @@ import { OfferInitialDataDto } from '../offer/offer-initial-data.dto';
 import { PurchaseInput } from './purchase.input';
 
 @InputType()
-export class InitialDataInput extends PickType(
+export class OfferInitialDataInput extends PickType(
   OfferInitialDataDto,
   [
     'agreedStartTime',
