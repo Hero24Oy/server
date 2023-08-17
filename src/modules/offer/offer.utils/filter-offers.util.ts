@@ -28,10 +28,7 @@ export const filterOffers = (props: FilterOffersProps) => {
   }
 
   if (isBoolean(isApproved)) {
-    offers = offers.filter(
-      ({ isApproved: offerIsApproved }) =>
-        Boolean(offerIsApproved) === isApproved,
-    );
+    offers = offers.filter((offer) => offer.isApproved === isApproved);
   }
 
   if (isArray(statuses)) {
