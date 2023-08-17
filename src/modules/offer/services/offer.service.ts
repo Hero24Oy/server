@@ -146,7 +146,10 @@ export class OfferService {
 
     // * we don't need to filter by id, as we did it in forEach loop above
     nodes = filterOffers({ offers: nodes, filter });
-    nodes = this.offerSorter.sort(nodes, ordersBy, null);
+
+    if (ordersBy) {
+      nodes = this.offerSorter.sort(nodes, ordersBy, null);
+    }
 
     const total = nodes.length;
     nodes = paginate({ nodes, limit, offset });

@@ -2,6 +2,6 @@ import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class OfferRequestIdInput {
-  @Field()
+  @Field(() => String)
   offerRequestId: string;
 }

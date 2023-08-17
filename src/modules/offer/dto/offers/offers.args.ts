@@ -16,5 +16,5 @@ export class OfferArgs extends IntersectionType(
   filter?: MaybeType<OffersFilterInput>;
 
   @Field(() => [OffersOrderInput], { nullable: true })
-  ordersBy?: OffersOrderInput[];
+  ordersBy?: MaybeType<OffersOrderInput[]>;
 }

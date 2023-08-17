@@ -5,6 +5,7 @@ import { FirebaseService } from 'src/modules/firebase/firebase.service';
 
 import { OfferService } from './offer.service';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
+import { OfferStatus } from '../dto/offer/offer-status.enum';
 
 @Injectable()
 export class BuyerOfferService {
@@ -61,7 +62,7 @@ export class BuyerOfferService {
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
 
-    await offerRef.child('status').set('accepted');
+    await offerRef.child('status').set(OfferStatus.ACCEPTED);
 
     return true;
   }

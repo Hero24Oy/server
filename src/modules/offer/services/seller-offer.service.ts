@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import omit from 'lodash/omit';
 
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
@@ -13,7 +14,7 @@ import { WorkTimeDto } from '../dto/offer/work-time.dto';
 import { OfferService } from './offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
-import { hydrateOffer } from '../offer.utils/prepopulate-offer.util';
+import { hydrateOffer } from '../offer.utils/hydrate-offer.util';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { getChangedQuestions } from '../offer.utils/get-changes.util';
 import { unpauseJob } from '../offer.utils/unpause-job.uitl';
@@ -273,7 +274,12 @@ export class SellerOfferService {
       id: createdOfferRef.key,
     });
 
-    await createdOfferRef.set(OfferDto.adapter.toInternal(offerHydrated));
+    const offerWithoutId = omit(
+      OfferDto.adapter.toInternal(offerHydrated),
+      'id',
+    );
+
+    await createdOfferRef.set(offerWithoutId);
 
     return offerHydrated;
   }
