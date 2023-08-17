@@ -14,12 +14,14 @@ import { OfferResolver } from './resolvers/offer.resolver';
 import { BuyerOfferService } from './services/buyer-offer.service';
 import { SellerOfferService } from './services/seller-offer.service';
 import { OfferService } from './services/offer.service';
+import { OfferHubSpotModule } from './offer-hub-spot/offer-hub-spot.module';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
     UserModule,
+    OfferHubSpotModule,
     SorterModule.create(OFFER_SORTERS),
     SubscriptionManagerModule.forFeature({
       imports: [FirebaseModule, OfferModule],
