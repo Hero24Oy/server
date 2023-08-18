@@ -106,7 +106,7 @@ export class OfferService {
 
   async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
-    const { limit, offset, filter, ordersBy = [] } = args;
+    const { limit, offset, filter, ordersBy = [], role } = args;
 
     const offersSnapshot = await database
       .ref(FirebaseDatabasePath.OFFERS)
@@ -138,7 +138,7 @@ export class OfferService {
         return;
       }
 
-      if (hasMatchingRole(offerConverted, identity, args.role)) {
+      if (hasMatchingRole(offerConverted, identity, role)) {
         nodes.push(offerConverted);
         return;
       }
@@ -152,6 +152,7 @@ export class OfferService {
     }
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, limit, offset });
 
     return preparePaginatedResult({
