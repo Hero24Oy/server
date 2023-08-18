@@ -11,6 +11,7 @@ import {
 } from '../offer.constants';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferHubSpotService } from './offer-hub-spot.service';
+import { subscribeToEvent } from 'src/modules/graphql-pubsub/graphql-pubsub.utils';
 
 @Injectable()
 export class OfferHubSpotSubscription extends HubSpotSubscription {
@@ -34,32 +35,22 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
   }
 
   private async subscribeOnOfferCreation() {
-    const subscriptionId = await this.pubSub.subscribe(
-      OFFER_CREATED_SUBSCRIPTION,
-      (data: Record<typeof OFFER_CREATED_SUBSCRIPTION, OfferDto>) => {
-        const offer = data[OFFER_CREATED_SUBSCRIPTION];
-
-        this.childAddedHandler(offer);
-      },
-    );
-
-    return () => this.pubSub.unsubscribe(subscriptionId);
+    return subscribeToEvent({
+      pubSub: this.pubSub,
+      eventHandler: this.offerCreatedHandler,
+      triggerName: OFFER_CREATED_SUBSCRIPTION,
+    });
   }
 
   private async subscribeOnOfferChanges() {
-    const subscriptionId = await this.pubSub.subscribe(
-      OFFER_UPDATED_SUBSCRIPTION,
-      (data: Record<typeof OFFER_UPDATED_SUBSCRIPTION, OfferDto>) => {
-        const offer = data[OFFER_UPDATED_SUBSCRIPTION];
-
-        this.childChangedHandler(offer);
-      },
-    );
-
-    return () => this.pubSub.unsubscribe(subscriptionId);
+    return subscribeToEvent({
+      pubSub: this.pubSub,
+      eventHandler: this.offerUpdatedHandler,
+      triggerName: OFFER_UPDATED_SUBSCRIPTION,
+    });
   }
 
-  private async childChangedHandler(offer: OfferDto) {
+  private offerUpdatedHandler = async (offer: OfferDto) => {
     try {
       if (!offer.hubSpotDealId) {
         return;
@@ -69,13 +60,13 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     } catch (err) {
       this.logger.error(err);
     }
-  }
+  };
 
-  private async childAddedHandler(offer) {
+  private offerCreatedHandler = async (offer: OfferDto) => {
     try {
       await this.offerHubSpotService.createDeal(offer);
     } catch (err) {
       this.logger.error(err);
     }
-  }
+  };
 }
