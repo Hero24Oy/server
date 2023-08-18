@@ -26,6 +26,7 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
 import { GraphQLConnectionParams } from './app.types';
 import { FeeModule } from './modules/fee/fee.module';
 import { StripeModule } from './modules/stripe/stripe.module';
+import { ImageModule } from './modules/image/image.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { StripeModule } from './modules/stripe/stripe.module';
     UserMergeModule,
     FeeModule,
     StripeModule,
+    ImageModule,
   ],
   providers: [AppResolver],
 })
