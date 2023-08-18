@@ -45,3 +45,12 @@ export type EnumToString<T> = T extends `${infer S}` ? S : never;
 export type Keys<T> = keyof T;
 
 export type Values<T> = T[Keys<T>];
+
+export type DeeplyNonNullable<
+  Type,
+  Keys extends keyof Type = keyof Type,
+> = Type extends object
+  ? {
+      [Key in Keys]-?: NonNullable<Type[Key]>;
+    }
+  : never;
