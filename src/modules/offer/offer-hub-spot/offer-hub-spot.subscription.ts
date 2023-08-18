@@ -1,13 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reference } from 'firebase-admin/database';
+import { PubSub } from 'graphql-subscriptions';
 
 import { skipFirst } from 'src/modules/common/common.utils';
 import { HubSpotSubscription } from 'src/modules/hub-spot/hub-spot-subscription.interface';
+import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { createOfferEventHandler } from '../offer.utils/create-offer-event-handler.util';
+import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
+import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferHubSpotService } from './offer-hub-spot.service';
 
 @Injectable()
@@ -18,11 +22,12 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     private firebaseService: FirebaseService,
     private offerHubSpotService: OfferHubSpotService,
     protected configService: ConfigService,
+    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {
     super();
   }
 
-  public subscribe() {
+  public async subscribe() {
     const offerRef = this.firebaseService
       .getDefaultApp()
       .database()
@@ -30,7 +35,7 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
 
     const unsubscribes = [
       this.subscribeOnOfferCreation(offerRef),
-      this.subscribeOnOfferChanges(offerRef),
+      await this.subscribeOnOfferChanges(),
     ];
 
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
@@ -46,15 +51,20 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     );
   }
 
-  private subscribeOnOfferChanges(offerRef: Reference) {
-    return subscribeOnFirebaseEvent(
-      offerRef,
-      'child_changed',
-      this.childChangedHandler,
+  private async subscribeOnOfferChanges() {
+    const subscriptionId = await this.pubSub.subscribe(
+      OFFER_UPDATED_SUBSCRIPTION,
+      (data: Record<typeof OFFER_UPDATED_SUBSCRIPTION, OfferDto>) => {
+        const offer = data[OFFER_UPDATED_SUBSCRIPTION];
+
+        this.childChangedHandler(offer);
+      },
     );
+
+    return () => this.pubSub.unsubscribe(subscriptionId);
   }
 
-  private childChangedHandler = createOfferEventHandler(async (offer) => {
+  private async childChangedHandler(offer: OfferDto) {
     try {
       if (!offer.hubSpotDealId) {
         return;
@@ -64,7 +74,7 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     } catch (err) {
       this.logger.error(err);
     }
-  });
+  }
 
   private childAddedHandler = createOfferEventHandler(async (offer) => {
     try {

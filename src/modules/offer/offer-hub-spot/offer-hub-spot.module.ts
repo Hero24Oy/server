@@ -11,6 +11,7 @@ import { OfferPriceCalculatorModule } from '../offer-price-calculator/offer-pric
 import { OfferHubSpotService } from './offer-hub-spot.service';
 import { OfferHubSpotSubscription } from './offer-hub-spot.subscription';
 import { OfferModule } from '../offer.module';
+import { GraphQLPubsubModule } from 'src/modules/graphql-pubsub/graphql-pubsub.module';
 
 // We could add this module to the app module to avoid circular dependencies,
 // but this module is part of the offer module, and we only needed to split the code on logic blocks.
@@ -23,7 +24,7 @@ import { OfferModule } from '../offer.module';
     OfferPriceCalculatorModule,
     FeeModule,
     SubscriptionManagerModule.forFeature({
-      imports: [FirebaseModule, OfferHubSpotModule],
+      imports: [FirebaseModule, OfferHubSpotModule, GraphQLPubsubModule],
       subscriptions: [OfferHubSpotSubscription],
     }),
   ],
