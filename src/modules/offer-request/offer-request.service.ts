@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { get, getDatabase, push, ref } from 'firebase/database';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
-import { isNumber, isString } from 'lodash';
+import { isString } from 'lodash';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
@@ -11,7 +11,11 @@ import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
 import { FirebaseService } from '../firebase/firebase.service';
-import { omitUndefined } from '../common/common.utils';
+import {
+  omitUndefined,
+  paginate,
+  preparePaginatedResult,
+} from '../common/common.utils';
 import { Identity } from '../auth/auth.types';
 import { Scope } from '../auth/auth.constants';
 import { SorterService } from '../sorter/sorter.service';
@@ -95,12 +99,11 @@ export class OfferRequestService {
     const { limit, offset, orderBy, filter } = args;
 
     const offerRequests = await this.getAllOfferRequests();
-    const hasPagination = isNumber(limit) && isNumber(offset);
 
-    let edges = offerRequests;
+    let nodes = offerRequests;
 
     if (identity.scope === Scope.USER) {
-      edges = edges.filter(
+      nodes = nodes.filter(
         ({ data }) => data.initial.buyerProfile === identity.id,
       );
     }
@@ -109,22 +112,18 @@ export class OfferRequestService {
       [OfferRequestFilterColumn.STATUS]: filter?.status || undefined,
     };
 
-    edges = this.filtererService.filter(edges, filtererConfig, {});
+    nodes = this.filtererService.filter(nodes, filtererConfig, {});
+    nodes = this.sorterService.sort(nodes, orderBy || [], {});
 
-    const total = edges.length;
+    const total = nodes.length;
+    nodes = paginate({ nodes, limit, offset });
 
-    edges = this.sorterService.sort(edges, orderBy || [], {});
-
-    if (hasPagination) {
-      edges = edges.slice(offset, offset + limit);
-    }
-
-    return {
+    return preparePaginatedResult({
+      nodes,
+      limit,
+      offset,
       total,
-      edges: edges.map((node) => ({ node, cursor: node.id })),
-      endCursor: edges[edges.length - 1]?.id,
-      hasNextPage: hasPagination ? offset + limit < total : false,
-    };
+    });
   }
 
   async createOfferRequest(
