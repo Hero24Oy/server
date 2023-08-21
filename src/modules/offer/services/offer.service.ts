@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { OfferDB } from 'hero24-types';
 
@@ -23,6 +23,8 @@ import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 
 @Injectable()
 export class OfferService {
+  private logger = new Logger(OfferService.name);
+
   constructor(
     private readonly firebaseService: FirebaseService,
     private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,
@@ -123,24 +125,31 @@ export class OfferService {
       }
 
       const offer: OfferDB = snapshot.val();
-      const offerConverted = OfferDto.adapter.toExternal({
-        ...offer,
-        id: snapshot.key,
-      });
 
-      if (filter?.ids?.includes(snapshot.key)) {
-        nodes.push(offerConverted);
-        return;
-      }
+      // * in case data is corrupted, we we should handle it without crashing the app
+      try {
+        const offerConverted = OfferDto.adapter.toExternal({
+          ...offer,
+          id: snapshot.key,
+        });
 
-      if (shouldFetchAllOffers) {
-        nodes.push(offerConverted);
-        return;
-      }
+        if (filter?.ids?.includes(snapshot.key)) {
+          nodes.push(offerConverted);
+          return;
+        }
 
-      if (hasMatchingRole(offerConverted, identity, role)) {
-        nodes.push(offerConverted);
-        return;
+        if (shouldFetchAllOffers) {
+          nodes.push(offerConverted);
+          return;
+        }
+
+        if (hasMatchingRole(offerConverted, identity, role)) {
+          nodes.push(offerConverted);
+          return;
+        }
+      } catch (error) {
+        this.logger.error(`Error while converting offer ${snapshot.key}`);
+        this.logger.error(error);
       }
     });
 
