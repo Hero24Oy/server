@@ -1,10 +1,12 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { UseFilters, UseGuards } from '@nestjs/common';
+import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
 import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
 import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
+import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
@@ -16,6 +18,7 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
+import { emitOfferCreatedEvent } from '../offer.utils/emit-offer-created-event.util';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)
@@ -24,6 +27,7 @@ export class SellerOfferResolver {
   constructor(
     private readonly sellerOfferService: SellerOfferService,
     private readonly offerService: OfferService,
+    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
   @Mutation(() => Boolean)
@@ -85,8 +89,12 @@ export class SellerOfferResolver {
   }
 
   @Mutation(() => OfferDto)
-  createOffer(@Args('input') offer: OfferInput): Promise<OfferDto> {
-    return this.sellerOfferService.createOffer(offer);
+  async createOffer(@Args('input') input: OfferInput): Promise<OfferDto> {
+    const offer = await this.sellerOfferService.createOffer(input);
+
+    emitOfferCreatedEvent(this.pubSub, offer);
+
+    return offer;
   }
 
   @Mutation(() => Boolean)
