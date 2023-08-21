@@ -1,12 +1,12 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BuyerProfileDB } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
-
 import { BuyerProfileDataDto } from './buyer-profile-data.dto';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { MaybeType } from 'src/modules/common/common.types';
 
 @ObjectType()
-export class BuyerProfileDto implements BuyerProfileDB {
+export class BuyerProfileDto {
   @Field(() => String)
   id: string;
 
@@ -14,27 +14,23 @@ export class BuyerProfileDto implements BuyerProfileDB {
   data: BuyerProfileDataDto;
 
   @Field(() => Boolean, { nullable: true })
-  hasMadeApprovedRequest?: boolean;
+  hasMadeApprovedRequest?: MaybeType<boolean>;
 
-  static convertFromFirebaseType(
-    buyerProfile: BuyerProfileDB,
-    id: string,
-  ): BuyerProfileDto {
-    return {
-      id,
-      ...buyerProfile,
-      data: BuyerProfileDataDto.convertFromFirebaseType(buyerProfile.data),
-    };
-  }
-
-  static convertToFirebaseType({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    id,
-    ...buyerProfile
-  }: BuyerProfileDto): BuyerProfileDB {
-    return omitUndefined({
-      ...buyerProfile,
-      data: BuyerProfileDataDto.convertToFirebaseType(buyerProfile.data),
-    });
-  }
+  static adapter: FirebaseAdapter<
+    BuyerProfileDB & { id: string },
+    BuyerProfileDto
+  >;
 }
+
+BuyerProfileDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    id: internal.id,
+    hasMadeApprovedRequest: internal.hasMadeApprovedRequest,
+    data: BuyerProfileDataDto.adapter.toExternal(internal.data),
+  }),
+  toInternal: (external) => ({
+    id: external.id,
+    hasMadeApprovedRequest: external.hasMadeApprovedRequest ?? undefined,
+    data: BuyerProfileDataDto.adapter.toInternal(external.data),
+  }),
+});

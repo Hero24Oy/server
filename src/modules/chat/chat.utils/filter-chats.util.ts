@@ -4,7 +4,7 @@ import isString from 'lodash/isString';
 
 import { ChatDto } from '../dto/chat/chat.dto';
 import { ChatsFilterInput } from '../dto/chats/chats-filter.input';
-import { ChatMemberRole } from '../chat.types';
+import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
 import { MaybeType } from '../../common/common.types';
 import { Identity } from '../../auth/auth.types';
 import { Scope } from 'src/modules/auth/auth.constants';

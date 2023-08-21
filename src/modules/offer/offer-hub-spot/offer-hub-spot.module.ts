@@ -5,7 +5,9 @@ import { HubSpotDealModule } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-d
 import { UserModule } from 'src/modules/user/user.module';
 import { OfferRequestModule } from 'src/modules/offer-request/offer-request.module';
 import { FirebaseModule } from 'src/modules/firebase/firebase.module';
+import { FeeModule } from 'src/modules/fee/fee.module';
 
+import { OfferPriceCalculatorModule } from '../offer-price-calculator/offer-price-calculator.module';
 import { OfferHubSpotService } from './offer-hub-spot.service';
 import { OfferHubSpotSubscription } from './offer-hub-spot.subscription';
 import { OfferModule } from '../offer.module';
@@ -18,6 +20,8 @@ import { OfferModule } from '../offer.module';
     UserModule,
     HubSpotDealModule,
     OfferRequestModule,
+    OfferPriceCalculatorModule,
+    FeeModule,
     SubscriptionManagerModule.forFeature({
       imports: [FirebaseModule, OfferHubSpotModule],
       subscriptions: [OfferHubSpotSubscription],

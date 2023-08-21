@@ -35,7 +35,8 @@ import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated
 import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { Scope } from 'src/modules/auth/auth.constants';
-import { AppIdentity } from 'src/modules/auth/auth.decorator';
+import { AuthIdentity } from 'src/modules/auth/auth.decorator';
+import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 
 @Resolver()
 export class ChatResolver {
@@ -48,7 +49,7 @@ export class ChatResolver {
   @UseGuards(AuthGuard)
   chats(
     @Args() args: ChatsArgs,
-    @AppIdentity() identity: Identity,
+    @AuthIdentity() identity: Identity,
   ): Promise<ChatListDto> {
     return this.chatService.getChats(args, identity);
   }
@@ -71,8 +72,18 @@ export class ChatResolver {
 
   @Query(() => Int)
   @UseGuards(AuthGuard)
-  async unseenChatsCount(@AppIdentity() identity: Identity): Promise<number> {
+  async unseenChatsCount(@AuthIdentity() identity: Identity): Promise<number> {
     return this.chatService.getUnseenChatsCount(identity);
+  }
+
+  @Mutation(() => ChatDto)
+  @UseGuards(AuthGuard)
+  async createChat(
+    @Args('input') input: ChatCreationInput,
+    @AuthIdentity() identity: Identity,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<ChatDto> {
+    return this.chatService.createChat(input, identity, app);
   }
 
   @Mutation(() => Boolean)
@@ -123,7 +134,7 @@ export class ChatResolver {
   async updateLastOpenedTime(
     @Args('chatId') chatId: string,
     @FirebaseApp() app: FirebaseAppInstance,
-    @AppIdentity() identity: Identity,
+    @AuthIdentity() identity: Identity,
   ) {
     const chatSnapshot = await this.chatService.getChatById(chatId, app);
 

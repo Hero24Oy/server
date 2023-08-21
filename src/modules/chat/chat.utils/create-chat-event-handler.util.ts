@@ -13,6 +13,6 @@ export const createChatEventHandler =
 
     eventEmitter(
       pubsub,
-      ChatDto.convertFromFirebaseType(snapshot.val(), snapshot.key),
+      ChatDto.adapter.toExternal({ ...snapshot.val(), id: snapshot.key }),
     );
   };

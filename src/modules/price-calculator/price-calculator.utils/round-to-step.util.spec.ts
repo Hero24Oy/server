@@ -1,4 +1,4 @@
-import { roundToStep } from './round-to-step';
+import { roundToStep } from './round-to-step.util';
 
 type TestItem = {
   value: number;

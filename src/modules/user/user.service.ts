@@ -13,6 +13,7 @@ import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserDataInput } from './dto/creation/user-data.input';
 import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
 import { FirebaseService } from '../firebase/firebase.service';
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 
 @Injectable()
 export class UserService {
@@ -41,6 +42,18 @@ export class UserService {
     return user;
   }
 
+  async getAllUsers() {
+    const database = this.firebaseService.getDefaultApp().database();
+    const usersRef = database.ref(FirebaseDatabasePath.USERS);
+
+    const usersSnapshot = await usersRef.get();
+    const usersTable: Record<string, UserDB> = usersSnapshot.val() || {};
+
+    return Object.entries(usersTable).map(([id, user]) =>
+      UserDto.adapter.toExternal({ id, ...user }),
+    );
+  }
+
   async getUsers(
     args: UsersArgs,
     app: FirebaseAppInstance,
@@ -50,26 +63,16 @@ export class UserService {
 
     const usersSnapshot = await get(ref(database, FirebaseDatabasePath.USERS));
 
-    if (!usersSnapshot.exists()) {
-      return {
-        edges: [],
-        endCursor: null,
-        hasNextPage: false,
-        total: 0,
-      };
-    }
-
-    let users = Object.entries(
+    const users = Object.entries(
       (usersSnapshot.val() as Record<string, UserDB>) || {},
     ).map(([id, user]) => UserDto.adapter.toExternal({ id, ...user }));
 
-    const isPaginationEnabled =
-      typeof limit === 'number' && typeof offset === 'number';
+    let nodes = users;
 
     if (search) {
       const searchText = search.toLowerCase();
 
-      users = users.filter((user) => {
+      nodes = nodes.filter((user) => {
         const { email, firstName, name, lastName } = user.data;
 
         const target = [email, firstName || '', name || '', lastName || ''] // TODO: write name as "" in database for deleted records
@@ -80,19 +83,15 @@ export class UserService {
       });
     }
 
-    const total = users.length;
-    const hasNextPage = isPaginationEnabled ? total > offset + limit : false;
+    const total = nodes.length;
+    nodes = paginate({ nodes, limit, offset });
 
-    if (isPaginationEnabled) {
-      users = users.slice(offset, offset + limit);
-    }
-
-    return {
-      edges: users.map((node) => ({ node, cursor: node.id })),
-      endCursor: users[users.length - 1]?.id || null,
-      hasNextPage,
+    return preparePaginatedResult({
+      nodes,
       total,
-    };
+      offset,
+      limit,
+    });
   }
 
   async createUser(
@@ -192,33 +191,6 @@ export class UserService {
     return phoneSnapshot.val() || '';
   }
 
-  async getFullAccessedUserNameById(userId: string): Promise<string | null> {
-    const app = this.firebaseService.getDefaultApp();
-    const snapshot = await app
-      .database()
-      .ref(FirebaseDatabasePath.USERS)
-      .child(userId)
-      .child('data')
-      .child('name')
-      .once('value');
-
-    return snapshot.val() || null;
-  }
-
-  async getFullAccessedUserAvatarById(userId: string): Promise<string | null> {
-    const app = this.firebaseService.getDefaultApp();
-
-    const snapshot = await app
-      .database()
-      .ref(FirebaseDatabasePath.USERS)
-      .child(userId)
-      .child('data')
-      .child('photoURL')
-      .once('value');
-
-    return snapshot.val() || null;
-  }
-
   async setHubSpotContactId(userId: string, hubSpotContactId?: string) {
     const database = this.firebaseService.getDefaultApp().database();
 
@@ -227,5 +199,13 @@ export class UserService {
       .child(userId)
       .child('hubSpotContactId')
       .set(hubSpotContactId || null);
+  }
+
+  async getUserByIds(userIds: readonly string[]): Promise<(UserDto | null)[]> {
+    const users = await this.getAllUsers();
+
+    const userById = new Map(users.map((user) => [user.id, user]));
+
+    return userIds.map((userId) => userById.get(userId) || null);
   }
 }

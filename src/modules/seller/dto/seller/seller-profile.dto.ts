@@ -1,10 +1,9 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
 
-import {
-  convertListToFirebaseMap,
-  omitUndefined,
-} from 'src/modules/common/common.utils';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { MaybeType } from 'src/modules/common/common.types';
 
 import { SellerProfileDataDto } from './seller-profile-data';
 
@@ -17,34 +16,30 @@ export class SellerProfileDto {
   data: SellerProfileDataDto;
 
   @Field(() => Float, { nullable: true })
-  rating?: number;
+  rating?: MaybeType<number>;
 
   @Field(() => [String], { nullable: true })
-  reviews?: string[];
+  reviews?: MaybeType<string[]>;
 
-  static convertFromFirebaseType(
-    sellerProfile: SellerProfileDB,
-    id: string,
-  ): SellerProfileDto {
-    return {
-      id,
-      ...sellerProfile,
-      reviews: sellerProfile.reviews && Object.keys(sellerProfile.reviews),
-      data: SellerProfileDataDto.convertFromFirebaseType(sellerProfile.data),
-    };
-  }
-
-  static convertToFirebaseType({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    id,
-    ...sellerProfile
-  }: SellerProfileDto): SellerProfileDB {
-    return omitUndefined({
-      ...sellerProfile,
-      reviews:
-        sellerProfile.reviews &&
-        convertListToFirebaseMap(sellerProfile.reviews),
-      data: SellerProfileDataDto.convertToFirebaseType(sellerProfile.data),
-    });
-  }
+  static adapter: FirebaseAdapter<
+    SellerProfileDB & { id: string },
+    SellerProfileDto
+  >;
 }
+
+SellerProfileDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    id: internal.id,
+    data: SellerProfileDataDto.adapter.toExternal(internal.data),
+    rating: internal.rating,
+    reviews: internal.reviews ? Object.keys(internal.reviews) : null,
+  }),
+  toInternal: (external) => ({
+    id: external.id,
+    data: SellerProfileDataDto.adapter.toInternal(external.data),
+    rating: external.rating ?? undefined,
+    reviews: external.reviews
+      ? convertListToFirebaseMap(external.reviews)
+      : undefined,
+  }),
+});

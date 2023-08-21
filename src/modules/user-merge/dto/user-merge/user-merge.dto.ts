@@ -18,7 +18,7 @@ export class UserMergeDto {
   emailStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
-  emailVerifiedByUser?: MaybeType<boolean>;
+  emailVerifiedByUser?: boolean;
 
   @Field(() => String)
   phoneToSearch: string;
@@ -27,7 +27,7 @@ export class UserMergeDto {
   phoneStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
-  phoneVerifiedByUser?: MaybeType<boolean>;
+  phoneVerifiedByUser?: boolean;
 
   @Field(() => Date)
   createdAt: Date;

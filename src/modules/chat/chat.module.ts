@@ -14,23 +14,18 @@ import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { ChatMessageService } from './services/chat-message.service';
 import { ChatMessageResolver } from './resolvers/chat-message.resolver';
 import { ChatMemberFieldsResolver } from './resolvers/chat-member-fields.resolver';
-import { UserModule } from '../user/user.module';
-import { SellerModule } from '../seller/seller.module';
-import { BuyerModule } from '../buyer/buyer.module';
 import { SorterModule } from '../sorter/sorter.module';
 import { CHAT_SORTERS } from './chat.sorters';
 import {
   createChatAddedEventHandler,
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
+import { skipFirst } from '../common/common.utils';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
-    UserModule,
-    SellerModule,
-    BuyerModule,
     SorterModule.create(CHAT_SORTERS),
   ],
   providers: [
@@ -68,9 +63,11 @@ export class ChatModule {
         createChatUpdatedEventHandler(pubsub),
       ),
       subscribeOnFirebaseEvent(
-        chatsRef,
+        // Firebase child added event calls on every exist item first, than on every creation event.
+        // So we should skip every exists items using limit to last 1 so as not to retrieve all items
+        chatsRef.limitToLast(1),
         'child_added',
-        createChatAddedEventHandler(pubsub),
+        skipFirst(createChatAddedEventHandler(pubsub)),
       ),
     ];
 

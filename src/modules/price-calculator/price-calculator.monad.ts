@@ -32,4 +32,8 @@ export class RoundedNumber {
   toPrecision(precision: RoundedNumber): RoundedNumber {
     return new RoundedNumber(this.val(), precision.val());
   }
+
+  static of(value: number, precision?: number) {
+    return new RoundedNumber(value, precision);
+  }
 }

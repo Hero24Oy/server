@@ -7,6 +7,7 @@ export enum FirebaseDatabasePath {
   SELLER_PROFILES = 'sellerProfiles',
   APPROVED_SELLERS = 'approvedSellers',
   OFFER_REQUESTS = 'offerRequests',
+  OFFER_REQUEST_ACCEPTANCE_GUARDS = 'offerRequestAcceptanceGuards',
   CHATS = 'chats',
   CHAT_MESSAGES = 'chatMessages',
   ADMIN_USERS = 'adminUsers',
@@ -14,6 +15,7 @@ export enum FirebaseDatabasePath {
   SETTINGS = 'settings',
   OFFERS = 'offers',
   USER_MERGES = 'userMerges',
+  FEES = 'fees',
 }
 
 export const MAX_TRYING_COUNT = 3;

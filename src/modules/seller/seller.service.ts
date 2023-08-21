@@ -11,6 +11,7 @@ import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseService } from '../firebase/firebase.service';
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 
 @Injectable()
 export class SellerService {
@@ -24,10 +25,11 @@ export class SellerService {
       .child(sellerId)
       .get();
 
-    const candidate = snapshot.val();
+    const candidate: SellerProfileDB | null = snapshot.val();
 
     return (
-      candidate && SellerProfileDto.convertFromFirebaseType(candidate, sellerId)
+      candidate &&
+      SellerProfileDto.adapter.toExternal({ ...candidate, id: sellerId })
     );
   }
 
@@ -39,6 +41,21 @@ export class SellerService {
     }
 
     return seller;
+  }
+
+  async getAllSellers(): Promise<SellerProfileDto[]> {
+    const database = this.firebaseService.getDefaultApp().database();
+
+    const sellerProfilesSnapshot = await database
+      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+      .get();
+
+    const sellerProfiles: Record<string, SellerProfileDB> =
+      sellerProfilesSnapshot.val() || {};
+
+    return Object.entries(sellerProfiles).map(([id, sellerProfile]) =>
+      SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
+    );
   }
 
   async getSellers(
@@ -57,30 +74,20 @@ export class SellerService {
       sellersSnapshot.val() || {};
 
     const sellers = Object.entries(sellersRecord).map(([id, sellerProfile]) =>
-      SellerProfileDto.convertFromFirebaseType(sellerProfile, id),
+      SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
     );
 
-    const total = sellers.length;
+    let nodes = sellers;
 
-    if (typeof offset === 'number' && typeof limit === 'number') {
-      const edges = sellers
-        .slice(offset, limit)
-        .map((node) => ({ node, cursor: node.id }));
+    const total = nodes.length;
+    nodes = paginate({ nodes, limit, offset });
 
-      return {
-        edges,
-        total,
-        hasNextPage: total > offset + limit,
-        endCursor: edges[edges.length - 1]?.cursor || null,
-      };
-    }
-
-    return {
-      edges: sellers.map((node) => ({ node, cursor: node.id })),
+    return preparePaginatedResult({
+      nodes,
       total,
-      hasNextPage: false,
-      endCursor: sellers[sellers.length - 1]?.id || null,
-    };
+      offset,
+      limit,
+    });
   }
 
   async createSeller(
@@ -208,19 +215,13 @@ export class SellerService {
     return true;
   }
 
-  async getFullAccessedSellerNameById(
-    sellerId: string,
-  ): Promise<string | null> {
-    const app = this.firebaseService.getDefaultApp();
+  async getSellerByIds(
+    sellerIds: readonly string[],
+  ): Promise<(SellerProfileDto | null)[]> {
+    const sellers = await this.getAllSellers();
 
-    const snapshot = await app
-      .database()
-      .ref(FirebaseDatabasePath.SELLER_PROFILES)
-      .child(sellerId)
-      .child('data')
-      .child('companyName')
-      .once('value');
+    const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
 
-    return snapshot.val() || null;
+    return sellerIds.map((sellerId) => sellerById.get(sellerId) || null);
   }
 }

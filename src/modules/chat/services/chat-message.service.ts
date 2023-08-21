@@ -27,7 +27,7 @@ export class ChatMessageService {
 
     return (
       chatMessage &&
-      ChatMessageDto.convertFromFirebaseType(chatMessage, chatMessageId)
+      ChatMessageDto.adapter.toExternal({ ...chatMessage, id: chatMessageId })
     );
   }
 
@@ -48,10 +48,10 @@ export class ChatMessageService {
       }
 
       const chatMessage: ChatMessageDB = snapshot.val();
-      chatMessages[snapshot.key] = ChatMessageDto.convertFromFirebaseType(
-        chatMessage,
-        snapshot.key,
-      );
+      chatMessages[snapshot.key] = ChatMessageDto.adapter.toExternal({
+        ...chatMessage,
+        id: snapshot.key,
+      });
     });
 
     return messageIds.map((id) => chatMessages[id] || null);

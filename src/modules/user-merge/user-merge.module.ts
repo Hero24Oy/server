@@ -13,6 +13,7 @@ import {
   createUserMergeAddedEventHandler,
   createUserMergeUpdatedEventHandler,
 } from './user-merge.event-handlers';
+import { skipFirst } from '../common/common.utils';
 
 @Module({
   imports: [FirebaseModule, GraphQLPubsubModule],
@@ -45,9 +46,11 @@ export class UserMergeModule {
         createUserMergeUpdatedEventHandler(pubsub),
       ),
       subscribeOnFirebaseEvent(
-        rootUserMergeRef,
+        // Firebase child added event calls on every exist item first, than on every creation event.
+        // So we should skip every exists items using limit to last 1 so as not to retrieve all items
+        rootUserMergeRef.limitToLast(1),
         'child_added',
-        createUserMergeAddedEventHandler(pubsub),
+        skipFirst(createUserMergeAddedEventHandler(pubsub)),
       ),
     ];
   }

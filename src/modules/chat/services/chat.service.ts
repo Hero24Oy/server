@@ -22,6 +22,11 @@ import { ChatsOrderColumn } from '../dto/chats/chats-order-column.enum';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { ChatMemberDB, ChatsSorterContext } from '../chat.types';
 import { SorterService } from 'src/modules/sorter/sorter.service';
+import {
+  paginate,
+  preparePaginatedResult,
+} from 'src/modules/common/common.utils';
+import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 
 @Injectable()
 export class ChatService {
@@ -43,7 +48,7 @@ export class ChatService {
       .ref(FirebaseDatabasePath.CHATS)
       .once('value');
 
-    const chats: ChatDto[] = [];
+    let nodes: ChatDto[] = [];
 
     chatsSnapshot.forEach((snapshot) => {
       if (!snapshot.key) {
@@ -52,32 +57,23 @@ export class ChatService {
 
       const chat: ChatDB = snapshot.val();
 
-      chats.push(ChatDto.convertFromFirebaseType(chat, snapshot.key));
+      nodes.push(ChatDto.adapter.toExternal({ ...chat, id: snapshot.key }));
     });
 
-    const hasPagination =
-      typeof limit === 'number' && typeof offset === 'number';
+    nodes = filterChats({ identity, filter, chats: nodes });
+    nodes = this.chatsSorter.sort(nodes, ordersBy, {
+      identity,
+    });
 
-    let chatEdges = filterChats({ identity, filter, chats });
+    const total = nodes.length;
+    nodes = paginate({ nodes, offset, limit });
 
-    const total = chatEdges.length;
-
-    chatEdges = this.chatsSorter.sort(chatEdges, ordersBy, { identity });
-
-    if (hasPagination) {
-      chatEdges = chatEdges.slice(offset, limit + offset);
-    }
-
-    const edges = chatEdges.map((chat) => ({ node: chat, cursor: chat.id }));
-
-    const chatsDto: ChatListDto = {
-      edges,
-      endCursor: edges[edges.length - 1]?.cursor || null,
-      hasNextPage: !hasPagination ? false : offset + limit < total,
+    return preparePaginatedResult({
+      nodes,
       total,
-    };
-
-    return chatsDto;
+      limit,
+      offset,
+    });
   }
 
   async getChatById(
@@ -94,7 +90,7 @@ export class ChatService {
       throw new Error(`Chat isn't existed`);
     }
 
-    return ChatDto.convertFromFirebaseType(chat, chatId);
+    return ChatDto.adapter.toExternal({ ...chat, id: chatId });
   }
 
   async getChat(
@@ -106,9 +102,9 @@ export class ChatService {
     const path = [FirebaseDatabasePath.CHATS, chatId];
     const chatSnapshot = await get(ref(database, path.join('/')));
 
-    const chat: ChatDB = chatSnapshot.val();
+    const chat: ChatDB | null = chatSnapshot.val();
 
-    return chat && ChatDto.convertFromFirebaseType(chat, chatId);
+    return chat && ChatDto.adapter.toExternal({ ...chat, id: chatId });
   }
 
   async getUnseenAdminChatsCount(): Promise<number> {
@@ -143,10 +139,10 @@ export class ChatService {
         return;
       }
 
-      const chat = ChatDto.convertFromFirebaseType(
-        snapshot.val(),
-        snapshot.key,
-      );
+      const chat = ChatDto.adapter.toExternal({
+        ...snapshot.val(),
+        id: snapshot.key,
+      });
 
       const member = chat.members.find((member) => member.id === identity.id);
 
@@ -172,6 +168,35 @@ export class ChatService {
     });
 
     return unseenChatsCount;
+  }
+
+  async createChat(
+    input: ChatCreationInput,
+    identity: Identity,
+    app: FirebaseAppInstance,
+  ): Promise<ChatDto> {
+    const { offerRequestId, role } = input;
+
+    const database = this.firebaseService.getDefaultApp().database();
+    const chatsRef = database.ref(FirebaseDatabasePath.CHATS);
+
+    const chat: ChatDB = {
+      data: {
+        members: {
+          [identity.id]: {
+            role,
+          },
+        },
+        initial: {
+          createdAt: Date.now(),
+          offerRequest: offerRequestId,
+        },
+      },
+    };
+
+    const ref = await chatsRef.push(chat);
+
+    return this.getChatById(ref.key || '', app);
   }
 
   async setChatSeenByAdmin(

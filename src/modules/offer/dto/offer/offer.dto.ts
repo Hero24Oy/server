@@ -1,13 +1,15 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { OfferDataDto } from './offer-data.dto';
-import { OfferEarningsDto } from './offer-earnings.dto';
 import { OFFER_STATUS, OfferDB } from 'hero24-types';
+
 import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
+
+import { OfferDataDto } from './offer-data.dto';
+import { OfferEarningsDto } from './offer-earnings.dto';
 
 @ObjectType()
 export class OfferDto {
@@ -41,7 +43,7 @@ export class OfferDto {
   @Field(() => OfferEarningsDto, { nullable: true })
   earnings?: MaybeType<OfferEarningsDto>;
 
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true })
   preDayReminderSent?: MaybeType<boolean>;
 
   @Field(() => Boolean, { nullable: true })
@@ -129,7 +131,6 @@ OfferDto.adapter = new FirebaseAdapter({
     status: external.status,
     data: OfferDataDto.adapter.toInternal(external.data),
     buyerData: external.seenByBuyer ? { seenByBuyer: true } : undefined,
-    seenByBuyer: external.seenByBuyer,
     isApproved: external.isApproved,
     chat: external.chatId ?? undefined,
     timeToExtend: external.timeToExtend ?? undefined,

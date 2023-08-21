@@ -1,4 +1,4 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { FirebaseApp } from '../firebase/firebase.decorator';
@@ -8,6 +8,7 @@ import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class BuyerResolver {
@@ -15,15 +16,14 @@ export class BuyerResolver {
 
   @Query(() => BuyerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
-  async buyer(
-    @Args('id') buyerId: string,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<BuyerProfileDto | null> {
-    return this.buyerService.getBuyerById(buyerId, app);
+  @UseGuards(AuthGuard)
+  async buyer(@Args('id') buyerId: string): Promise<BuyerProfileDto | null> {
+    return this.buyerService.getBuyerById(buyerId);
   }
 
   @Mutation(() => BuyerProfileDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async createBuyer(
     @Args() args: BuyerProfileCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -33,6 +33,7 @@ export class BuyerResolver {
 
   @Mutation(() => BuyerProfileDto)
   @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async editBuyer(
     @Args() args: BuyerProfileDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,

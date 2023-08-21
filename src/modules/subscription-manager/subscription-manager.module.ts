@@ -18,7 +18,8 @@ export class SubscriptionManagerModule {
     SubscriptionManagerService,
     {
       provide: SUBSCRIPTIONS_PROVIDER,
-      useFactory: (...subscriptions) => subscriptions,
+      useFactory: (...subscriptions: SubscriptionService[]) =>
+        subscriptions.filter((subscription) => !subscription.disabled?.()),
       inject: SubscriptionManagerModule.subscriptions,
     },
   ];

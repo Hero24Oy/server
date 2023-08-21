@@ -10,3 +10,4 @@ export * from './type-safe-required.type';
 export * from './enum-to-string.type';
 export * from './keys.type';
 export * from './values.type';
+export * from './deeply-non-nullable.type';
