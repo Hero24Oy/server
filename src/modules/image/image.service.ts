@@ -58,14 +58,22 @@ export class ImageService {
 
   private async deleteImageFromDB(id: string): Promise<true> {
     const database = this.firebaseService.getDefaultApp().database();
-    const imageDataSnapshot = await database
-      .ref(FirebaseDatabasePath.IMAGES)
-      .child(id)
-      .get();
 
-    imageDataSnapshot.ref.remove();
+    await database.ref(FirebaseDatabasePath.IMAGES).child(id).remove();
 
     return true;
+  }
+
+  private isImageData(imageData: ImageDB | null): imageData is ImageDB {
+    return Boolean(imageData);
+  }
+
+  private isValidRoute(routeChunks?: string[]): routeChunks is string[] {
+    return routeChunks !== undefined && routeChunks?.length > 3;
+  }
+
+  private isStoragePathDefined(path?: string): path is string {
+    return path !== undefined;
   }
 
   async uploadImage(input: ImageCreationInput): Promise<ImageDto> {
@@ -108,15 +116,15 @@ export class ImageService {
     const routeChunks = imageData?.data.storagePath?.split('/');
 
     if (
-      !imageData?.data.storagePath ||
-      !routeChunks ||
-      routeChunks.length < 3
+      !this.isImageData(imageData) ||
+      !this.isValidRoute(routeChunks) ||
+      !this.isStoragePathDefined(imageData.data.storagePath)
     ) {
       throw new Error(`Image deletion failed`);
     }
 
     try {
-      const { storagePath } = imageData?.data;
+      const { storagePath } = imageData.data;
 
       await Promise.all([
         this.deleteImageFromStorage(storagePath),
@@ -135,20 +143,18 @@ export class ImageService {
     const routeChunks = imageData?.data.storagePath?.split('/');
 
     if (
-      !imageData?.data.storagePath ||
-      !routeChunks ||
-      routeChunks.length < 3
+      !this.isImageData(imageData) ||
+      !this.isValidRoute(routeChunks) ||
+      !this.isStoragePathDefined(imageData.data.storagePath)
     ) {
       throw new Error(`Loading image failed`);
     }
 
     try {
       const { data } = imageData;
-      const { storagePath } = imageData?.data;
+      const { storagePath } = imageData.data;
 
       const downloadURL = await this.getStorageFileURL(storagePath);
-
-      console.log(downloadURL);
 
       const image: ImageDto = {
         id,
