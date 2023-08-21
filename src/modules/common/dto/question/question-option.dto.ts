@@ -1,17 +1,12 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import {
-  Label,
-  QuestionDB,
-  QuestionOptionDB,
-  QuestionsDB,
-} from 'hero24-types';
+import { Label, QuestionDB, QuestionOptionDB, QuestionsDB } from 'hero24-types';
 
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { omitUndefined } from 'src/modules/common/common.utils';
-import { convertListToObjects } from '../../common.utils/convert-list-to-objects.util';
 
 import { QuestionDto, QuestionDtoConvertor } from './question.dto';
+import { convertListToObjects } from '../../common.utils/convert-list-to-objects.util';
 
 @ObjectType()
 export class QuestionOptionDto {
@@ -24,19 +19,31 @@ export class QuestionOptionDto {
   @Field(() => Int, { nullable: true })
   order?: MaybeType<number>;
 
-  @Field(() => [QuestionDto], { nullable: true })
-  questions?: MaybeType<QuestionDto[]>;
+  @Field(() => [String], { nullable: true })
+  questions?: MaybeType<string[]>;
 
   @Field(() => Boolean, { nullable: true })
   checked?: MaybeType<boolean>;
 
-  static convertToFirebaseType(data: QuestionOptionDto): QuestionOptionDB {
+  static convertToFirebaseType(
+    data: QuestionOptionDto,
+    plainQuestions: QuestionDto[],
+  ): QuestionOptionDB {
     return omitUndefined({
       ...data,
       name: data.name ? (data.name as Label) : undefined,
       order: data.order ? data.order : undefined,
       questions: data.questions
-        ? convertListToObjects(data.questions)
+        ? convertListToObjects(
+            data.questions.map((depsId) =>
+              QuestionDtoConvertor.convertToFirebaseType(
+                plainQuestions.find(
+                  (question) => depsId === question.depsId,
+                ) as QuestionDto,
+                plainQuestions,
+              ),
+            ),
+          )
         : undefined,
       checked: data.checked ? data.checked : undefined,
     });
@@ -45,20 +52,19 @@ export class QuestionOptionDto {
   static convertFromFirebaseType(
     data: QuestionOptionDB,
     id: string,
+    saveQuestion: (question: QuestionDB) => string,
   ): QuestionOptionDto {
     const questions: QuestionDto[] = [];
-
     for (const id in data.questions) {
-      const question: QuestionDB = questions[id];
+      const question: QuestionDB = data.questions[id];
       questions.push(
-        QuestionDtoConvertor.convertFromFirebaseType(question, id),
+        QuestionDtoConvertor.convertFromFirebaseType(question, saveQuestion),
       );
     }
-
     return {
       ...data,
       id,
-      questions: data.questions ? questions : undefined,
+      questions: questions?.map(saveQuestion),
     };
   }
 }

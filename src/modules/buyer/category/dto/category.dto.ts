@@ -124,8 +124,14 @@ CategoryDto.adapter = new FirebaseAdapter({
     minimumPricePerHour: external.minimumPricePerHour,
     minimumDuration: external.minimumDuration,
     netvisorKey: external.netvisorKey,
-    packages: convertListToObjects(external.packages) || undefined,
-    recommended: convertListToObjects(external.recommended),
-    subscriptions: convertListToObjects(external.subscriptions),
+    packages: external.packages
+      ? convertListToObjects(external.packages)
+      : undefined,
+    recommended: external.recommended
+      ? convertListToObjects(external.recommended)
+      : undefined,
+    subscriptions: external.subscriptions
+      ? convertListToObjects(external.subscriptions)
+      : undefined,
   }),
 });

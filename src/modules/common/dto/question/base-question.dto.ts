@@ -7,6 +7,9 @@ export class BaseQuestionDto {
   @Field(() => String)
   id: string;
 
+  @Field(() => String, { nullable: true })
+  depsId?: string;
+
   @Field(() => TranslationFieldDto, { nullable: true })
   name?: MaybeType<TranslationFieldDto>;
 

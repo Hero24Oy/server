@@ -55,15 +55,24 @@ export const QuestionDto = createUnionType({
 
 export type QuestionDto = typeof QuestionDto;
 
-const convertToFirebaseType = (data: QuestionDto): QuestionDB => {
+const convertToFirebaseType = (
+  data: QuestionDto,
+  plainQuestions: QuestionDto[],
+): QuestionDB => {
   let result: QuestionDB;
+  let options: QuestionOptionsDB = {};
 
   switch (data.type) {
     case 'radio':
+      options = convertListToObjects(
+        data.options.map((option) =>
+          QuestionOptionDto.convertToFirebaseType(option, plainQuestions),
+        ),
+      );
       result = {
         ...data,
         selectedOption: data.selectedOption ? data.selectedOption : undefined,
-        options: convertListToObjects(data.options),
+        options: options,
         optional: data.optional || undefined,
         showError: data.showError || undefined,
         position: data.position || undefined,
@@ -160,7 +169,10 @@ const convertToFirebaseType = (data: QuestionDto): QuestionDB => {
   return omitUndefined(result);
 };
 
-const convertFromFirebaseType = (data: QuestionDB, id: string): QuestionDto => {
+const convertFromFirebaseType = (
+  data: QuestionDB,
+  saveQuestion: (question: QuestionDB) => string,
+): QuestionDto => {
   let order = typeof data.order === 'number' ? data.order : Number(data.order);
 
   if (Number.isNaN(order)) {
@@ -174,7 +186,9 @@ const convertFromFirebaseType = (data: QuestionDB, id: string): QuestionDto => {
     case 'checkbox':
       for (const id in data.options) {
         const question: QuestionOptionDB = data.options[id];
-        options.push(QuestionOptionDto.convertFromFirebaseType(question, id));
+        options.push(
+          QuestionOptionDto.convertFromFirebaseType(question, id, saveQuestion),
+        );
       }
       return {
         ...data,
