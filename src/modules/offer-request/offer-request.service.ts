@@ -1,13 +1,16 @@
+import { isString } from 'lodash';
 import { Injectable } from '@nestjs/common';
 import { get, getDatabase, push, ref } from 'firebase/database';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
+
+import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
+import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
+import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
+import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
+
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
-import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
-import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
-import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { FirebaseService } from '../firebase/firebase.service';
-import { isString } from 'lodash';
 
 @Injectable()
 export class OfferRequestService {
@@ -144,5 +147,24 @@ export class OfferRequestService {
     const fees: Record<string, true> | null = feesSnapshot.val();
 
     return Object.keys(fees || {});
+  }
+
+  async updatePurchase(purchase: OfferRequestPurchaseInput): Promise<true> {
+    const { id, fixedPrice, fixedDuration } = purchase;
+
+    try {
+      const database = this.firebaseService.getDefaultApp().database();
+
+      await database
+        .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+        .child(id)
+        .child('data')
+        .child('initial')
+        .update({ fixedPrice, fixedDuration });
+    } catch {
+      throw new Error('Purchase update failed');
+    }
+
+    return true;
   }
 }
