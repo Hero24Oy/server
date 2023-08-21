@@ -171,4 +171,10 @@ export class OfferService {
       offset,
     });
   }
+
+  async getOffer(id: string): Promise<OfferDto> {
+    const offer = await this.strictGetOfferById(id);
+
+    return offer;
+  }
 }
