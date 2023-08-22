@@ -44,15 +44,16 @@ export class OfferRequestService {
     >,
   ) {}
 
-  private async getAllOfferRequests() {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+  private getOfferRequestsRef() {
+    const database = this.firebaseService.getDefaultApp().database();
 
+    return database.ref(FirebaseDatabasePath.OFFER_REQUESTS);
+  }
+
+  private async getAllOfferRequests() {
     const offerRequests: OfferRequestDto[] = [];
 
-    const offerRequestsSnapshot = await database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
-      .get();
+    const offerRequestsSnapshot = await this.getOfferRequestsRef().get();
 
     offerRequestsSnapshot.forEach((snapshot) => {
       if (snapshot.key) {
@@ -68,11 +69,7 @@ export class OfferRequestService {
     return offerRequests;
   }
   async getOfferRequestById(id: string): Promise<OfferRequestDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const offerRequestRef = database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
-      .child(id);
+    const offerRequestRef = this.getOfferRequestsRef().child(id);
 
     const snapshot = await offerRequestRef.get();
 
@@ -143,8 +140,6 @@ export class OfferRequestService {
       minimumDuration,
     } = args;
 
-    const database = this.firebaseService.getDefaultApp().database();
-
     const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
       subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
     } = omitUndefined({
@@ -159,9 +154,7 @@ export class OfferRequestService {
       throw new Error('OfferRequest questions can not be empty array');
     }
 
-    const offerRequestRef = database.ref(FirebaseDatabasePath.OFFER_REQUESTS);
-
-    const createdRef = await offerRequestRef.push(offerRequest);
+    const createdRef = await this.getOfferRequestsRef().push(offerRequest);
 
     if (!createdRef.key) {
       throw new Error("Offer request could't be created");
@@ -173,10 +166,7 @@ export class OfferRequestService {
   async getCategoryIdByOfferRequestId(
     offerRequestId: string,
   ): Promise<string | null> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const categorySnapshot = await database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+    const categorySnapshot = await this.getOfferRequestsRef()
       .child(offerRequestId)
       .child('data')
       .child('initial')
@@ -205,10 +195,7 @@ export class OfferRequestService {
   async getBuyerIdByOfferRequestId(
     offerRequestId: string,
   ): Promise<string | null> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const buyerIdSnapshot = await database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+    const buyerIdSnapshot = await this.getOfferRequestsRef()
       .child(offerRequestId)
       .child('data')
       .child('initial')
@@ -235,10 +222,7 @@ export class OfferRequestService {
   }
 
   async getFeeIdsByOfferRequestId(offerRequestId: string): Promise<string[]> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const feesSnapshot = await database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+    const feesSnapshot = await this.getOfferRequestsRef()
       .child(offerRequestId)
       .child('fees')
       .get();
@@ -252,10 +236,7 @@ export class OfferRequestService {
     const { id, fixedPrice, fixedDuration } = purchase;
 
     try {
-      const database = this.firebaseService.getDefaultApp().database();
-
-      await database
-        .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      await this.getOfferRequestsRef()
         .child(id)
         .child('data')
         .child('initial')
