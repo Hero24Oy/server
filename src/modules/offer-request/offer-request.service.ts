@@ -24,7 +24,10 @@ import {
   OfferRequestSorterContext,
 } from './offer-request.types';
 import { FiltererService } from '../filterer/filterer.service';
-import { OfferRequestFilterColumn } from './offer-request.constants';
+import {
+  OfferRequestFilterColumn,
+  OfferRequestStatus,
+} from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
 
 @Injectable()
@@ -254,6 +257,16 @@ export class OfferRequestService {
       .child('data')
       .child('reviewed')
       .set(true);
+
+    return true;
+  }
+
+  async cancelOfferRequest(offerRequestId: string): Promise<boolean> {
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('status')
+      .set(OfferRequestStatus.CANCELLED);
 
     return true;
   }

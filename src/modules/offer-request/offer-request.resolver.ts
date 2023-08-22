@@ -61,4 +61,11 @@ export class OfferRequestResolver {
   async markOfferRequestReviewed(@Args('id') offerRequestId: string) {
     return this.offerRequestService.markOfferRequestReviewed(offerRequestId);
   }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async cancelOfferRequest(@Args('id') offerRequestId: string) {
+    return this.offerRequestService.cancelOfferRequest(offerRequestId);
+  }
 }

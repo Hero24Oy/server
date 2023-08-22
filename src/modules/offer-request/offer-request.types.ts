@@ -1,3 +1,4 @@
+import { OFFER_REQUEST_STATUS } from 'hero24-types';
 import { NeatFilter } from '../filterer/filterer.types';
 import { ComparePicker, SortablePrimitives } from '../sorter/sorter.types';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
@@ -17,3 +18,7 @@ export type OfferRequestNeatFilter<Config> = NeatFilter<
   OfferRequestFiltererContext,
   Config
 >;
+
+export type OfferStatusEnum = {
+  [Key in OFFER_REQUEST_STATUS as Uppercase<Key>]: Key;
+};
