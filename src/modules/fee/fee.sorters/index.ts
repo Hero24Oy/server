@@ -8,7 +8,6 @@ import { offerRequestIdComparePicker } from './offer-request-id.compare-picker';
 import { platformFeePercentageComparePicker } from './platform-fee-percentage.compare-picker';
 import { serviceProviderVATComparePicker } from './service-provider-vat.compare-picker';
 import { statusComparePicker } from './status.compare-picker';
-import { stripePaymentIdComparePicker } from './stripe-payment-id.compare-picker';
 import { userIdComparePicker } from './user-id.compare-picker';
 
 export const FEE_SORTERS: Record<FeeListOrderColumn, FeeListComparePicker> = {
@@ -21,6 +20,5 @@ export const FEE_SORTERS: Record<FeeListOrderColumn, FeeListComparePicker> = {
     platformFeePercentageComparePicker,
   [FeeListOrderColumn.SERVICE_PROVIDER_VAT]: serviceProviderVATComparePicker,
   [FeeListOrderColumn.STATUS]: statusComparePicker,
-  [FeeListOrderColumn.STRIPE_PAYMENT_INTENT_ID]: stripePaymentIdComparePicker,
   [FeeListOrderColumn.USED_ID]: userIdComparePicker,
 };
