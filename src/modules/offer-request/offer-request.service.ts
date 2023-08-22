@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { get, getDatabase, push, ref } from 'firebase/database';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
 import { isString } from 'lodash';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
 import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
@@ -68,14 +66,14 @@ export class OfferRequestService {
 
     return offerRequests;
   }
-  async getOfferRequestById(
-    offerRequestId: string,
-    app: FirebaseAppInstance,
-  ): Promise<OfferRequestDto | null> {
-    const database = getDatabase(app);
+  async getOfferRequestById(id: string): Promise<OfferRequestDto | null> {
+    const database = this.firebaseService.getDefaultApp().database();
 
-    const path = [FirebaseDatabasePath.OFFER_REQUESTS, offerRequestId];
-    const snapshot = await get(ref(database, path.join('/')));
+    const offerRequestRef = database
+      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      .child(id);
+
+    const snapshot = await offerRequestRef.get();
 
     const offerRequest: OfferRequestDB | null = snapshot.val();
 
@@ -83,10 +81,17 @@ export class OfferRequestService {
       return null;
     }
 
-    return OfferRequestDto.adapter.toExternal({
-      ...offerRequest,
-      id: offerRequestId,
-    });
+    return OfferRequestDto.adapter.toExternal({ ...offerRequest, id });
+  }
+
+  async strictGetOfferRequestById(id: string): Promise<OfferRequestDto> {
+    const offerRequest = await this.getOfferRequestById(id);
+
+    if (!offerRequest) {
+      throw new Error(`Offer request is not found by id ${id}`);
+    }
+
+    return offerRequest;
   }
 
   /**
@@ -128,7 +133,6 @@ export class OfferRequestService {
 
   async createOfferRequest(
     args: OfferRequestCreationArgs,
-    app: FirebaseAppInstance,
   ): Promise<OfferRequestDto> {
     const {
       data,
@@ -138,7 +142,7 @@ export class OfferRequestService {
       minimumDuration,
     } = args;
 
-    const database = getDatabase(app);
+    const database = this.firebaseService.getDefaultApp().database();
 
     const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
       subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
@@ -154,14 +158,15 @@ export class OfferRequestService {
       throw new Error('OfferRequest questions can not be empty array');
     }
 
-    const offerRequestRef = ref(database, FirebaseDatabasePath.OFFER_REQUESTS);
+    const offerRequestRef = database.ref(FirebaseDatabasePath.OFFER_REQUESTS);
 
-    const createdRef = await push(offerRequestRef, offerRequest);
+    const createdRef = await offerRequestRef.push(offerRequest);
 
-    return this.getOfferRequestById(
-      createdRef.key as string,
-      app,
-    ) as Promise<OfferRequestDto>;
+    if (!createdRef.key) {
+      throw new Error("Offer request could't be created");
+    }
+
+    return this.strictGetOfferRequestById(createdRef.key);
   }
 
   async getCategoryIdByOfferRequestId(
