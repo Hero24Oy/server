@@ -29,7 +29,7 @@ export class OfferRequestDataInitialDto {
   createdAt: Date;
 
   @Field(() => String, { nullable: true })
-  prePayWith?: 'stripe' | 'netvisor';
+  prePayWith?: 'netvisor';
 
   @Field(() => String, { nullable: true })
   sendInvoiceWith?: 'sms' | 'email';
