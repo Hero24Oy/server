@@ -46,7 +46,7 @@ export class OfferResolver {
 
   @Query(() => OfferDto)
   offer(@Args('input') { offerId }: OfferIdInput): Promise<OfferDto> {
-    return this.offerService.getOffer(offerId);
+    return this.offerService.strictGetOfferById(offerId);
   }
 
   @Subscription(() => OfferDto, {
