@@ -17,7 +17,7 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
 import { OfferArgs } from '../dto/offers/offers.args';
-import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
+import { emitOfferUpdatedEvent } from '../offer.utils/emit-offer-updated-event.util';
 import { filterOffers } from '../offer.utils/filter-offers.util';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { Scope } from 'src/modules/auth/auth.constants';
@@ -31,9 +31,7 @@ export class OfferService {
   ) {}
 
   async offerUpdated(offer: OfferDto): Promise<void> {
-    return this.pubSub.publish(OFFER_UPDATED_SUBSCRIPTION, {
-      [OFFER_UPDATED_SUBSCRIPTION]: offer,
-    });
+    emitOfferUpdatedEvent(this.pubSub, offer);
   }
 
   async getOfferById(offerId: string): Promise<OfferDto | null> {

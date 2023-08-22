@@ -3,7 +3,10 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
+import { OfferRequestPurchaseArgs } from './dto/offer-request-purchase/offer-request-purchase.args';
 import { OfferRequestService } from './offer-request.service';
+
+import { AdminGuard } from '../auth/guards/admin.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
 import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
@@ -41,5 +44,14 @@ export class OfferRequestResolver {
     @Args() args: OfferRequestCreationArgs,
   ): Promise<OfferRequestDto> {
     return this.offerRequestService.createOfferRequest(args);
+  }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async updateOfferRequestPurchase(
+    @Args() { input }: OfferRequestPurchaseArgs,
+  ): Promise<true> {
+    return this.offerRequestService.updatePurchase(input);
   }
 }

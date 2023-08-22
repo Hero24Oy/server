@@ -12,6 +12,7 @@ import {
   USER_UPDATED_SUBSCRIPTION,
 } from '../user.constants';
 import { UserHubSpotService } from './user-hub-spot.service';
+import { subscribeToEvent } from 'src/modules/graphql-pubsub/graphql-pubsub.utils';
 
 @Injectable()
 export class UserHubSpotSubscription extends HubSpotSubscription {
@@ -23,42 +24,41 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
     super();
   }
 
-  public async subscribe(): Promise<() => Promise<void>> {
-    const subscriptionIds = await Promise.all([
+  public async subscribe(): Promise<() => void> {
+    const unsubscribes = await Promise.all([
       this.subscribeOnUserUpdates(),
       this.subscribeOnUserCreation(),
     ]);
 
-    return async () => {
-      for (const subscriptionId of subscriptionIds) {
-        await this.pubSub.unsubscribe(subscriptionId);
-      }
-    };
+    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
   private async subscribeOnUserUpdates() {
-    return this.pubSub.subscribe(
-      USER_UPDATED_SUBSCRIPTION,
-      (data: Record<typeof USER_UPDATED_SUBSCRIPTION, UserUpdatedDto>) => {
-        const { user, beforeUpdateUser } = data[USER_UPDATED_SUBSCRIPTION];
-
-        if (
-          this.userHubSpotService.shouldUpdateContact(user, beforeUpdateUser)
-        ) {
-          this.userHubSpotService.upsertContact(user);
-        }
-      },
-    );
+    return subscribeToEvent({
+      pubSub: this.pubSub,
+      eventHandler: this.userUpdatedHandler,
+      triggerName: USER_UPDATED_SUBSCRIPTION,
+    });
   }
+
+  private userUpdatedHandler = async ({
+    user,
+    beforeUpdateUser,
+  }: UserUpdatedDto) => {
+    if (this.userHubSpotService.shouldUpdateContact(user, beforeUpdateUser)) {
+      this.userHubSpotService.upsertContact(user);
+    }
+  };
 
   private async subscribeOnUserCreation() {
-    return this.pubSub.subscribe(
-      USER_CREATED_SUBSCRIPTION,
-      (data: Record<typeof USER_CREATED_SUBSCRIPTION, UserCreatedDto>) => {
-        const { user } = data[USER_CREATED_SUBSCRIPTION];
-
-        this.userHubSpotService.upsertContact(user);
-      },
-    );
+    return subscribeToEvent({
+      pubSub: this.pubSub,
+      eventHandler: this.userCreatedHandler,
+      triggerName: USER_CREATED_SUBSCRIPTION,
+    });
   }
+
+  private userCreatedHandler = async ({ user }: UserCreatedDto) => {
+    this.userHubSpotService.upsertContact(user);
+  };
 }

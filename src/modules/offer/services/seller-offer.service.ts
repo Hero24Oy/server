@@ -4,7 +4,6 @@ import omit from 'lodash/omit';
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
@@ -174,10 +173,10 @@ export class SellerOfferService {
     return true;
   }
 
-  async acceptOfferChanges(
-    { agreedStartTime, offerId }: OfferChangeInput,
-    app: FirebaseAppInstance,
-  ): Promise<boolean> {
+  async acceptOfferChanges({
+    agreedStartTime,
+    offerId,
+  }: OfferChangeInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
     const isAcceptTimeChanges = agreedStartTime;
@@ -188,7 +187,6 @@ export class SellerOfferService {
 
     const offerRequest = await this.offerRequestService.getOfferRequestById(
       offer.data.initial.offerRequestId,
-      app,
     );
 
     if (!offerRequest?.data.requestedChanges) {
