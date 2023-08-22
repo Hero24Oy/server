@@ -247,4 +247,14 @@ export class OfferRequestService {
 
     return true;
   }
+
+  async markOfferRequestReviewed(offerRequestId: string): Promise<boolean> {
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('reviewed')
+      .set(true);
+
+    return true;
+  }
 }

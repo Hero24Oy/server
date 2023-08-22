@@ -54,4 +54,11 @@ export class OfferRequestResolver {
   ): Promise<true> {
     return this.offerRequestService.updatePurchase(input);
   }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async markOfferRequestReviewed(@Args('id') offerRequestId: string) {
+    return this.offerRequestService.markOfferRequestReviewed(offerRequestId);
+  }
 }
