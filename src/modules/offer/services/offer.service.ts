@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { OfferDB } from 'hero24-types';
 
@@ -23,6 +23,8 @@ import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 
 @Injectable()
 export class OfferService {
+  private logger = new Logger(OfferService.name);
+
   constructor(
     private readonly firebaseService: FirebaseService,
     private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,
@@ -78,33 +80,9 @@ export class OfferService {
     return true;
   }
 
-  async startJob(offerId: string): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const offerDataRef = database
-      .ref(FirebaseDatabasePath.OFFERS)
-      .child(offerId)
-      .child('data');
-
-    const timestamp = Date.now();
-
-    await offerDataRef.update({
-      actualStartTime: timestamp,
-      isPaused: false,
-      workTime: [
-        {
-          startTime: timestamp,
-          endTime: null,
-        },
-      ],
-    });
-
-    return true;
-  }
-
   async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
-    const { limit, offset, filter, ordersBy = [] } = args;
+    const { limit, offset, filter, ordersBy = [], role } = args;
 
     const offersSnapshot = await database
       .ref(FirebaseDatabasePath.OFFERS)
@@ -121,24 +99,31 @@ export class OfferService {
       }
 
       const offer: OfferDB = snapshot.val();
-      const offerConverted = OfferDto.adapter.toExternal({
-        ...offer,
-        id: snapshot.key,
-      });
 
-      if (filter?.ids?.includes(snapshot.key)) {
-        nodes.push(offerConverted);
-        return;
-      }
+      // * in case data is corrupted, we we should handle it without crashing the app
+      try {
+        const offerConverted = OfferDto.adapter.toExternal({
+          ...offer,
+          id: snapshot.key,
+        });
 
-      if (shouldFetchAllOffers) {
-        nodes.push(offerConverted);
-        return;
-      }
+        if (filter?.ids?.includes(snapshot.key)) {
+          nodes.push(offerConverted);
+          return;
+        }
 
-      if (hasMatchingRole(offerConverted, identity, args.role)) {
-        nodes.push(offerConverted);
-        return;
+        if (shouldFetchAllOffers) {
+          nodes.push(offerConverted);
+          return;
+        }
+
+        if (hasMatchingRole(offerConverted, identity, role)) {
+          nodes.push(offerConverted);
+          return;
+        }
+      } catch (error) {
+        this.logger.error(`Error while converting offer ${snapshot.key}`);
+        this.logger.error(error);
       }
     });
 
@@ -150,6 +135,7 @@ export class OfferService {
     }
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, limit, offset });
 
     return preparePaginatedResult({
