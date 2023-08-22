@@ -24,7 +24,7 @@ export class OfferRequestDataInitialInput {
   package?: PackageInput;
 
   @Field(() => String, { nullable: true })
-  prePayWith?: 'netvisor';
+  prePayWith?: 'stripe' | 'netvisor';
 
   @Field(() => String, { nullable: true })
   sendInvoiceWith?: 'sms' | 'email';
