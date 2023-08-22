@@ -82,30 +82,6 @@ export class OfferService {
     return true;
   }
 
-  async startJob(offerId: string): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const offerDataRef = database
-      .ref(FirebaseDatabasePath.OFFERS)
-      .child(offerId)
-      .child('data');
-
-    const timestamp = Date.now();
-
-    await offerDataRef.update({
-      actualStartTime: timestamp,
-      isPaused: false,
-      workTime: [
-        {
-          startTime: timestamp,
-          endTime: null,
-        },
-      ],
-    });
-
-    return true;
-  }
-
   async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
     const database = this.firebaseService.getDefaultApp().database();
     const { limit, offset, filter, ordersBy = [], role } = args;
