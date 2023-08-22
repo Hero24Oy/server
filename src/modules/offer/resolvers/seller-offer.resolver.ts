@@ -4,8 +4,6 @@ import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
