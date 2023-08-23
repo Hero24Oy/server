@@ -1,7 +1,7 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
-import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
+import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { OfferRequestPurchaseArgs } from './dto/offer-request-purchase/offer-request-purchase.args';
 import { OfferRequestService } from './offer-request.service';
@@ -41,9 +41,9 @@ export class OfferRequestResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createOfferRequest(
-    @Args() args: OfferRequestCreationArgs,
+    @Args('input') input: OfferRequestCreationInput,
   ): Promise<OfferRequestDto> {
-    return this.offerRequestService.createOfferRequest(args);
+    return this.offerRequestService.createOfferRequest(input);
   }
 
   @Mutation(() => Boolean)

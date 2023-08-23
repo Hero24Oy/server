@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
+import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
 import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
@@ -133,7 +133,7 @@ export class OfferRequestService {
   }
 
   async createOfferRequest(
-    args: OfferRequestCreationArgs,
+    input: OfferRequestCreationInput,
   ): Promise<OfferRequestDto> {
     const {
       data,
@@ -141,7 +141,7 @@ export class OfferRequestService {
       serviceProviderVAT,
       customerVat,
       minimumDuration,
-    } = args;
+    } = input;
 
     const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
       subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
