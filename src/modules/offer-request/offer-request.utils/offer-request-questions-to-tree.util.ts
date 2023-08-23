@@ -5,7 +5,7 @@ import {
   OmittedDependencyIdPlainOfferRequestQuestion,
 } from '../offer-request-questions.types';
 import { fillQuestion } from './fill-question.util';
-import { omit } from 'lodash';
+import { isString, omit } from 'lodash';
 import { QUESTION_FLAT_ID_NAME } from '../offer-request.constants';
 
 export const offerRequestQuestionsToTree = (
@@ -18,14 +18,16 @@ export const offerRequestQuestionsToTree = (
     OmittedDependencyIdPlainOfferRequestQuestion
   > = {};
 
-  questions.forEach((question) => {
-    const dependencyId = question[QUESTION_FLAT_ID_NAME];
+  questions.forEach((withDepsIdQuestion) => {
+    const dependencyId = withDepsIdQuestion[QUESTION_FLAT_ID_NAME];
 
-    if (typeof dependencyId === 'string') {
-      questionById[dependencyId] = omit(
-        question,
-        QUESTION_FLAT_ID_NAME,
-      ) as OmittedDependencyIdPlainOfferRequestQuestion;
+    const question = omit(
+      withDepsIdQuestion,
+      QUESTION_FLAT_ID_NAME,
+    ) as OmittedDependencyIdPlainOfferRequestQuestion;
+
+    if (isString(dependencyId)) {
+      questionById[dependencyId] = question;
     } else {
       mainQuestions.push(question);
     }
