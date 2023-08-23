@@ -1,12 +1,10 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
+
 import { AddressDto } from 'src/modules/common/dto/address/address.dto';
 
 @ObjectType()
+@InputType('BasicAddressesInput')
 export class BasicAddressesDto {
-  constructor({ main }: Omit<BasicAddressesDto, 'type'>) {
-    this.main = main;
-  }
-
   @Field(() => String)
   type = 'basic' as const;
 

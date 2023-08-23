@@ -1,15 +1,16 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { OfferRequestDB } from 'hero24-types';
+import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
 
-import { AddressesAnsweredDto } from './addresses-answered.dto';
+import {
+  AddressesAnsweredAdapter,
+  AddressesAnsweredDto,
+} from '../address-answered/addresses-answered.dto';
 import {
   OfferRequestQuestionDto,
   OfferRequestQuestionAdapter,
 } from '../offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
 import { MaybeType } from 'src/modules/common/common.types';
-import { BasicAddressesDto } from './basic-addresses.dto';
-import { DeliveryAddressesDto } from './delivery-addresses.dto';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
@@ -79,9 +80,11 @@ OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
       prePayWith: external.prePayWith ?? undefined,
       sendInvoiceWith: external.sendInvoiceWith ?? undefined,
       buyerProfile: external.buyerProfile,
-      addresses: external.addresses,
+      addresses: AddressesAnsweredAdapter.toInternal(
+        external.addresses,
+      ) as AddressesAnswered,
       category: external.category,
-      createdAt: +new Date(external.createdAt),
+      createdAt: Number(external.createdAt),
       package: external.package
         ? PackageDto.adapter.toInternal(external.package)
         : undefined,
@@ -110,10 +113,9 @@ OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
             question,
           ) as OfferRequestQuestionDto,
       ),
-      addresses:
-        internal.addresses.type === 'basic'
-          ? new BasicAddressesDto(internal.addresses)
-          : new DeliveryAddressesDto(internal.addresses),
+      addresses: AddressesAnsweredAdapter.toExternal(
+        internal.addresses,
+      ) as AddressesAnsweredDto,
       package: internal.package
         ? PackageDto.adapter.toExternal(internal.package)
         : undefined,

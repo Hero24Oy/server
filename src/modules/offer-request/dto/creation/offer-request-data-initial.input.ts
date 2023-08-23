@@ -1,6 +1,6 @@
 import { Field, InputType, OmitType } from '@nestjs/graphql';
 import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
-import { AddressesAnsweredInput } from './addresses-answered.input';
+import { AddressesAnsweredInput } from '../address-answered/addresses-answered.input';
 import { OfferRequestQuestionInput } from '../offer-request-question/offer-request-question.input';
 import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
 import { OfferRequestDataInitialDto } from '../offer-request/offer-request-data-initial.dto';
