@@ -21,11 +21,13 @@ import {
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
 import { skipFirst } from '../common/common.utils';
+import { OfferRequestModule } from '../offer-request/offer-request.module';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
+    OfferRequestModule,
     SorterModule.create(CHAT_SORTERS),
   ],
   providers: [
