@@ -8,7 +8,7 @@ const flattenQuestionsFromFirebase = (questions) => {
   const questionsArray: QuestionDB[] | QuestionOptionDB[] = [];
   for (const key in questions) {
     if (questions.hasOwnProperty(key)) {
-      const question = questions[key];
+      const question = { id: key, ...questions[key] };
       questionsArray.push(question);
     }
   }

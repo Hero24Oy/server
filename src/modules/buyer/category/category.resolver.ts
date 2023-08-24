@@ -7,8 +7,6 @@ import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception
 import { CategoryDto } from './dto/category.dto';
 import { CATEGORIES_UPDATED_SUBSCRIPTION } from './category.constants';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
-import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
 
 @Resolver()
 export class CategoryResolver {

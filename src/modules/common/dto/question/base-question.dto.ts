@@ -19,22 +19,22 @@ export class BaseQuestionDto {
   @Field(() => String, { nullable: true })
   [QUESTION_FLAT_ID_NAME]?: string; // undefined for the root question
 
-  @Field(() => TranslationFieldDto)
+  @Field(() => TranslationFieldDto, { nullable: true })
   name?: TranslationFieldDto;
 
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true })
   optional?: boolean;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   order: number;
 
   @Field(() => String)
   type: string;
 
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true })
   showError?: boolean;
 
-  @Field(() => Number)
+  @Field(() => Number, { nullable: true })
   position?: number;
 
   static adapter: FirebaseAdapter<BaseQuestionDB, BaseQuestionDto>;
