@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { CategorySubscriptionDB } from 'hero24-types';
 import { omitUndefined } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class CategorySubscriptionDto {
@@ -16,19 +17,21 @@ export class CategorySubscriptionDto {
   @Field(() => String)
   discountFormat: 'fixed' | 'percentage';
 
-  static convertFromFirebaseType(
-    data: CategorySubscriptionDB,
-    id: string,
-  ): CategorySubscriptionDto {
-    return {
-      ...data,
-      id,
-    };
-  }
-
-  static convertToFirebaseType(data: CategorySubscriptionDto): CategorySubscriptionDB {
-    return omitUndefined({
-      ...data,
-    });
-  }
+  static adapter: FirebaseAdapter<
+    CategorySubscriptionDB & { id: string },
+    CategorySubscriptionDto
+  >;
 }
+
+CategorySubscriptionDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    return {
+      ...external,
+    };
+  },
+  toExternal(internal) {
+    return omitUndefined({
+      ...internal,
+    });
+  },
+});

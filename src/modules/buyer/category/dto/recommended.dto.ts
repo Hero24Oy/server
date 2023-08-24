@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { RecommendedDB } from 'hero24-types';
 import { omitUndefined } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class RecommendedDto {
@@ -16,6 +17,11 @@ export class RecommendedDto {
   @Field(() => String)
   link: string;
 
+  static adapter: FirebaseAdapter<
+    RecommendedDB & { id: string },
+    RecommendedDto
+  >;
+
   static convertFromFirebaseType(
     data: RecommendedDB,
     id: string,
@@ -28,7 +34,21 @@ export class RecommendedDto {
 
   static convertToFirebaseType(data: RecommendedDto): RecommendedDB {
     return omitUndefined({
-      ...data
+      ...data,
     });
   }
 }
+
+RecommendedDto.adapter = new FirebaseAdapter({
+  toExternal: (internal) => {
+    return {
+      ...internal,
+      id: internal.id,
+    };
+  },
+  toInternal: (external) => {
+    return omitUndefined({
+      ...external,
+    });
+  },
+});

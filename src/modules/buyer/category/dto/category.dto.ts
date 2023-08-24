@@ -1,20 +1,27 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { CategoryAddressesDto } from './category-addresses.dto';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { MaybeType } from 'src/modules/common/common.types';
 import {
+  QuestionAdapter,
   QuestionDto,
-  QuestionDtoConvertor,
 } from 'src/modules/common/dto/question/question.dto';
 import { RecommendedDto } from './recommended.dto';
 import { PackageDto } from 'src/modules/common/dto/package/package.dto';
 import { CategoryDB, CategoryDBAddresses } from 'hero24-types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-import { convertListToObjects } from 'src/modules/common/common.utils/convert-list-to-objects.util';
 import { CategorySubscriptionDto } from './category-subscription.dto';
+import { questionsToTree } from 'src/modules/common/dto/question/question.utils/questions-to-tree.util';
+import { PlainQuestion } from 'src/modules/common/dto/question/question.types';
+import { QuestionsToArray } from 'src/modules/common/dto/question/question.utils/questions-to-array.util';
+import { convertListToObjects } from 'src/modules/common/common.utils/convert-list-to-objects.util';
+import { convertObjectToList } from 'src/modules/common/common.utils/convert-object-to-list.util';
+import { omitUndefined } from 'src/modules/common/common.utils';
 
 @ObjectType()
 export class CategoryDto {
+  @Field(() => String)
+  id: string;
+
   @Field(() => TranslationFieldDto)
   name: TranslationFieldDto;
 
@@ -31,10 +38,10 @@ export class CategoryDto {
   defaultServiceProviderVAT: number;
 
   @Field(() => Boolean, { nullable: true })
-  isServiceProviderVATLocked: MaybeType<boolean>;
+  isServiceProviderVATLocked?: boolean;
 
   @Field(() => Boolean, { nullable: true })
-  isConstructionVAT: MaybeType<boolean>;
+  isConstructionVAT?: boolean;
 
   @Field(() => Number)
   defaultPrice: number;
@@ -61,77 +68,44 @@ export class CategoryDto {
 }
 
 CategoryDto.adapter = new FirebaseAdapter({
-  toExternal: (internal) => {
-    let questions: QuestionDto[] = [];
-    for (const id in internal.questions) {
-      questions.push(
-        QuestionDtoConvertor.convertFromFirebaseType(
-          internal.questions[id],
-          id,
-        ),
-      );
-    }
-    let packages: PackageDto[] = [];
-    for (const id in internal.packages) {
-      packages.push(
-        PackageDto.convertFromFirebaseType(internal.packages[id], id),
-      );
-    }
-    let recommended: RecommendedDto[] = [];
-    for (const id in internal.recommended) {
-      recommended.push(
-        RecommendedDto.convertFromFirebaseType(internal.recommended[id], id),
-      );
-    }
-    let subscriptions: CategorySubscriptionDto[] = [];
-    for (const id in internal.subscriptions) {
-      subscriptions.push(
-        CategorySubscriptionDto.convertFromFirebaseType(
-          internal.subscriptions[id],
-          id,
-        ),
-      );
-    }
+  toInternal(external) {
+    const questions = external.questions.map((question) =>
+      QuestionAdapter.toInternal(question),
+    );
     return {
-      id: internal.id,
-      name: internal.name,
-      addresses: internal.addresses as CategoryAddressesDto,
-      questions: questions,
-      defaultCustomerVAT: internal.defaultCustomerVAT,
-      defaultServiceProviderVAT: internal.defaultServiceProviderVAT,
-      isServiceProviderVATLocked: internal.isServiceProviderVATLocked,
-      isConstructionVAT: internal.isConstructionVAT,
-      defaultPrice: internal.defaultPrice,
-      minimumPricePerHour: internal.minimumPricePerHour,
-      minimumDuration: internal.minimumDuration,
-      netvisorKey: internal.netvisorKey,
-      packages: packages,
-      recommended: recommended,
-      subscriptions: subscriptions,
+      ...external,
+      addresses: external.addresses as CategoryDBAddresses,
+      questions: questionsToTree(questions as PlainQuestion[]),
+      id: external.id,
+      packages: external.packages
+        ? convertListToObjects(external.packages)
+        : undefined,
+      recommended: external.recommended
+        ? convertListToObjects(external.recommended)
+        : undefined,
+      subscriptions: external.subscriptions
+        ? convertListToObjects(external.subscriptions)
+        : undefined,
     };
   },
-  toInternal: (external) => ({
-    id: '',
-    name: external.name,
-    addresses: external.addresses as CategoryDBAddresses,
-    questions: convertListToObjects(external.questions),
-    defaultCustomerVAT: external.defaultCustomerVAT,
-    defaultServiceProviderVAT: external.defaultServiceProviderVAT,
-    isServiceProviderVATLocked:
-      external.isServiceProviderVATLocked || undefined,
-    isConstructionVAT: external.isConstructionVAT || undefined,
-    defaultPrice: external.defaultPrice,
-    minimumPricePerHour: external.minimumPricePerHour,
-    minimumDuration: external.minimumDuration,
-    netvisorKey: external.netvisorKey,
-    packages: external.packages
-      ? convertListToObjects(external.packages)
-      : undefined,
-    recommended: external.recommended
-      ? convertListToObjects(external.recommended)
-      : undefined,
-    subscriptions: external.subscriptions
-      ? convertListToObjects(external.subscriptions)
-      : undefined,
-  }),
+  toExternal(internal) {
+    const questions = QuestionsToArray(internal.questions) as QuestionDto[];
+    return omitUndefined({
+      ...internal,
+      questions,
+      id: internal.id,
+      addresses: internal.addresses as CategoryDBAddresses,
+      isServiceProviderVATLocked: internal.isServiceProviderVATLocked,
+      isConstructionVAT: internal.isConstructionVAT,
+      packages: internal.packages
+        ? convertObjectToList(internal.packages)
+        : undefined,
+      recommended: internal.recommended
+        ? convertObjectToList(internal.recommended)
+        : undefined,
+      subscriptions: internal.subscriptions
+        ? convertObjectToList(internal.subscriptions)
+        : undefined,
+    });
+  },
 });

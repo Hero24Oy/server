@@ -1,14 +1,11 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Label, QuestionDB, QuestionOptionDB, QuestionsDB } from 'hero24-types';
-
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { omitUndefined } from 'src/modules/common/common.utils';
-
-import { QuestionDto, QuestionDtoConvertor } from './question.dto';
-import { convertListToObjects } from '../../common.utils/convert-list-to-objects.util';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { PlainQuestionOption } from './question.types';
 
 @ObjectType()
+@InputType('QuestionOptionInput')
 export class QuestionOptionDto {
   @Field(() => String)
   id: string;
@@ -25,46 +22,25 @@ export class QuestionOptionDto {
   @Field(() => Boolean, { nullable: true })
   checked?: MaybeType<boolean>;
 
-  static convertToFirebaseType(
-    data: QuestionOptionDto,
-    plainQuestions: QuestionDto[],
-  ): QuestionOptionDB {
-    return omitUndefined({
-      ...data,
-      name: data.name ? (data.name as Label) : undefined,
-      order: data.order ? data.order : undefined,
-      questions: data.questions
-        ? convertListToObjects(
-            data.questions.map((depsId) =>
-              QuestionDtoConvertor.convertToFirebaseType(
-                plainQuestions.find(
-                  (question) => depsId === question.depsId,
-                ) as QuestionDto,
-                plainQuestions,
-              ),
-            ),
-          )
-        : undefined,
-      checked: data.checked ? data.checked : undefined,
-    });
-  }
-
-  static convertFromFirebaseType(
-    data: QuestionOptionDB,
-    id: string,
-    saveQuestion: (question: QuestionDB) => string,
-  ): QuestionOptionDto {
-    const questions: QuestionDto[] = [];
-    for (const id in data.questions) {
-      const question: QuestionDB = data.questions[id];
-      questions.push(
-        QuestionDtoConvertor.convertFromFirebaseType(question, saveQuestion),
-      );
-    }
-    return {
-      ...data,
-      id,
-      questions: questions?.map(saveQuestion),
-    };
-  }
+  static adapter: FirebaseAdapter<
+    PlainQuestionOption,
+    QuestionOptionDto
+  >;
 }
+
+QuestionOptionDto.adapter = new FirebaseAdapter({
+  toInternal: (external) => ({
+    id: external.id,
+    name: external.name || undefined,
+    questions: external.questions || null,
+    order: external.order ?? undefined,
+    checked: external.checked ?? undefined,
+  }),
+  toExternal: (internal) => ({
+    id: "",
+    checked: internal.checked,
+    name: internal.name,
+    order: internal.order,
+    questions: internal.questions,
+  }),
+});
