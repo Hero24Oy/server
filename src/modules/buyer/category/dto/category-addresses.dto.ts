@@ -19,6 +19,15 @@ export class CategoryDeliveryAddressDto {
 export const CategoryAddressesDto = createUnionType({
   name: 'CategoryAddressesDto',
   types: () => [CategoryMainAddressDto, CategoryDeliveryAddressDto] as const,
+  resolveType(value) {
+    if (value.main) {
+      return CategoryMainAddressDto;
+    }
+    if (value.from) {
+      return CategoryDeliveryAddressDto;
+    }
+    return null;
+  },
 });
 
 export type CategoryAddressesDto = typeof CategoryAddressesDto;
