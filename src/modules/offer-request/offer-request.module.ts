@@ -6,10 +6,12 @@ import { SorterModule } from '../sorter/sorter.module';
 import { OFFER_REQUEST_SORTERS } from './offer-request.sorters';
 import { FiltererModule } from '../filterer/filterer.module';
 import { OFFER_REQUEST_FILTERS } from './offer-request.filers';
+import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 
 @Module({
   imports: [
     FirebaseModule,
+    GraphQLPubsubModule,
     SorterModule.create(OFFER_REQUEST_SORTERS),
     FiltererModule.create(OFFER_REQUEST_FILTERS),
   ],
