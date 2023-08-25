@@ -281,7 +281,7 @@ export class OfferRequestService {
     return true;
   }
 
-  async updateOfferRequestAddress(
+  async updateOfferRequestAddresses(
     input: OfferRequestUpdateAddressesInput,
   ): Promise<OfferRequestDto> {
     const { offerRequestId, addresses: inputAddresses } = input;

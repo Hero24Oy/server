@@ -90,10 +90,10 @@ export class OfferRequestResolver {
   @Mutation(() => OfferRequestDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async updateOfferRequestAddress(
+  async updateOfferRequestAddresses(
     @Args('input') input: OfferRequestUpdateAddressesInput,
   ): Promise<OfferRequestDto> {
-    return this.offerRequestService.updateOfferRequestAddress(input);
+    return this.offerRequestService.updateOfferRequestAddresses(input);
   }
 
   @Mutation(() => OfferRequestDto)
