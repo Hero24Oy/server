@@ -16,3 +16,5 @@ export const OfferRequestStatus: OfferStatusEnum = {
 };
 
 export type OfferRequestStatus = Values<typeof OfferRequestStatus>;
+
+export const OFFER_REQUEST_UPDATED_SUBSCRIPTION = 'offerRequestUpdated';

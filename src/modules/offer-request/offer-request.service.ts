@@ -1,5 +1,5 @@
 import { isString } from 'lodash';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
@@ -29,6 +29,9 @@ import {
   OfferRequestStatus,
 } from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
+import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { PubSub } from 'graphql-subscriptions';
 
 @Injectable()
 export class OfferRequestService {
@@ -45,6 +48,7 @@ export class OfferRequestService {
       OfferRequestFiltererContext,
       OfferRequestFiltererConfigs
     >,
+    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
   private getOfferRequestsRef() {
@@ -269,5 +273,11 @@ export class OfferRequestService {
       .set(OfferRequestStatus.CANCELLED);
 
     return true;
+  }
+
+  async emitOfferRequestUpdated(id: string) {
+    const offerRequest = await this.strictGetOfferRequestById(id);
+
+    emitOfferRequestUpdated(this.pubSub, offerRequest);
   }
 }
