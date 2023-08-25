@@ -277,7 +277,9 @@ export class OfferRequestService {
     return true;
   }
 
-  async updateAddress(input: OfferRequestUpdateAddressInput): Promise<void> {
+  async updateOfferRequestAddress(
+    input: OfferRequestUpdateAddressInput,
+  ): Promise<void> {
     const { offerRequestId, addresses: inputAddresses } = input;
 
     const addresses = AddressesAnsweredInput.adapter.toInternal(inputAddresses);

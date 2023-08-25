@@ -95,10 +95,10 @@ export class OfferRequestResolver {
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async updateAddress(
+  async updateOfferRequestAddress(
     @Args('input') input: OfferRequestUpdateAddressInput,
   ): Promise<boolean> {
-    await this.offerRequestService.updateAddress(input);
+    await this.offerRequestService.updateOfferRequestAddress(input);
 
     this.offerRequestService.emitOfferRequestUpdated(input.offerRequestId);
 
