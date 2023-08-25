@@ -17,7 +17,6 @@ import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from './offer-request.constants';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { getOfferRequestSubscriptionFilter } from './offer-request.utils/offer-request-subscription-filter.util';
 import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
-import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
 import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
 
 @Resolver()
@@ -63,8 +62,6 @@ export class OfferRequestResolver {
   ): Promise<boolean> {
     await this.offerRequestService.updatePurchase(input);
 
-    this.offerRequestService.emitOfferRequestUpdated(input.id);
-
     return true;
   }
 
@@ -75,8 +72,6 @@ export class OfferRequestResolver {
     @Args('id') offerRequestId: string,
   ): Promise<boolean> {
     await this.offerRequestService.markOfferRequestReviewed(offerRequestId);
-
-    this.offerRequestService.emitOfferRequestUpdated(offerRequestId);
 
     return true;
   }
@@ -89,8 +84,6 @@ export class OfferRequestResolver {
   ): Promise<boolean> {
     await this.offerRequestService.cancelOfferRequest(offerRequestId);
 
-    this.offerRequestService.emitOfferRequestUpdated(offerRequestId);
-
     return true;
   }
 
@@ -100,12 +93,7 @@ export class OfferRequestResolver {
   async updateOfferRequestAddress(
     @Args('input') input: OfferRequestUpdateAddressesInput,
   ): Promise<OfferRequestDto> {
-    const offerRequest =
-      await this.offerRequestService.updateOfferRequestAddress(input);
-
-    emitOfferRequestUpdated(this.pubSub, offerRequest);
-
-    return offerRequest;
+    return this.offerRequestService.updateOfferRequestAddress(input);
   }
 
   @Mutation(() => OfferRequestDto)
@@ -114,12 +102,7 @@ export class OfferRequestResolver {
   async updateOfferRequestQuestions(
     @Args('input') input: OfferRequestUpdateQuestionsInput,
   ): Promise<OfferRequestDto> {
-    const offerRequest =
-      await this.offerRequestService.updateOfferRequestQuestions(input);
-
-    emitOfferRequestUpdated(this.pubSub, offerRequest);
-
-    return offerRequest;
+    return this.offerRequestService.updateOfferRequestQuestions(input);
   }
 
   @Subscription(() => OfferRequestDto, {

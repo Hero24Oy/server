@@ -57,7 +57,7 @@ export class OfferRequestService {
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
-  private getOfferRequestsRef() {
+  getOfferRequestsRef() {
     const database = this.firebaseService.getDefaultApp().database();
 
     return database.ref(FirebaseDatabasePath.OFFER_REQUESTS);
@@ -334,9 +334,7 @@ export class OfferRequestService {
     return this.strictGetOfferRequestById(offerRequestId);
   }
 
-  async emitOfferRequestUpdated(id: string) {
-    const offerRequest = await this.strictGetOfferRequestById(id);
-
+  emitOfferRequestUpdated(offerRequest: OfferRequestDto) {
     emitOfferRequestUpdated(this.pubSub, offerRequest);
   }
 }
