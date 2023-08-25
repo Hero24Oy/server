@@ -279,7 +279,7 @@ export class OfferRequestService {
 
   async updateOfferRequestAddress(
     input: OfferRequestUpdateAddressInput,
-  ): Promise<void> {
+  ): Promise<OfferRequestDto> {
     const { offerRequestId, addresses: inputAddresses } = input;
 
     const addresses = AddressesAnsweredInput.adapter.toInternal(inputAddresses);
@@ -290,6 +290,8 @@ export class OfferRequestService {
       .child('initial')
       .child('addresses')
       .set(addresses);
+
+    return this.strictGetOfferRequestById(offerRequestId);
   }
 
   async emitOfferRequestUpdated(id: string) {
