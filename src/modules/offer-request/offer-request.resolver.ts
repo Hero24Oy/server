@@ -16,6 +16,7 @@ import { Identity } from '../auth/auth.types';
 import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from './offer-request.constants';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { getOfferRequestSubscriptionFilter } from './offer-request.utils/offer-request-subscription-filter.util';
+import { OfferRequestUpdateAddressInput } from './dto/editing/offer-request-update-address.input';
 
 @Resolver()
 export class OfferRequestResolver {
@@ -87,6 +88,19 @@ export class OfferRequestResolver {
     await this.offerRequestService.cancelOfferRequest(offerRequestId);
 
     this.offerRequestService.emitOfferRequestUpdated(offerRequestId);
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async updateAddress(
+    @Args('input') input: OfferRequestUpdateAddressInput,
+  ): Promise<boolean> {
+    await this.offerRequestService.updateAddress(input);
+
+    this.offerRequestService.emitOfferRequestUpdated(input.offerRequestId);
 
     return true;
   }

@@ -32,6 +32,8 @@ import { OfferRequestFiltererConfigs } from './offer-request.filers';
 import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
+import { OfferRequestUpdateAddressInput } from './dto/editing/offer-request-update-address.input';
+import { AddressesAnsweredInput } from './dto/address-answered/addresses-answered.input';
 
 @Injectable()
 export class OfferRequestService {
@@ -273,6 +275,19 @@ export class OfferRequestService {
       .set(OfferRequestStatus.CANCELLED);
 
     return true;
+  }
+
+  async updateAddress(input: OfferRequestUpdateAddressInput): Promise<void> {
+    const { offerRequestId, addresses: inputAddresses } = input;
+
+    const addresses = AddressesAnsweredInput.adapter.toInternal(inputAddresses);
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('addresses')
+      .set(addresses);
   }
 
   async emitOfferRequestUpdated(id: string) {
