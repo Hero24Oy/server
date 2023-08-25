@@ -16,8 +16,9 @@ import { Identity } from '../auth/auth.types';
 import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from './offer-request.constants';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { getOfferRequestSubscriptionFilter } from './offer-request.utils/offer-request-subscription-filter.util';
-import { OfferRequestUpdateAddressInput } from './dto/editing/offer-request-update-address.input';
+import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
 import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
+import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
 
 @Resolver()
 export class OfferRequestResolver {
@@ -97,10 +98,24 @@ export class OfferRequestResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async updateOfferRequestAddress(
-    @Args('input') input: OfferRequestUpdateAddressInput,
+    @Args('input') input: OfferRequestUpdateAddressesInput,
   ): Promise<OfferRequestDto> {
     const offerRequest =
       await this.offerRequestService.updateOfferRequestAddress(input);
+
+    emitOfferRequestUpdated(this.pubSub, offerRequest);
+
+    return offerRequest;
+  }
+
+  @Mutation(() => OfferRequestDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async updateOfferRequestQuestions(
+    @Args('input') input: OfferRequestUpdateQuestionsInput,
+  ): Promise<OfferRequestDto> {
+    const offerRequest =
+      await this.offerRequestService.updateOfferRequestQuestions(input);
 
     emitOfferRequestUpdated(this.pubSub, offerRequest);
 

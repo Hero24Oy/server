@@ -12,11 +12,11 @@ export class FirebaseAdapter<FirebaseType, DtoType>
     >,
   ) {}
 
-  public toInternal(external: DtoType): TypeSafeRequired<FirebaseType> {
+  public toInternal = (external: DtoType): TypeSafeRequired<FirebaseType> => {
     return omitUndefined(this.adapter.toInternal(external)) as FirebaseType;
-  }
+  };
 
-  public toExternal(internal: FirebaseType): TypeSafeRequired<DtoType> {
+  public toExternal = (internal: FirebaseType): TypeSafeRequired<DtoType> => {
     return this.adapter.toExternal(internal) as DtoType;
-  }
+  };
 }

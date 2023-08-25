@@ -4,6 +4,6 @@ import { OfferRequestIdInput } from 'src/modules/offer/dto/editing/offer-request
 import { AddressesAnsweredInput } from '../address-answered/addresses-answered.input';
 
 @InputType()
-export class OfferRequestUpdateAddressInput extends OfferRequestIdInput {
+export class OfferRequestUpdateAddressesInput extends OfferRequestIdInput {
   addresses: AddressesAnsweredInput;
 }

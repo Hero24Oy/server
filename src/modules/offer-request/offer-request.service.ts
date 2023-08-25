@@ -1,4 +1,4 @@
-import { isString } from 'lodash';
+import { get, isString } from 'lodash';
 import { Inject, Injectable } from '@nestjs/common';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
 
@@ -32,8 +32,12 @@ import { OfferRequestFiltererConfigs } from './offer-request.filers';
 import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
-import { OfferRequestUpdateAddressInput } from './dto/editing/offer-request-update-address.input';
+import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
 import { AddressesAnsweredInput } from './dto/address-answered/addresses-answered.input';
+import { OfferRequestQuestionInput } from './dto/offer-request-question/offer-request-question.input';
+import { PlainOfferRequestQuestion } from './offer-request-questions.types';
+import { offerRequestQuestionsToTree } from './offer-request.utils/offer-request-questions-to-tree.util';
+import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
 
 @Injectable()
 export class OfferRequestService {
@@ -278,7 +282,7 @@ export class OfferRequestService {
   }
 
   async updateOfferRequestAddress(
-    input: OfferRequestUpdateAddressInput,
+    input: OfferRequestUpdateAddressesInput,
   ): Promise<OfferRequestDto> {
     const { offerRequestId, addresses: inputAddresses } = input;
 
@@ -290,6 +294,42 @@ export class OfferRequestService {
       .child('initial')
       .child('addresses')
       .set(addresses);
+
+    return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  async updateOfferRequestQuestions(
+    input: OfferRequestUpdateQuestionsInput,
+  ): Promise<OfferRequestDto> {
+    const { offerRequestId, questions: inputQuestions } = input;
+    const plainQuestions = inputQuestions.map(
+      OfferRequestQuestionInput.adapter.toInternal,
+    ) as PlainOfferRequestQuestion[];
+
+    const questions = offerRequestQuestionsToTree(plainQuestions);
+
+    const offerRequest = await this.strictGetOfferRequestById(offerRequestId);
+
+    const firebaseOfferRequest =
+      OfferRequestDto.adapter.toInternal(offerRequest);
+
+    const oldQuestions = get(firebaseOfferRequest, [
+      'data',
+      'initial',
+      'questions',
+    ]);
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('requestedChanges')
+      .set({
+        created: Date.now(),
+        changedQuestions: {
+          before: oldQuestions,
+          after: questions,
+        },
+      });
 
     return this.strictGetOfferRequestById(offerRequestId);
   }
