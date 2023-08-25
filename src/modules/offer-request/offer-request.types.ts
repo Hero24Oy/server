@@ -14,7 +14,7 @@ export type OfferRequestFiltererContext = Record<string, never>;
 
 export type OfferRequestNeatFilter<Config> = NeatFilter<
   OfferRequestDto,
-  OfferRequestFilterColumn.STATUS,
+  OfferRequestFilterColumn,
   OfferRequestFiltererContext,
   Config
 >;
