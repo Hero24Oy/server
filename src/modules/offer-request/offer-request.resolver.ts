@@ -18,6 +18,7 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { getOfferRequestSubscriptionFilter } from './offer-request.utils/offer-request-subscription-filter.util';
 import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
 import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
+import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
 
 @Resolver()
 export class OfferRequestResolver {
@@ -103,6 +104,15 @@ export class OfferRequestResolver {
     @Args('input') input: OfferRequestUpdateQuestionsInput,
   ): Promise<OfferRequestDto> {
     return this.offerRequestService.updateOfferRequestQuestions(input);
+  }
+
+  @Mutation(() => OfferRequestDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async updateAcceptedChanges(
+    @Args('input') input: UpdateAcceptedChangesInput,
+  ): Promise<OfferRequestDto> {
+    return this.offerRequestService.updateAcceptedChanges(input);
   }
 
   @Subscription(() => OfferRequestDto, {

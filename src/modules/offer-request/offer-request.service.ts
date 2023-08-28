@@ -38,6 +38,7 @@ import { OfferRequestQuestionInput } from './dto/offer-request-question/offer-re
 import { PlainOfferRequestQuestion } from './offer-request-questions.types';
 import { offerRequestQuestionsToTree } from './offer-request.utils/offer-request-questions-to-tree.util';
 import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
+import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
 
 @Injectable()
 export class OfferRequestService {
@@ -361,6 +362,18 @@ export class OfferRequestService {
       .child('initial')
       .child('questions')
       .set(questions);
+  }
+
+  async updateAcceptedChanges(input: UpdateAcceptedChangesInput) {
+    const { offerRequestId, timeChangeAccepted, detailsChangeAccepted } = input;
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('changesAccepted')
+      .update({ timeChangeAccepted, detailsChangeAccepted });
+
+    return this.strictGetOfferRequestById(offerRequestId);
   }
 
   emitOfferRequestUpdated(offerRequest: OfferRequestDto) {
