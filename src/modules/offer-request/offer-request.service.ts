@@ -1,4 +1,4 @@
-import { get, isString } from 'lodash';
+import { get, isString, map } from 'lodash';
 import { Inject, Injectable } from '@nestjs/common';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
 
@@ -332,6 +332,35 @@ export class OfferRequestService {
       });
 
     return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  async updateDateQuestionWithAgreedStartTime(
+    offerRequestId: string,
+    agreedStartTime: Date,
+  ) {
+    const offerRequest = await this.strictGetOfferRequestById(offerRequestId);
+
+    const initialQuestions = get(
+      OfferRequestDto.adapter.toInternal(offerRequest),
+      ['data', 'initial', 'questions'],
+    );
+
+    const questions = map(initialQuestions, (question) => {
+      if (question.type === 'date') {
+        question.preferredTime = agreedStartTime.getTime();
+        question.suitableTimes = null;
+        question.suitableTimesCount = null;
+      }
+
+      return question;
+    });
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('questions')
+      .set(questions);
   }
 
   emitOfferRequestUpdated(offerRequest: OfferRequestDto) {
