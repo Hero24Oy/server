@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
-import { AppGraphQLContext } from 'src/app.types';
+import { AppGraphQLContext, AppPlatform } from 'src/app.types';
 import { AuthIdentity } from 'src/modules/auth/auth.decorator';
 import { Identity } from 'src/modules/auth/auth.types';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
@@ -54,7 +54,7 @@ export class OfferResolver {
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
       variables: { input: OfferSubscriptionInput },
-      { identity }: AppGraphQLContext,
+      { identity, platform }: AppGraphQLContext,
     ) => {
       // ? what if provided offerId is not related to the user
       // if ids are provided, filter by them
@@ -64,7 +64,7 @@ export class OfferResolver {
         );
       }
 
-      if (identity?.isAdmin) {
+      if (identity?.isAdmin && platform === AppPlatform.STILAUS) {
         return true;
       }
 
@@ -76,10 +76,10 @@ export class OfferResolver {
     },
   })
   subscribeOnOfferUpdated(
-    @AuthIdentity() { isAdmin }: Identity,
+    @AuthIdentity() identity: Identity,
     @Args('input') input: OfferSubscriptionInput,
   ) {
-    if (!input.role && !isAdmin) {
+    if (!input.role && !identity?.isAdmin) {
       throw new UnauthorizedException();
     }
 
