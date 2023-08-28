@@ -41,6 +41,12 @@ export class ChatService {
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
+  private getChatsRef() {
+    const app = this.firebaseService.getDefaultApp();
+
+    return app.database().ref(FirebaseDatabasePath.CHATS);
+  }
+
   async getChats(
     args: ChatsArgs,
     identity: Identity,
@@ -251,27 +257,19 @@ export class ChatService {
     return isAboutReclamation;
   }
 
-  async addMemberToChat(
-    args: ChatMemberAdditionArgs,
-    app: FirebaseAppInstance,
-  ): Promise<boolean> {
+  async addMemberToChat(args: ChatMemberAdditionArgs): Promise<boolean> {
     const { userId, chatId, role } = args;
-
-    const database = getDatabase(app);
-
-    const path = [
-      FirebaseDatabasePath.CHATS,
-      chatId,
-      'data',
-      'members',
-      userId,
-    ];
 
     const chatMember: ChatMemberDB = {
       role,
     };
 
-    await set(ref(database, path.join('/')), chatMember);
+    await this.getChatsRef()
+      .child(chatId)
+      .child('data')
+      .child('members')
+      .child(userId)
+      .set(chatMember);
 
     return true;
   }
