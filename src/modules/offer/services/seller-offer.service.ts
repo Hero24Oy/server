@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import omit from 'lodash/omit';
+import get from 'lodash/get';
 
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
@@ -179,17 +180,17 @@ export class SellerOfferService {
   }: OfferChangeInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const isAcceptTimeChanges = agreedStartTime;
+    const isAcceptTimeChanges = typeof agreedStartTime === 'object';
     const isAcceptDetailsChanges = !isAcceptTimeChanges;
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.offerService.strictGetOfferById(offerId);
+    const offerRequestId = get(offer, ['data', 'initial', 'offerRequestId']);
 
-    const offerRequest = await this.offerRequestService.getOfferRequestById(
-      offer.data.initial.offerRequestId,
-    );
+    const offerRequest =
+      await this.offerRequestService.strictGetOfferRequestById(offerRequestId);
 
-    if (!offerRequest?.data.requestedChanges) {
+    if (!offerRequest.data.requestedChanges) {
       throw new Error('OfferRequest does not have requested changes!');
     }
 
@@ -197,6 +198,7 @@ export class SellerOfferService {
       requestedChanges: { changedQuestions },
       initial: { questions },
     } = offerRequest.data;
+
     const { dateQuestion, otherChanges } = getChangedQuestions(
       changedQuestions,
       questions,
@@ -210,17 +212,19 @@ export class SellerOfferService {
         .set(agreedStartTime.getTime());
     }
 
-    const changesAccepted = {
-      detailsChangeAccepted: isAcceptDetailsChanges || !otherChanges.length,
-      timeChangeAccepted: isAcceptTimeChanges || !dateQuestion,
-    };
+    const timeChangeAccepted = isAcceptTimeChanges || !dateQuestion;
+    const detailsChangeAccepted =
+      isAcceptDetailsChanges || !otherChanges.length;
 
-    if (
-      changesAccepted.detailsChangeAccepted &&
-      changesAccepted.timeChangeAccepted
-    ) {
+    if (detailsChangeAccepted && timeChangeAccepted) {
       await offerRef.child('data').child('requestedChangesAccepted').set(true);
     }
+
+    await this.offerRequestService.updateAcceptedChanges({
+      offerRequestId,
+      detailsChangeAccepted,
+      timeChangeAccepted,
+    });
 
     return true;
   }
