@@ -22,6 +22,7 @@ import { OfferService } from '../services/offer.service';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { OfferSubscriptionInput } from '../dto/offers/offers-subsribption.input';
 import { Scope } from 'src/modules/auth/auth.constants';
+import { OfferIdInput } from '../dto/editing/offer-id.input';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)
@@ -42,6 +43,11 @@ export class OfferResolver {
     }
 
     return this.offerService.getOffers(input, identity);
+  }
+
+  @Query(() => OfferDto)
+  offer(@Args('input') { offerId }: OfferIdInput): Promise<OfferDto> {
+    return this.offerService.strictGetOfferById(offerId);
   }
 
   @Subscription(() => OfferDto, {
