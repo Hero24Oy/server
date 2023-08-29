@@ -39,6 +39,7 @@ import { PlainOfferRequestQuestion } from './offer-request-questions.types';
 import { offerRequestQuestionsToTree } from './offer-request.utils/offer-request-questions-to-tree.util';
 import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
 import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
+import { OfferRole } from '../offer/dto/offer/offer-role.enum';
 
 @Injectable()
 export class OfferRequestService {
@@ -113,13 +114,13 @@ export class OfferRequestService {
     args: OfferRequestListArgs,
     identity: Identity,
   ): Promise<OfferRequestListDto> {
-    const { limit, offset, orderBy, filter } = args;
+    const { limit, offset, orderBy, filter, role } = args;
 
     const offerRequests = await this.getAllOfferRequests();
 
     let nodes = offerRequests;
 
-    if (identity.scope === Scope.USER) {
+    if (identity.scope === Scope.USER && role !== OfferRole.SELLER) {
       nodes = nodes.filter(
         ({ data }) => data.initial.buyerProfile === identity.id,
       );
