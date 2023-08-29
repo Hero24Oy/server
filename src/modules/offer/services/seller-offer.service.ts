@@ -262,6 +262,8 @@ export class SellerOfferService {
   }
 
   async createOffer(offer: OfferInput): Promise<OfferDto> {
+    await this.createAcceptanceGuard(offer.data.initial);
+
     const database = this.firebaseService.getDefaultApp().database();
 
     const createdOfferRef = await database

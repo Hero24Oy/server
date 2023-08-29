@@ -14,7 +14,6 @@ import { SellerOfferService } from '../services/seller-offer.service';
 import { OfferService } from '../services/offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
-import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { emitOfferCreatedEvent } from '../offer.utils/emit-offer-created-event.util';
 
@@ -90,12 +89,5 @@ export class SellerOfferResolver {
     emitOfferCreatedEvent(this.pubSub, offer);
 
     return offer;
-  }
-
-  @Mutation(() => Boolean)
-  createAcceptanceGuard(
-    @Args('input') acceptanceGuard: AcceptanceGuardInput,
-  ): Promise<boolean> {
-    return this.sellerOfferService.createAcceptanceGuard(acceptanceGuard);
   }
 }
