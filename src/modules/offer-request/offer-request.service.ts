@@ -120,10 +120,14 @@ export class OfferRequestService {
 
     let nodes = offerRequests;
 
-    if (identity.scope === Scope.USER && role !== OfferRole.SELLER) {
-      nodes = nodes.filter(
-        ({ data }) => data.initial.buyerProfile === identity.id,
-      );
+    if (identity.scope === Scope.USER) {
+      nodes = nodes.filter(({ data }) => {
+        if (role === OfferRole.SELLER) {
+          return data.initial.buyerProfile !== identity.id;
+        }
+
+        return data.initial.buyerProfile === identity.id;
+      });
     }
 
     const filtererConfig: Partial<OfferRequestFiltererConfigs> = {
