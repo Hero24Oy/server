@@ -21,12 +21,18 @@ import {
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
 import { skipFirst } from '../common/common.utils';
+import { GraphQLContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
+import { ChatContext } from './chat.context';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
     SorterModule.create(CHAT_SORTERS),
+    GraphQLContextManagerModule.forFeature({
+      imports: [ChatModule],
+      contexts: [ChatContext],
+    }),
   ],
   providers: [
     ChatResolver,
@@ -36,6 +42,7 @@ import { skipFirst } from '../common/common.utils';
     ChatMessageResolver,
     ChatMemberFieldsResolver,
   ],
+  exports: [ChatMessageService],
 })
 export class ChatModule {
   static unsubscribes: Array<() => Promise<void> | void> = [];
