@@ -1,4 +1,3 @@
-// chatMessageLoader: DataLoader<string, ChatMessageDto | null>;
 import DataLoader from 'dataloader';
 import { Injectable } from '@nestjs/common';
 
