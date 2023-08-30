@@ -20,22 +20,6 @@ export class ChatMemberDto {
   @Field(() => Date, { nullable: true })
   lastMessageDate?: MaybeType<Date>;
 
-  // Field resolver
-  @Field(() => String, { nullable: true })
-  userName?: MaybeType<string>;
-
-  // Field resolver
-  @Field(() => String, { nullable: true })
-  avatar?: MaybeType<string>;
-
-  // Field resolver
-  @Field(() => String, { nullable: true })
-  buyerName?: MaybeType<string>;
-
-  // Field resolver
-  @Field(() => String, { nullable: true })
-  sellerName?: MaybeType<string>;
-
   static adapter: FirebaseAdapter<
     ChatMemberDB & { id: string },
     Omit<ChatMemberDto, 'avatar' | 'buyerName' | 'sellerName' | 'userName'>
