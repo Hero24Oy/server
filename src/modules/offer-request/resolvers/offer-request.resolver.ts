@@ -18,6 +18,7 @@ import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
 import { getOfferRequestSubscriptionFilter } from '../offer-request.utils/offer-request-subscription-filter.util';
 import { OfferRequestUpdateAddressesInput } from '../dto/editing/offer-request-update-addresses.input';
 import { OfferRequestUpdateQuestionsInput } from '../dto/editing/offer-request-update-questions.input';
+import { OfferRequestUpdatedSubscriptionArgs } from '../dto/subscriptions/offer-request-updated-subscription.args';
 
 @Resolver()
 export class OfferRequestResolver {
@@ -113,7 +114,9 @@ export class OfferRequestResolver {
   })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async subscribeToOfferRequestUpdates() {
+  async subscribeToOfferRequestUpdates(
+    @Args() _args: OfferRequestUpdatedSubscriptionArgs,
+  ) {
     return this.pubSub.asyncIterator(OFFER_REQUEST_UPDATED_SUBSCRIPTION);
   }
 }
