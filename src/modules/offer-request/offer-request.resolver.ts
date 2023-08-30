@@ -2,23 +2,23 @@ import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
-import { OfferRequestCreationInput } from '../dto/creation/offer-request-creation.input';
-import { OfferRequestDto } from '../dto/offer-request/offer-request.dto';
-import { OfferRequestPurchaseArgs } from '../dto/offer-request-purchase/offer-request-purchase.args';
-import { OfferRequestService } from '../offer-request.service';
-import { AdminGuard } from '../../auth/guards/admin.guard';
-import { FirebaseExceptionFilter } from '../../firebase/firebase.exception.filter';
-import { OfferRequestListDto } from '../dto/offer-request-list/offer-request-list.dto';
-import { OfferRequestListArgs } from '../dto/offer-request-list/offer-request-list.args';
-import { AuthGuard } from '../../auth/guards/auth.guard';
-import { AuthIdentity } from '../../auth/auth.decorator';
-import { Identity } from '../../auth/auth.types';
-import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from '../offer-request.constants';
-import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
-import { getOfferRequestSubscriptionFilter } from '../offer-request.utils/offer-request-subscription-filter.util';
-import { OfferRequestUpdateAddressesInput } from '../dto/editing/offer-request-update-addresses.input';
-import { OfferRequestUpdateQuestionsInput } from '../dto/editing/offer-request-update-questions.input';
-import { OfferRequestUpdatedSubscriptionArgs } from '../dto/subscriptions/offer-request-updated-subscription.args';
+import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
+import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
+import { OfferRequestPurchaseArgs } from './dto/offer-request-purchase/offer-request-purchase.args';
+import { OfferRequestService } from './offer-request.service';
+import { AdminGuard } from '../auth/guards/admin.guard';
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
+import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
+import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthIdentity } from '../auth/auth.decorator';
+import { Identity } from '../auth/auth.types';
+import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from './offer-request.constants';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { getOfferRequestSubscriptionFilter } from './offer-request.utils/offer-request-subscription-filter.util';
+import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
+import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
+import { OfferRequestUpdatedSubscriptionArgs } from './dto/subscriptions/offer-request-updated-subscription.args';
 
 @Resolver()
 export class OfferRequestResolver {
