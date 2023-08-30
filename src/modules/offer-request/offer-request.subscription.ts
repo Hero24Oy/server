@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
 import { Unsubscribe } from '../subscription-manager/subscription-manager.types';
@@ -9,6 +9,8 @@ import { createOfferRequestEventHandler } from './offer-request.utils/create-off
 @Injectable()
 export class OfferRequestSubscription implements SubscriptionService {
   constructor(private offerRequestService: OfferRequestService) {}
+
+  private logger = new Logger(OfferRequestSubscription.name);
 
   subscribe(): Unsubscribe | Promise<Unsubscribe> {
     return this.subscribeToOfferRequestUpdates();
@@ -23,6 +25,10 @@ export class OfferRequestSubscription implements SubscriptionService {
   }
 
   childChangedHandler = createOfferRequestEventHandler((offerRequest) => {
-    this.offerRequestService.emitOfferRequestUpdated(offerRequest);
+    try {
+      this.offerRequestService.emitOfferRequestUpdated(offerRequest);
+    } catch (error) {
+      this.logger.error(error);
+    }
   });
 }

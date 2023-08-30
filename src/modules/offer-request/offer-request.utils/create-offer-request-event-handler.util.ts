@@ -5,16 +5,20 @@ import { OfferRequestDB } from 'hero24-types';
 export const createOfferRequestEventHandler =
   (eventEmitter: (offer: OfferRequestDto) => void) =>
   (snapshot: DataSnapshot) => {
-    if (!snapshot.key) {
-      return;
+    try {
+      if (!snapshot.key) {
+        return;
+      }
+
+      const firebaseOffer: OfferRequestDB = snapshot.val();
+
+      eventEmitter(
+        OfferRequestDto.adapter.toExternal({
+          ...firebaseOffer,
+          id: snapshot.key,
+        }),
+      );
+    } catch (error) {
+      console.error(error);
     }
-
-    const firebaseOffer: OfferRequestDB = snapshot.val();
-
-    eventEmitter(
-      OfferRequestDto.adapter.toExternal({
-        ...firebaseOffer,
-        id: snapshot.key,
-      }),
-    );
   };

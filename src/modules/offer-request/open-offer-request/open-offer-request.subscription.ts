@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DataSnapshot } from 'firebase-admin/database';
 
 import { Unsubscribe } from 'src/modules/subscription-manager/subscription-manager.types';
@@ -13,6 +13,8 @@ export class OpenOfferRequestSubscription implements SubscriptionService {
   constructor(
     private readonly openOfferRequestService: OpenOfferRequestService,
   ) {}
+
+  private logger = new Logger(OpenOfferRequestSubscription.name);
 
   async subscribe(): Promise<Unsubscribe> {
     const unsubscribes = await Promise.all([
@@ -44,22 +46,30 @@ export class OpenOfferRequestSubscription implements SubscriptionService {
   }
 
   private childRemovedHandler = (snapshot: DataSnapshot) => {
-    if (!snapshot.key) {
-      return;
-    }
+    try {
+      if (!snapshot.key) {
+        return;
+      }
 
-    this.openOfferRequestService.emitOpenOfferRequestListItemRemoved(
-      snapshot.key,
-    );
+      this.openOfferRequestService.emitOpenOfferRequestListItemRemoved(
+        snapshot.key,
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
   };
 
   private childAddedHandler = (snapshot: DataSnapshot) => {
-    if (!snapshot.key) {
-      return;
-    }
+    try {
+      if (!snapshot.key) {
+        return;
+      }
 
-    this.openOfferRequestService.emitOpenOfferRequestListItemAdded(
-      snapshot.key,
-    );
+      this.openOfferRequestService.emitOpenOfferRequestListItemAdded(
+        snapshot.key,
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
   };
 }

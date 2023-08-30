@@ -7,6 +7,6 @@ export class OfferRequestUpdatedInput {
   @Field(() => OfferRole)
   role: OfferRole;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => [String], { nullable: true })
   statuses?: OFFER_REQUEST_STATUS[];
 }
