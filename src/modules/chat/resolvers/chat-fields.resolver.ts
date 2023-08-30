@@ -1,24 +1,27 @@
-import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
 import { isNotNull } from 'src/modules/common/common.utils';
 
 import { ChatDto } from '../dto/chat/chat.dto';
 import { ChatMessageDto } from '../dto/chat/chat-message.dto';
-import { ChatMessageService } from '../services/chat-message.service';
+import { AppGraphQLContext } from 'src/app.types';
 import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
 import { MaybeType } from 'src/modules/common/common.types';
 
 @Resolver(() => ChatDto)
 export class ChatFieldsResolver {
-  constructor(
-    private chatMessageService: ChatMessageService,
-    private offerRequestService: OfferRequestService,
-  ) {}
+  constructor(private readonly offerRequestService: OfferRequestService) {}
 
-  @ResolveField(() => [ChatMessageDto], { name: 'messages' })
-  async chatMessages(@Parent() parent: ChatDto) {
-    const chatMessages = await this.chatMessageService.getChatMessageByIds(
-      parent.messageIds,
+  @ResolveField(() => [ChatMessageDto])
+  async messages(
+    @Parent() parent: ChatDto,
+    @Context() context: AppGraphQLContext,
+  ) {
+    const { messageIds } = parent;
+    const { chatMessageLoader } = context;
+
+    const chatMessages = await Promise.all(
+      messageIds.map((id) => chatMessageLoader.load(id)),
     );
 
     return chatMessages.filter(isNotNull);

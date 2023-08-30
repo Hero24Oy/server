@@ -6,6 +6,7 @@ import { FirebaseAppInstance } from './modules/firebase/firebase.types';
 import { UserDto } from './modules/user/dto/user/user.dto';
 import { BuyerProfileDto } from './modules/buyer/dto/buyer/buyer-profile.dto';
 import { SellerProfileDto } from './modules/seller/dto/seller/seller-profile.dto';
+import { ChatMessageDto } from './modules/chat/dto/chat/chat-message.dto';
 
 export type GraphQLConnectionParams = {
   authorization?: string;
@@ -26,4 +27,5 @@ export type AppGraphQLContext = {
   userLoader: DataLoader<string, UserDto | null>;
   buyerLoader: DataLoader<string, BuyerProfileDto | null>;
   sellerLoader: DataLoader<string, SellerProfileDto | null>;
+  chatMessageLoader: DataLoader<string, ChatMessageDto | null>;
 };

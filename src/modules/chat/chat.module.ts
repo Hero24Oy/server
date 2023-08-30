@@ -21,6 +21,8 @@ import {
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
 import { skipFirst } from '../common/common.utils';
+import { GraphQLContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
+import { ChatContext } from './chat.context';
 import { OfferRequestModule } from '../offer-request/offer-request.module';
 
 @Module({
@@ -29,6 +31,10 @@ import { OfferRequestModule } from '../offer-request/offer-request.module';
     GraphQLPubsubModule,
     OfferRequestModule,
     SorterModule.create(CHAT_SORTERS),
+    GraphQLContextManagerModule.forFeature({
+      imports: [ChatModule],
+      contexts: [ChatContext],
+    }),
   ],
   providers: [
     ChatResolver,
@@ -38,6 +44,7 @@ import { OfferRequestModule } from '../offer-request/offer-request.module';
     ChatMessageResolver,
     ChatMemberFieldsResolver,
   ],
+  exports: [ChatMessageService],
 })
 export class ChatModule {
   static unsubscribes: Array<() => Promise<void> | void> = [];

@@ -32,7 +32,7 @@ export class ChatMessageService {
   }
 
   async getChatMessageByIds(
-    messageIds: string[],
+    messageIds: readonly string[],
   ): Promise<(ChatMessageDto | null)[]> {
     const database = getAdminDatabase(this.firebaseService.getDefaultApp());
 
@@ -48,6 +48,7 @@ export class ChatMessageService {
       }
 
       const chatMessage: ChatMessageDB = snapshot.val();
+
       chatMessages[snapshot.key] = ChatMessageDto.adapter.toExternal({
         ...chatMessage,
         id: snapshot.key,

@@ -3,7 +3,6 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 import { MaybeType } from 'src/modules/common/common.types';
 
-import { ChatMessageDto } from './chat-message.dto';
 import { ChatMemberDto } from './chat-member.dto';
 import { isNumber, max } from 'lodash';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
@@ -16,9 +15,6 @@ export class ChatDto {
 
   // The following type is needed for the field resolver
   messageIds: string[];
-  // The following type is optional because the messages is handled by field resolver
-  @Field(() => [ChatMessageDto])
-  messages?: ChatMessageDto[];
 
   @Field(() => [ChatMemberDto])
   members: ChatMemberDto[];
