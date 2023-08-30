@@ -63,7 +63,7 @@ SellerProfileDataDto.adapter = new FirebaseAdapter({
     heroBIOText: internal.heroBIOText,
     categories: internal.categories ? Object.keys(internal.categories) : null,
     companyVAT: internal.companyVAT,
-    langs: internal.langs,
+    langs: internal.langs || [],
     city: internal.city,
     streetAddress: internal.streetAddress,
     postalCode: internal.postalCode,
