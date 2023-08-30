@@ -10,8 +10,8 @@ import { ChatMessageService } from '../services/chat-message.service';
 export class ChatFieldsResolver {
   constructor(private chatMessageService: ChatMessageService) {}
 
-  @ResolveField(() => [ChatMessageDto], { name: 'messages' })
-  async chatMessages(@Parent() parent: ChatDto) {
+  @ResolveField(() => [ChatMessageDto])
+  async messages(@Parent() parent: ChatDto) {
     const chatMessages = await this.chatMessageService.getChatMessageByIds(
       parent.messageIds,
     );
