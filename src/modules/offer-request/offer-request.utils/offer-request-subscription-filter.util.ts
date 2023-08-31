@@ -38,9 +38,5 @@ export const getOfferRequestSubscriptionFilter =
     const isSeller = role === OfferRole.SELLER;
     const isBuyerForOffer = buyerProfile === identity?.id;
 
-    if ((!isBuyerForOffer && isSeller) || (isBuyerForOffer && !isSeller)) {
-      return true;
-    }
-
-    return false;
+    return (!isBuyerForOffer && isSeller) || (isBuyerForOffer && !isSeller);
   };
