@@ -1,63 +1,94 @@
 import { Field, InputType, Float } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
 
-import {
-  convertListToFirebaseMap,
-  omitUndefined,
-} from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @InputType()
 export class PartialSellerProfileDataInput {
   @Field(() => String, { nullable: true })
-  photoURL?: string;
+  photoURL?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  companyName?: string;
+  companyName?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  companyEmail?: string;
+  companyEmail?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  heroBIOText?: string;
+  heroBIOText?: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
-  categories?: string[];
+  categories?: MaybeType<string[]>;
 
   @Field(() => String, { nullable: true })
-  companyVAT?: string;
+  companyVAT?: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
-  langs?: string[];
+  langs?: MaybeType<string[]>;
 
   @Field(() => String, { nullable: true })
-  city?: string;
+  city?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  streetAddress?: string;
+  streetAddress?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
-  postalCode?: string;
+  postalCode?: MaybeType<string>;
 
   @Field(() => Float, { nullable: true })
-  yearsOfExperience?: number;
+  yearsOfExperience?: MaybeType<number>;
 
   @Field(() => [String], { nullable: true })
-  workAreas?: string[];
+  workAreas?: MaybeType<string[]>;
 
   @Field(() => String, { nullable: true })
-  certificate?: string;
+  certificate?: MaybeType<string>;
 
   @Field(() => Float, { nullable: true })
-  weeksOfSentPurchaseInvoices?: number;
+  weeksOfSentPurchaseInvoices?: MaybeType<number>;
 
-  static convertToFirebaseType(
-    sellerProfileData: PartialSellerProfileDataInput,
-  ): Partial<SellerProfileDB['data']> {
-    return omitUndefined({
-      ...sellerProfileData,
-      categories: sellerProfileData.categories
-        ? convertListToFirebaseMap(sellerProfileData.categories)
-        : undefined,
-    });
-  }
+  static adapter: FirebaseAdapter<
+    Partial<SellerProfileDB['data']>,
+    PartialSellerProfileDataInput
+  >;
 }
+
+PartialSellerProfileDataInput.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    photoURL: internal.photoURL,
+    companyName: internal.companyName,
+    companyEmail: internal.companyEmail,
+    heroBIOText: internal.heroBIOText,
+    categories: internal.categories ? Object.keys(internal.categories) : null,
+    companyVAT: internal.companyVAT,
+    langs: internal.langs,
+    city: internal.city,
+    streetAddress: internal.streetAddress,
+    postalCode: internal.postalCode,
+    yearsOfExperience: internal.yearsOfExperience,
+    workAreas: internal.workAreas,
+    certificate: internal.certificate,
+    weeksOfSentPurchaseInvoices: internal.weeksOfSentPurchaseInvoices,
+  }),
+  toInternal: (external) => ({
+    photoURL: external.photoURL ?? undefined,
+    companyName: external.companyName ?? undefined,
+    companyEmail: external.companyEmail ?? undefined,
+    heroBIOText: external.heroBIOText ?? undefined,
+    categories: external.categories
+      ? convertListToFirebaseMap(external.categories)
+      : undefined,
+    companyVAT: external.companyVAT ?? undefined,
+    langs: external.langs ?? undefined,
+    city: external.city ?? undefined,
+    streetAddress: external.streetAddress ?? undefined,
+    postalCode: external.postalCode ?? undefined,
+    yearsOfExperience: external.yearsOfExperience ?? undefined,
+    workAreas: external.workAreas ?? undefined,
+    certificate: external.certificate ?? undefined,
+    weeksOfSentPurchaseInvoices:
+      external.weeksOfSentPurchaseInvoices ?? undefined,
+  }),
+});

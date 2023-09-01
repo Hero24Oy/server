@@ -1,17 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { BuyerProfileDB } from 'hero24-types';
+import { Database } from 'firebase-admin/database';
 
-import { getDatabase, ref, set, update } from 'firebase/database';
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
+
+import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class BuyerService {
-  constructor(private firebaseService: FirebaseService) {}
+  database: Database;
+
+  constructor(private readonly firebaseService: FirebaseService) {
+    this.database = this.firebaseService.getDefaultApp().database();
+  }
 
   async getAllBuyers(): Promise<BuyerProfileDto[]> {
     const database = this.firebaseService.getDefaultApp().database();
@@ -51,28 +55,26 @@ export class BuyerService {
     return buyer;
   }
 
-  async createBuyer(
-    args: BuyerProfileCreationArgs,
-    app: FirebaseAppInstance,
-  ): Promise<BuyerProfileDto> {
+  async createBuyer(args: BuyerProfileCreationArgs): Promise<BuyerProfileDto> {
     const { id, data } = args;
 
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
-    await set(ref(database, path.join('/')), data);
+    await this.database
+      .ref(FirebaseDatabasePath.BUYER_PROFILES)
+      .child(id)
+      .child('data')
+      .set(data);
 
     return this.strictGetBuyerProfileById(id);
   }
 
-  async editBuyer(
-    args: BuyerProfileDataEditingArgs,
-    app: FirebaseAppInstance,
-  ): Promise<BuyerProfileDto> {
+  async editBuyer(args: BuyerProfileDataEditingArgs): Promise<BuyerProfileDto> {
     const { id, data } = args;
 
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
-    await update(ref(database, path.join('/')), data);
+    await this.database
+      .ref(FirebaseDatabasePath.BUYER_PROFILES)
+      .child(id)
+      .child('data')
+      .update(data);
 
     return this.strictGetBuyerProfileById(id);
   }
@@ -84,6 +86,6 @@ export class BuyerService {
 
     const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
-    return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
+    return buyerIds.map((buyerId) => buyerById.get(buyerId) ?? null);
   }
 }

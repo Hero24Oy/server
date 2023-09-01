@@ -1,18 +1,24 @@
-import { UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 
-import { FirebaseApp } from '../firebase/firebase.decorator';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { BUYER_PROFILE_UPDATED_SUBSCRIPTION } from './buyer.constants';
 import { BuyerService } from './buyer.service';
+import { BuyerProfileSubscriptionFilter } from './buyer.utils/buyer-subscription-filter.util';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
-import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
+
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 @Resolver()
 export class BuyerResolver {
-  constructor(private buyerService: BuyerService) {}
+  constructor(
+    private readonly buyerService: BuyerService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+  ) {}
 
   @Query(() => BuyerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
@@ -26,9 +32,8 @@ export class BuyerResolver {
   @UseGuards(AuthGuard)
   async createBuyer(
     @Args() args: BuyerProfileCreationArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<BuyerProfileDto> {
-    return this.buyerService.createBuyer(args, app);
+    return this.buyerService.createBuyer(args);
   }
 
   @Mutation(() => BuyerProfileDto)
@@ -36,8 +41,17 @@ export class BuyerResolver {
   @UseGuards(AuthGuard)
   async editBuyer(
     @Args() args: BuyerProfileDataEditingArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<BuyerProfileDto> {
-    return this.buyerService.editBuyer(args, app);
+    return this.buyerService.editBuyer(args);
+  }
+
+  @Subscription(() => BuyerProfileDto, {
+    name: BUYER_PROFILE_UPDATED_SUBSCRIPTION,
+    filter: BuyerProfileSubscriptionFilter(BUYER_PROFILE_UPDATED_SUBSCRIPTION),
+  })
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  subscribeOnUserUpdate() {
+    return this.pubSub.asyncIterator(BUYER_PROFILE_UPDATED_SUBSCRIPTION);
   }
 }

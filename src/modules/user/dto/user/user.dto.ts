@@ -10,6 +10,7 @@ import {
 
 import { UserDataDto } from './user-data.dto';
 import { UserOfferDto } from './user-offer.dto';
+import { UserDBWithPartialData } from '../../user.types';
 
 @ObjectType()
 export class UserDto {
@@ -70,10 +71,7 @@ export class UserDto {
   // We don't need to send hubSpotContactId on client for now. Only for internal usage
   hubSpotContactId?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<
-    UserDB & { id: string; hubSpotContactId?: string },
-    UserDto
-  >;
+  static adapter: FirebaseAdapter<UserDBWithPartialData, UserDto>;
 }
 
 UserDto.adapter = new FirebaseAdapter({

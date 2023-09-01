@@ -1,5 +1,5 @@
 import { InputType, OmitType } from '@nestjs/graphql';
-import { Address, UserDB } from 'hero24-types';
+import { Address } from 'hero24-types';
 import { isNumber } from 'lodash';
 
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
@@ -8,6 +8,7 @@ import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';
 import { UserDataDto } from '../user/user-data.dto';
 import { UserDataAddressDto } from '../user/user-data-address.dto';
+import { UserDBWithPartialData } from '../../user.types';
 
 const OMITTED_FIELDS = [
   'createdAt',
@@ -23,7 +24,7 @@ export class UserDataInput extends OmitType(
   InputType,
 ) {
   static adapter: FirebaseAdapter<
-    Pick<UserDB['data'], keyof UserDataInput>,
+    Pick<UserDBWithPartialData['data'], keyof UserDataInput>,
     UserDataInput
   >;
 }
@@ -59,16 +60,16 @@ UserDataInput.adapter = new FirebaseAdapter({
     selectedAppLanguage: internal.selectedAppLanguage,
   }),
   toInternal: (external) => ({
-    email: external.email,
+    email: external.email ?? undefined,
     emailVerified: external.emailVerified ?? false,
     pushToken: external.pushToken
       ? convertListToFirebaseMap(external.pushToken)
       : undefined,
-    name: external.name,
+    name: external.name ?? undefined,
     firstName: external.firstName ?? undefined,
     lastName: external.lastName ?? undefined,
-    photoURL: external.photoURL,
-    language: external.language ?? '',
+    photoURL: external.photoURL ?? undefined,
+    language: external.language ?? undefined,
     isActive: external.isActive ?? undefined,
     activeRoute: external.activeRoute
       ? UserDataActiveRouteDto.adapter.toInternal(external.activeRoute)
@@ -79,7 +80,7 @@ UserDataInput.adapter = new FirebaseAdapter({
           Address
         >)
       : undefined,
-    phone: external.phone ?? '',
+    phone: external.phone ?? undefined,
     iban: external.iban ?? undefined,
     birthDate: external.birthDate ? Number(external.birthDate) : undefined,
     certificate: external.certificate ?? undefined,
