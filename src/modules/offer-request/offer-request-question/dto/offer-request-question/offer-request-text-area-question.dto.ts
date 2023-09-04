@@ -4,9 +4,9 @@ import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
-import { OfferRequestQuestionType } from '../../offer-request.constants';
+import { OfferRequestQuestionType } from '../../offer-request-question.constants';
 
 type QuestionType = typeof OfferRequestQuestionType.TEXTAREA;
 

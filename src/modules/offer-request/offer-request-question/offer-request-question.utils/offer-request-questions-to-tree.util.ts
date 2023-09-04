@@ -3,10 +3,10 @@ import {
   DependencyId,
   PlainOfferRequestQuestion,
   OmittedDependencyIdPlainOfferRequestQuestion,
-} from '../offer-request-questions.types';
+} from '../offer-request-question.types';
 import { fillQuestion } from './fill-question.util';
 import { isString, omit } from 'lodash';
-import { QUESTION_FLAT_ID_NAME } from '../offer-request.constants';
+import { QUESTION_FLAT_ID_NAME } from '../offer-request-question.constants';
 
 export const offerRequestQuestionsToTree = (
   questions: PlainOfferRequestQuestion[],

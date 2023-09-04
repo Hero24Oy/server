@@ -3,7 +3,7 @@ import isEqual from 'lodash/isEqual';
 import differenceWith from 'lodash/differenceWith';
 
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from 'src/modules/offer-request/dto/offer-request/offer-request-data-requested-changes-changed-questions.dto';
-import { OfferRequestQuestionDto } from 'src/modules/offer-request/dto/offer-request-question/offer-request-question.dto';
+import { OfferRequestQuestionDto } from 'src/modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
 
 import { isDateQuestion } from './is-date-quesiton.util';
 

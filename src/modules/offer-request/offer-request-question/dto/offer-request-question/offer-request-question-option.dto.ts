@@ -4,7 +4,7 @@ import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { PlainOfferRequestQuestionOption } from '../../offer-request-questions.types';
+import { PlainOfferRequestQuestionOption } from '../../offer-request-question.types';
 
 @ObjectType()
 @InputType('OfferRequestQuestionOptionInput')

@@ -8,13 +8,13 @@ import {
 import {
   OfferRequestQuestionDto,
   OfferRequestQuestionAdapter,
-} from '../offer-request-question/offer-request-question.dto';
+} from '../../offer-request-question/dto/offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
 import { MaybeType } from 'src/modules/common/common.types';
-import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
-import { offerRequestQuestionsToArray } from '../../offer-request.utils/offer-request-questions-to-array.util';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
+import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+import { offerRequestQuestionsToArray } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-array.util';
 
 type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];
 

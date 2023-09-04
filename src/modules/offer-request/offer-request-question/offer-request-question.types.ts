@@ -5,11 +5,12 @@ import {
   OfferRequestListPicker,
   OfferRequestNumberInputQuestion,
   OfferRequestNumberQuestion,
+  OfferRequestQuestion,
   OfferRequestQuestionOption,
   OfferRequestRadioQuestion,
   OfferRequestTextAreaQuestion,
 } from 'hero24-types';
-import { QUESTION_FLAT_ID_NAME } from './offer-request.constants';
+import { QUESTION_FLAT_ID_NAME } from './offer-request-question.constants';
 
 export type DependencyId = string;
 
@@ -46,3 +47,7 @@ export type PlainOfferRequestQuestionOption = Omit<
   OfferRequestQuestionOption,
   'questions'
 > & { questions: DependencyId[] | null };
+
+export type OfferRequestQuestionTypeEnum = {
+  [Key in OfferRequestQuestion['type'] as Uppercase<Key>]: Key;
+};

@@ -11,7 +11,7 @@ import { OfferRequestNumberQuestionDto } from './offer-request-number-question.d
 import { OfferRequestDateQuestionDto } from './offer-request-date-question.dto';
 import { OfferRequestImageQuestionDto } from './offer-request-image-question.dto';
 import { OfferRequestNumberInputQuestionDto } from './offer-request-number-input-question.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
 import { OfferRequestQuestionAdapter } from './offer-request-question.dto';
 
 @InputType()

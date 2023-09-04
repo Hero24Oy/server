@@ -4,11 +4,13 @@ import { OfferRequestQuestion } from 'hero24-types';
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-
-import { QUESTION_FLAT_ID_NAME } from '../../offer-request.constants';
+import {
+  OfferRequestQuestionType,
+  QUESTION_FLAT_ID_NAME,
+} from '../../offer-request-question.constants';
 
 type BaseOfferRequestQuestionDB<
-  Type extends OfferRequestQuestion['type'] = OfferRequestQuestion['type'],
+  Type extends OfferRequestQuestionType = OfferRequestQuestionType,
 > = Pick<OfferRequestQuestion, 'id' | 'name' | 'order'> & {
   [QUESTION_FLAT_ID_NAME]?: string;
   type: Type;
@@ -17,7 +19,7 @@ type BaseOfferRequestQuestionDB<
 @InterfaceType()
 @InputType({ isAbstract: true })
 export abstract class OfferRequestBaseQuestionDto<
-  Type extends OfferRequestQuestion['type'] = OfferRequestQuestion['type'],
+  Type extends OfferRequestQuestionType = OfferRequestQuestionType,
 > {
   @Field(() => String)
   id: string;

@@ -26,7 +26,6 @@ import {
 import { FiltererService } from '../filterer/filterer.service';
 import {
   OfferRequestFilterColumn,
-  OfferRequestQuestionType,
   OfferRequestStatus,
 } from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
@@ -35,12 +34,13 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
 import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
 import { AddressesAnsweredInput } from './dto/address-answered/addresses-answered.input';
-import { OfferRequestQuestionInput } from './dto/offer-request-question/offer-request-question.input';
-import { PlainOfferRequestQuestion } from './offer-request-questions.types';
-import { offerRequestQuestionsToTree } from './offer-request.utils/offer-request-questions-to-tree.util';
+import { OfferRequestQuestionInput } from './offer-request-question/dto/offer-request-question/offer-request-question.input';
+import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
 import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
 import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
 import { OfferRole } from '../offer/dto/offer/offer-role.enum';
+import { OfferRequestQuestionType } from './offer-request-question/offer-request-question.constants';
+import { offerRequestQuestionsToTree } from './offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
 
 @Injectable()
 export class OfferRequestService {

@@ -9,9 +9,9 @@ import { OfferRequestNumberInputQuestionDto } from './offer-request-number-input
 import { OfferRequestNumberQuestionDto } from './offer-request-number-question.dto';
 import { OfferRequestRadioQuestionDto } from './offer-request-radio-question.dto';
 import { OfferRequestTextAreaQuestionDto } from './offer-request-text-area-question.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-import { OfferRequestQuestionType } from '../../offer-request.constants';
+import { OfferRequestQuestionType } from '../../offer-request-question.constants';
 
 export const OfferRequestQuestionDto = createUnionType({
   name: 'OfferRequestQuestionDto',

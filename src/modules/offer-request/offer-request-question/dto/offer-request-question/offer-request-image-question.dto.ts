@@ -8,8 +8,8 @@ import {
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
-import { OfferRequestQuestionType } from '../../offer-request.constants';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
+import { OfferRequestQuestionType } from '../../offer-request-question.constants';
 
 type QuestionType = typeof OfferRequestQuestionType.IMAGE;
 

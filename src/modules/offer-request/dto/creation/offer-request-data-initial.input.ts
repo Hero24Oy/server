@@ -1,12 +1,14 @@
 import { Field, InputType, OmitType } from '@nestjs/graphql';
 import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
 import { AddressesAnsweredInput } from '../address-answered/addresses-answered.input';
-import { OfferRequestQuestionInput } from '../offer-request-question/offer-request-question.input';
-import { offerRequestQuestionsToTree } from '../../offer-request.utils/offer-request-questions-to-tree.util';
+import { OfferRequestQuestionInput } from '../../offer-request-question/dto/offer-request-question/offer-request-question.input';
 import { OfferRequestDataInitialDto } from '../offer-request/offer-request-data-initial.dto';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { PackageDto } from '../offer-request/package.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
+import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+import { offerRequestQuestionsToArray } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-array.util';
+import { map } from 'lodash';
 
 type OfferRequestInitialDataDB = OfferRequestDB['data']['initial'];
 
@@ -45,15 +47,37 @@ OfferRequestDataInitialInput.adapter = new FirebaseAdapter({
       fixedDuration: external.fixedDuration ?? undefined,
       promotionDisabled: external.promotionDisabled ?? undefined,
       questions: offerRequestQuestionsToTree(questions),
-      addresses: (external.addresses.basic ||
-        external.addresses.delivery) as AddressesAnswered,
+      addresses: AddressesAnsweredInput.adapter.toInternal(
+        external.addresses,
+      ) as AddressesAnswered,
       package: external.package
         ? PackageDto.adapter.toInternal(external.package)
         : undefined,
       createdAt: Date.now(),
     };
   },
-  toExternal() {
-    throw new Error('Should never use');
+  toExternal(internal) {
+    const questions = map(
+      offerRequestQuestionsToArray(internal.questions),
+      OfferRequestQuestionInput.adapter.toExternal,
+    );
+
+    return {
+      questions,
+      buyerProfile: internal.buyerProfile,
+      category: internal.category,
+      prePayWith: internal.prePayWith ?? undefined,
+      sendInvoiceWith: internal.sendInvoiceWith ?? undefined,
+      prepaid: internal.prepaid ?? undefined,
+      postpaid: internal.postpaid ?? undefined,
+      fixedPrice: internal.fixedPrice ?? undefined,
+      fixedDuration: internal.fixedDuration ?? undefined,
+      promotionDisabled: internal.promotionDisabled ?? undefined,
+      addresses: AddressesAnsweredInput.adapter.toExternal(internal.addresses),
+      package: internal.package
+        ? PackageDto.adapter.toExternal(internal.package)
+        : undefined,
+      createdAt: new Date(),
+    };
   },
 });

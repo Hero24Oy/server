@@ -1,47 +1,41 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 
-import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 import { OfferRequestQuestionOptionDto } from './offer-request-question-option.dto';
-import { OfferRequestQuestionType } from '../../offer-request.constants';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
+import { OfferRequestQuestionType } from '../../offer-request-question.constants';
 
-type QuestionType = typeof OfferRequestQuestionType.RADIO;
+type QuestionType = typeof OfferRequestQuestionType.CHECKBOX;
 
-type PlainOfferRequestRadioQuestion = PlainOfferRequestQuestion & {
+type PlainOfferRequestCheckBoxQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
 };
 
 @ObjectType({ implements: () => OfferRequestBaseQuestionDto })
-@InputType('OfferRequestRadioQuestionInput')
-export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<QuestionType> {
-  @Field(() => String, { nullable: true })
-  selectedOption?: MaybeType<string>;
-
+@InputType('OfferRequestCheckBoxQuestionInput')
+export class OfferRequestCheckBoxQuestionDto extends OfferRequestBaseQuestionDto<QuestionType> {
   @Field(() => [OfferRequestQuestionOptionDto])
   options: OfferRequestQuestionOptionDto[];
 
   static adapter: FirebaseAdapter<
-    PlainOfferRequestRadioQuestion,
-    OfferRequestRadioQuestionDto
+    PlainOfferRequestCheckBoxQuestion,
+    OfferRequestCheckBoxQuestionDto
   >;
 }
 
-OfferRequestRadioQuestionDto.adapter = new FirebaseAdapter({
+OfferRequestCheckBoxQuestionDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-    type: OfferRequestQuestionType.RADIO,
-    selectedOption: external.selectedOption || null,
+    type: OfferRequestQuestionType.CHECKBOX,
     options: external.options.map((option) =>
       OfferRequestQuestionOptionDto.adapter.toInternal(option),
     ),
   }),
   toExternal: (internal) => ({
     ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-    type: OfferRequestQuestionType.RADIO,
-    selectedOption: internal.selectedOption,
+    type: OfferRequestQuestionType.CHECKBOX,
     options: internal.options.map((option) =>
       OfferRequestQuestionOptionDto.adapter.toExternal(option),
     ),
