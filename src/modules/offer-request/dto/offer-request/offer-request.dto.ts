@@ -107,7 +107,7 @@ OfferRequestDto.adapter = new FirebaseAdapter({
     chats: external.chats
       ? Object.fromEntries(
           external.chats.map((chat) => [
-            chat.sellerId,
+            chat.sellerProfileId,
             OfferRequestChatDto.adapter.toInternal(chat),
           ]),
         )

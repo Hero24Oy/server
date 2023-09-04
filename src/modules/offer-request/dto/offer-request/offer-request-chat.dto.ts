@@ -6,7 +6,7 @@ import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 @ObjectType()
 export class OfferRequestChatDto {
   @Field(() => String)
-  sellerId: string;
+  sellerProfileId: string;
 
   @Field(() => String)
   chatId: string;
@@ -17,10 +17,10 @@ export class OfferRequestChatDto {
 OfferRequestChatDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     chatId: external.chatId,
-    sellerProfile: external.sellerId,
+    sellerProfile: external.sellerProfileId,
   }),
   toExternal: (internal) => ({
     chatId: internal.chatId,
-    sellerId: internal.sellerProfile,
+    sellerProfileId: internal.sellerProfile,
   }),
 });
