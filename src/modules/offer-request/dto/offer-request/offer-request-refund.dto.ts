@@ -28,7 +28,7 @@ OfferRequestRefundDto.adapter = new FirebaseAdapter({
     amount: external.amount,
     message: external.message ?? undefined,
     status: external.status,
-    updatedAt: +external.updatedAt,
+    updatedAt: Number(external.updatedAt),
   }),
   toExternal: (internal) => ({
     amount: internal.amount,

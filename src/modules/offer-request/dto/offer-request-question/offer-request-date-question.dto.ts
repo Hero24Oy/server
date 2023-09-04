@@ -36,7 +36,9 @@ OfferRequestDateQuestionDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
     type: 'date' as QuestionType,
-    preferredTime: external.preferredTime ? +external.preferredTime : null,
+    preferredTime: external.preferredTime
+      ? Number(external.preferredTime)
+      : null,
     suitableTimesCount: external.suitableTimesCount || null,
     suitableTimes: external.suitableTimes
       ? SuitableTimeDto.convertToFirebaseTime(external.suitableTimes)

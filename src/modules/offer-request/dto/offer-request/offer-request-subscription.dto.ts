@@ -40,8 +40,8 @@ OfferRequestSubscriptionDto.adapter = new FirebaseAdapter({
     initialRequest: external.initialRequest ?? undefined,
     priceDiscount: external.priceDiscount ?? undefined,
     discountFormat: external.discountFormat ?? undefined,
-    currentAnchorDate: +new Date(external.currentAnchorDate),
-    nextAnchorDate: +new Date(external.nextAnchorDate),
+    currentAnchorDate: Number(external.currentAnchorDate),
+    nextAnchorDate: Number(external.nextAnchorDate),
   }),
   toExternal: (internal) => ({
     subscriptionId: internal.subscriptionId,

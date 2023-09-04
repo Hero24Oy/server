@@ -61,10 +61,10 @@ OfferRequestDataDto.adapter = new FirebaseAdapter({
         )
       : undefined,
     actualStartTime: external.actualStartTime
-      ? +external.actualStartTime
+      ? Number(external.actualStartTime)
       : undefined,
     lastAgreedStartTime: external.lastAgreedStartTime
-      ? +external.lastAgreedStartTime
+      ? Number(external.lastAgreedStartTime)
       : undefined,
   }),
   toExternal: (internal) => ({

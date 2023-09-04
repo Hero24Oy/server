@@ -31,7 +31,7 @@ export class OfferRequestDataRequestedChangesDto {
 OfferRequestDataRequestedChangesDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     reason: external.reason ?? undefined,
-    created: +new Date(external.created),
+    created: Number(external.created),
     changedQuestions:
       OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toInternal(
         external.changedQuestions,
