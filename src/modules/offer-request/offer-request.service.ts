@@ -45,19 +45,19 @@ import { OfferRole } from '../offer/dto/offer/offer-role.enum';
 @Injectable()
 export class OfferRequestService {
   constructor(
-    private firebaseService: FirebaseService,
-    private sorterService: SorterService<
+    private readonly firebaseService: FirebaseService,
+    private readonly sorterService: SorterService<
       OfferRequestOrderColumn,
       OfferRequestDto,
       OfferRequestSorterContext
     >,
-    private filtererService: FiltererService<
+    private readonly filtererService: FiltererService<
       OfferRequestFilterColumn,
       OfferRequestDto,
       OfferRequestFiltererContext,
       OfferRequestFiltererConfigs
     >,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
   getOfferRequestsRef() {
