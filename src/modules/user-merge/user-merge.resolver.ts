@@ -30,8 +30,7 @@ export class UserMergeResolver {
 
   @Subscription(() => UserMergeDto)
   @UseGuards(AuthGuard)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  subscribeToUserMerge(@Args('userId') userId: string) {
+  subscribeToUserMerge(@Args('userId') _userId: string) {
     return this.pubSub.asyncIterator('userMerge');
   }
 }
