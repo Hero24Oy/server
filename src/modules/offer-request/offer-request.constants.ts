@@ -1,5 +1,5 @@
 import { Values } from '../common/common.types';
-import { OfferStatusEnum } from './offer-request.types';
+import { OfferRequestStatusEnum } from './offer-request.types';
 
 export const QUESTION_FLAT_ID_NAME = 'depsId';
 
@@ -7,7 +7,7 @@ export enum OfferRequestFilterColumn {
   STATUS = 'status',
 }
 
-export const OfferRequestStatus: OfferStatusEnum = {
+export const OfferRequestStatus: OfferRequestStatusEnum = {
   OPEN: 'open',
   ACCEPTED: 'accepted',
   COMPLETED: 'completed',

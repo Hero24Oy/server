@@ -19,6 +19,6 @@ export type OfferRequestColumnFilter<Config> = ColumnFilter<
   Config
 >;
 
-export type OfferStatusEnum = {
+export type OfferRequestStatusEnum = {
   [Key in OFFER_REQUEST_STATUS as Uppercase<Key>]: Key;
 };
