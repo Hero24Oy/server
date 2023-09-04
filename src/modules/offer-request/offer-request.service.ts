@@ -26,6 +26,7 @@ import {
 import { FiltererService } from '../filterer/filterer.service';
 import {
   OfferRequestFilterColumn,
+  OfferRequestQuestionType,
   OfferRequestStatus,
 } from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
@@ -352,7 +353,7 @@ export class OfferRequestService {
     );
 
     const questions = map(initialQuestions, (question) => {
-      if (question.type === 'date') {
+      if (question.type === OfferRequestQuestionType.DATE) {
         question.preferredTime = agreedStartTime.getTime();
         question.suitableTimes = null;
         question.suitableTimesCount = null;

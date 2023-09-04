@@ -6,8 +6,9 @@ import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 import { OfferRequestQuestionOptionDto } from './offer-request-question-option.dto';
+import { OfferRequestQuestionType } from '../../offer-request.constants';
 
-type QuestionType = 'radio';
+type QuestionType = typeof OfferRequestQuestionType.RADIO;
 
 type PlainOfferRequestRadioQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
@@ -31,7 +32,7 @@ export class OfferRequestRadioQuestionDto extends OfferRequestBaseQuestionDto<Qu
 OfferRequestRadioQuestionDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-    type: 'radio' as QuestionType,
+    type: OfferRequestQuestionType.RADIO,
     selectedOption: external.selectedOption || null,
     options: external.options.map((option) =>
       OfferRequestQuestionOptionDto.adapter.toInternal(option),
@@ -39,7 +40,7 @@ OfferRequestRadioQuestionDto.adapter = new FirebaseAdapter({
   }),
   toExternal: (internal) => ({
     ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-    type: 'radio' as QuestionType,
+    type: OfferRequestQuestionType.RADIO,
     selectedOption: internal.selectedOption,
     options: internal.options.map((option) =>
       OfferRequestQuestionOptionDto.adapter.toExternal(option),

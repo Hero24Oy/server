@@ -2,7 +2,10 @@ import { OfferRequestQuestion } from 'hero24-types';
 import { v4 as uuidV4 } from 'uuid';
 
 import { PlainOfferRequestQuestion } from '../offer-request-questions.types';
-import { QUESTION_FLAT_ID_NAME } from '../offer-request.constants';
+import {
+  OfferRequestQuestionType,
+  QUESTION_FLAT_ID_NAME,
+} from '../offer-request.constants';
 
 export const offerRequestQuestionsToArray = (
   questions: OfferRequestQuestion[],
@@ -11,8 +14,8 @@ export const offerRequestQuestionsToArray = (
   const mainQuestions: PlainOfferRequestQuestion[] = questions.map(
     (question) => {
       switch (question.type) {
-        case 'checkbox':
-        case 'radio':
+        case OfferRequestQuestionType.CHECKBOX:
+        case OfferRequestQuestionType.RADIO:
           return {
             ...question,
             options: question.options.map((option) => {

@@ -6,8 +6,9 @@ import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
+import { OfferRequestQuestionType } from '../../offer-request.constants';
 
-type QuestionType = 'date';
+type QuestionType = typeof OfferRequestQuestionType.DATE;
 
 type PlainOfferRequestDateQuestion = Extract<
   PlainOfferRequestQuestion,
@@ -35,7 +36,7 @@ export class OfferRequestDateQuestionDto extends OfferRequestBaseQuestionDto<Que
 OfferRequestDateQuestionDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-    type: 'date' as QuestionType,
+    type: OfferRequestQuestionType.DATE,
     preferredTime: external.preferredTime
       ? Number(external.preferredTime)
       : null,
@@ -46,7 +47,7 @@ OfferRequestDateQuestionDto.adapter = new FirebaseAdapter({
   }),
   toExternal: (internal) => ({
     ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-    type: 'date' as QuestionType,
+    type: OfferRequestQuestionType.DATE,
     preferredTime:
       typeof internal.preferredTime === 'number'
         ? new Date(internal.preferredTime)

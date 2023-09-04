@@ -1,7 +1,8 @@
 import { QuestionDB, OfferRequestQuestion, DateQuestionDB } from 'hero24-types';
+import { OfferRequestQuestionType } from 'src/modules/offer-request/offer-request.constants';
 
 export function isDateQuestion(
   question: QuestionDB | OfferRequestQuestion,
 ): question is DateQuestionDB {
-  return (question as DateQuestionDB).type === 'date';
+  return (question as DateQuestionDB).type === OfferRequestQuestionType.DATE;
 }

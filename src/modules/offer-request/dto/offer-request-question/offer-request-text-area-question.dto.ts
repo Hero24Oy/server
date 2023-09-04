@@ -6,8 +6,9 @@ import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
+import { OfferRequestQuestionType } from '../../offer-request.constants';
 
-type QuestionType = 'textarea';
+type QuestionType = typeof OfferRequestQuestionType.TEXTAREA;
 
 type PlainOfferRequestTextAreaQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
@@ -31,13 +32,13 @@ export class OfferRequestTextAreaQuestionDto extends OfferRequestBaseQuestionDto
 OfferRequestTextAreaQuestionDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-    type: 'textarea' as QuestionType,
+    type: OfferRequestQuestionType.TEXTAREA,
     placeholder: external.placeholder || null,
     value: external.value || null,
   }),
   toExternal: (internal) => ({
     ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-    type: 'textarea' as QuestionType,
+    type: OfferRequestQuestionType.TEXTAREA,
     placeholder: internal.placeholder,
     value: internal.value,
   }),

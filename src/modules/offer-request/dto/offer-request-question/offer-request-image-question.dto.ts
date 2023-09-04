@@ -9,8 +9,9 @@ import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
+import { OfferRequestQuestionType } from '../../offer-request.constants';
 
-type QuestionType = 'image';
+type QuestionType = typeof OfferRequestQuestionType.IMAGE;
 
 type PlainOfferRequestImageQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
@@ -34,13 +35,13 @@ export class OfferRequestImageQuestionDto extends OfferRequestBaseQuestionDto<Qu
 OfferRequestImageQuestionDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-    type: 'image' as QuestionType,
+    type: OfferRequestQuestionType.IMAGE,
     images: external.images ? convertListToFirebaseMap(external.images) : null,
     imageCount: external.imageCount || 0,
   }),
   toExternal: (internal) => ({
     ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-    type: 'image' as QuestionType,
+    type: OfferRequestQuestionType.IMAGE,
     images: internal.images && convertFirebaseMapToList(internal.images),
     imageCount: internal.imageCount,
   }),

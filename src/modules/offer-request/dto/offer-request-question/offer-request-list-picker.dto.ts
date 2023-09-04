@@ -6,8 +6,9 @@ import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
+import { OfferRequestQuestionType } from '../../offer-request.constants';
 
-type QuestionType = 'list';
+type QuestionType = typeof OfferRequestQuestionType.LIST;
 
 type PlainOfferRequestListQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
@@ -31,13 +32,13 @@ export class OfferRequestListPickerDto extends OfferRequestBaseQuestionDto<Quest
 OfferRequestListPickerDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-    type: 'list' as QuestionType,
+    type: OfferRequestQuestionType.LIST,
     placeholder: external.placeholder || null,
     value: external.numericValue || null,
   }),
   toExternal: (internal) => ({
     ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-    type: 'list' as QuestionType,
+    type: OfferRequestQuestionType.LIST,
     placeholder: internal.placeholder,
     numericValue: internal.value,
   }),

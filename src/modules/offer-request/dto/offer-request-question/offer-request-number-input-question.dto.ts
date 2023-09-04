@@ -5,8 +5,9 @@ import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dt
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
+import { OfferRequestQuestionType } from '../../offer-request.constants';
 
-type QuestionType = 'number_input';
+type QuestionType = typeof OfferRequestQuestionType.NUMBER_INPUT;
 
 type PlainOfferRequestNumberInputQuestion = PlainOfferRequestQuestion & {
   type: QuestionType;
@@ -33,14 +34,14 @@ export class OfferRequestNumberInputQuestionDto extends OfferRequestBaseQuestion
 OfferRequestNumberInputQuestionDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     ...OfferRequestBaseQuestionDto.adapter.toInternal(external),
-    type: 'number_input' as QuestionType,
+    type: OfferRequestQuestionType.NUMBER_INPUT,
     placeholder: external.placeholder || null,
     extra_placeholder: external.extra_placeholder || null,
     value: external.value || null,
   }),
   toExternal: (internal) => ({
     ...OfferRequestBaseQuestionDto.adapter.toExternal(internal),
-    type: 'number_input' as QuestionType,
+    type: OfferRequestQuestionType.NUMBER_INPUT,
     placeholder: internal.placeholder,
     extra_placeholder: internal.extra_placeholder,
     value: internal.value,

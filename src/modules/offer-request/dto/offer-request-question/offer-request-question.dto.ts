@@ -11,6 +11,7 @@ import { OfferRequestRadioQuestionDto } from './offer-request-radio-question.dto
 import { OfferRequestTextAreaQuestionDto } from './offer-request-text-area-question.dto';
 import { PlainOfferRequestQuestion } from '../../offer-request-questions.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { OfferRequestQuestionType } from '../../offer-request.constants';
 
 export const OfferRequestQuestionDto = createUnionType({
   name: 'OfferRequestQuestionDto',
@@ -26,21 +27,21 @@ export const OfferRequestQuestionDto = createUnionType({
   ],
   resolveType: (item: Pick<OfferRequestQuestion, 'type'>) => {
     switch (item.type) {
-      case 'radio':
+      case OfferRequestQuestionType.RADIO:
         return OfferRequestRadioQuestionDto;
-      case 'checkbox':
+      case OfferRequestQuestionType.CHECKBOX:
         return OfferRequestCheckBoxQuestionDto;
-      case 'textarea':
+      case OfferRequestQuestionType.TEXTAREA:
         return OfferRequestTextAreaQuestionDto;
-      case 'list':
+      case OfferRequestQuestionType.LIST:
         return OfferRequestListPickerDto;
-      case 'number':
+      case OfferRequestQuestionType.NUMBER:
         return OfferRequestNumberQuestionDto;
-      case 'date':
+      case OfferRequestQuestionType.DATE:
         return OfferRequestDateQuestionDto;
-      case 'image':
+      case OfferRequestQuestionType.IMAGE:
         return OfferRequestImageQuestionDto;
-      case 'number_input':
+      case OfferRequestQuestionType.NUMBER_INPUT:
         return OfferRequestNumberInputQuestionDto;
     }
   },
@@ -56,21 +57,21 @@ export const OfferRequestQuestionAdapter = new FirebaseAdapter<
     const question = external as OfferRequestQuestionDto;
 
     switch (question.type) {
-      case 'radio':
+      case OfferRequestQuestionType.RADIO:
         return OfferRequestRadioQuestionDto.adapter.toInternal(question);
-      case 'checkbox':
+      case OfferRequestQuestionType.CHECKBOX:
         return OfferRequestCheckBoxQuestionDto.adapter.toInternal(question);
-      case 'date':
+      case OfferRequestQuestionType.DATE:
         return OfferRequestDateQuestionDto.adapter.toInternal(question);
-      case 'image':
+      case OfferRequestQuestionType.IMAGE:
         return OfferRequestImageQuestionDto.adapter.toInternal(question);
-      case 'list':
+      case OfferRequestQuestionType.LIST:
         return OfferRequestListPickerDto.adapter.toInternal(question);
-      case 'number':
+      case OfferRequestQuestionType.NUMBER:
         return OfferRequestNumberQuestionDto.adapter.toInternal(question);
-      case 'textarea':
+      case OfferRequestQuestionType.TEXTAREA:
         return OfferRequestTextAreaQuestionDto.adapter.toInternal(question);
-      case 'number_input':
+      case OfferRequestQuestionType.NUMBER_INPUT:
         return OfferRequestNumberInputQuestionDto.adapter.toInternal(question);
     }
   },
@@ -78,21 +79,21 @@ export const OfferRequestQuestionAdapter = new FirebaseAdapter<
     const question = internal as PlainOfferRequestQuestion;
 
     switch (question.type) {
-      case 'radio':
+      case OfferRequestQuestionType.RADIO:
         return OfferRequestRadioQuestionDto.adapter.toExternal(question);
-      case 'checkbox':
+      case OfferRequestQuestionType.CHECKBOX:
         return OfferRequestCheckBoxQuestionDto.adapter.toExternal(question);
-      case 'date':
+      case OfferRequestQuestionType.DATE:
         return OfferRequestDateQuestionDto.adapter.toExternal(question);
-      case 'image':
+      case OfferRequestQuestionType.IMAGE:
         return OfferRequestImageQuestionDto.adapter.toExternal(question);
-      case 'list':
+      case OfferRequestQuestionType.LIST:
         return OfferRequestListPickerDto.adapter.toExternal(question);
-      case 'number':
+      case OfferRequestQuestionType.NUMBER:
         return OfferRequestNumberQuestionDto.adapter.toExternal(question);
-      case 'textarea':
+      case OfferRequestQuestionType.TEXTAREA:
         return OfferRequestTextAreaQuestionDto.adapter.toExternal(question);
-      case 'number_input':
+      case OfferRequestQuestionType.NUMBER_INPUT:
         return OfferRequestNumberInputQuestionDto.adapter.toExternal(question);
     }
   },
