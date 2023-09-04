@@ -14,7 +14,7 @@ type RequestedChangesDB = Exclude<
 @ObjectType()
 export class OfferRequestDataRequestedChangesDto {
   @Field(() => Date)
-  created: Date;
+  createdAt: Date;
 
   @Field(() => String, { nullable: true })
   reason?: MaybeType<string>;
@@ -31,7 +31,7 @@ export class OfferRequestDataRequestedChangesDto {
 OfferRequestDataRequestedChangesDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     reason: external.reason ?? undefined,
-    created: Number(external.created),
+    created: Number(external.createdAt),
     changedQuestions:
       OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toInternal(
         external.changedQuestions,
@@ -39,7 +39,7 @@ OfferRequestDataRequestedChangesDto.adapter = new FirebaseAdapter({
   }),
   toExternal: (internal) => ({
     reason: internal.reason,
-    created: new Date(internal.created),
+    createdAt: new Date(internal.created),
     changedQuestions:
       OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toExternal(
         internal.changedQuestions,
