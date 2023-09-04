@@ -1,5 +1,9 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { OFFER_REQUEST_STATUS, OfferRequestDB } from 'hero24-types';
+import {
+  OFFER_REQUEST_STATUS,
+  OfferRequestDB,
+  PickStrategy,
+} from 'hero24-types';
 import { OfferRequestDataInitialInput } from './offer-request-data-initial.input';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { OfferRequestDataPickServiceProviderDto } from '../offer-request/offer-request-data-pick-service-provider.dto';
@@ -32,7 +36,15 @@ OfferRequestDataInput.adapter = new FirebaseAdapter({
         external.pickServiceProvider,
       ),
   }),
-  toExternal() {
-    throw new Error('Should be never used');
-  },
+  toExternal: (internal) => ({
+    status: internal.status,
+    initial: OfferRequestDataInitialInput.adapter.toExternal(internal.initial),
+    pickServiceProvider: internal.pickServiceProvider
+      ? OfferRequestDataPickServiceProviderDto.adapter.toExternal(
+          internal.pickServiceProvider,
+        )
+      : {
+          pickStrategy: 'first' as PickStrategy,
+        },
+  }),
 });
