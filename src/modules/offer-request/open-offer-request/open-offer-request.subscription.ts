@@ -14,7 +14,7 @@ export class OpenOfferRequestSubscription implements SubscriptionService {
     private readonly openOfferRequestService: OpenOfferRequestService,
   ) {}
 
-  private logger = new Logger(OpenOfferRequestSubscription.name);
+  private readonly logger = new Logger(OpenOfferRequestSubscription.name);
 
   async subscribe(): Promise<Unsubscribe> {
     const unsubscribes = await Promise.all([
