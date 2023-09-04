@@ -19,10 +19,12 @@ export class BuyerProfileSubscription implements SubscriptionService {
   public async subscribe(): Promise<() => Promise<void>> {
     const app = this.firebaseService.getDefaultApp();
     const database = app.database();
-    const rootFeesRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
+    const rootBuyerProfileRef = database.ref(
+      FirebaseDatabasePath.BUYER_PROFILES,
+    );
 
     const subscriptions = await Promise.all([
-      this.subscribeOnBuyerProfileUpdates(rootFeesRef, this.pubSub),
+      this.subscribeOnBuyerProfileUpdates(rootBuyerProfileRef, this.pubSub),
     ]);
 
     return async () => {

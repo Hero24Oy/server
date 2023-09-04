@@ -25,8 +25,8 @@ export class SellerResolver {
   ) {}
 
   @Query(() => SellerProfileDto, { nullable: true })
-  // @UseFilters(FirebaseExceptionFilter)
-  // @UseGuards(AuthGuard)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async seller(@Args('id') id: string): Promise<SellerProfileDto | null> {
     return this.sellerService.getSellerById(id);
   }
@@ -59,8 +59,8 @@ export class SellerResolver {
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
-  // @UseFilters(FirebaseExceptionFilter)
-  // @UseGuards(AuthGuard)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async editSellerData(@Args() args: SellerProfileDataEditingArgs) {
     return this.sellerService.editSellerData(args);
   }

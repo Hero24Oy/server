@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Reference } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 
-import { createBuyerProfileUpdatedEventHandler } from './review.event-handler';
+import { createReviewUpdatedEventHandler } from './review.event-handler';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
@@ -37,7 +37,7 @@ export class ReviewSubscription implements SubscriptionService {
     return subscribeOnFirebaseEvent(
       rootFeesRef,
       'child_changed',
-      createBuyerProfileUpdatedEventHandler(pubsub),
+      createReviewUpdatedEventHandler(pubsub),
     );
   }
 }
