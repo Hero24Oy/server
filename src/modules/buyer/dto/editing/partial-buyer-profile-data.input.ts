@@ -3,6 +3,7 @@ import { BuyerProfileDB } from 'hero24-types';
 
 import { BuyerProfileDataDto } from '../buyer/buyer-profile-data.dto';
 
+import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @InputType()
@@ -12,7 +13,7 @@ export class PartialBuyerProfileDataInput extends OmitType(
   InputType,
 ) {
   @Field(() => String, { nullable: true })
-  displayName?: string;
+  displayName?: MaybeType<string>;
 
   static adapter: FirebaseAdapter<
     Partial<BuyerProfileDB['data']>,
