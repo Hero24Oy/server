@@ -12,7 +12,7 @@ export class FiltererService<
 > {
   constructor(
     @Inject(COLUMN_FILTER_PROVIDER)
-    private filters: ColumnFilter<Item, Column, Context, any>[],
+    private readonly filters: ColumnFilter<Item, Column, Context, any>[],
   ) {}
 
   filter(items: Item[], configs: Partial<Configs>, context: Context): Item[] {
