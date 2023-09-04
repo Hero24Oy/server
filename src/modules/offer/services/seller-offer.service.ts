@@ -180,8 +180,8 @@ export class SellerOfferService {
   }: OfferChangeInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const isAcceptTimeChanges = typeof agreedStartTime === 'object';
-    const isAcceptDetailsChanges = !isAcceptTimeChanges;
+    const isAcceptDetailsChanges = !agreedStartTime;
+    const isAcceptTimeChanges = !isAcceptDetailsChanges;
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.offerService.strictGetOfferById(offerId);
@@ -212,9 +212,9 @@ export class SellerOfferService {
         .set(agreedStartTime.getTime());
     }
 
-    const timeChangeAccepted = isAcceptTimeChanges || !dateQuestion;
+    const timeChangeAccepted = !dateQuestion || isAcceptTimeChanges;
     const detailsChangeAccepted =
-      isAcceptDetailsChanges || !otherChanges.length;
+      !otherChanges.length || isAcceptDetailsChanges;
 
     if (detailsChangeAccepted && timeChangeAccepted) {
       await offerRef.child('data').child('requestedChangesAccepted').set(true);
