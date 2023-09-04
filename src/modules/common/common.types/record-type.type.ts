@@ -1,1 +1,1 @@
-export type RecordType = Record<string | symbol | number, any>;
+export type RecordType<Type = unknown> = Record<string | symbol | number, Type>;
