@@ -9,4 +9,7 @@ export class OfferRequestUpdatedInput {
 
   @Field(() => [String], { nullable: true })
   statuses?: OFFER_REQUEST_STATUS[];
+
+  @Field(() => [String], { nullable: true })
+  ids?: string[];
 }

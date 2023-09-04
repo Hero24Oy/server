@@ -22,10 +22,14 @@ export const getOfferRequestSubscriptionFilter =
     const offerRequest = payload[type];
     const { identity } = context;
     const {
-      input: { role, statuses },
+      input: { role, statuses, ids },
     } = variables;
 
     if (!isEmpty(statuses) && !includes(statuses, offerRequest.data.status)) {
+      return false;
+    }
+
+    if (!isEmpty(ids) && !includes(ids, offerRequest.id)) {
       return false;
     }
 
