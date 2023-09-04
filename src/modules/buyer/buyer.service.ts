@@ -8,6 +8,8 @@ import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-ed
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+import { BuyerProfileDataDto } from './dto/buyer/buyer-profile-data.dto';
+import { PartialBuyerProfileDataInput } from './dto/editing/partial-buyer-profile-data.input';
 
 @Injectable()
 export class BuyerService {
@@ -18,8 +20,7 @@ export class BuyerService {
   }
 
   async getAllBuyers(): Promise<BuyerProfileDto[]> {
-    const database = this.firebaseService.getDefaultApp().database();
-    const buyersRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
+    const buyersRef = this.database.ref(FirebaseDatabasePath.BUYER_PROFILES);
 
     const buyersSnapshot = await buyersRef.get();
     const buyers: Record<string, BuyerProfileDB> = buyersSnapshot.val() || {};
@@ -58,11 +59,13 @@ export class BuyerService {
   async createBuyer(args: BuyerProfileCreationArgs): Promise<BuyerProfileDto> {
     const { id, data } = args;
 
+    const convertedData = BuyerProfileDataDto.adapter.toInternal(data);
+
     await this.database
       .ref(FirebaseDatabasePath.BUYER_PROFILES)
       .child(id)
       .child('data')
-      .set(data);
+      .set(convertedData);
 
     return this.strictGetBuyerProfileById(id);
   }
@@ -70,11 +73,13 @@ export class BuyerService {
   async editBuyer(args: BuyerProfileDataEditingArgs): Promise<BuyerProfileDto> {
     const { id, data } = args;
 
+    const convertedData = PartialBuyerProfileDataInput.adapter.toInternal(data);
+
     await this.database
       .ref(FirebaseDatabasePath.BUYER_PROFILES)
       .child(id)
       .child('data')
-      .update(data);
+      .update(convertedData);
 
     return this.strictGetBuyerProfileById(id);
   }

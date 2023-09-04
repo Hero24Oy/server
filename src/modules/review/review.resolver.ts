@@ -23,8 +23,8 @@ export class ReviewResolver {
   ) {}
 
   @Query(() => ReviewListDto)
-  // @UseFilters(FirebaseExceptionFilter)
-  // @UseGuards(AuthGuard)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
   async reviewList(@Args() args: ReviewListArgs): Promise<ReviewListDto> {
     return this.reviewService.getReviews(args);
   }

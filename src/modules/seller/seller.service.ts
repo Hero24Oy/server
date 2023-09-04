@@ -4,7 +4,6 @@ import { SellerProfileDB } from 'hero24-types';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
-import { SellerProfileDataInput } from './dto/creation/seller-profile-data.input';
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
@@ -13,6 +12,7 @@ import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseService } from '../firebase/firebase.service';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { Database } from 'firebase-admin/database';
+import { SellerProfileDataDto } from './dto/seller/seller-profile-data';
 
 @Injectable()
 export class SellerService {
@@ -23,9 +23,7 @@ export class SellerService {
   }
 
   async getSellerById(sellerId: string): Promise<SellerProfileDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const snapshot = await database
+    const snapshot = await this.database
       .ref(FirebaseDatabasePath.SELLER_PROFILES)
       .child(sellerId)
       .get();
@@ -49,9 +47,7 @@ export class SellerService {
   }
 
   async getAllSellers(): Promise<SellerProfileDto[]> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const sellerProfilesSnapshot = await database
+    const sellerProfilesSnapshot = await this.database
       .ref(FirebaseDatabasePath.SELLER_PROFILES)
       .get();
 
@@ -102,7 +98,7 @@ export class SellerService {
       .ref(FirebaseDatabasePath.SELLER_PROFILES)
       .child(id)
       .child('data')
-      .set(SellerProfileDataInput.adapter.toInternal(data));
+      .set(SellerProfileDataDto.adapter.toInternal(data));
 
     return this.getSellerById(id);
   }
