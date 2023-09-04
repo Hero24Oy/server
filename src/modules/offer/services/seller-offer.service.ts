@@ -216,15 +216,15 @@ export class SellerOfferService {
     const detailsChangeAccepted =
       !otherChanges.length || isAcceptDetailsChanges;
 
-    if (detailsChangeAccepted && timeChangeAccepted) {
-      await offerRef.child('data').child('requestedChangesAccepted').set(true);
-    }
-
     await this.offerRequestService.updateAcceptedChanges({
       offerRequestId,
       detailsChangeAccepted,
       timeChangeAccepted,
     });
+
+    if (detailsChangeAccepted && timeChangeAccepted) {
+      await offerRef.child('data').child('requestedChangesAccepted').set(true);
+    }
 
     return true;
   }
