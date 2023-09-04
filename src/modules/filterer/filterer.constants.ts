@@ -1,1 +1,1 @@
-export const NEAT_FILTER_PROVIDER = Symbol('neat_filter');
+export const COLUMN_FILTER_PROVIDER = Symbol('column_filter');

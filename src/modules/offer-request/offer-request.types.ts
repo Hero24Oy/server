@@ -1,5 +1,5 @@
 import { OFFER_REQUEST_STATUS } from 'hero24-types';
-import { NeatFilter } from '../filterer/filterer.types';
+import { ColumnFilter } from '../filterer/filterer.types';
 import { ComparePicker, SortablePrimitives } from '../sorter/sorter.types';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { OfferRequestFilterColumn } from './offer-request.constants';
@@ -12,7 +12,7 @@ export type OfferRequestComparePicker<
 
 export type OfferRequestFiltererContext = Record<string, never>;
 
-export type OfferRequestNeatFilter<Config> = NeatFilter<
+export type OfferRequestColumnFilter<Config> = ColumnFilter<
   OfferRequestDto,
   OfferRequestFilterColumn,
   OfferRequestFiltererContext,

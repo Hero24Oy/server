@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { NeatFilter } from './filterer.types';
-import { NEAT_FILTER_PROVIDER } from './filterer.constants';
+import { ColumnFilter } from './filterer.types';
+import { COLUMN_FILTER_PROVIDER } from './filterer.constants';
 import { FiltererService } from './filterer.service';
 
 @Module({
@@ -14,13 +14,13 @@ export class FiltererModule {
     Context,
     Configs extends Record<Column, unknown>,
   >(
-    filters: NeatFilter<Item, Column, Context, Configs[Column]>[],
+    filters: ColumnFilter<Item, Column, Context, Configs[Column]>[],
   ): DynamicModule {
     return {
       module: FiltererModule,
       providers: [
         {
-          provide: NEAT_FILTER_PROVIDER,
+          provide: COLUMN_FILTER_PROVIDER,
           useValue: filters,
         },
         FiltererService<Column, Item, Context, Configs>,

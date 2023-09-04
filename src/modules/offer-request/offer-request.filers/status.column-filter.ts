@@ -1,15 +1,15 @@
 import { OFFER_REQUEST_STATUS } from 'hero24-types';
 
 import { OfferRequestFilterColumn } from '../offer-request.constants';
-import { OfferRequestNeatFilter } from '../offer-request.types';
+import { OfferRequestColumnFilter } from '../offer-request.types';
 
-export type StatusNeatFilterConfig = OFFER_REQUEST_STATUS[];
+export type StatusColumnFilterConfig = OFFER_REQUEST_STATUS[];
 
-export const statusNeatFilter: OfferRequestNeatFilter<StatusNeatFilterConfig> =
+export const statusColumnFilter: OfferRequestColumnFilter<StatusColumnFilterConfig> =
   {
     column: OfferRequestFilterColumn.STATUS,
 
-    passJudgment(item, _context, statuses) {
+    shouldLeave(item, _context, statuses) {
       if (!statuses || !statuses.length) {
         return true;
       }

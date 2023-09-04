@@ -1,7 +1,10 @@
-import { StatusNeatFilterConfig, statusNeatFilter } from './status.neat-filter';
+import {
+  StatusColumnFilterConfig,
+  statusColumnFilter,
+} from './status.column-filter';
 
 export type OfferRequestFiltererConfigs = {
-  [statusNeatFilter.column]: StatusNeatFilterConfig;
+  [statusColumnFilter.column]: StatusColumnFilterConfig;
 };
 
-export const OFFER_REQUEST_FILTERS = [statusNeatFilter];
+export const OFFER_REQUEST_FILTERS = [statusColumnFilter];

@@ -4,7 +4,7 @@
  * In main cases we should return true, if config is undefined,
  * except cases when we need to provide explicit filtration
  */
-export type NeatFilter<Item, Column, Context, Config> = {
+export type ColumnFilter<Item, Column, Context, Config> = {
   column: Column;
-  passJudgment(item: Item, context: Context, config?: Config): boolean;
+  shouldLeave(item: Item, context: Context, config?: Config): boolean;
 };
