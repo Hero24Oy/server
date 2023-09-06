@@ -8,7 +8,7 @@ import { UserService } from './user.service';
 
 @Injectable()
 export class UserContext implements GraphQLContextProviderService {
-  constructor(private userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   async createContext(): Promise<Partial<AppGraphQLContext>> {
     return {

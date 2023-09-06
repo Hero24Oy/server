@@ -1,5 +1,5 @@
-import { UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
@@ -11,16 +11,24 @@ import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { SellerService } from './seller.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { SELLER_PROFILE_UPDATED_SUBSCRIPTION } from './seller.constants';
+import { SellerProfileFilterInput } from './dto/seller/seller-profile-filter.input';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { PubSub } from 'graphql-subscriptions';
+import { SellerProfileSubscriptionFilter } from './seller.utils/seller-subscription-filter.util';
 
 @Resolver()
 export class SellerResolver {
-  constructor(private sellerService: SellerService) {}
+  constructor(
+    private readonly sellerService: SellerService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+  ) {}
 
   @Query(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async seller(@Args('id') sellerId: string): Promise<SellerProfileDto | null> {
-    return this.sellerService.getSellerById(sellerId);
+  async seller(@Args('id') id: string): Promise<SellerProfileDto | null> {
+    return this.sellerService.getSellerById(id);
   }
 
   @Query(() => SellerProfileListDto)
@@ -46,21 +54,15 @@ export class SellerResolver {
   @Mutation(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async createSeller(
-    @Args() args: SellerProfileCreationArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ) {
-    return this.sellerService.createSeller(args, app);
+  async createSeller(@Args() args: SellerProfileCreationArgs) {
+    return this.sellerService.createSeller(args);
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async editSellerData(
-    @Args() args: SellerProfileDataEditingArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ) {
-    return this.sellerService.editSellerData(args, app);
+  async editSellerData(@Args() args: SellerProfileDataEditingArgs) {
+    return this.sellerService.editSellerData(args);
   }
 
   @Mutation(() => Boolean)
@@ -109,5 +111,19 @@ export class SellerResolver {
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<boolean> {
     return this.sellerService.setIsSellerApproved(sellerId, isApproved, app);
+  }
+
+  @Subscription(() => SellerProfileDto, {
+    name: SELLER_PROFILE_UPDATED_SUBSCRIPTION,
+    filter: SellerProfileSubscriptionFilter(
+      SELLER_PROFILE_UPDATED_SUBSCRIPTION,
+    ),
+  })
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  subscribeOnSellerProfileUpdate(
+    @Args('filter') _filter: SellerProfileFilterInput,
+  ) {
+    return this.pubSub.asyncIterator(SELLER_PROFILE_UPDATED_SUBSCRIPTION);
   }
 }

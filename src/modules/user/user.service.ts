@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UserDB } from 'hero24-types';
-
-import { ref, getDatabase, get, set, push, update } from 'firebase/database';
+import { Database } from 'firebase-admin/database';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
@@ -14,15 +12,18 @@ import { UserDataInput } from './dto/creation/user-data.input';
 import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
 import { FirebaseService } from '../firebase/firebase.service';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
+import { UserDBWithPartialData } from './user.types';
 
 @Injectable()
 export class UserService {
-  constructor(private firebaseService: FirebaseService) {}
+  database: Database;
+
+  constructor(private readonly firebaseService: FirebaseService) {
+    this.database = this.firebaseService.getDefaultApp().database();
+  }
 
   async getUserById(userId: string): Promise<UserDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const userSnapshot = await database
+    const userSnapshot = await this.database
       .ref(FirebaseDatabasePath.USERS)
       .child(userId)
       .get();
@@ -43,8 +44,7 @@ export class UserService {
   }
 
   async getAllUsers() {
-    const database = this.firebaseService.getDefaultApp().database();
-    const usersRef = database.ref(FirebaseDatabasePath.USERS);
+    const usersRef = this.database.ref(FirebaseDatabasePath.USERS);
 
     const usersSnapshot = await usersRef.get();
     const usersTable: Record<string, UserDB> = usersSnapshot.val() || {};
@@ -54,14 +54,12 @@ export class UserService {
     );
   }
 
-  async getUsers(
-    args: UsersArgs,
-    app: FirebaseAppInstance,
-  ): Promise<UserListDto> {
+  async getUsers(args: UsersArgs): Promise<UserListDto> {
     const { limit, offset, search } = args;
-    const database = getDatabase(app);
 
-    const usersSnapshot = await get(ref(database, FirebaseDatabasePath.USERS));
+    const usersSnapshot = await this.database
+      .ref(FirebaseDatabasePath.USERS)
+      .get();
 
     const users = Object.entries(
       (usersSnapshot.val() as Record<string, UserDB>) || {},
@@ -75,7 +73,12 @@ export class UserService {
       nodes = nodes.filter((user) => {
         const { email, firstName, name, lastName } = user.data;
 
-        const target = [email, firstName || '', name || '', lastName || ''] // TODO: write name as "" in database for deleted records
+        const target = [
+          email ?? '',
+          firstName ?? '',
+          name ?? '',
+          lastName ?? '',
+        ] // TODO: write name as "" in database for deleted records
           .map((str) => str.toLowerCase())
           .join(' ');
 
@@ -94,43 +97,40 @@ export class UserService {
     });
   }
 
-  async createUser(
-    args: UserCreationArgs,
-    app: FirebaseAppInstance,
-  ): Promise<UserDto> {
+  async createUser(args: UserCreationArgs): Promise<UserDto> {
     const { data, isCreatedFromWeb, userId } = args;
 
-    const database = getDatabase(app);
+    let updatedUserId = userId ?? null;
 
-    let updatedUserId = userId || null;
-
-    const newUserData: UserDB['data'] = {
+    const newUserData: UserDBWithPartialData['data'] = {
       ...UserDataInput.adapter.toInternal(data),
       createdAt: Date.now(),
     };
 
     if (isCreatedFromWeb && userId) {
       // admin
-      await set(ref(database, `${FirebaseDatabasePath.USERS}/${userId}`), {
+      await this.database.ref(FirebaseDatabasePath.USERS).child(userId).set({
         data: newUserData,
         isCreatedFromWeb,
       });
     } else if (isCreatedFromWeb) {
       // admin
-      const newUserRef = await push(
-        ref(database, `${FirebaseDatabasePath.USERS}`),
-        {
+      const newUserRef = await this.database
+        .ref(FirebaseDatabasePath.USERS)
+        .push({
           data: newUserData,
           isCreatedFromWeb,
-        },
-      );
+        });
+
       updatedUserId = newUserRef.key;
     } else if (userId) {
       // user
-      await set(
-        ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
-        newUserData,
-      );
+
+      await this.database
+        .ref(FirebaseDatabasePath.USERS)
+        .child(userId)
+        .child('data')
+        .set(newUserData);
     }
 
     if (!updatedUserId) {
@@ -140,22 +140,19 @@ export class UserService {
     return this.getUserById(updatedUserId) as Promise<UserDto>;
   }
 
-  async editUserData(
-    args: UserDataEditingArgs,
-    app: FirebaseAppInstance,
-  ): Promise<UserDto> {
+  async editUserData(args: UserDataEditingArgs): Promise<UserDto> {
     const { userId } = args;
-    const database = getDatabase(app);
 
     const updatedUserData: Omit<Partial<UserDB['data']>, 'createdAt'> = {
       ...PartialUserDataInput.adapter.toInternal(args.data),
       updatedAt: Date.now(),
     };
 
-    await update(
-      ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
-      updatedUserData,
-    );
+    await this.database
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('data')
+      .update(updatedUserData);
 
     return this.getUserById(userId) as Promise<UserDto>;
   }
@@ -163,42 +160,37 @@ export class UserService {
   async unbindUserOfferRequests(
     userId: string,
     offerRequestIds: string[],
-    app: FirebaseAppInstance,
   ): Promise<boolean> {
     const offerRequestsData = Object.fromEntries(
       offerRequestIds.map((id) => [id, null]),
     );
 
-    const database = getDatabase(app);
-
-    await update(
-      ref(database, `${FirebaseDatabasePath.USERS}/${userId}/offerRequests`),
-      offerRequestsData,
-    );
+    await this.database
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('offerRequests')
+      .update(offerRequestsData);
 
     return true;
   }
 
-  async getUserPhone(
-    userId: string,
-    app: FirebaseAppInstance,
-  ): Promise<string> {
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.USERS, userId, 'data', 'phone'];
+  async getUserPhone(userId: string): Promise<string> {
+    const phoneSnapshot = await this.database
+      .ref(FirebaseDatabasePath.USERS)
+      .child(userId)
+      .child('data')
+      .child('phone')
+      .get();
 
-    const phoneSnapshot = await get(ref(database, path.join('/')));
-
-    return phoneSnapshot.val() || '';
+    return phoneSnapshot.val() ?? '';
   }
 
   async setHubSpotContactId(userId: string, hubSpotContactId?: string) {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    await database
+    await this.database
       .ref(FirebaseDatabasePath.USERS)
       .child(userId)
       .child('hubSpotContactId')
-      .set(hubSpotContactId || null);
+      .set(hubSpotContactId ?? null);
   }
 
   async getUserByIds(userIds: readonly string[]): Promise<(UserDto | null)[]> {
@@ -206,6 +198,6 @@ export class UserService {
 
     const userById = new Map(users.map((user) => [user.id, user]));
 
-    return userIds.map((userId) => userById.get(userId) || null);
+    return userIds.map((userId) => userById.get(userId) ?? null);
   }
 }

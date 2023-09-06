@@ -26,6 +26,7 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
 import { GraphQLConnectionParams } from './app.types';
 import { FeeModule } from './modules/fee/fee.module';
 import { ImageModule } from './modules/image/image.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { ImageModule } from './modules/image/image.module';
     UserMergeModule,
     FeeModule,
     ImageModule,
+    ReviewModule,
   ],
   providers: [AppResolver],
 })

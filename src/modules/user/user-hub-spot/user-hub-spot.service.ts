@@ -61,10 +61,10 @@ export class UserHubSpotService {
 
   private prepareContactProperties(user: UserDto): HubSpotContactProperties {
     return {
-      [HubSpotContactProperty.EMAIL]: user.data.email,
-      [HubSpotContactProperty.FIRST_NAME]: user.data.firstName || '',
-      [HubSpotContactProperty.LAST_NAME]: user.data.lastName || '',
-      [HubSpotContactProperty.PHONE_NUMBER]: user.data.phone || '',
+      [HubSpotContactProperty.EMAIL]: user.data.email ?? '',
+      [HubSpotContactProperty.FIRST_NAME]: user.data.firstName ?? '',
+      [HubSpotContactProperty.LAST_NAME]: user.data.lastName ?? '',
+      [HubSpotContactProperty.PHONE_NUMBER]: user.data.phone ?? '',
     };
   }
 
