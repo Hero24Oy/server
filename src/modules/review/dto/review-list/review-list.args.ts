@@ -5,5 +5,5 @@ import { PaginationArgs } from 'src/modules/common/dto/pagination.args';
 @ArgsType()
 export class ReviewListArgs extends PaginationArgs {
   @Field(() => String)
-  id: string;
+  sellerId: string;
 }

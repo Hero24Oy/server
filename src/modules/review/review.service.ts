@@ -36,9 +36,9 @@ export class ReviewService {
   }
 
   async getReviews(args: ReviewListArgs): Promise<ReviewListDto> {
-    const { id, offset, limit } = args;
+    const { sellerId, offset, limit } = args;
 
-    const seller = await this.sellerService.strictGetSellerById(id);
+    const seller = await this.sellerService.strictGetSellerById(sellerId);
 
     const allReviewsSnapshot = await this.database
       .ref(FirebaseDatabasePath.REVIEWS)
