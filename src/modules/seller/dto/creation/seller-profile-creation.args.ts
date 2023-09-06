@@ -1,11 +1,11 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { SellerProfileDataInput } from './seller-profile-data.input';
+import { SellerProfileDataDto } from '../seller/seller-profile-data';
 
 @ArgsType()
 export class SellerProfileCreationArgs {
   @Field(() => String)
   id: string;
 
-  @Field(() => SellerProfileDataInput)
-  data: SellerProfileDataInput;
+  @Field(() => SellerProfileDataDto)
+  data: SellerProfileDataDto;
 }

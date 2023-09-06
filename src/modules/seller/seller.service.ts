@@ -1,21 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { get, getDatabase, ref, remove, set, update } from 'firebase/database';
+import { get, getDatabase, ref, remove, set } from 'firebase/database';
 import { SellerProfileDB } from 'hero24-types';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
-import { SellerProfileDataInput } from './dto/creation/seller-profile-data.input';
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseService } from '../firebase/firebase.service';
+import { Database } from 'firebase-admin/database';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
+import { SellerProfileDataDto } from './dto/seller/seller-profile-data';
 
 @Injectable()
 export class SellerService {
-  constructor(private firebaseService: FirebaseService) {}
+  database: Database;
+
+  constructor(private readonly firebaseService: FirebaseService) {
+    this.database = this.firebaseService.getDefaultApp().database();
+  }
 
   async getSellerById(sellerId: string): Promise<SellerProfileDto | null> {
     const database = this.firebaseService.getDefaultApp().database();
@@ -90,38 +95,26 @@ export class SellerService {
     });
   }
 
-  async createSeller(
-    args: SellerProfileCreationArgs,
-    app: FirebaseAppInstance,
-  ) {
+  async createSeller(args: SellerProfileCreationArgs) {
     const { id, data } = args;
 
-    const database = getDatabase(app);
-
-    const path = [FirebaseDatabasePath.SELLER_PROFILES, id, 'data'];
-
-    await set(
-      ref(database, path.join('/')),
-      SellerProfileDataInput.convertToFirebaseType(data),
-    );
+    await this.database
+      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+      .child(id)
+      .child('data')
+      .set(SellerProfileDataDto.adapter.toInternal(data));
 
     return this.getSellerById(id);
   }
 
-  async editSellerData(
-    args: SellerProfileDataEditingArgs,
-    app: FirebaseAppInstance,
-  ) {
+  async editSellerData(args: SellerProfileDataEditingArgs) {
     const { id, data } = args;
 
-    const database = getDatabase(app);
-
-    const path = [FirebaseDatabasePath.SELLER_PROFILES, id, 'data'];
-
-    await update(
-      ref(database, path.join('/')),
-      PartialSellerProfileDataInput.convertToFirebaseType(data),
-    );
+    await this.database
+      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+      .child(id)
+      .child('data')
+      .update(PartialSellerProfileDataInput.adapter.toInternal(data));
 
     return this.getSellerById(id);
   }
