@@ -46,21 +46,15 @@ export class SellerResolver {
   @Mutation(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async createSeller(
-    @Args() args: SellerProfileCreationArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ) {
-    return this.sellerService.createSeller(args, app);
+  async createSeller(@Args() args: SellerProfileCreationArgs) {
+    return this.sellerService.createSeller(args);
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async editSellerData(
-    @Args() args: SellerProfileDataEditingArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ) {
-    return this.sellerService.editSellerData(args, app);
+  async editSellerData(@Args() args: SellerProfileDataEditingArgs) {
+    return this.sellerService.editSellerData(args);
   }
 
   @Mutation(() => Boolean)
