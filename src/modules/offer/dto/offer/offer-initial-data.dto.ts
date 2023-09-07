@@ -3,7 +3,7 @@ import { OfferDB } from 'hero24-types';
 
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { PurchaseDto } from '../purchase.dto';
+import { PurchaseDto } from './purchase.dto';
 
 @ObjectType()
 export class OfferInitialDataDto {

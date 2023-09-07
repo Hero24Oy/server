@@ -9,7 +9,6 @@ export enum FeeListOrderColumn {
   PLATFORM_FEE_PERCENTAGE = 'platformFeePercentage',
   CUSTOMER_VAT = 'customerVAT',
   SERVICE_PROVIDER_VAT = 'serviceProviderVAT',
-  STRIPE_PAYMENT_INTENT_ID = 'stripePaymentIntentId',
   USED_ID = 'usedId',
 }
 

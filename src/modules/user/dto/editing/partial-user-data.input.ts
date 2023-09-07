@@ -64,9 +64,7 @@ PartialUserDataInput.adapter = new FirebaseAdapter({
           Address
         >)
       : undefined,
-    birthDate: isNumber(external.birthDate)
-      ? Number(external.birthDate)
-      : undefined,
+    birthDate: external.birthDate ? Number(external.birthDate) : undefined,
     certificate: external.certificate ?? undefined,
     email: external.email ?? undefined,
     emailVerified: external.emailVerified ?? undefined,
@@ -76,7 +74,7 @@ PartialUserDataInput.adapter = new FirebaseAdapter({
     insurance: external.insurance ?? undefined,
     isActive: external.isActive ?? undefined,
     language: external.language ?? undefined,
-    lastAskedReviewTime: isNumber(external.lastAskedReviewTime)
+    lastAskedReviewTime: external.lastAskedReviewTime
       ? Number(external.lastAskedReviewTime)
       : undefined,
     lastName: external.lastName ?? undefined,

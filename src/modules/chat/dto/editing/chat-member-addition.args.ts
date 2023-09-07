@@ -1,5 +1,7 @@
 import { ArgsType, Field } from '@nestjs/graphql';
 
+import { ChatMemberRole } from '../chat/chat-member-role.enum';
+
 @ArgsType()
 export class ChatMemberAdditionArgs {
   @Field(() => String)
@@ -8,6 +10,6 @@ export class ChatMemberAdditionArgs {
   @Field(() => String)
   userId: string;
 
-  @Field(() => String)
-  role: 'admin' | 'seller' | 'buyer';
+  @Field(() => ChatMemberRole)
+  role: ChatMemberRole;
 }

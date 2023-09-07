@@ -124,9 +124,8 @@ export class ChatResolver {
   @UseGuards(AdminGuard)
   async addMemberToChat(
     @Args() args: ChatMemberAdditionArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<boolean> {
-    return this.chatService.addMemberToChat(args, app);
+    return this.chatService.addMemberToChat(args);
   }
 
   @Mutation(() => Boolean)

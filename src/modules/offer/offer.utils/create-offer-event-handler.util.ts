@@ -1,7 +1,7 @@
-import { DataSnapshot } from 'firebase-admin/database';
 import { OfferDB } from 'hero24-types';
+import { DataSnapshot } from 'firebase-admin/database';
 
-import { OfferDto } from './dto/offer/offer.dto';
+import { OfferDto } from '../dto/offer/offer.dto';
 
 export const createOfferEventHandler =
   (eventEmitter: (offer: OfferDto) => void) => (snapshot: DataSnapshot) => {

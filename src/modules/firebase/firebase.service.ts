@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   FirebaseAdminAppInstance,
+  FirebaseAdminStorage,
   FirebaseAppInstance,
 } from './firebase.types';
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
@@ -17,6 +18,7 @@ import { FirebaseDatabasePath, MAX_TRYING_COUNT } from './firebase.constants';
 @Injectable()
 export class FirebaseService {
   private app: FirebaseAdminAppInstance;
+  private storage: FirebaseAdminStorage;
   private logger = new Logger(FirebaseService.name);
 
   constructor(
@@ -36,7 +38,12 @@ export class FirebaseService {
         ),
       }),
       databaseURL: configService.getOrThrow<string>('firebase.databaseURL'),
+      storageBucket: `${configService.getOrThrow<string>(
+        'firebase.serviceAccount.projectId',
+      )}.appspot.com`,
     });
+
+    this.storage = this.app.storage();
   }
 
   private getClientFirebaseConfig() {
@@ -67,6 +74,10 @@ export class FirebaseService {
 
   getDefaultApp() {
     return this.app;
+  }
+
+  getStorage() {
+    return this.storage;
   }
 
   async authorizeUser(uid: string, app: FirebaseAppInstance) {

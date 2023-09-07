@@ -18,8 +18,8 @@ import { RoundedNumber } from 'src/modules/price-calculator/price-calculator.mon
 
 import { OfferPriceCalculatorService } from '../offer-price-calculator/offer-price-calculator.service';
 import { OfferDto } from '../dto/offer/offer.dto';
-import { OfferService } from '../offer.service';
 import { HUB_SPOT_DEAL_STAGE_BY_OFFER_STATUS } from './offer-hub-spot.constants';
+import { OfferService } from '../services/offer.service';
 
 @Injectable()
 export class OfferHubSpotService {
