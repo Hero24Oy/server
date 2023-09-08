@@ -1,18 +1,20 @@
-import { Args, Query, Resolver, Mutation, Subscription } from '@nestjs/graphql';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
-import { PromotionService } from './promotion.service';
 import { Inject, UseGuards } from '@nestjs/common';
+import { Args, Query, Resolver, Mutation, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { PromotionDto } from './dto/promotion.dto';
+
+import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 import { AdminGuard } from 'src/modules/auth/guards/admin.guard';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
+
+import { PromotionService } from './promotion.service';
 import {
   PROMOTION_ADDED_SUBSCRIPTION,
   PROMOTION_REMOVED_SUBSCRIPTION,
   PROMOTION_UPDATED_SUBSCRIPTION,
 } from './promotion.constants';
 import { PromotionEditingInput } from './dto/promotion-editing.input';
+import { PromotionDto } from './dto/promotion.dto';
 import { PromotionCreationInput } from './dto/promotion-creation.input';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 // TODO move to module folder
 // TODO separate for admin

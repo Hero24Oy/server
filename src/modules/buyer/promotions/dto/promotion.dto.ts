@@ -1,10 +1,12 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { PromotionDB } from 'hero24-types';
+
 import { timestampToDate } from 'src/modules/common/common.utils';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class PromotionDto {
+  // TODO create common type for shared properties
   @Field(() => String)
   id: string;
 
@@ -14,6 +16,7 @@ export class PromotionDto {
   @Field(() => Float)
   discount: number;
 
+  // TODO to enum
   @Field(() => String)
   discountFormat: 'fixed' | 'percentage';
 

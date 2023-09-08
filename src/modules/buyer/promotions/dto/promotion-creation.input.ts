@@ -1,4 +1,5 @@
 import { InputType, OmitType } from '@nestjs/graphql';
+
 import { PromotionDto } from './promotion.dto';
 
 @InputType()
