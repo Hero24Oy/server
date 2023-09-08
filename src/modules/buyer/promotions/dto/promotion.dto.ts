@@ -1,4 +1,4 @@
-import { Field, Float, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { PromotionDB } from 'hero24-types';
 import { timestampToDate } from 'src/modules/common/common.utils';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
@@ -26,7 +26,7 @@ export class PromotionDto {
   @Field(() => String)
   description: string;
 
-  static adapter: FirebaseAdapter<PromotionDB & { id: string }, PromotionDto>
+  static adapter: FirebaseAdapter<PromotionDB & { id: string }, PromotionDto>;
 }
 
 PromotionDto.adapter = new FirebaseAdapter({
@@ -37,7 +37,7 @@ PromotionDto.adapter = new FirebaseAdapter({
     discountFormat: internal.data.discountFormat,
     startDate: timestampToDate(internal.data.startDate),
     endDate: timestampToDate(internal.data.endDate),
-    description: internal.data.description
+    description: internal.data.description,
   }),
   toInternal: (external) => ({
     id: external.id,
@@ -47,7 +47,7 @@ PromotionDto.adapter = new FirebaseAdapter({
       discountFormat: external.discountFormat,
       startDate: external.startDate.getTime(),
       endDate: external.endDate.getTime(),
-      description: external.description
-    }
+      description: external.description,
+    },
   }),
 });

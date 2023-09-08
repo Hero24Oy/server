@@ -1,16 +1,20 @@
 import { DataSnapshot } from 'firebase-admin/database';
-import { PubSub } from 'graphql-subscriptions';
 import { PromotionDto } from '../dto/promotion.dto';
+import { PromotionDB } from 'hero24-types';
 
 export const createPromotionsEventHandler =
-  (eventEmitter: (pubsub: PubSub, promotion: PromotionDto) => void) =>
-  (pubsub: PubSub) =>
+  (eventEmitter: (promotion: PromotionDto) => void) =>
   (snapshot: DataSnapshot) => {
     if (!snapshot.key) {
       return;
     }
+
+    const firebasePromotion: PromotionDB = snapshot.val();
+
     eventEmitter(
-      pubsub,
-      PromotionDto.adapter.toExternal({ ...snapshot.val(), id: snapshot.key }),
+      PromotionDto.adapter.toExternal({
+        ...firebasePromotion,
+        id: snapshot.key,
+      }),
     );
   };

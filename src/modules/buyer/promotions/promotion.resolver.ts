@@ -1,9 +1,9 @@
 import { Args, Query, Resolver, Mutation, Subscription } from '@nestjs/graphql';
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 import { PromotionService } from './promotion.service';
+import { Inject, UseGuards } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { PromotionDto } from './dto/promotion.dto';
-import { Inject, UseGuards } from '@nestjs/common';
 import { AdminGuard } from 'src/modules/auth/guards/admin.guard';
 import {
   PROMOTION_ADDED_SUBSCRIPTION,
@@ -14,31 +14,31 @@ import { PromotionEditingInput } from './dto/promotion-editing.input';
 import { PromotionCreationInput } from './dto/promotion-creation.input';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
+// TODO move to module folder
+// TODO separate for admin
 @Resolver()
 export class PromotionResolver {
   constructor(
-    private promotionService: PromotionService,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    private readonly promotionService: PromotionService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
+  // TODO rename resolvers
   @Query(() => PromotionDto, { nullable: true })
   @UseGuards(AuthGuard)
-  async getPromotion(
-    @Args('id') promotionId: string,
-  ): Promise<PromotionDto | null> {
+  getPromotion(@Args('id') promotionId: string): Promise<PromotionDto | null> {
     return this.promotionService.getPromotion(promotionId);
   }
 
   @Query(() => [PromotionDto], { nullable: true })
   @UseGuards(AuthGuard)
-  async getPromotions(): Promise<PromotionDto[]> {
-    let promotions = await this.promotionService.getPromotions();
-    return promotions;
+  getPromotions(): Promise<PromotionDto[]> {
+    return this.promotionService.getPromotions();
   }
 
   @Mutation(() => PromotionDto)
   @UseGuards(AdminGuard)
-  async createPromotion(
+  createPromotion(
     @Args('input') input: PromotionCreationInput,
   ): Promise<PromotionDto> {
     return this.promotionService.createPromotion(input);
@@ -46,7 +46,7 @@ export class PromotionResolver {
 
   @Mutation(() => PromotionDto)
   @UseGuards(AdminGuard)
-  async editPromotion(
+  editPromotion(
     @Args('input') input: PromotionEditingInput,
   ): Promise<PromotionDto> {
     return this.promotionService.updatePromotion(input);
@@ -54,17 +54,15 @@ export class PromotionResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(AdminGuard)
-  async removePromotion(@Args('id') promotionId: string): Promise<boolean> {
-    await this.promotionService.deletePromotion(promotionId);
-
-    return true;
+  removePromotion(@Args('id') promotionId: string): Promise<boolean> {
+    return this.promotionService.deletePromotion(promotionId);
   }
 
   @Subscription(() => PromotionDto, {
     name: PROMOTION_ADDED_SUBSCRIPTION,
   })
   @UseGuards(AuthGuard)
-  async promotionAdded() {
+  promotionAdded() {
     return this.pubSub.asyncIterator(PROMOTION_ADDED_SUBSCRIPTION);
   }
 
@@ -72,7 +70,7 @@ export class PromotionResolver {
     name: PROMOTION_UPDATED_SUBSCRIPTION,
   })
   @UseGuards(AuthGuard)
-  async promotionUpdated() {
+  promotionUpdated() {
     return this.pubSub.asyncIterator(PROMOTION_UPDATED_SUBSCRIPTION);
   }
 
@@ -80,7 +78,7 @@ export class PromotionResolver {
     name: PROMOTION_REMOVED_SUBSCRIPTION,
   })
   @UseGuards(AuthGuard)
-  async promotionRemoved() {
+  promotionRemoved() {
     return this.pubSub.asyncIterator(PROMOTION_REMOVED_SUBSCRIPTION);
   }
 }

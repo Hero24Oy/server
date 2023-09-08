@@ -11,10 +11,11 @@ import { SubscriptionManagerModule } from 'src/modules/subscription-manager/subs
     FirebaseModule,
     GraphQLPubsubModule,
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQLPubsubModule, FirebaseModule],
+      imports: [FirebaseModule, PromotionModule],
       subscriptions: [PromotionSubscription],
     }),
   ],
   providers: [PromotionService, PromotionResolver],
+  exports: [PromotionService],
 })
 export class PromotionModule {}
