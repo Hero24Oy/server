@@ -15,6 +15,7 @@ import { BuyerOfferService } from './services/buyer-offer.service';
 import { SellerOfferService } from './services/seller-offer.service';
 import { OfferService } from './services/offer.service';
 import { OfferHubSpotModule } from './offer-hub-spot/offer-hub-spot.module';
+import { OfferInitialDataFieldResolver } from './resolvers/offer-initial-data-field.resolver';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { OfferHubSpotModule } from './offer-hub-spot/offer-hub-spot.module';
     BuyerOfferResolver,
     SellerOfferResolver,
     OfferResolver,
+    OfferInitialDataFieldResolver,
   ],
   exports: [BuyerOfferService, SellerOfferService, OfferService],
 })

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
-import { AppGraphQLContext, AppPlatform } from 'src/app.types';
+import { AppGraphQLContext } from 'src/app.types';
 import { AuthIdentity } from 'src/modules/auth/auth.decorator';
 import { Identity } from 'src/modules/auth/auth.types';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
@@ -21,6 +21,7 @@ import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
 import { OfferService } from '../services/offer.service';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { OfferSubscriptionInput } from '../dto/offers/offers-subsribption.input';
+import { Scope } from 'src/modules/auth/auth.constants';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 
 @UseGuards(AuthGuard)
@@ -37,7 +38,7 @@ export class OfferResolver {
     @AuthIdentity() identity: Identity,
     @Args('input') input: OfferArgs,
   ): Promise<OfferListDto> {
-    if (!input.role && !identity.isAdmin) {
+    if (!input.role && identity.scope === Scope.USER) {
       throw new UnauthorizedException();
     }
 
@@ -54,7 +55,7 @@ export class OfferResolver {
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
       variables: { input: OfferSubscriptionInput },
-      { identity, platform }: AppGraphQLContext,
+      { identity }: AppGraphQLContext,
     ) => {
       // ? what if provided offerId is not related to the user
       // if ids are provided, filter by them
@@ -64,7 +65,7 @@ export class OfferResolver {
         );
       }
 
-      if (identity?.isAdmin && platform === AppPlatform.STILAUS) {
+      if (identity?.scope === Scope.ADMIN) {
         return true;
       }
 
@@ -76,10 +77,10 @@ export class OfferResolver {
     },
   })
   subscribeOnOfferUpdated(
-    @AuthIdentity() identity: Identity,
+    @AuthIdentity() { scope }: Identity,
     @Args('input') input: OfferSubscriptionInput,
   ) {
-    if (!input.role && !identity?.isAdmin) {
+    if (!input.role && scope === Scope.USER) {
       throw new UnauthorizedException();
     }
 

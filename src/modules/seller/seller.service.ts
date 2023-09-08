@@ -10,8 +10,8 @@ import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { FirebaseService } from '../firebase/firebase.service';
-import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { Database } from 'firebase-admin/database';
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { SellerProfileDataDto } from './dto/seller/seller-profile-data';
 
 @Injectable()

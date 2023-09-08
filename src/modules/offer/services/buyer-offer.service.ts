@@ -6,12 +6,14 @@ import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { OfferService } from './offer.service';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
+import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
 
 @Injectable()
 export class BuyerOfferService {
   constructor(
     private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
+    private readonly offerRequestService: OfferRequestService,
   ) {}
 
   async markOfferAsSeenByBuyer(offerId: string): Promise<boolean> {
@@ -59,10 +61,16 @@ export class BuyerOfferService {
 
   async approvePrepaidOffer({ offerId }: OfferIdInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
+    const offer = await this.offerService.strictGetOfferById(offerId);
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
 
     await offerRef.child('status').set(OfferStatus.ACCEPTED);
+
+    await this.offerRequestService.updateDateQuestionWithAgreedStartTime(
+      offer.data.initial.offerRequestId,
+      offer.data.initial.agreedStartTime,
+    );
 
     return true;
   }

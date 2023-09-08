@@ -8,6 +8,7 @@ export enum FirebaseDatabasePath {
   APPROVED_SELLERS = 'approvedSellers',
   OFFER_REQUESTS = 'offerRequests',
   OFFER_REQUEST_ACCEPTANCE_GUARDS = 'offerRequestAcceptanceGuards',
+  OPEN_OFFER_REQUESTS = 'openOfferRequests',
   CHATS = 'chats',
   CHAT_MESSAGES = 'chatMessages',
   ADMIN_USERS = 'adminUsers',

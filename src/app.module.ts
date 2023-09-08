@@ -18,7 +18,6 @@ import { ChatModule } from './modules/chat/chat.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { NewsModule } from './modules/news/news.module';
 import { SettingsModule } from './modules/settings/settings.module';
-import { PlatformSpecifierModule } from './modules/platform-specifier/platform-specifier.module';
 import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
@@ -66,7 +65,6 @@ import { ReviewModule } from './modules/review/review.module';
     AuthModule,
     NewsModule,
     SettingsModule,
-    PlatformSpecifierModule,
     SubscriberModule,
     OfferModule,
     PriceCalculatorModule,

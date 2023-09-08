@@ -25,12 +25,12 @@ export class UserMergeResolver {
     @Args('userMergeInput') userMergeInput: UserMergeInput,
     @AuthIdentity() identity: Identity,
   ): Promise<UserMergeDto | null> {
-    return await this.userMergeService.startUserMerge(userMergeInput, identity);
+    return this.userMergeService.startUserMerge(userMergeInput, identity);
   }
 
   @Subscription(() => UserMergeDto)
   @UseGuards(AuthGuard)
-  subscribeToUserMerge(@Args('userId') userId: string) {
+  subscribeToUserMerge(@Args('userId') _userId: string) {
     return this.pubSub.asyncIterator('userMerge');
   }
 }

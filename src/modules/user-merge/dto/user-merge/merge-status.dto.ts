@@ -1,6 +1,8 @@
 import { registerEnumType } from '@nestjs/graphql';
 
-enum MergeStatus {
+// Todo: change to uppercase this
+// TODO: check that pendingVerify and notFound handles correct by the client
+export enum MergeStatus {
   processing = 'processing',
   completed = 'completed',
   notFound = 'not-found',
@@ -10,5 +12,3 @@ enum MergeStatus {
 registerEnumType(MergeStatus, {
   name: 'MergeStatus',
 });
-
-export default MergeStatus;
