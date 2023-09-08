@@ -21,14 +21,13 @@ export class PromotionResolver {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  // TODO rename resolvers
   @Query(() => PromotionDto, { nullable: true })
-  getPromotion(@Args('id') id: string): Promise<PromotionDto | null> {
+  promotion(@Args('id') id: string): Promise<PromotionDto | null> {
     return this.promotionService.getPromotion(id);
   }
 
   @Query(() => [PromotionDto], { nullable: true })
-  getPromotions(): Promise<PromotionDto[]> {
+  promotions(): Promise<PromotionDto[]> {
     return this.promotionService.getPromotions();
   }
 
