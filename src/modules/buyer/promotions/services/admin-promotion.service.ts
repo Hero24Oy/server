@@ -4,9 +4,9 @@ import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { omitUndefined } from 'src/modules/common/common.utils';
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 
-import { PromotionDto } from '../dto/promotion.dto';
-import { PromotionEditingInput } from '../dto/promotion-editing.input';
-import { PromotionCreationInput } from '../dto/promotion-creation.input';
+import { PromotionDto } from '../dto/promotion/promotion.dto';
+import { PromotionEditingInput } from '../dto/editing/promotion-editing.input';
+import { PromotionCreationInput } from '../dto/creation/promotion-creation.input';
 import { PromotionService } from './promotion.service';
 
 @Injectable()

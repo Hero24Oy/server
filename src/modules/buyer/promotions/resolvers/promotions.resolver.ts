@@ -5,7 +5,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
-import { PromotionDto } from '../dto/promotion.dto';
+import { PromotionDto } from '../dto/promotion/promotion.dto';
 import {
   PROMOTION_ADDED_SUBSCRIPTION,
   PROMOTION_UPDATED_SUBSCRIPTION,

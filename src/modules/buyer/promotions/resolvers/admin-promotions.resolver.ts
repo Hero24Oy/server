@@ -3,9 +3,9 @@ import { Args, Resolver, Mutation } from '@nestjs/graphql';
 
 import { AdminGuard } from 'src/modules/auth/guards/admin.guard';
 
-import { PromotionCreationInput } from '../dto/promotion-creation.input';
-import { PromotionEditingInput } from '../dto/promotion-editing.input';
-import { PromotionDto } from '../dto/promotion.dto';
+import { PromotionCreationInput } from '../dto/creation/promotion-creation.input';
+import { PromotionEditingInput } from '../dto/editing/promotion-editing.input';
+import { PromotionDto } from '../dto/promotion/promotion.dto';
 import { AdminPromotionService } from '../services/admin-promotion.service';
 
 @UseGuards(AdminGuard)

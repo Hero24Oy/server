@@ -1,7 +1,7 @@
 import { PromotionDB } from 'hero24-types';
 import { DataSnapshot } from 'firebase-admin/database';
 
-import { PromotionDto } from '../dto/promotion.dto';
+import { PromotionDto } from '../dto/promotion/promotion.dto';
 
 export const createPromotionsEventHandler =
   (eventEmitter: (promotion: PromotionDto) => void) =>

@@ -6,7 +6,7 @@ import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 
-import { PromotionDto } from '../dto/promotion.dto';
+import { PromotionDto } from '../dto/promotion/promotion.dto';
 import { emitPromotionAddedEvent } from '../promotion.utils/emit-promotion-created-event.util';
 import { emitPromotionUpdatedEvent } from '../promotion.utils/emit-promotion-updated-event.util';
 import { emitPromotionRemovedEvent } from '../promotion.utils/emit-promotion-removed-event.util';
