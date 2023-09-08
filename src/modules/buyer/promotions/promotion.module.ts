@@ -4,9 +4,11 @@ import { SubscriptionManagerModule } from 'src/modules/subscription-manager/subs
 
 import { FirebaseModule } from '../../firebase/firebase.module';
 import { GraphQLPubsubModule } from '../../graphql-pubsub/graphql-pubsub.module';
-import { PromotionResolver } from './promotion.resolver';
-import { PromotionService } from './promotion.service';
+import { PromotionService } from './services/promotion.service';
 import { PromotionSubscription } from './promotion.subscription';
+import { AdminPromotionResolver } from './resolvers/admin-promotions.resolver';
+import { PromotionResolver } from './resolvers/promotions.resolver';
+import { AdminPromotionService } from './services/admin-promotion.service';
 
 @Module({
   imports: [
@@ -17,7 +19,12 @@ import { PromotionSubscription } from './promotion.subscription';
       subscriptions: [PromotionSubscription],
     }),
   ],
-  providers: [PromotionService, PromotionResolver],
-  exports: [PromotionService],
+  providers: [
+    AdminPromotionResolver,
+    PromotionResolver,
+    PromotionService,
+    AdminPromotionService,
+  ],
+  exports: [PromotionService, AdminPromotionService],
 })
 export class PromotionModule {}

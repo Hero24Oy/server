@@ -3,16 +3,13 @@ import { PromotionDB } from 'hero24-types';
 import { PubSub } from 'graphql-subscriptions';
 
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
-import { omitUndefined } from 'src/modules/common/common.utils';
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 
-import { PromotionDto } from './dto/promotion.dto';
-import { PromotionEditingInput } from './dto/promotion-editing.input';
-import { PromotionCreationInput } from './dto/promotion-creation.input';
-import { emitPromotionAddedEvent } from './promotion.utils/emit-promotion-created-event.util';
-import { emitPromotionUpdatedEvent } from './promotion.utils/emit-promotion-updated-event.util';
-import { emitPromotionRemovedEvent } from './promotion.utils/emit-promotion-removed-event.util';
+import { PromotionDto } from '../dto/promotion.dto';
+import { emitPromotionAddedEvent } from '../promotion.utils/emit-promotion-created-event.util';
+import { emitPromotionUpdatedEvent } from '../promotion.utils/emit-promotion-updated-event.util';
+import { emitPromotionRemovedEvent } from '../promotion.utils/emit-promotion-removed-event.util';
 
 @Injectable()
 export class PromotionService {
@@ -66,52 +63,6 @@ export class PromotionService {
     });
 
     return promotions;
-  }
-
-  async createPromotion(
-    promotion: PromotionCreationInput,
-  ): Promise<PromotionDto> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
-
-    const { key } = await database.ref('promotions').push(promotion);
-
-    if (!key) {
-      throw new Error("Promotion wasn't created");
-    }
-
-    return this.strictGetPromotion(key);
-  }
-
-  async updatePromotion(input: PromotionEditingInput): Promise<PromotionDto> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
-
-    const newData = omitUndefined({
-      categoryId: input.categoryId || undefined,
-      discount: input.discount || undefined,
-      discountFormat: input.discountFormat || undefined,
-      startDate: input.startDate || undefined,
-      endDate: input.endDate || undefined,
-      description: input.description || undefined,
-    });
-
-    await database
-      .ref(FirebaseDatabasePath.PROMOTIONS)
-      .child(input.id)
-      .child('data')
-      .update(newData);
-
-    return this.strictGetPromotion(input.id);
-  }
-
-  async deletePromotion(id: string): Promise<true> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
-
-    await database.ref(FirebaseDatabasePath.PROMOTIONS).child(id).remove();
-
-    return true;
   }
 
   async promotionAdded(promotion: PromotionDto): Promise<void> {

@@ -7,7 +7,7 @@ import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
 import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
 import { SubscriptionService } from '../../subscription-manager/subscription-manager.interface';
 import { createPromotionsEventHandler } from './promotion.utils/create-promotion-event-handler.util';
-import { PromotionService } from './promotion.service';
+import { PromotionService } from './services/promotion.service';
 
 @Injectable()
 export class PromotionSubscription implements SubscriptionService {
