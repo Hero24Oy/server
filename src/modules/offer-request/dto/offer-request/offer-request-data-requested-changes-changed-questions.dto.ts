@@ -1,12 +1,19 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
+import { OfferRequestDB } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import {
   OfferRequestQuestionDto,
-  offerRequestQuestionDtoConvertor,
-} from '../offer-request-question/offer-request-question.dto';
+  OfferRequestQuestionAdapter,
+} from '../../offer-request-question/dto/offer-request-question/offer-request-question.dto';
+import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
+import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+import { offerRequestQuestionsToArray } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-array.util';
+
+type ChangedQuestionsDB = Required<
+  OfferRequestDB['data']
+>['requestedChanges']['changedQuestions'];
 
 @ObjectType()
 export class OfferRequestDataRequestedChangesChangedQuestionsDto {
@@ -16,97 +23,45 @@ export class OfferRequestDataRequestedChangesChangedQuestionsDto {
   @Field(() => [OfferRequestQuestionDto])
   after: OfferRequestQuestionDto[];
 
-  static convertFromFirebaseType(
-    data: Exclude<
-      OfferRequestDB['data']['requestedChanges'],
-      undefined
-    >['changedQuestions'],
-  ): OfferRequestDataRequestedChangesChangedQuestionsDto {
-    const depsBeforeQuestions: OfferRequestQuestionDto[] = [];
-    const depsAfterQuestions: OfferRequestQuestionDto[] = [];
-
-    const saveBeforeQuestion = (question: OfferRequestQuestion) => {
-      const depsId = Math.random().toString(32);
-
-      const questionDto =
-        offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-          question,
-          saveBeforeQuestion,
-        );
-
-      depsBeforeQuestions.push({ ...questionDto, depsId });
-
-      return depsId;
-    };
-
-    const saveAfterQuestion = (question: OfferRequestQuestion) => {
-      const depsId = Math.random().toString(32);
-
-      const questionDto =
-        offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-          question,
-          saveAfterQuestion,
-        );
-
-      depsAfterQuestions.push({ ...questionDto, depsId });
-
-      return depsId;
-    };
-
-    const rootBeforeQuestions: OfferRequestQuestionDto[] = data.before.map(
-      (question) =>
-        offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-          question,
-          saveBeforeQuestion,
-        ),
-    );
-    const rootAfterQuestions: OfferRequestQuestionDto[] = data.after.map(
-      (question) =>
-        offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-          question,
-          saveAfterQuestion,
-        ),
-    );
-
-    return {
-      before: [...rootBeforeQuestions, ...depsBeforeQuestions],
-      after: [...rootAfterQuestions, ...depsAfterQuestions],
-    };
-  }
-
-  static convertToFirebaseType(
-    data: OfferRequestDataRequestedChangesChangedQuestionsDto,
-  ): Exclude<
-    OfferRequestDB['data']['requestedChanges'],
-    undefined
-  >['changedQuestions'] {
-    const depsBeforeQuestion = data.before.filter(
-      ({ depsId }) => typeof depsId === 'string',
-    );
-    const depsAfterQuestions = data.after.filter(
-      ({ depsId }) => typeof depsId === 'string',
-    );
-
-    const rootBeforeQuestion = data.before.filter(
-      ({ depsId }) => typeof depsId !== 'string',
-    );
-    const rootAfterQuestions = data.after.filter(
-      ({ depsId }) => typeof depsId !== 'string',
-    );
-
-    return omitUndefined({
-      before: rootBeforeQuestion.map((question) =>
-        offerRequestQuestionDtoConvertor.convertToFirebaseType(
-          question,
-          depsBeforeQuestion,
-        ),
-      ),
-      after: rootAfterQuestions.map((question) =>
-        offerRequestQuestionDtoConvertor.convertToFirebaseType(
-          question,
-          depsAfterQuestions,
-        ),
-      ),
-    });
-  }
+  static adapter: FirebaseAdapter<
+    ChangedQuestionsDB,
+    OfferRequestDataRequestedChangesChangedQuestionsDto
+  >;
 }
+
+OfferRequestDataRequestedChangesChangedQuestionsDto.adapter =
+  new FirebaseAdapter({
+    toInternal(external) {
+      const before = external.before.map(
+        (question) =>
+          OfferRequestQuestionAdapter.toInternal(
+            question,
+          ) as PlainOfferRequestQuestion,
+      );
+
+      const after = external.after.map(
+        (question) =>
+          OfferRequestQuestionAdapter.toInternal(
+            question,
+          ) as PlainOfferRequestQuestion,
+      );
+
+      return {
+        before: offerRequestQuestionsToTree(before),
+        after: offerRequestQuestionsToTree(after),
+      };
+    },
+    toExternal(internal) {
+      const beforeQuestions = offerRequestQuestionsToArray(internal.before);
+      const afterQuestions = offerRequestQuestionsToArray(internal.after);
+
+      return {
+        before: beforeQuestions.map((question) =>
+          OfferRequestQuestionAdapter.toExternal(question),
+        ) as OfferRequestQuestionDto[],
+        after: afterQuestions.map((question) =>
+          OfferRequestQuestionAdapter.toExternal(question),
+        ) as OfferRequestQuestionDto[],
+      };
+    },
+  });

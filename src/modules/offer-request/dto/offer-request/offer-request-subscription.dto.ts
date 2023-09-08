@@ -1,7 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestSubscription, SUBSCRIPTION_INTERVAL } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class OfferRequestSubscriptionDto {
@@ -12,13 +13,13 @@ export class OfferRequestSubscriptionDto {
   subscriptionType: SUBSCRIPTION_INTERVAL;
 
   @Field(() => Boolean, { nullable: true })
-  initialRequest?: boolean;
+  initialRequest?: MaybeType<boolean>;
 
   @Field(() => Float, { nullable: true })
-  priceDiscount?: number;
+  priceDiscount?: MaybeType<number>;
 
   @Field(() => String, { nullable: true })
-  discountFormat?: 'fixed' | 'percentage';
+  discountFormat?: MaybeType<'fixed' | 'percentage'>;
 
   @Field(() => Date)
   currentAnchorDate: Date;
@@ -26,23 +27,29 @@ export class OfferRequestSubscriptionDto {
   @Field(() => Date)
   nextAnchorDate: Date;
 
-  static convertToFirebaseType(
-    data: OfferRequestSubscriptionDto,
-  ): OfferRequestSubscription {
-    return omitUndefined({
-      ...data,
-      currentAnchorDate: +new Date(data.currentAnchorDate),
-      nextAnchorDate: +new Date(data.nextAnchorDate),
-    });
-  }
-
-  static convertFromFirebaseType(
-    data: OfferRequestSubscription,
-  ): OfferRequestSubscriptionDto {
-    return {
-      ...data,
-      currentAnchorDate: new Date(data.currentAnchorDate),
-      nextAnchorDate: new Date(data.nextAnchorDate),
-    };
-  }
+  static adapter: FirebaseAdapter<
+    OfferRequestSubscription,
+    OfferRequestSubscriptionDto
+  >;
 }
+
+OfferRequestSubscriptionDto.adapter = new FirebaseAdapter({
+  toInternal: (external) => ({
+    subscriptionId: external.subscriptionId,
+    subscriptionType: external.subscriptionType,
+    initialRequest: external.initialRequest ?? undefined,
+    priceDiscount: external.priceDiscount ?? undefined,
+    discountFormat: external.discountFormat ?? undefined,
+    currentAnchorDate: Number(external.currentAnchorDate),
+    nextAnchorDate: Number(external.nextAnchorDate),
+  }),
+  toExternal: (internal) => ({
+    subscriptionId: internal.subscriptionId,
+    subscriptionType: internal.subscriptionType,
+    initialRequest: internal.initialRequest,
+    priceDiscount: internal.priceDiscount,
+    discountFormat: internal.discountFormat,
+    currentAnchorDate: new Date(internal.currentAnchorDate),
+    nextAnchorDate: new Date(internal.nextAnchorDate),
+  }),
+});

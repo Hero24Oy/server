@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import omit from 'lodash/omit';
+import get from 'lodash/get';
 
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
@@ -174,24 +174,23 @@ export class SellerOfferService {
     return true;
   }
 
-  async acceptOfferChanges(
-    { agreedStartTime, offerId }: OfferChangeInput,
-    app: FirebaseAppInstance,
-  ): Promise<boolean> {
+  async acceptOfferChanges({
+    agreedStartTime,
+    offerId,
+  }: OfferChangeInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    const isAcceptTimeChanges = agreedStartTime;
-    const isAcceptDetailsChanges = !isAcceptTimeChanges;
+    const isAcceptDetailsChanges = !agreedStartTime;
+    const isAcceptTimeChanges = !isAcceptDetailsChanges;
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
     const offer = await this.offerService.strictGetOfferById(offerId);
+    const offerRequestId = get(offer, ['data', 'initial', 'offerRequestId']);
 
-    const offerRequest = await this.offerRequestService.getOfferRequestById(
-      offer.data.initial.offerRequestId,
-      app,
-    );
+    const offerRequest =
+      await this.offerRequestService.strictGetOfferRequestById(offerRequestId);
 
-    if (!offerRequest?.data.requestedChanges) {
+    if (!offerRequest.data.requestedChanges) {
       throw new Error('OfferRequest does not have requested changes!');
     }
 
@@ -199,6 +198,7 @@ export class SellerOfferService {
       requestedChanges: { changedQuestions },
       initial: { questions },
     } = offerRequest.data;
+
     const { dateQuestion, otherChanges } = getChangedQuestions(
       changedQuestions,
       questions,
@@ -212,15 +212,17 @@ export class SellerOfferService {
         .set(agreedStartTime.getTime());
     }
 
-    const changesAccepted = {
-      detailsChangeAccepted: isAcceptDetailsChanges || !otherChanges.length,
-      timeChangeAccepted: isAcceptTimeChanges || !dateQuestion,
-    };
+    const timeChangeAccepted = !dateQuestion || isAcceptTimeChanges;
+    const detailsChangeAccepted =
+      !otherChanges.length || isAcceptDetailsChanges;
 
-    if (
-      changesAccepted.detailsChangeAccepted &&
-      changesAccepted.timeChangeAccepted
-    ) {
+    await this.offerRequestService.updateAcceptedChanges({
+      offerRequestId,
+      detailsChangeAccepted,
+      timeChangeAccepted,
+    });
+
+    if (detailsChangeAccepted && timeChangeAccepted) {
       await offerRef.child('data').child('requestedChangesAccepted').set(true);
     }
 
@@ -260,6 +262,8 @@ export class SellerOfferService {
   }
 
   async createOffer(offer: OfferInput): Promise<OfferDto> {
+    await this.createAcceptanceGuard(offer.data.initial);
+
     const database = this.firebaseService.getDefaultApp().database();
 
     const createdOfferRef = await database

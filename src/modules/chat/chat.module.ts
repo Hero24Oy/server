@@ -23,11 +23,13 @@ import {
 import { skipFirst } from '../common/common.utils';
 import { GraphQLContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
 import { ChatContext } from './chat.context';
+import { OfferRequestModule } from '../offer-request/offer-request.module';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQLPubsubModule,
+    OfferRequestModule,
     SorterModule.create(CHAT_SORTERS),
     GraphQLContextManagerModule.forFeature({
       imports: [ChatModule],

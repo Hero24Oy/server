@@ -1,7 +1,10 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, REFUND_STATUS } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+type RefundDB = Exclude<OfferRequestDB['refund'], undefined>;
 
 @ObjectType()
 export class OfferRequestRefundDto {
@@ -12,26 +15,25 @@ export class OfferRequestRefundDto {
   amount: number;
 
   @Field(() => String, { nullable: true })
-  message?: string;
+  message?: MaybeType<string>;
 
   @Field(() => String)
   status: REFUND_STATUS;
 
-  static convertFromFirebaseType(
-    data: Exclude<OfferRequestDB['refund'], undefined>,
-  ): OfferRequestRefundDto {
-    return {
-      ...data,
-      updatedAt: new Date(data.updatedAt),
-    };
-  }
-
-  static convertToFirebaseType(
-    data: OfferRequestRefundDto,
-  ): Exclude<OfferRequestDB['refund'], undefined> {
-    return omitUndefined({
-      ...data,
-      updatedAt: +new Date(data.updatedAt),
-    });
-  }
+  static adapter: FirebaseAdapter<RefundDB, OfferRequestRefundDto>;
 }
+
+OfferRequestRefundDto.adapter = new FirebaseAdapter({
+  toInternal: (external) => ({
+    amount: external.amount,
+    message: external.message ?? undefined,
+    status: external.status,
+    updatedAt: Number(external.updatedAt),
+  }),
+  toExternal: (internal) => ({
+    amount: internal.amount,
+    message: internal.message,
+    status: internal.status,
+    updatedAt: new Date(internal.updatedAt),
+  }),
+});

@@ -1,41 +1,156 @@
-import { isString } from 'lodash';
-import { Injectable } from '@nestjs/common';
-import { get, getDatabase, push, ref } from 'firebase/database';
+import { get, isString, map } from 'lodash';
+import { Inject, Injectable } from '@nestjs/common';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
 
-import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
-import { OfferRequestCreationArgs } from './dto/creation/offer-request-creation.args';
-import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
-import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
-
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
+import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
+import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
+import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
+import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
+import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
 import { FirebaseService } from '../firebase/firebase.service';
+import {
+  omitUndefined,
+  paginate,
+  preparePaginatedResult,
+} from '../common/common.utils';
+import { Identity } from '../auth/auth.types';
+import { Scope } from '../auth/auth.constants';
+import { SorterService } from '../sorter/sorter.service';
+import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-order-column';
+import {
+  OfferRequestFiltererContext,
+  OfferRequestSorterContext,
+} from './offer-request.types';
+import { FiltererService } from '../filterer/filterer.service';
+import {
+  OfferRequestFilterColumn,
+  OfferRequestStatus,
+} from './offer-request.constants';
+import { OfferRequestFiltererConfigs } from './offer-request.filers';
+import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { PubSub } from 'graphql-subscriptions';
+import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
+import { AddressesAnsweredInput } from './dto/address-answered/addresses-answered.input';
+import { OfferRequestQuestionInput } from './offer-request-question/dto/offer-request-question/offer-request-question.input';
+import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
+import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
+import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
+import { OfferRole } from '../offer/dto/offer/offer-role.enum';
+import { OfferRequestQuestionType } from './offer-request-question/offer-request-question.constants';
+import { offerRequestQuestionsToTree } from './offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
 
 @Injectable()
 export class OfferRequestService {
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    private readonly sorterService: SorterService<
+      OfferRequestOrderColumn,
+      OfferRequestDto,
+      OfferRequestSorterContext
+    >,
+    private readonly filtererService: FiltererService<
+      OfferRequestFilterColumn,
+      OfferRequestDto,
+      OfferRequestFiltererContext,
+      OfferRequestFiltererConfigs
+    >,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+  ) {}
 
-  async getOfferRequestById(
-    offerRequestId: string,
-    app: FirebaseAppInstance,
-  ): Promise<OfferRequestDto | null> {
-    const database = getDatabase(app);
+  getOfferRequestsRef() {
+    const database = this.firebaseService.getDefaultApp().database();
 
-    const path = [FirebaseDatabasePath.OFFER_REQUESTS, offerRequestId];
-    const snapshot = await get(ref(database, path.join('/')));
+    return database.ref(FirebaseDatabasePath.OFFER_REQUESTS);
+  }
+
+  private async getAllOfferRequests() {
+    const offerRequests: OfferRequestDto[] = [];
+
+    const offerRequestsSnapshot = await this.getOfferRequestsRef().get();
+
+    offerRequestsSnapshot.forEach((snapshot) => {
+      if (snapshot.key) {
+        offerRequests.push(
+          OfferRequestDto.adapter.toExternal({
+            ...snapshot.val(),
+            id: snapshot.key,
+          }),
+        );
+      }
+    });
+
+    return offerRequests;
+  }
+  async getOfferRequestById(id: string): Promise<OfferRequestDto | null> {
+    const offerRequestRef = this.getOfferRequestsRef().child(id);
+
+    const snapshot = await offerRequestRef.get();
 
     const offerRequest: OfferRequestDB | null = snapshot.val();
 
-    return (
-      offerRequest &&
-      OfferRequestDto.convertFromFirebaseType(offerRequest, offerRequestId)
-    );
+    if (!offerRequest) {
+      return null;
+    }
+
+    return OfferRequestDto.adapter.toExternal({ ...offerRequest, id });
+  }
+
+  async strictGetOfferRequestById(id: string): Promise<OfferRequestDto> {
+    const offerRequest = await this.getOfferRequestById(id);
+
+    if (!offerRequest) {
+      throw new Error(`Offer request is not found by id ${id}`);
+    }
+
+    return offerRequest;
+  }
+
+  /**
+   * @description Give access to own offer requests for user and all offer requests for admin
+   */
+  async getOfferRequestList(
+    args: OfferRequestListArgs,
+    identity: Identity,
+  ): Promise<OfferRequestListDto> {
+    const { limit, offset, orderBy, filter, role } = args;
+
+    const offerRequests = await this.getAllOfferRequests();
+
+    let nodes = offerRequests;
+
+    if (identity.scope === Scope.USER) {
+      nodes = nodes.filter(({ data }) => {
+        if (role === OfferRole.SELLER) {
+          return data.initial.buyerProfile !== identity.id;
+        }
+
+        return data.initial.buyerProfile === identity.id;
+      });
+    }
+
+    const filtererConfig: Partial<OfferRequestFiltererConfigs> = {
+      [OfferRequestFilterColumn.STATUS]: filter?.status || undefined,
+    };
+
+    nodes = this.filtererService.filter(nodes, filtererConfig, {});
+    nodes = this.sorterService.sort(nodes, orderBy || [], {});
+
+    const total = nodes.length;
+    nodes = paginate({ nodes, limit, offset });
+
+    return preparePaginatedResult({
+      nodes,
+      limit,
+      offset,
+      total,
+    });
   }
 
   async createOfferRequest(
-    args: OfferRequestCreationArgs,
-    app: FirebaseAppInstance,
+    input: OfferRequestCreationInput,
   ): Promise<OfferRequestDto> {
     const {
       data,
@@ -43,41 +158,35 @@ export class OfferRequestService {
       serviceProviderVAT,
       customerVat,
       minimumDuration,
-    } = args;
-
-    const database = getDatabase(app);
+    } = input;
 
     const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
       subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
-    } = {
-      data: OfferRequestDataInput.convertToFirebaseType(data),
-      ...(subscription ? { subscription } : {}),
-      ...(serviceProviderVAT ? { serviceProviderVAT } : {}),
-      ...(customerVat ? { customerVat } : {}),
-      ...(minimumDuration ? { minimumDuration } : {}),
-    };
+    } = omitUndefined({
+      data: OfferRequestDataInput.adapter.toInternal(data),
+      customerVAT: customerVat ?? undefined,
+      subscription: subscription ?? undefined,
+      serviceProviderVAT: serviceProviderVAT ?? undefined,
+      minimumDuration: minimumDuration ?? undefined,
+    });
 
     if (offerRequest.data.initial.questions.length === 0) {
       throw new Error('OfferRequest questions can not be empty array');
     }
 
-    const offerRequestRef = ref(database, FirebaseDatabasePath.OFFER_REQUESTS);
+    const createdRef = await this.getOfferRequestsRef().push(offerRequest);
 
-    const createdRef = await push(offerRequestRef, offerRequest);
+    if (!createdRef.key) {
+      throw new Error("Offer request could't be created");
+    }
 
-    return this.getOfferRequestById(
-      createdRef.key as string,
-      app,
-    ) as Promise<OfferRequestDto>;
+    return this.strictGetOfferRequestById(createdRef.key);
   }
 
   async getCategoryIdByOfferRequestId(
     offerRequestId: string,
   ): Promise<string | null> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const categorySnapshot = await database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+    const categorySnapshot = await this.getOfferRequestsRef()
       .child(offerRequestId)
       .child('data')
       .child('initial')
@@ -106,10 +215,7 @@ export class OfferRequestService {
   async getBuyerIdByOfferRequestId(
     offerRequestId: string,
   ): Promise<string | null> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const buyerIdSnapshot = await database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+    const buyerIdSnapshot = await this.getOfferRequestsRef()
       .child(offerRequestId)
       .child('data')
       .child('initial')
@@ -136,10 +242,7 @@ export class OfferRequestService {
   }
 
   async getFeeIdsByOfferRequestId(offerRequestId: string): Promise<string[]> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const feesSnapshot = await database
-      .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+    const feesSnapshot = await this.getOfferRequestsRef()
       .child(offerRequestId)
       .child('fees')
       .get();
@@ -153,10 +256,7 @@ export class OfferRequestService {
     const { id, fixedPrice, fixedDuration } = purchase;
 
     try {
-      const database = this.firebaseService.getDefaultApp().database();
-
-      await database
-        .ref(FirebaseDatabasePath.OFFER_REQUESTS)
+      await this.getOfferRequestsRef()
         .child(id)
         .child('data')
         .child('initial')
@@ -166,5 +266,123 @@ export class OfferRequestService {
     }
 
     return true;
+  }
+
+  async markOfferRequestReviewed(offerRequestId: string): Promise<boolean> {
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('reviewed')
+      .set(true);
+
+    return true;
+  }
+
+  async cancelOfferRequest(offerRequestId: string): Promise<boolean> {
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('status')
+      .set(OfferRequestStatus.CANCELLED);
+
+    return true;
+  }
+
+  async updateOfferRequestAddresses(
+    input: OfferRequestUpdateAddressesInput,
+  ): Promise<OfferRequestDto> {
+    const { offerRequestId, addresses: inputAddresses } = input;
+
+    const addresses = AddressesAnsweredInput.adapter.toInternal(inputAddresses);
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('addresses')
+      .set(addresses);
+
+    return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  async updateOfferRequestQuestions(
+    input: OfferRequestUpdateQuestionsInput,
+  ): Promise<OfferRequestDto> {
+    const { offerRequestId, questions: inputQuestions } = input;
+    const plainQuestions = inputQuestions.map(
+      OfferRequestQuestionInput.adapter.toInternal,
+    ) as PlainOfferRequestQuestion[];
+
+    const questions = offerRequestQuestionsToTree(plainQuestions);
+
+    const offerRequest = await this.strictGetOfferRequestById(offerRequestId);
+
+    const firebaseOfferRequest =
+      OfferRequestDto.adapter.toInternal(offerRequest);
+
+    const oldQuestions = get(firebaseOfferRequest, [
+      'data',
+      'initial',
+      'questions',
+    ]);
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('requestedChanges')
+      .set({
+        created: Date.now(),
+        changedQuestions: {
+          before: oldQuestions,
+          after: questions,
+        },
+      });
+
+    return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  async updateDateQuestionWithAgreedStartTime(
+    offerRequestId: string,
+    agreedStartTime: Date,
+  ) {
+    const offerRequest = await this.strictGetOfferRequestById(offerRequestId);
+
+    const initialQuestions = get(
+      OfferRequestDto.adapter.toInternal(offerRequest),
+      ['data', 'initial', 'questions'],
+    );
+
+    const questions = map(initialQuestions, (question) => {
+      if (question.type === OfferRequestQuestionType.DATE) {
+        question.preferredTime = agreedStartTime.getTime();
+        question.suitableTimes = null;
+        question.suitableTimesCount = null;
+      }
+
+      return question;
+    });
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('questions')
+      .set(questions);
+  }
+
+  async updateAcceptedChanges(input: UpdateAcceptedChangesInput) {
+    const { offerRequestId, timeChangeAccepted, detailsChangeAccepted } = input;
+
+    await this.getOfferRequestsRef()
+      .child(offerRequestId)
+      .child('data')
+      .child('changesAccepted')
+      .update({ timeChangeAccepted, detailsChangeAccepted });
+
+    return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  emitOfferRequestUpdated(offerRequest: OfferRequestDto) {
+    emitOfferRequestUpdated(this.pubSub, offerRequest);
   }
 }

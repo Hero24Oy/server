@@ -7,21 +7,20 @@ import { ChatsFilterInput } from '../dto/chats/chats-filter.input';
 import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
 import { MaybeType } from '../../common/common.types';
 import { Identity } from '../../auth/auth.types';
-import { AppPlatform } from 'src/app.types';
+import { Scope } from 'src/modules/auth/auth.constants';
 
 type FilterChatsProps = {
   chats: ChatDto[];
   identity: Identity;
-  platform: AppPlatform | null;
   filter?: MaybeType<ChatsFilterInput>;
 };
 
 export const filterChats = (props: FilterChatsProps) => {
-  const { chats: allChats, identity, platform, filter } = props;
+  const { chats: allChats, identity, filter } = props;
 
   let rawChats: ChatDto[] = allChats;
 
-  if (!identity.isAdmin || platform === AppPlatform.APP) {
+  if (identity.scope === Scope.USER) {
     rawChats = rawChats.filter((chat) =>
       chat.members.some((member) => member.id === identity.id),
     );

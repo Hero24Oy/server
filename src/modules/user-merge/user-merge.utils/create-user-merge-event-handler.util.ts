@@ -10,5 +10,5 @@ export const createUserMergeEventHandler =
       return;
     }
 
-    eventEmitter(pubsub, UserMergeDto.convertFromFirebaseType(snapshot.val()));
+    eventEmitter(pubsub, UserMergeDto.adapter.toExternal(snapshot.val()));
   };
