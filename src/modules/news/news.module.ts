@@ -36,7 +36,6 @@ export class NewsModule {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   subscribeOnNewsUpdates(app: FirebaseAdminAppInstance, pubsub: PubSub) {
     const database = app.database();
     const rootNewsRef = database.ref(FirebaseDatabasePath.NEWS);

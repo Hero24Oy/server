@@ -1,4 +1,5 @@
 import { Identity } from 'src/modules/auth/auth.types';
+import { Scope } from 'src/modules/auth/auth.constants';
 
 import { OfferRole } from '../dto/offer/offer-role.enum';
 import { OfferDto } from '../dto/offer/offer.dto';
@@ -17,6 +18,6 @@ export const hasMatchingRole = (
       return sellerProfileId === identity?.id;
 
     default:
-      return Boolean(!offer && identity?.isAdmin);
+      return Boolean(!offer && identity?.scope === Scope.ADMIN);
   }
 };

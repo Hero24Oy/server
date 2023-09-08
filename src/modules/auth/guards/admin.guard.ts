@@ -4,6 +4,8 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { AppGraphQLContext } from 'src/app.types';
 import { GuardBoolean } from 'src/modules/common/common.types';
 
+import { Scope } from '../auth.constants';
+
 @Injectable()
 export class AdminGuard implements CanActivate {
   canActivate(executionContext: ExecutionContext): GuardBoolean {
@@ -13,6 +15,6 @@ export class AdminGuard implements CanActivate {
     const context = graphQLExecutionContext.getContext<AppGraphQLContext>();
     const { identity } = context;
 
-    return Boolean(identity?.isAdmin);
+    return identity?.scope === Scope.ADMIN;
   }
 }

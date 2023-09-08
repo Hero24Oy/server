@@ -88,10 +88,7 @@ export class OfferDto {
   @Field(() => String, { nullable: true })
   hubSpotDealId?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<
-    Omit<OfferDB, 'hubspotDealId'> & { id: string; hubSpotDealId?: string }, // TODO: update OfferDB type
-    OfferDto
-  >;
+  static adapter: FirebaseAdapter<OfferDB & { id: string }, OfferDto>;
 }
 
 OfferDto.adapter = new FirebaseAdapter({

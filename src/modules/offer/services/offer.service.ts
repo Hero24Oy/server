@@ -20,6 +20,7 @@ import { OfferArgs } from '../dto/offers/offers.args';
 import { emitOfferUpdatedEvent } from '../offer.utils/emit-offer-updated-event.util';
 import { filterOffers } from '../offer.utils/filter-offers.util';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
+import { Scope } from 'src/modules/auth/auth.constants';
 
 @Injectable()
 export class OfferService {
@@ -91,7 +92,8 @@ export class OfferService {
     let nodes: OfferDto[] = [];
 
     // * if there are no ids provided, just push all offers (for admin panel)
-    const shouldFetchAllOffers = !filter?.ids && identity.isAdmin && !args.role;
+    const shouldFetchAllOffers =
+      !filter?.ids && identity.scope === Scope.ADMIN && !args.role;
 
     offersSnapshot.forEach((snapshot) => {
       if (!snapshot.key) {

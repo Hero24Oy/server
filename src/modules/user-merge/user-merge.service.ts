@@ -1,15 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-
-import { serverTimestamp } from 'firebase/database';
-import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
+import { PubSub } from 'graphql-subscriptions';
+import { UserMergeDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { UserMergeDto } from './dto/user-merge/user-merge.dto';
 import { UserMergeInput } from './dto/user-merge/user-merge.input';
 import { FirebaseService } from '../firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { PubSub } from 'graphql-subscriptions';
-import { UserMergeDB } from 'hero24-types';
 import { Identity } from '../auth/auth.types';
 
 @Injectable()
@@ -20,36 +17,44 @@ export class UserMergeService {
   ) {}
 
   async getUserMergeByUserId(userId: string): Promise<UserMergeDto | null> {
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+    const database = this.firebaseService.getDefaultApp().database();
 
     const userMergeSnapshot = await database
-      .ref(`${FirebaseDatabasePath.USER_MERGES}/${userId}`)
+      .ref(FirebaseDatabasePath.USER_MERGES)
+      .child(userId)
       .once('value');
 
     const userMerge: UserMergeDB | null = userMergeSnapshot.val();
 
-    return userMerge && UserMergeDto.convertFromFirebaseType(userMerge);
+    return userMerge && UserMergeDto.adapter.toExternal(userMerge);
+  }
+
+  async strictGetUserMergeByUserId(userId: string): Promise<UserMergeDto> {
+    const userMerge = await this.getUserMergeByUserId(userId);
+
+    if (!userMerge) {
+      throw new Error('User merge was not found');
+    }
+
+    return userMerge;
   }
 
   async startUserMerge(
     userMergeInput: UserMergeInput,
     identity: Identity,
-  ): Promise<UserMergeInput> {
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+  ): Promise<UserMergeDto> {
+    const database = this.firebaseService.getDefaultApp().database();
 
-    const newUserMerge: Omit<UserMergeDB, 'createdAt'> =
-      UserMergeDto.convertToFirebaseType({
-        ...userMergeInput,
-        userId: identity.id,
-      });
+    const newUserMerge = UserMergeInput.adapter.toInternal({
+      ...userMergeInput,
+      userId: identity.id,
+    });
 
     await database
-      .ref(`${FirebaseDatabasePath.USER_MERGES}/${userMergeInput.userId}`)
-      .set({
-        ...newUserMerge,
-        createdAt: serverTimestamp(),
-      });
+      .ref(FirebaseDatabasePath.USER_MERGES)
+      .child(identity.id)
+      .set(newUserMerge);
 
-    return userMergeInput;
+    return this.strictGetUserMergeByUserId(identity.id);
   }
 }

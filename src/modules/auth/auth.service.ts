@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { FirebaseService } from '../firebase/firebase.service';
+
 import { GraphQLBaseContext } from 'src/app.types';
+
+import { FirebaseService } from '../firebase/firebase.service';
 import { Identity } from './auth.types';
+import { SCOPE_SPECIFIER_HEADER_NAME, Scope } from './auth.constants';
+import { getScope } from './auth.utils';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +14,10 @@ export class AuthService {
   async authorizeUser(context: GraphQLBaseContext): Promise<Identity | null> {
     const { req, connectionParams } = context;
 
-    const token = req?.headers.authorization || connectionParams?.authorization;
+    const source = req?.headers || connectionParams || {};
+
+    const token = source.authorization;
+    const scope = getScope(source[SCOPE_SPECIFIER_HEADER_NAME]);
 
     if (!token) {
       return null;
@@ -22,11 +29,15 @@ export class AuthService {
       return null;
     }
 
-    const isAdmin = await this.firebaseService.getIsAdmin(decodedIdToken.uid);
+    let isAdmin = false;
+
+    if (scope === Scope.ADMIN) {
+      isAdmin = await this.firebaseService.getIsAdmin(decodedIdToken.uid);
+    }
 
     return {
       id: decodedIdToken.uid,
-      isAdmin,
+      scope: isAdmin ? Scope.ADMIN : Scope.USER,
     };
   }
 }

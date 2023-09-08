@@ -1,42 +1,48 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { MaybeType } from 'src/modules/common/common.types';
 
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from './offer-request-data-requested-changes-changed-questions.dto';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+type RequestedChangesDB = Exclude<
+  OfferRequestDB['data']['requestedChanges'],
+  undefined
+>;
 
 @ObjectType()
 export class OfferRequestDataRequestedChangesDto {
   @Field(() => Date)
-  created: Date;
+  createdAt: Date;
 
   @Field(() => String, { nullable: true })
-  reason?: string;
+  reason?: MaybeType<string>;
 
   @Field(() => OfferRequestDataRequestedChangesChangedQuestionsDto)
   changedQuestions: OfferRequestDataRequestedChangesChangedQuestionsDto;
 
-  static convertFromFirebaseType(
-    data: Exclude<OfferRequestDB['data']['requestedChanges'], undefined>,
-  ): OfferRequestDataRequestedChangesDto {
-    return {
-      created: new Date(data.created),
-      changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.convertFromFirebaseType(
-          data.changedQuestions,
-        ),
-    };
-  }
-
-  static convertToFirebaseType(
-    data: OfferRequestDataRequestedChangesDto,
-  ): Exclude<OfferRequestDB['data']['requestedChanges'], undefined> {
-    return omitUndefined({
-      created: +new Date(data.created),
-      changedQuestions:
-        OfferRequestDataRequestedChangesChangedQuestionsDto.convertToFirebaseType(
-          data.changedQuestions,
-        ),
-    });
-  }
+  static adapter: FirebaseAdapter<
+    RequestedChangesDB,
+    OfferRequestDataRequestedChangesDto
+  >;
 }
+
+OfferRequestDataRequestedChangesDto.adapter = new FirebaseAdapter({
+  toInternal: (external) => ({
+    reason: external.reason ?? undefined,
+    created: Number(external.createdAt),
+    changedQuestions:
+      OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toInternal(
+        external.changedQuestions,
+      ),
+  }),
+  toExternal: (internal) => ({
+    reason: internal.reason,
+    createdAt: new Date(internal.created),
+    changedQuestions:
+      OfferRequestDataRequestedChangesChangedQuestionsDto.adapter.toExternal(
+        internal.changedQuestions,
+      ),
+  }),
+});

@@ -4,8 +4,6 @@ import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
@@ -16,7 +14,6 @@ import { SellerOfferService } from '../services/seller-offer.service';
 import { OfferService } from '../services/offer.service';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferInput } from '../dto/creation/offer.input';
-import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { emitOfferCreatedEvent } from '../offer.utils/emit-offer-created-event.util';
 
@@ -81,11 +78,8 @@ export class SellerOfferResolver {
   }
 
   @Mutation(() => Boolean)
-  acceptOfferChanges(
-    @FirebaseApp() app: FirebaseAppInstance,
-    @Args('input') input: OfferChangeInput,
-  ): Promise<boolean> {
-    return this.sellerOfferService.acceptOfferChanges(input, app);
+  acceptOfferChanges(@Args('input') input: OfferChangeInput): Promise<boolean> {
+    return this.sellerOfferService.acceptOfferChanges(input);
   }
 
   @Mutation(() => OfferDto)
@@ -95,12 +89,5 @@ export class SellerOfferResolver {
     emitOfferCreatedEvent(this.pubSub, offer);
 
     return offer;
-  }
-
-  @Mutation(() => Boolean)
-  createAcceptanceGuard(
-    @Args('input') acceptanceGuard: AcceptanceGuardInput,
-  ): Promise<boolean> {
-    return this.sellerOfferService.createAcceptanceGuard(acceptanceGuard);
   }
 }

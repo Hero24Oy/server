@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Query,
@@ -31,10 +30,11 @@ import { Identity } from '../../auth/auth.types';
 import { ChatGuard } from '../chat.guard';
 import { ChatActivator } from '../chat.activator';
 import { IsChatMember } from '../activators/chat-member.activator';
-import { AppGraphQLContext, AppPlatform } from 'src/app.types';
+import { AppGraphQLContext } from 'src/app.types';
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
+import { Scope } from 'src/modules/auth/auth.constants';
 import { AuthIdentity } from 'src/modules/auth/auth.decorator';
 import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 
@@ -50,9 +50,8 @@ export class ChatResolver {
   chats(
     @Args() args: ChatsArgs,
     @AuthIdentity() identity: Identity,
-    @Context('platform') platform: AppPlatform | null,
   ): Promise<ChatListDto> {
-    return this.chatService.getChats(args, identity, platform);
+    return this.chatService.getChats(args, identity);
   }
 
   @Query(() => ChatDto, { nullable: true })
@@ -161,7 +160,7 @@ export class ChatResolver {
     name: CHAT_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [CHAT_UPDATED_SUBSCRIPTION]: ChatDto },
-      { chatIds, isFromApp }: { chatIds?: string[]; isFromApp?: boolean },
+      { chatIds }: { chatIds?: string[] },
       { identity }: AppGraphQLContext,
     ) => {
       if (!identity) {
@@ -176,11 +175,11 @@ export class ChatResolver {
         ? chatIds.includes(payload[CHAT_UPDATED_SUBSCRIPTION].id)
         : true;
 
-      if (isFromApp) {
+      if (identity.scope === Scope.USER) {
         return isMember && isChatIncluded;
       }
 
-      return identity.isAdmin && isChatIncluded;
+      return isChatIncluded;
     },
   })
   @UseGuards(AuthGuard)
@@ -188,9 +187,6 @@ export class ChatResolver {
     @Args('chatIds', { type: () => [String], nullable: true })
     chatIds: // eslint-disable-line @typescript-eslint/no-unused-vars
     string[],
-    @Args('isFromApp', { type: () => Boolean, nullable: true })
-    isFromApp: // eslint-disable-line @typescript-eslint/no-unused-vars
-    boolean,
   ) {
     return this.pubSub.asyncIterator(CHAT_UPDATED_SUBSCRIPTION);
   }
@@ -199,7 +195,7 @@ export class ChatResolver {
     name: CHAT_ADDED_SUBSCRIPTION,
     filter: (
       payload: { [CHAT_ADDED_SUBSCRIPTION]: ChatDto },
-      variables: { isFromApp?: boolean },
+      _variables,
       context: AppGraphQLContext,
     ) => {
       const { identity } = context;
@@ -210,21 +206,17 @@ export class ChatResolver {
 
       const chat = payload[CHAT_ADDED_SUBSCRIPTION];
 
-      const { isFromApp } = variables;
-      const { isAdmin, id } = identity;
+      const { scope, id } = identity;
 
-      if (!isFromApp) {
-        return isAdmin;
+      if (scope === Scope.ADMIN) {
+        return true;
       }
 
       return chat.members.some((member) => member.id === id);
     },
   })
   @UseGuards(AuthGuard)
-  subscribeOnChatAdd(
-    @Args('isFromApp', { type: () => Boolean, nullable: true })
-    isFromApp: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
-  ) {
+  subscribeOnChatAdd() {
     return this.pubSub.asyncIterator(CHAT_ADDED_SUBSCRIPTION);
   }
 

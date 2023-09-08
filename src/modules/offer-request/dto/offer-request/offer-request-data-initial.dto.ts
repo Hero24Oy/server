@@ -1,18 +1,22 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { OfferRequestDB, OfferRequestQuestion } from 'hero24-types';
-
-import { omitUndefined } from 'src/modules/common/common.utils';
+import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
 
 import {
+  AddressesAnsweredAdapter,
   AddressesAnsweredDto,
-  BasicAddressesDto,
-  DeliveryAddressesDto,
-} from './addresses-answered.dto';
+} from '../address-answered/addresses-answered.dto';
 import {
   OfferRequestQuestionDto,
-  offerRequestQuestionDtoConvertor,
-} from '../offer-request-question/offer-request-question.dto';
+  OfferRequestQuestionAdapter,
+} from '../../offer-request-question/dto/offer-request-question/offer-request-question.dto';
 import { PackageDto } from './package.dto';
+import { MaybeType } from 'src/modules/common/common.types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
+import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+import { offerRequestQuestionsToArray } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-array.util';
+
+type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];
 
 @ObjectType()
 export class OfferRequestDataInitialDto {
@@ -20,25 +24,25 @@ export class OfferRequestDataInitialDto {
   buyerProfile: string;
 
   @Field(() => Float, { nullable: true })
-  fixedDuration?: number;
+  fixedDuration?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
-  fixedPrice?: number;
+  fixedPrice?: MaybeType<number>;
 
   @Field(() => Date)
   createdAt: Date;
 
   @Field(() => String, { nullable: true })
-  prePayWith?: 'stripe' | 'netvisor';
+  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
 
   @Field(() => String, { nullable: true })
-  sendInvoiceWith?: 'sms' | 'email';
+  sendInvoiceWith?: MaybeType<'sms' | 'email'>;
 
   @Field(() => String, { nullable: true })
-  prepaid?: 'waiting' | 'paid';
+  prepaid?: MaybeType<'waiting' | 'paid'>;
 
   @Field(() => String, { nullable: true })
-  postpaid?: 'no' | 'yes';
+  postpaid?: MaybeType<'no' | 'yes'>;
 
   @Field(() => [OfferRequestQuestionDto])
   questions: OfferRequestQuestionDto[];
@@ -50,84 +54,71 @@ export class OfferRequestDataInitialDto {
   category: string;
 
   @Field(() => PackageDto, { nullable: true })
-  package?: PackageDto;
+  package?: MaybeType<PackageDto>;
 
   @Field(() => Boolean, { nullable: true })
-  promotionDisabled?: boolean;
+  promotionDisabled?: MaybeType<boolean>;
 
-  static convertFromFirebaseType(
-    data: OfferRequestDB['data']['initial'],
-  ): OfferRequestDataInitialDto {
-    const depsQuestions: OfferRequestQuestionDto[] = [];
+  static adapter: FirebaseAdapter<
+    OfferRequestDataInitialDB,
+    OfferRequestDataInitialDto
+  >;
+}
 
-    const saveQuestion = (question: OfferRequestQuestion) => {
-      const depsId = Math.random().toString(32);
-
-      const questionDto =
-        offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-          question,
-          saveQuestion,
-        );
-
-      depsQuestions.push({ ...questionDto, depsId });
-
-      return depsId;
-    };
-
-    const baseQuestions = data.questions.map((question) =>
-      offerRequestQuestionDtoConvertor.convertFromFirebaseType(
-        question,
-        saveQuestion,
-      ),
+OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
+  toInternal(external) {
+    const questions = external.questions.map((question) =>
+      OfferRequestQuestionAdapter.toInternal(question),
     );
 
     return {
-      ...data,
-      createdAt: new Date(data.createdAt),
-      questions: [...baseQuestions, ...depsQuestions],
-      addresses:
-        data.addresses.type === 'basic'
-          ? new BasicAddressesDto(data.addresses)
-          : new DeliveryAddressesDto(data.addresses),
-      ...(data.package
-        ? {
-            package: PackageDto.convertFromFirebaseType(
-              data.package,
-              data.package.id,
-            ),
-          }
-        : {}),
-    };
-  }
-
-  static convertToFirebaseType(
-    data: OfferRequestDataInitialDto,
-  ): OfferRequestDB['data']['initial'] {
-    const baseQuestions = data.questions.filter(
-      ({ depsId }) => typeof depsId !== 'string',
-    );
-
-    const depsQuestions = data.questions.filter(
-      ({ depsId }) => typeof depsId === 'string',
-    );
-
-    return omitUndefined({
-      ...data,
-      createdAt: +new Date(data.createdAt),
-      ...(data.package
-        ? {
-            package: {
-              ...PackageDto.convertToFirebaseType(data.package),
-              id: data.package.id,
-            },
-          }
-        : {}),
-      questions: baseQuestions.map((question) =>
-        offerRequestQuestionDtoConvertor.convertToFirebaseType(
-          question,
-          depsQuestions,
-        ),
+      prepaid: external.prepaid ?? undefined,
+      postpaid: external.postpaid ?? undefined,
+      promotionDisabled: external.promotionDisabled ?? undefined,
+      fixedDuration: external.fixedDuration ?? undefined,
+      fixedPrice: external.fixedPrice ?? undefined,
+      prePayWith: external.prePayWith ?? undefined,
+      sendInvoiceWith: external.sendInvoiceWith ?? undefined,
+      buyerProfile: external.buyerProfile,
+      addresses: AddressesAnsweredAdapter.toInternal(
+        external.addresses,
+      ) as AddressesAnswered,
+      category: external.category,
+      createdAt: Number(external.createdAt),
+      package: external.package
+        ? PackageDto.adapter.toInternal(external.package)
+        : undefined,
+      questions: offerRequestQuestionsToTree(
+        questions as PlainOfferRequestQuestion[],
       ),
-    });
-  }
-}
+    };
+  },
+  toExternal(internal) {
+    const questions = offerRequestQuestionsToArray(internal.questions);
+
+    return {
+      fixedPrice: internal.fixedPrice,
+      prePayWith: internal.prePayWith,
+      sendInvoiceWith: internal.sendInvoiceWith,
+      prepaid: internal.prepaid,
+      postpaid: internal.postpaid,
+      promotionDisabled: internal.promotionDisabled,
+      buyerProfile: internal.buyerProfile,
+      category: internal.category,
+      fixedDuration: internal.fixedDuration,
+      createdAt: new Date(internal.createdAt),
+      questions: questions.map(
+        (question) =>
+          OfferRequestQuestionAdapter.toExternal(
+            question,
+          ) as OfferRequestQuestionDto,
+      ),
+      addresses: AddressesAnsweredAdapter.toExternal(
+        internal.addresses,
+      ) as AddressesAnsweredDto,
+      package: internal.package
+        ? PackageDto.adapter.toExternal(internal.package)
+        : undefined,
+    };
+  },
+});
