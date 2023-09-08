@@ -4,6 +4,8 @@ import { PromotionDB } from 'hero24-types';
 import { timestampToDate } from 'src/modules/common/common.utils';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
+import { DiscountFormat } from './discount-format.enum';
+
 @ObjectType()
 export class PromotionDto {
   // TODO create common type for shared properties
@@ -16,8 +18,7 @@ export class PromotionDto {
   @Field(() => Float)
   discount: number;
 
-  // TODO to enum
-  @Field(() => String)
+  @Field(() => DiscountFormat)
   discountFormat: 'fixed' | 'percentage';
 
   @Field(() => Date)
