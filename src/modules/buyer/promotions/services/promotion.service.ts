@@ -19,8 +19,7 @@ export class PromotionService {
   ) {}
 
   async getPromotion(id: string): Promise<PromotionDto | null> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+    const database = this.firebaseService.getDefaultApp().database();
 
     const promotionSnapshot = await database
       .ref(FirebaseDatabasePath.PROMOTIONS)
@@ -43,8 +42,7 @@ export class PromotionService {
   }
 
   async getPromotions(): Promise<PromotionDto[]> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+    const database = this.firebaseService.getDefaultApp().database();
 
     const promotionsSnapshot = await database
       .ref(FirebaseDatabasePath.PROMOTIONS)

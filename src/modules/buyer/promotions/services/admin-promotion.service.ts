@@ -8,6 +8,7 @@ import { PromotionDto } from '../dto/promotion/promotion.dto';
 import { PromotionEditingInput } from '../dto/editing/promotion-editing.input';
 import { PromotionCreationInput } from '../dto/creation/promotion-creation.input';
 import { PromotionService } from './promotion.service';
+import { PromotionDB } from 'hero24-types';
 
 @Injectable()
 export class AdminPromotionService {
@@ -19,10 +20,11 @@ export class AdminPromotionService {
   async createPromotion(
     promotion: PromotionCreationInput,
   ): Promise<PromotionDto> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+    const database = this.firebaseService.getDefaultApp().database();
 
-    const { key } = await database.ref('promotions').push(promotion);
+    const { key } = await database
+      .ref(FirebaseDatabasePath.PROMOTIONS)
+      .push(promotion);
 
     if (!key) {
       throw new Error("Promotion wasn't created");
@@ -31,18 +33,16 @@ export class AdminPromotionService {
     return this.promotionService.strictGetPromotion(key);
   }
 
-  // TODO make use of adapters
   async updatePromotion(input: PromotionEditingInput): Promise<PromotionDto> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+    const database = this.firebaseService.getDefaultApp().database();
 
-    const newData = omitUndefined({
-      categoryId: input.categoryId || undefined,
-      discount: input.discount || undefined,
-      discountFormat: input.discountFormat || undefined,
-      startDate: input.startDate || undefined,
-      endDate: input.endDate || undefined,
-      description: input.description || undefined,
+    const newData = omitUndefined<Partial<PromotionDB['data']>>({
+      categoryId: input.categoryId,
+      discount: input.discount,
+      discountFormat: input.discountFormat,
+      startDate: input.startDate?.getTime(),
+      endDate: input.endDate?.getTime(),
+      description: input.description,
     });
 
     await database
@@ -55,8 +55,7 @@ export class AdminPromotionService {
   }
 
   async deletePromotion(id: string): Promise<true> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+    const database = this.firebaseService.getDefaultApp().database();
 
     await database.ref(FirebaseDatabasePath.PROMOTIONS).child(id).remove();
 
