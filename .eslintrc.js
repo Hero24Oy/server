@@ -71,7 +71,7 @@ const initialRules = {
   'consistent-return': 'off',
   // TODO: switch on error this rules after quitting firebase
   '@typescript-eslint/no-unsafe-assignment': 'warn',
-  '@typescript-eslint/no-unsafe-member-access': 'off', // This rule bad works with yield and sagas
+  '@typescript-eslint/no-unsafe-member-access': 'warn',
   '@typescript-eslint/no-unsafe-return': 'warn',
 };
 
