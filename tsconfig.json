@@ -23,7 +23,6 @@
       "$/*": ["*"],
       "$modules/*": ["src/modules/*"],
       "$config/*": ["src/config/*"]
-      // if add path then update eslintrc.js order rule
     }
   }
 }

@@ -85,7 +85,7 @@ module.exports = {
       { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
     ], // Ignore variables with "_" prefix
     '@typescript-eslint/no-unused-expressions': ['error'],
-    '@typescript-eslint/explicit-function-return-type': 'off', // TODO: update to error after
+    '@typescript-eslint/explicit-function-return-type': 'off', // a lot of changes if you turn on
     '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/no-use-before-define': [
       'error',
