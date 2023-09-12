@@ -1,5 +1,6 @@
 import { DataSnapshot } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
+import { UserMergeDB } from 'hero24-types';
 
 import { UserMergeDto } from '../dto/user-merge/user-merge.dto';
 
@@ -11,5 +12,7 @@ export const createUserMergeEventHandler =
       return;
     }
 
-    eventEmitter(pubsub, UserMergeDto.adapter.toExternal(snapshot.val()));
+    const userMerge: UserMergeDB = snapshot.val();
+
+    eventEmitter(pubsub, UserMergeDto.adapter.toExternal(userMerge));
   };

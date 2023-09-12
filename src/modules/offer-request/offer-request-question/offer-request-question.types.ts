@@ -11,7 +11,6 @@ import {
   OfferRequestTextAreaQuestion,
 } from 'hero24-types';
 
-// eslint-disable-next-line import/no-cycle
 import { QUESTION_FLAT_ID_NAME } from './offer-request-question.constants';
 
 export type DependencyId = string;

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
-import { FirebaseService } from 'src/modules/firebase/firebase.service';
-import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
 
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 
 import { OfferService } from './offer.service';
+
+import { FirebaseDatabasePath } from '$/src/modules/firebase/firebase.constants';
+import { FirebaseService } from '$/src/modules/firebase/firebase.service';
+import { OfferRequestService } from '$/src/modules/offer-request/offer-request.service';
 
 @Injectable()
 export class BuyerOfferService {

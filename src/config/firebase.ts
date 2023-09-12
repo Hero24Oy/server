@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import * as Joi from 'joi';
 
 export const firebaseValidationSchema = Joi.object({

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SUBSCRIPTIONS_PROVIDER } from './subscription-manager.constants';
-import { SubscriptionService } from './subscription-manager.interface';
+import { SubscriptionService } from './subscription-manager.types';
 
 @Injectable()
 export class SubscriptionManagerService implements SubscriptionService {

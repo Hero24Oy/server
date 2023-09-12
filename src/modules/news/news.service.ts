@@ -58,9 +58,9 @@ export class NewsService {
       const newsId = newsSnapshot.key;
 
       if (newsId) {
-        newsList.push(
-          NewsDto.convertFromFirebaseType(newsSnapshot.val(), newsId),
-        );
+        const news: NewsDB = newsSnapshot.val();
+
+        newsList.push(NewsDto.convertFromFirebaseType(news, newsId));
       }
     });
 

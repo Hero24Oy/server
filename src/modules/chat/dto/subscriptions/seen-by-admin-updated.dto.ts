@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { MaybeType } from 'src/modules/common/common.types';
+
+import { MaybeType } from '$/src/modules/common/common.types';
 
 @ObjectType()
 export class SeenByAdminUpdatedDto {

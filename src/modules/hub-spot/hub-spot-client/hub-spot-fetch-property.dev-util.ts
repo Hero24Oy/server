@@ -82,6 +82,6 @@ export const __dev__createPropertiesEnum = async ({
 
   await print(saveFilePath, enumString);
 
-  // eslint-disable-next-line no-console
+  // eslint-disable-next-line no-console -- we need this console log
   console.log(`Enum was successful created by path ${saveFilePath}`);
 };

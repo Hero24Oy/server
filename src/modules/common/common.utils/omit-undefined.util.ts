@@ -1,10 +1,10 @@
 import { OmitValue } from '../common.types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const omitUndefined = <T extends Record<string, any>>(
-  record: T,
-): OmitValue<T, undefined> => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- we need any here
+export const omitUndefined = <Type extends Record<string, any>>(
+  record: Type,
+): OmitValue<Type, undefined> => {
   return Object.fromEntries(
     Object.entries(record).filter(([, value]) => typeof value !== 'undefined'),
-  ) as OmitValue<T, undefined>;
+  ) as OmitValue<Type, undefined>;
 };

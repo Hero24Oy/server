@@ -3,11 +3,6 @@ import { get, getDatabase, ref, set } from 'firebase/database';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 import { ChatDB } from 'hero24-types';
-import {
-  paginate,
-  preparePaginatedResult,
-} from 'src/modules/common/common.utils';
-import { SorterService } from 'src/modules/sorter/sorter.service';
 
 import { Identity } from '../../auth/auth.types';
 import { MaybeType } from '../../common/common.types';
@@ -16,10 +11,10 @@ import { FirebaseService } from '../../firebase/firebase.service';
 import { FirebaseAppInstance } from '../../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
 import { CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION } from '../chat.constants';
-// eslint-disable-next-line import/no-cycle
-import { ChatMemberDB, ChatsSorterContext } from '../chat.types';
+import { ChatsSorterContext } from '../chat.types';
 import { filterChats } from '../chat.utils/filter-chats.util';
 import { ChatDto } from '../dto/chat/chat.dto';
+import { ChatMemberDB } from '../dto/chat/chat-member.dto';
 import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 import { ChatListDto } from '../dto/chats/chat-list.dto';
 import { ChatsArgs } from '../dto/chats/chats.args';
@@ -28,6 +23,12 @@ import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
+
+import {
+  paginate,
+  preparePaginatedResult,
+} from '$/src/modules/common/common.utils';
+import { SorterService } from '$/src/modules/sorter/sorter.service';
 
 @Injectable()
 export class ChatService {
@@ -148,8 +149,10 @@ export class ChatService {
         return;
       }
 
+      const chatDb: ChatDB = snapshot.val();
+
       const chat = ChatDto.adapter.toExternal({
-        ...snapshot.val(),
+        ...chatDb,
         id: snapshot.key,
       });
 

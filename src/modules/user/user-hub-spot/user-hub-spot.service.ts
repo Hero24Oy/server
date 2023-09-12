@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { isEqual } from 'lodash';
-import { HubSpotContactProperty } from 'src/modules/hub-spot/hub-spot-contact/hub-spot-contact.constants';
 
 import { HubSpotContactService } from '../../hub-spot/hub-spot-contact/hub-spot-contact.service';
 import {
@@ -9,6 +8,8 @@ import {
 } from '../../hub-spot/hub-spot-contact/hub-spot-contact.types';
 import { UserDto } from '../dto/user/user.dto';
 import { UserService } from '../user.service';
+
+import { HubSpotContactProperty } from '$/src/modules/hub-spot/hub-spot-contact/hub-spot-contact.constants';
 
 @Injectable()
 export class UserHubSpotService {

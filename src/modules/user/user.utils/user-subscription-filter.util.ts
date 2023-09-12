@@ -1,10 +1,10 @@
-import { AppGraphQlContext } from 'src/app.types';
-
 import { UserDto } from '../dto/user/user.dto';
 import {
   USER_CREATED_SUBSCRIPTION,
   USER_UPDATED_SUBSCRIPTION,
 } from '../user.constants';
+
+import { AppGraphQlContext } from '$/src/app.types';
 
 type UserSubscriptionType =
   | typeof USER_CREATED_SUBSCRIPTION

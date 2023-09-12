@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { registerEnumType } from '@nestjs/graphql';
 
 // Todo: change to uppercase this

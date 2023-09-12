@@ -1,16 +1,16 @@
 import { InputType, OmitType } from '@nestjs/graphql';
 import { Address } from 'hero24-types';
 import { isNumber } from 'lodash';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { UserDbWithPartialData } from '../../user.types';
 import { UserDataDto } from '../user/user-data.dto';
 import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';
 import { UserDataAddressDto } from '../user/user-data-address.dto';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const OMITTED_FIELDS = [
+import { convertListToFirebaseMap } from '$/src/modules/common/common.utils';
+import { FirebaseAdapter } from '$/src/modules/firebase/firebase.adapter';
+
+const omittedFields = [
   'createdAt',
   'updatedAt',
   'deletedAt',
@@ -20,7 +20,7 @@ const OMITTED_FIELDS = [
 @InputType()
 export class UserDataInput extends OmitType(
   UserDataDto,
-  OMITTED_FIELDS,
+  omittedFields,
   InputType,
 ) {
   static adapter: FirebaseAdapter<

@@ -7,9 +7,10 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable, tap } from 'rxjs';
-import { AppGraphQlContext } from 'src/app.types';
 
 import { FirebaseService } from './firebase.service';
+
+import { AppGraphQlContext } from '$/src/app.types';
 
 @Injectable()
 export class FirebaseInterceptor implements NestInterceptor {
@@ -19,9 +20,9 @@ export class FirebaseInterceptor implements NestInterceptor {
 
   async intercept(
     executionContext: ExecutionContext,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- we need any here
     next: CallHandler<any>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- we need any here
   ): Promise<Observable<any>> {
     try {
       const graphQlExecutionContext =

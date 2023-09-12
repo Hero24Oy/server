@@ -1,14 +1,14 @@
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isString from 'lodash/isString';
-import { Scope } from 'src/modules/auth/auth.constants';
 
 import { Identity } from '../../auth/auth.types';
 import { MaybeType } from '../../common/common.types';
-// eslint-disable-next-line import/no-cycle
 import { ChatDto } from '../dto/chat/chat.dto';
 import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
 import { ChatsFilterInput } from '../dto/chats/chats-filter.input';
+
+import { Scope } from '$/src/modules/auth/auth.constants';
 
 type FilterChatsProps = {
   chats: ChatDto[];

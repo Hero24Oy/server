@@ -1,4 +1,4 @@
-// eslint-disable-next-line max-classes-per-file
+// eslint-disable-next-line max-classes-per-file -- TODO: Split this into separate classes files
 import { Type } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
@@ -7,8 +7,8 @@ export interface EdgeType<T> {
   node: T;
 }
 
-export interface PaginatedType<T> {
-  edges: EdgeType<T>[];
+export interface PaginatedType<Type> {
+  edges: EdgeType<Type>[];
   endCursor: string | null;
   hasNextPage: boolean;
   total: number; // Todo: it's never used

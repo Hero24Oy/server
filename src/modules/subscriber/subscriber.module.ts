@@ -7,7 +7,7 @@ import { SubscriptionManagerService } from '../subscription-manager/subscription
   imports: [SubscriptionManagerModule.forRoot()],
 })
 export class SubscriberModule {
-  private unsubscribe: () => void;
+  private unsubscribe: () => Promise<void>;
 
   constructor(private subscriptionManagerService: SubscriptionManagerService) {}
 

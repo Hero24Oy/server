@@ -28,20 +28,18 @@ import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-lis
 import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
 import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-order-column';
 import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
-import {
-  OfferRequestFilterColumn,
-  OfferRequestStatus,
-} from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
 import {
+  OfferRequestFilterColumn,
   OfferRequestFiltererContext,
   OfferRequestSorterContext,
 } from './offer-request.types';
 import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
 import { OfferRequestQuestionInput } from './offer-request-question/dto/offer-request-question/offer-request-question.input';
-import { OfferRequestQuestionType } from './offer-request-question/offer-request-question.constants';
+import { OfferRequestQuestionType } from './offer-request-question/dto/offer-request-question/offer-request-question-type.enum';
 import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
 import { offerRequestQuestionsToTree } from './offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+import { OfferRequestStatus } from './open-offer-request/dto/offer-request-status.enum';
 
 @Injectable()
 export class OfferRequestService {
@@ -74,9 +72,11 @@ export class OfferRequestService {
 
     offerRequestsSnapshot.forEach((snapshot) => {
       if (snapshot.key) {
+        const offerRequest: OfferRequestDB = snapshot.val();
+
         offerRequests.push(
           OfferRequestDto.adapter.toExternal({
-            ...snapshot.val(),
+            ...offerRequest,
             id: snapshot.key,
           }),
         );

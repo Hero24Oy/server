@@ -1,10 +1,8 @@
 import { OfferRequestQuestion } from 'hero24-types';
 import { v4 as uuidV4 } from 'uuid';
 
-import {
-  OfferRequestQuestionType,
-  QUESTION_FLAT_ID_NAME,
-} from '../offer-request-question.constants';
+import { OfferRequestQuestionType } from '../dto/offer-request-question/offer-request-question-type.enum';
+import { QUESTION_FLAT_ID_NAME } from '../offer-request-question.constants';
 import { PlainOfferRequestQuestion } from '../offer-request-question.types';
 
 export const offerRequestQuestionsToArray = (

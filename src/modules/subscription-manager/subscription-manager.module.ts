@@ -8,9 +8,11 @@ import {
 import { ParentType } from '../common/common.types';
 
 import { SUBSCRIPTIONS_PROVIDER } from './subscription-manager.constants';
-import { SubscriptionService } from './subscription-manager.interface';
 import { SubscriptionManagerService } from './subscription-manager.service';
-import { SubscriptionRegistrationOptions } from './subscription-manager.types';
+import {
+  SubscriptionRegistrationOptions,
+  SubscriptionService,
+} from './subscription-manager.types';
 
 @Module({})
 export class SubscriptionManagerModule {
@@ -23,7 +25,9 @@ export class SubscriptionManagerModule {
     {
       provide: SUBSCRIPTIONS_PROVIDER,
       useFactory: (...subscriptions: SubscriptionService[]) =>
-        subscriptions.filter((subscription) => !subscription.disabled?.()),
+        subscriptions.filter((subscription) => {
+          return !subscription.disabled?.();
+        }),
       inject: SubscriptionManagerModule.subscriptions,
     },
   ];

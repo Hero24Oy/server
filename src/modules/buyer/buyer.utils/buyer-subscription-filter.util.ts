@@ -1,7 +1,7 @@
-import { AppGraphQlContext } from 'src/app.types';
-
 import { BUYER_PROFILE_UPDATED_SUBSCRIPTION } from '../buyer.constants';
 import { BuyerProfileDto } from '../dto/buyer/buyer-profile.dto';
+
+import { AppGraphQlContext } from '$/src/app.types';
 
 type UserSubscriptionType = typeof BUYER_PROFILE_UPDATED_SUBSCRIPTION;
 

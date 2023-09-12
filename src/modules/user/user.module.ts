@@ -9,7 +9,6 @@ import { UserContext } from './user.context';
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
 import { UserSubscription } from './user.subscription';
-// eslint-disable-next-line import/no-cycle
 import { UserHubSpotModule } from './user-hub-spot/user-hub-spot.module';
 
 @Module({

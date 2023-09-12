@@ -1,7 +1,7 @@
 import { AssociationTypes } from '@hubspot/api-client';
 import { Injectable } from '@nestjs/common';
 
-import { AssociationCategory } from '../hub-spot-assotiation/hub-spot-assotiation.constants';
+import { AssociationCategory } from '../hub-spot-assotiation/dto/hub-spot-assotiation.enum';
 import { HubSpotClientService } from '../hub-spot-client/hub-spot-client.service';
 
 import {

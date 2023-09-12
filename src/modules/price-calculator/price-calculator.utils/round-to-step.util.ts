@@ -16,6 +16,7 @@ export const roundToStep = (
   const value = new RoundedNumber(numberValue, MAX_PRECISION);
   const step = new RoundedNumber(numberStep, MAX_PRECISION);
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- precision is js library without d.ts
   const stepPrecision = step.run(precision);
   const stepCount = value.divide(step).run(roundFunction);
 

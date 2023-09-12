@@ -1,6 +1,5 @@
 import { InputType, PickType } from '@nestjs/graphql';
 import { FeeDB } from 'hero24-types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import {
   FEE_CUSTOMER_VAT,
@@ -11,8 +10,9 @@ import { FeeCategory } from '../fee/fee-category.enum';
 import { FeeDataDto } from '../fee/fee-data.dto';
 import { FeeStatus } from '../fee/fee-status.enum';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const PICKED_FIELDS = [
+import { FirebaseAdapter } from '$/src/modules/firebase/firebase.adapter';
+
+const pickedFields = [
   'data',
   'platformFeePercentage',
   'offerRequestId',
@@ -21,7 +21,7 @@ const PICKED_FIELDS = [
 @InputType()
 export class FeeCreationInput extends PickType(
   FeeDto,
-  PICKED_FIELDS,
+  pickedFields,
   InputType,
 ) {
   static adapter: FirebaseAdapter<Omit<FeeDB, 'userId'>, FeeCreationInput>;

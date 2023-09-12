@@ -115,7 +115,7 @@ const items: TestItem[] = [
 describe('roundToStep', () => {
   describe('ceil', () => {
     items.forEach(({ value, step, result }) => {
-      it(`should round ${value} with step ${step} to ${result.ceil}`, async () => {
+      it(`should round ${value} with step ${step} to ${result.ceil}`, () => {
         expect(roundToStep(value, step, 'ceil')).toBe(result.ceil);
       });
     });
@@ -123,7 +123,7 @@ describe('roundToStep', () => {
 
   describe('round', () => {
     items.forEach(({ value, step, result }) => {
-      it(`should round ${value} with step ${step} to ${result.round}`, async () => {
+      it(`should round ${value} with step ${step} to ${result.round}`, () => {
         expect(roundToStep(value, step, 'round')).toBe(result.round);
       });
     });
@@ -131,7 +131,7 @@ describe('roundToStep', () => {
 
   describe('floor', () => {
     items.forEach(({ value, step, result }) => {
-      it(`should round ${value} with step ${step} to ${result.floor}`, async () => {
+      it(`should round ${value} with step ${step} to ${result.floor}`, () => {
         expect(roundToStep(value, step, 'floor')).toBe(result.floor);
       });
     });

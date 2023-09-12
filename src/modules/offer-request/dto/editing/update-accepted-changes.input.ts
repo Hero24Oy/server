@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { OfferRequestIdInput } from 'src/modules/offer/dto/editing/offer-request-id.input';
+
+import { OfferRequestIdInput } from '$/src/modules/offer/dto/editing/offer-request-id.input';
 
 @InputType()
 export class UpdateAcceptedChangesInput extends OfferRequestIdInput {

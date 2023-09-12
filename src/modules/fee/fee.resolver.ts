@@ -64,9 +64,7 @@ export class FeeResolver {
     filter: FeeSubscriptionFilter(FEE_UPDATED_SUBSCRIPTION),
   })
   @UseGuards(AuthGuard)
-  subscribeOnFeeUpdate(
-    @Args('filter') _filter: FeeListFilterInput, // eslint-disable-line @typescript-eslint/no-unused-vars
-  ) {
+  subscribeOnFeeUpdate(@Args('filter') _filter: FeeListFilterInput) {
     return this.pubSub.asyncIterator(FEE_UPDATED_SUBSCRIPTION);
   }
 
@@ -75,9 +73,7 @@ export class FeeResolver {
     filter: FeeSubscriptionFilter(FEE_CREATED_SUBSCRIPTION),
   })
   @UseGuards(AuthGuard)
-  subscribeOnFeeCreate(
-    @Args('filter') _filter: FeeListFilterInput, // eslint-disable-line @typescript-eslint/no-unused-vars
-  ) {
+  subscribeOnFeeCreate(@Args('filter') _filter: FeeListFilterInput) {
     return this.pubSub.asyncIterator(FEE_CREATED_SUBSCRIPTION);
   }
 }

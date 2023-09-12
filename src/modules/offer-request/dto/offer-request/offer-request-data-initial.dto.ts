@@ -1,7 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import {
   OfferRequestQuestionAdapter,
@@ -16,6 +14,9 @@ import {
 } from '../address-answered/addresses-answered.dto';
 
 import { PackageDto } from './package.dto';
+
+import { MaybeType } from '$/src/modules/common/common.types';
+import { FirebaseAdapter } from '$/src/modules/firebase/firebase.adapter';
 
 type OfferRequestDataInitialDB = OfferRequestDB['data']['initial'];
 

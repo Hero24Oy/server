@@ -1,9 +1,10 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { AppGraphQlContext } from 'src/app.types';
-import { GuardBoolean } from 'src/modules/common/common.types';
 
 import { Scope } from '../auth.constants';
+
+import { AppGraphQlContext } from '$/src/app.types';
+import { GuardBoolean } from '$/src/modules/common/common.types';
 
 @Injectable()
 export class AdminGuard implements CanActivate {

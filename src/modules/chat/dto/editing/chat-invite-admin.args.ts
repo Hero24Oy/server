@@ -1,5 +1,6 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { MaybeType } from 'src/modules/common/common.types';
+
+import { MaybeType } from '$/src/modules/common/common.types';
 
 @ArgsType()
 export class ChatInviteAdminArgs {

@@ -1,6 +1,6 @@
 import { OfferRequestQuestion } from 'hero24-types';
 
-import { OfferRequestQuestionType } from '../offer-request-question.constants';
+import { OfferRequestQuestionType } from '../dto/offer-request-question/offer-request-question-type.enum';
 import {
   DependencyId,
   OmittedDependencyIdPlainOfferRequestQuestion,

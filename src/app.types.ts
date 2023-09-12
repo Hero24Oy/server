@@ -1,6 +1,4 @@
 import DataLoader from 'dataloader';
-// This lib provides by Nest
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Request, Response } from 'express';
 
 import { Identity } from './modules/auth/auth.types';

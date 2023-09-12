@@ -1,11 +1,12 @@
 import { createUnionType } from '@nestjs/graphql';
 import { AddressesAnswered } from 'hero24-types';
-import { assertNever } from 'src/modules/common/common.utils';
-import { AddressDto } from 'src/modules/common/dto/address/address.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';
+
+import { assertNever } from '$/src/modules/common/common.utils';
+import { AddressDto } from '$/src/modules/common/dto/address/address.dto';
+import { FirebaseAdapter } from '$/src/modules/firebase/firebase.adapter';
 
 export const AddressesAnsweredDto = createUnionType({
   name: 'AddressesAnsweredDto',
@@ -59,5 +60,4 @@ export const AddressesAnsweredAdapter = new FirebaseAdapter<
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type AddressesAnsweredDto = typeof AddressesAnsweredDto;

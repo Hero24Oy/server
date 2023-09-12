@@ -11,7 +11,6 @@ import { OfferRequestResolver } from './offer-request.resolver';
 import { OfferRequestService } from './offer-request.service';
 import { OFFER_REQUEST_SORTERS } from './offer-request.sorters';
 import { OfferRequestSubscription } from './offer-request.subscription';
-// eslint-disable-next-line import/no-cycle
 import { OpenOfferRequestModule } from './open-offer-request/open-offer-request.module';
 
 @Module({

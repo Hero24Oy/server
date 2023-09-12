@@ -9,7 +9,6 @@ import { UserModule } from '../user/user.module';
 
 import { OFFER_SORTERS } from './offer.sorters';
 import { OfferSubscription } from './offer.subscription';
-// eslint-disable-next-line import/no-cycle
 import { OfferHubSpotModule } from './offer-hub-spot/offer-hub-spot.module';
 import { BuyerOfferResolver } from './resolvers/buyer-offer.resolver';
 import { OfferResolver } from './resolvers/offer.resolver';

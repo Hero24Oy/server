@@ -1,7 +1,9 @@
 import { OFFER_REQUEST_STATUS } from 'hero24-types';
 
-import { OfferRequestFilterColumn } from '../offer-request.constants';
-import { OfferRequestColumnFilter } from '../offer-request.types';
+import {
+  OfferRequestColumnFilter,
+  OfferRequestFilterColumn,
+} from '../offer-request.types';
 
 export type StatusColumnFilterConfig = OFFER_REQUEST_STATUS[];
 

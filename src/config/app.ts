@@ -1,7 +1,6 @@
 import * as Joi from 'joi';
 
 export const appValidationSchema = Joi.object({
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   PORT: Joi.number().required(),
 });
 

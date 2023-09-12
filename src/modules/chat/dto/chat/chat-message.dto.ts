@@ -1,9 +1,10 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ChatMessageDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
-import { LocationDto } from 'src/modules/common/dto/location/location.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+import { MaybeType } from '$/src/modules/common/common.types';
+import { convertListToFirebaseMap } from '$/src/modules/common/common.utils';
+import { LocationDto } from '$/src/modules/common/dto/location/location.dto';
+import { FirebaseAdapter } from '$/src/modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class ChatMessageDto {

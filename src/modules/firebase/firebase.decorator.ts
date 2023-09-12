@@ -1,6 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { AppGraphQlContext } from 'src/app.types';
+
+import { AppGraphQlContext } from '$/src/app.types';
 
 export const FirebaseApp = createParamDecorator(
   (_data: string, context: ExecutionContext) => {

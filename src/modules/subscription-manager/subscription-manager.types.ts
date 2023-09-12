@@ -2,9 +2,10 @@ import { ModuleMetadata } from '@nestjs/common';
 
 import { ParentType } from '../common/common.types';
 
-// TODO: Resolve cycle dependency
-// eslint-disable-next-line import/no-cycle
-import { SubscriptionService } from './subscription-manager.interface';
+export interface SubscriptionService {
+  subscribe(): Promise<Unsubscribe> | Unsubscribe;
+  disabled?: () => boolean;
+}
 
 export type SubscriptionRegistrationOptions = {
   subscriptions: ParentType<SubscriptionService>[];

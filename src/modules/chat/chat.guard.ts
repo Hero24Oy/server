@@ -1,12 +1,13 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { AppGraphQlContext } from 'src/app.types';
 
+import { ChatBaseGuardActivator } from './activators/chat-member.activator';
 import { CHAT_ACTIVATOR_METADATA_KEY } from './chat.constants';
-import { ChatBaseGuardActivator } from './chat.types';
 import { ChatService } from './services/chat.service';
 import { ChatMessageService } from './services/chat-message.service';
+
+import { AppGraphQlContext } from '$/src/app.types';
 
 @Injectable()
 export class ChatGuard implements CanActivate {
@@ -19,7 +20,7 @@ export class ChatGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const graphQlExecutionContext = GqlExecutionContext.create(context);
 
-    const args = graphQlExecutionContext.getArgs();
+    const args = graphQlExecutionContext.getArgs<object>();
 
     const appGraphQlContext =
       graphQlExecutionContext.getContext<AppGraphQlContext>();

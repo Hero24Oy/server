@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 
 import { AppResolver } from './app.resolver';
-import { GraphQlConnectionParams } from './app.types';
+import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
 import config, { configValidationSchema } from './config';
 import { AuthModule } from './modules/auth/auth.module';
 import { BuyerModule } from './modules/buyer/buyer.module';
@@ -40,21 +40,19 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
       inject: [ConfigService, GraphQlContextManagerService],
       useFactory: (
         configService: ConfigService,
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         graphQLManagerService: GraphQlContextManagerService,
       ): ApolloDriverConfig => ({
         autoSchemaFile: true,
         subscriptions: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           'graphql-ws': true,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           'subscriptions-transport-ws': {
             onConnect: (connectionParams: GraphQlConnectionParams) =>
               graphQLManagerService.createContext({ connectionParams }),
           },
         },
         playground: configService.get<boolean>('app.isDevelopment'),
-        context: async (ctx) => graphQLManagerService.createContext(ctx),
+        context: async (ctx: GraphQlBaseContext) =>
+          graphQLManagerService.createContext(ctx),
       }),
     }),
     GraphQlPubsubModule,

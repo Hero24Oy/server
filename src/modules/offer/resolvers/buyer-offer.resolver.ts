@@ -1,10 +1,11 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
 
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { BuyerOfferService } from '../services/buyer-offer.service';
+
+import { AuthGuard } from '$/src/modules/auth/guards/auth.guard';
+import { FirebaseExceptionFilter } from '$/src/modules/firebase/firebase.exception.filter';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)

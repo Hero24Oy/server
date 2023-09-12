@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import moment from 'moment';
-import { Maybe } from 'src/modules/common/common.monads';
-import { RoundedNumber } from 'src/modules/price-calculator/price-calculator.monad';
 
 import { OfferDto } from '../dto/offer/offer.dto';
 
 import { NUMBER_TO_ROUND } from './offer-price-calculator.constants';
 import { roundDuration } from './offer-price-calculator.utils';
+
+import { Maybe } from '$/src/modules/common/common.monads';
+import { RoundedNumber } from '$/src/modules/price-calculator/price-calculator.monad';
 
 @Injectable()
 export class OfferPriceCalculatorService {

@@ -1,6 +1,7 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { MaybeType } from 'src/modules/common/common.types';
-import { LocationInput } from 'src/modules/common/dto/location/location.input';
+
+import { MaybeType } from '$/src/modules/common/common.types';
+import { LocationInput } from '$/src/modules/common/dto/location/location.input';
 
 @ArgsType()
 export class ChatMessageCreationArgs {

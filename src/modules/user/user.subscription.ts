@@ -7,7 +7,7 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
+import { SubscriptionService } from '../subscription-manager/subscription-manager.types';
 
 import {
   createUserCreatedEventHandler,
