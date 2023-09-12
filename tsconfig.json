@@ -20,9 +20,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "paths": {
-      "$/*": ["*"],
       "$modules/*": ["src/modules/*"],
-      "$config/*": ["src/config/*"]
+      "$config/*": ["src/config/*"],
+      "$/*": ["*"]
     }
   }
 }
