@@ -1,16 +1,16 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { UserDB } from 'hero24-types';
-
 import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+import { UserDbWithPartialData } from '../../user.types';
 
 import { UserDataDto } from './user-data.dto';
 import { UserOfferDto } from './user-offer.dto';
-import { UserDBWithPartialData } from '../../user.types';
 
 @ObjectType()
 export class UserDto {
@@ -71,7 +71,7 @@ export class UserDto {
   // We don't need to send hubSpotContactId on client for now. Only for internal usage
   hubSpotContactId?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<UserDBWithPartialData, UserDto>;
+  static adapter: FirebaseAdapter<UserDbWithPartialData, UserDto>;
 }
 
 UserDto.adapter = new FirebaseAdapter({

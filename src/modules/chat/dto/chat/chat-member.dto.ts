@@ -1,9 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-
 import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
+// eslint-disable-next-line import/no-cycle
 import { ChatMemberDB } from '../../chat.types';
+
 import { ChatMemberRole } from './chat-member-role.enum';
 
 @ObjectType()

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { BuyerProfileDB } from 'hero24-types';
 import { Database } from 'firebase-admin/database';
-
-import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
-import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
-import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
+import { BuyerProfileDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+
+import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileDataDto } from './dto/buyer/buyer-profile-data.dto';
+import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
+import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 import { PartialBuyerProfileDataInput } from './dto/editing/partial-buyer-profile-data.input';
 
 @Injectable()

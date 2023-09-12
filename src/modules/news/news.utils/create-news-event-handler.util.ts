@@ -1,5 +1,6 @@
 import { DataSnapshot } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
+
 import { NewsDto } from '../dto/news/news.dto';
 
 export const createNewsEventHandler =

@@ -1,9 +1,9 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
 import { ApiException } from '@hubspot/api-client/lib/codegen/crm/contacts';
-
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { MaybeType } from 'src/modules/common/common.types';
 
 import { HubSpotClientService } from '../hub-spot-client/hub-spot-client.service';
+
 import {
   HubSpotContactAssociationsForObject,
   HubSpotContactObject,

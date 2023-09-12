@@ -1,11 +1,11 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+import { OfferRequestQuestionType } from '../../offer-request-question.constants';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
 
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 import { OfferRequestQuestionOptionDto } from './offer-request-question-option.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
-import { OfferRequestQuestionType } from '../../offer-request-question.constants';
 
 type QuestionType = typeof OfferRequestQuestionType.CHECKBOX;
 

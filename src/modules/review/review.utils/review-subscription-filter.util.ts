@@ -1,6 +1,6 @@
-import { REVIEW_UPDATED_SUBSCRIPTION } from '../review.constants';
 import { ReviewDto } from '../dto/review/review.dto';
 import { ReviewFilterInput } from '../dto/review/review-filter.input';
+import { REVIEW_UPDATED_SUBSCRIPTION } from '../review.constants';
 
 type UserSubscriptionType = typeof REVIEW_UPDATED_SUBSCRIPTION;
 

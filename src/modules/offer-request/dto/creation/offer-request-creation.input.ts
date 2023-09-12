@@ -1,5 +1,4 @@
-import { InputType, Field, Float } from '@nestjs/graphql';
-
+import { Field, Float, InputType } from '@nestjs/graphql';
 import { MaybeType } from 'src/modules/common/common.types';
 
 import { OfferRequestDataInput } from './offer-request-data.input';

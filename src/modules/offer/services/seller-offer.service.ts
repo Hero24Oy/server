@@ -1,24 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import omit from 'lodash/omit';
 import get from 'lodash/get';
-
+import omit from 'lodash/omit';
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
 import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
 
+import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
+import { OfferInput } from '../dto/creation/offer.input';
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
 import { OfferCompletedInput } from '../dto/editing/offer-completed.input';
 import { OfferExtendInput } from '../dto/editing/offer-extend.input';
+import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 import { WorkTimeDto } from '../dto/offer/work-time.dto';
-import { OfferService } from './offer.service';
-import { OfferDto } from '../dto/offer/offer.dto';
-import { OfferInput } from '../dto/creation/offer.input';
-import { hydrateOffer } from '../offer.utils/hydrate-offer.util';
-import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { getChangedQuestions } from '../offer.utils/get-changes.util';
+import { hydrateOffer } from '../offer.utils/hydrate-offer.util';
 import { unpauseJob } from '../offer.utils/unpause-job.uitl';
 import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
+
+import { OfferService } from './offer.service';
 
 @Injectable()
 export class SellerOfferService {
@@ -92,7 +92,7 @@ export class SellerOfferService {
       WorkTimeDto.adapter.toInternal(time),
     );
 
-    offerRef.child('data').child('workTime').set(workTimeConverted);
+    await offerRef.child('data').child('workTime').set(workTimeConverted);
 
     return true;
   }
@@ -212,17 +212,18 @@ export class SellerOfferService {
         .set(agreedStartTime.getTime());
     }
 
-    const timeChangeAccepted = !dateQuestion || isAcceptTimeChanges;
-    const detailsChangeAccepted =
+    const isTimeChangeAccepted = !dateQuestion || isAcceptTimeChanges;
+
+    const isDetailsChangeAccepted =
       !otherChanges.length || isAcceptDetailsChanges;
 
     await this.offerRequestService.updateAcceptedChanges({
       offerRequestId,
-      detailsChangeAccepted,
-      timeChangeAccepted,
+      detailsChangeAccepted: isDetailsChangeAccepted,
+      timeChangeAccepted: isTimeChangeAccepted,
     });
 
-    if (detailsChangeAccepted && timeChangeAccepted) {
+    if (isDetailsChangeAccepted && isTimeChangeAccepted) {
       await offerRef.child('data').child('requestedChangesAccepted').set(true);
     }
 
@@ -240,8 +241,8 @@ export class SellerOfferService {
       .child(offerRequestId);
 
     await new Promise<void>((resolve, reject) => {
-      guard.transaction(
-        (sellerId: string | null) => {
+      void guard.transaction(
+        (sellerId: string | null): string | undefined => {
           if (sellerId === null) {
             return sellerProfileId;
           }
@@ -250,7 +251,7 @@ export class SellerOfferService {
           if (error) {
             reject(error);
           } else if (!committed) {
-            reject(new Error(`OfferRequest has been accepted`));
+            reject(new Error('OfferRequest has been accepted'));
           }
 
           resolve();

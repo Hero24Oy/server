@@ -1,24 +1,25 @@
 import { Inject, Module } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
-import { NewsService } from './news.service';
-import { NewsResolver } from './news.resolver';
+import { skipFirst } from '../common/common.utils';
+import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { FirebaseService } from '../firebase/firebase.service';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
+
 import {
   createNewsAddedEventHandler,
   createNewsRemovedEventHandler,
   createNewsUpdatedEventHandler,
 } from './news.event-handlers';
-import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
-import { skipFirst } from '../common/common.utils';
+import { NewsResolver } from './news.resolver';
+import { NewsService } from './news.service';
 
 @Module({
-  imports: [FirebaseModule, GraphQLPubsubModule],
+  imports: [FirebaseModule, GraphQlPubsubModule],
   providers: [NewsService, NewsResolver],
 })
 export class NewsModule {

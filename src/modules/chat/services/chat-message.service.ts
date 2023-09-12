@@ -1,13 +1,13 @@
-import { ChatMessageDB } from 'hero24-types';
 import { Injectable } from '@nestjs/common';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
-
-import { ChatMessageDto } from '../dto/chat/chat-message.dto';
-import { FirebaseService } from '../../firebase/firebase.service';
-import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
-import { ChatMessageCreationArgs } from '../dto/creation/chat-message-creation.args';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { ChatMessageDB } from 'hero24-types';
 import { Identity } from 'src/modules/auth/auth.types';
+import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+
+import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
+import { FirebaseService } from '../../firebase/firebase.service';
+import { ChatMessageDto } from '../dto/chat/chat-message.dto';
+import { ChatMessageCreationArgs } from '../dto/creation/chat-message-creation.args';
 
 @Injectable()
 export class ChatMessageService {
@@ -91,7 +91,7 @@ export class ChatMessageService {
     const chatMessage = await this.getChatMessageById(newMessageRef.key);
 
     if (!chatMessage) {
-      throw new Error(`Cant find the chat message`);
+      throw new Error('Cant find the chat message');
     }
 
     return chatMessage;

@@ -1,9 +1,9 @@
 import { Field, InputType, Int, InterfaceType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
-
 import { MaybeType } from 'src/modules/common/common.types';
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
 import {
   OfferRequestQuestionType,
   QUESTION_FLAT_ID_NAME,
@@ -12,8 +12,8 @@ import {
 type BaseOfferRequestQuestionDB<
   Type extends OfferRequestQuestionType = OfferRequestQuestionType,
 > = Pick<OfferRequestQuestion, 'id' | 'name' | 'order'> & {
-  [QUESTION_FLAT_ID_NAME]?: string;
   type: Type;
+  [QUESTION_FLAT_ID_NAME]?: string;
 };
 
 @InterfaceType()

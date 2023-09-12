@@ -1,14 +1,14 @@
 import { InputType, OmitType, PartialType } from '@nestjs/graphql';
 import { Address, UserDB } from 'hero24-types';
 import { isNumber } from 'lodash';
-
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { UserDataDto } from '../user/user-data.dto';
-import { UserDataAddressDto } from '../user/user-data-address.dto';
 import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';
+import { UserDataAddressDto } from '../user/user-data-address.dto';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const OMITTED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt'] as const;
 
 @InputType()

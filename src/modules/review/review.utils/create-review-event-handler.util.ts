@@ -12,10 +12,10 @@ export const createReviewEventHandler =
       return;
     }
 
-    const reviewBD: ReviewDB = snapshot.val();
+    const reviewDB: ReviewDB = snapshot.val();
 
     eventEmitter(
       pubsub,
-      ReviewDto.adapter.toExternal({ ...reviewBD, id: snapshot.key }),
+      ReviewDto.adapter.toExternal({ ...reviewDB, id: snapshot.key }),
     );
   };

@@ -1,4 +1,4 @@
-import { QuestionDB, OfferRequestQuestion, DateQuestionDB } from 'hero24-types';
+import { DateQuestionDB, OfferRequestQuestion, QuestionDB } from 'hero24-types';
 import { OfferRequestQuestionType } from 'src/modules/offer-request/offer-request-question/offer-request-question.constants';
 
 export function isDateQuestion(

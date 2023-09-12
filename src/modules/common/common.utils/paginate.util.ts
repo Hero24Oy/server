@@ -1,4 +1,5 @@
 import { isNumber } from 'lodash';
+
 import { PaginationArgs } from '../dto/pagination.args';
 
 type PaginateArgs<Node> = PaginationArgs & {

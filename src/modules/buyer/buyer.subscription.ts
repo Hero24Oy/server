@@ -2,12 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Reference } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 
-import { createBuyerProfileUpdatedEventHandler } from './buyer.event-handler';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
+
+import { createBuyerProfileUpdatedEventHandler } from './buyer.event-handler';
 
 @Injectable()
 export class BuyerProfileSubscription implements SubscriptionService {
@@ -19,6 +20,7 @@ export class BuyerProfileSubscription implements SubscriptionService {
   public async subscribe(): Promise<() => Promise<void>> {
     const app = this.firebaseService.getDefaultApp();
     const database = app.database();
+
     const rootBuyerProfileRef = database.ref(
       FirebaseDatabasePath.BUYER_PROFILES,
     );

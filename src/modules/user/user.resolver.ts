@@ -3,18 +3,19 @@ import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+
+import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import { UserService } from './user.service';
-import { UserCreationArgs } from './dto/creation/user-creation.args';
-import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
-import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import {
   USER_CREATED_SUBSCRIPTION,
   USER_UPDATED_SUBSCRIPTION,
 } from './user.constants';
+import { UserService } from './user.service';
 import { UserSubscriptionFilter } from './user.utils/user-subscription-filter.util';
 
 @Resolver()
@@ -61,7 +62,7 @@ export class UserResolver {
     const beforeUpdateUser = await this.userService.getUserById(args.userId);
 
     if (!beforeUpdateUser) {
-      throw new Error(`User not found`);
+      throw new Error('User not found');
     }
 
     const user = await this.userService.editUserData(args);

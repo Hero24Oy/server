@@ -3,15 +3,16 @@ import { Reference } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 
 import { skipFirst } from '../common/common.utils';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
+
 import {
   createUserCreatedEventHandler,
   createUserUpdatedEventHandler,
 } from './user.event-handler';
-import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
 
 @Injectable()
 export class UserSubscription implements SubscriptionService {
@@ -35,7 +36,7 @@ export class UserSubscription implements SubscriptionService {
     };
   }
 
-  private async subscribeOnUserUpdates(rootFeesRef: Reference, pubsub: PubSub) {
+  private subscribeOnUserUpdates(rootFeesRef: Reference, pubsub: PubSub) {
     return subscribeOnFirebaseEvent(
       rootFeesRef,
       'child_changed',
@@ -43,10 +44,7 @@ export class UserSubscription implements SubscriptionService {
     );
   }
 
-  private async subscribeOnUserCreation(
-    rootFeesRef: Reference,
-    pubsub: PubSub,
-  ) {
+  private subscribeOnUserCreation(rootFeesRef: Reference, pubsub: PubSub) {
     return subscribeOnFirebaseEvent(
       // Firebase child added event calls on every exist item first, than on every creation event.
       // So we should skip every exists items using limit to last 1 so as not to retrieve all items

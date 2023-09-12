@@ -1,22 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { GraphQLContextProviderService } from './graphql-context-manager.interface';
-import { AppGraphQLContext, GraphQLBaseContext } from 'src/app.types';
+import { AppGraphQlContext, GraphQlBaseContext } from 'src/app.types';
+
+import { GraphQlContextProviderService } from './graphql-context-manager.interface';
 
 @Injectable()
-export class GraphQLContextManagerService {
-  private contextProviders: GraphQLContextProviderService[];
+export class GraphQlContextManagerService {
+  private contextProviders: GraphQlContextProviderService[];
 
-  constructor(...contextProviders: GraphQLContextProviderService[]) {
+  constructor(...contextProviders: GraphQlContextProviderService[]) {
     this.contextProviders = contextProviders;
   }
 
-  async createContext(ctx: GraphQLBaseContext): Promise<AppGraphQLContext> {
+  async createContext(ctx: GraphQlBaseContext): Promise<AppGraphQlContext> {
     return this.contextProviders.reduce(
       async (contextualPromise, contextProvider) => ({
         ...(await contextualPromise),
         ...(await contextProvider.createContext(ctx)),
       }),
       Promise.resolve({}),
-    ) as Promise<AppGraphQLContext>;
+    ) as Promise<AppGraphQlContext>;
   }
 }

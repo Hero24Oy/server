@@ -1,13 +1,13 @@
 import { roundToStep } from './round-to-step.util';
 
 type TestItem = {
-  value: number;
-  step: number;
   result: {
     ceil: number;
     floor: number;
     round: number;
   };
+  step: number;
+  value: number;
 };
 
 const items: TestItem[] = [

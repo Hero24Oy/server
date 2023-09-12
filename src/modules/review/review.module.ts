@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
 
+import { FirebaseModule } from '../firebase/firebase.module';
+import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
+import { SellerModule } from '../seller/seller.module';
+import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
+
 import { ReviewResolver } from './review.resolver';
 import { ReviewService } from './review.service';
 import { ReviewSubscription } from './review.subscription';
 
-import { FirebaseModule } from '../firebase/firebase.module';
-import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
-import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
-import { SellerModule } from '../seller/seller.module';
-
 @Module({
   imports: [
     FirebaseModule,
-    GraphQLPubsubModule,
+    GraphQlPubsubModule,
     SellerModule,
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQLPubsubModule, FirebaseModule],
+      imports: [GraphQlPubsubModule, FirebaseModule],
       subscriptions: [ReviewSubscription],
     }),
   ],

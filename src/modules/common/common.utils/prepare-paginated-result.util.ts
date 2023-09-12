@@ -1,12 +1,14 @@
 import { last } from 'lodash';
+
 import { PaginatedType } from '../dto/pagination.dto';
+
 import { hasNextPage } from './has-next-page.util';
 
 type PreparePaginatedResultArgs<Node extends { id: string }> = {
-  limit?: number;
-  offset?: number;
   nodes: Node[];
   total: number;
+  limit?: number;
+  offset?: number;
 };
 
 export const preparePaginatedResult = <Node extends { id: string }>(

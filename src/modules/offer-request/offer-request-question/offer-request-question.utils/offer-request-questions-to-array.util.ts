@@ -1,24 +1,25 @@
 import { OfferRequestQuestion } from 'hero24-types';
 import { v4 as uuidV4 } from 'uuid';
 
-import { PlainOfferRequestQuestion } from '../offer-request-question.types';
 import {
   OfferRequestQuestionType,
   QUESTION_FLAT_ID_NAME,
 } from '../offer-request-question.constants';
+import { PlainOfferRequestQuestion } from '../offer-request-question.types';
 
 export const offerRequestQuestionsToArray = (
   questions: OfferRequestQuestion[],
 ): PlainOfferRequestQuestion[] => {
   const subQuestions: PlainOfferRequestQuestion[] = [];
+
   const mainQuestions: PlainOfferRequestQuestion[] = questions.map(
-    (question) => {
-      switch (question.type) {
+    (offerRequestQuestion) => {
+      switch (offerRequestQuestion.type) {
         case OfferRequestQuestionType.CHECKBOX:
         case OfferRequestQuestionType.RADIO:
           return {
-            ...question,
-            options: question.options.map((option) => {
+            ...offerRequestQuestion,
+            options: offerRequestQuestion.options.map((option) => {
               const flattenSubQuestions = offerRequestQuestionsToArray(
                 option.questions || [],
               );
@@ -46,7 +47,7 @@ export const offerRequestQuestionsToArray = (
             }),
           };
         default:
-          return question;
+          return offerRequestQuestion;
       }
     },
   );

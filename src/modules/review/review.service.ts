@@ -3,13 +3,13 @@ import { Database } from 'firebase-admin/database';
 import { ReviewDB } from 'hero24-types';
 import omit from 'lodash/omit';
 
-import { ReviewCreationArgs } from './dto/creation/review-creation.args';
-import { ReviewDto } from './dto/review/review.dto';
-
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { SellerService } from '../seller/seller.service';
-import { paginate, preparePaginatedResult } from '../common/common.utils';
+
+import { ReviewCreationArgs } from './dto/creation/review-creation.args';
+import { ReviewDto } from './dto/review/review.dto';
 import { ReviewListArgs } from './dto/review-list/review-list.args';
 import { ReviewListDto } from './dto/review-list/review-list.dto';
 
@@ -51,6 +51,7 @@ export class ReviewService {
       .map(([id, review]) => ReviewDto.adapter.toExternal({ ...review, id }));
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, offset, limit });
 
     return preparePaginatedResult({

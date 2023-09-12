@@ -1,11 +1,11 @@
+import { AppGraphQlContext } from 'src/app.types';
 import { Identity } from 'src/modules/auth/auth.types';
-
-import { AppGraphQLContext } from 'src/app.types';
 
 import { ChatGuardProviders } from '../chat.types';
 
 export const IsChatMember =
   <
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Args extends Record<string, any> & Record<Key, string>,
     Key extends keyof Args & string,
   >(
@@ -13,7 +13,7 @@ export const IsChatMember =
   ) =>
   (
     args: Args,
-    { identity }: AppGraphQLContext,
+    { identity }: AppGraphQlContext,
     { chatService }: ChatGuardProviders,
   ) =>
     chatService.checkIsMember(identity as Identity, args[key]);

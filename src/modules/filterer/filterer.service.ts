@@ -12,7 +12,7 @@ export class FiltererService<
 > {
   constructor(
     @Inject(COLUMN_FILTER_PROVIDER)
-    private readonly filters: ColumnFilter<Item, Column, Context, any>[],
+    private readonly filters: ColumnFilter<Item, Column, Context, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
   ) {}
 
   filter(items: Item[], configs: Partial<Configs>, context: Context): Item[] {

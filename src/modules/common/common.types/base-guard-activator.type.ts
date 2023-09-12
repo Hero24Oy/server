@@ -1,10 +1,10 @@
-import { AppGraphQLContext } from 'src/app.types';
+import { AppGraphQlContext } from 'src/app.types';
 
 export type BaseGuardActivator<
   Args extends object,
   Providers extends Record<string, unknown>,
 > = (
   args: Args,
-  context: AppGraphQLContext,
+  context: AppGraphQlContext,
   providers: Providers,
 ) => boolean | Promise<boolean>;

@@ -1,5 +1,6 @@
 import { OfferRequestOrderColumn } from '../dto/offer-request-list/offer-request-order-column';
 import { OfferRequestComparePicker } from '../offer-request.types';
+
 import { buyerProfileComparePicker } from './buyer-profile.compare-picker';
 import { createdAtComparePicker } from './created-at.compare-picker';
 import { statusComparePicker } from './status.compare-picker';

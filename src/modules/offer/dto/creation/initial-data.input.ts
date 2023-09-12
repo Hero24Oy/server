@@ -1,6 +1,7 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 
 import { OfferInitialDataDto } from '../offer/offer-initial-data.dto';
+
 import { PurchaseInput } from './purchase.input';
 
 @InputType()

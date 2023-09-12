@@ -1,9 +1,11 @@
 import { InputType, OmitType } from '@nestjs/graphql';
-import { UserMergeDto } from './user-merge.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { UserMergeDB } from 'hero24-types';
 import { omit } from 'lodash';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
+import { UserMergeDto } from './user-merge.dto';
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const OMITTED_FIELDS = ['createdAt'] as const;
 
 @InputType()

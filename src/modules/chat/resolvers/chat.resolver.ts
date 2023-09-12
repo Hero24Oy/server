@@ -1,3 +1,4 @@
+import { Inject, UseGuards } from '@nestjs/common';
 import {
   Args,
   Int,
@@ -6,37 +7,36 @@ import {
   Resolver,
   Subscription,
 } from '@nestjs/graphql';
-import { Inject, UseGuards } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
+import { AppGraphQlContext } from 'src/app.types';
+import { Scope } from 'src/modules/auth/auth.constants';
+import { AuthIdentity } from 'src/modules/auth/auth.decorator';
 
-import { ChatListDto } from '../dto/chats/chat-list.dto';
-import { ChatsArgs } from '../dto/chats/chats.args';
-import { ChatService } from '../services/chat.service';
-import { ChatDto } from '../dto/chat/chat.dto';
+import { Identity } from '../../auth/auth.types';
+import { AdminGuard } from '../../auth/guards/admin.guard';
+import { AuthGuard } from '../../auth/guards/auth.guard';
 import { FirebaseApp } from '../../firebase/firebase.decorator';
 import { FirebaseAppInstance } from '../../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
+import { IsChatMember } from '../activators/chat-member.activator';
+import { ChatActivator } from '../chat.activator';
 import {
   CHAT_ADDED_SUBSCRIPTION,
   CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION,
   CHAT_UPDATED_SUBSCRIPTION,
   UNSEEN_CHATS_CHANGED_SUBSCRIPTION,
 } from '../chat.constants';
-import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
-import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
-import { AuthGuard } from '../../auth/guards/auth.guard';
-import { AdminGuard } from '../../auth/guards/admin.guard';
-import { Identity } from '../../auth/auth.types';
 import { ChatGuard } from '../chat.guard';
-import { ChatActivator } from '../chat.activator';
-import { IsChatMember } from '../activators/chat-member.activator';
-import { AppGraphQLContext } from 'src/app.types';
-import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
-import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
-import { Scope } from 'src/modules/auth/auth.constants';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
+import { ChatDto } from '../dto/chat/chat.dto';
+import { ChatListDto } from '../dto/chats/chat-list.dto';
+import { ChatsArgs } from '../dto/chats/chats.args';
 import { ChatCreationInput } from '../dto/creation/chat-creation.input';
+import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
+import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
+import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
+import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
+import { ChatService } from '../services/chat.service';
 
 @Resolver()
 export class ChatResolver {
@@ -148,7 +148,7 @@ export class ChatResolver {
         delta: -1,
       };
 
-      this.pubSub.publish(UNSEEN_CHATS_CHANGED_SUBSCRIPTION, {
+      void this.pubSub.publish(UNSEEN_CHATS_CHANGED_SUBSCRIPTION, {
         [UNSEEN_CHATS_CHANGED_SUBSCRIPTION]: payload,
       });
     }
@@ -161,7 +161,7 @@ export class ChatResolver {
     filter: (
       payload: { [CHAT_UPDATED_SUBSCRIPTION]: ChatDto },
       { chatIds }: { chatIds?: string[] },
-      { identity }: AppGraphQLContext,
+      { identity }: AppGraphQlContext,
     ) => {
       if (!identity) {
         return false;
@@ -196,7 +196,7 @@ export class ChatResolver {
     filter: (
       payload: { [CHAT_ADDED_SUBSCRIPTION]: ChatDto },
       _variables,
-      context: AppGraphQLContext,
+      context: AppGraphQlContext,
     ) => {
       const { identity } = context;
 
@@ -233,7 +233,7 @@ export class ChatResolver {
     filter: (
       payload: { [UNSEEN_CHATS_CHANGED_SUBSCRIPTION]: UnseenChatsChangedDto },
       _variables,
-      { identity }: AppGraphQLContext,
+      { identity }: AppGraphQlContext,
     ) => {
       if (!identity) {
         return false;

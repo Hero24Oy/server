@@ -1,12 +1,12 @@
-import { ChatDB } from 'hero24-types';
 import { Field, ObjectType } from '@nestjs/graphql';
-
-import { MaybeType } from 'src/modules/common/common.types';
-
-import { ChatMemberDto } from './chat-member.dto';
+import { ChatDB } from 'hero24-types';
 import { isNumber, max } from 'lodash';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { MaybeType } from 'src/modules/common/common.types';
 import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+// eslint-disable-next-line import/no-cycle
+import { ChatMemberDto } from './chat-member.dto';
 
 @ObjectType()
 export class ChatDto {

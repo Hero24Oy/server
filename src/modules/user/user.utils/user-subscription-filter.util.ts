@@ -1,4 +1,5 @@
-import { AppGraphQLContext } from 'src/app.types';
+import { AppGraphQlContext } from 'src/app.types';
+
 import { UserDto } from '../dto/user/user.dto';
 import {
   USER_CREATED_SUBSCRIPTION,
@@ -13,7 +14,7 @@ type Payload = Record<UserSubscriptionType, UserDto>;
 
 export const UserSubscriptionFilter =
   (type: UserSubscriptionType) =>
-  (payload: Payload, _variables: void, { identity }: AppGraphQLContext) => {
+  (payload: Payload, _variables: void, { identity }: AppGraphQlContext) => {
     const user = payload[type];
 
     if (user.id !== identity?.id) {

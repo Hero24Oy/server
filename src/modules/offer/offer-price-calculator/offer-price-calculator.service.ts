@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import moment from 'moment';
-
 import { Maybe } from 'src/modules/common/common.monads';
 import { RoundedNumber } from 'src/modules/price-calculator/price-calculator.monad';
 
 import { OfferDto } from '../dto/offer/offer.dto';
+
+import { NUMBER_TO_ROUND } from './offer-price-calculator.constants';
 import { roundDuration } from './offer-price-calculator.utils';
 
 @Injectable()
@@ -62,8 +63,8 @@ export class OfferPriceCalculatorService {
     const hoursDuration = this.getTotalDuration(offer).asHours();
     const numberPricePerHour = this.getPricePerHour(offer);
 
-    const duration = new RoundedNumber(hoursDuration, 2);
-    const pricePerHour = new RoundedNumber(numberPricePerHour, 2);
+    const duration = new RoundedNumber(hoursDuration, NUMBER_TO_ROUND);
+    const pricePerHour = new RoundedNumber(numberPricePerHour, NUMBER_TO_ROUND);
 
     return duration.multiply(pricePerHour).val();
   }

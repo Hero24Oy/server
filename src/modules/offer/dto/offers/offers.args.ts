@@ -1,11 +1,11 @@
 import { Field, InputType, IntersectionType, PickType } from '@nestjs/graphql';
-
-import { PaginationArgs } from 'src/modules/common/dto/pagination.args';
 import { MaybeType } from 'src/modules/common/common.types';
+import { PaginationArgs } from 'src/modules/common/dto/pagination.args';
 
-import { OffersOrderInput } from './offers-order.input';
-import { OffersFilterInput } from './offers-filter.input';
 import { OfferRoleInput } from '../offer/offer-role.input';
+
+import { OffersFilterInput } from './offers-filter.input';
+import { OffersOrderInput } from './offers-order.input';
 
 @InputType()
 export class OfferArgs extends IntersectionType(

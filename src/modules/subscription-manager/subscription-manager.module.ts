@@ -4,16 +4,20 @@ import {
   ModuleMetadata,
   Provider,
 } from '@nestjs/common';
-import { SubscriptionManagerService } from './subscription-manager.service';
+
 import { ParentType } from '../common/common.types';
-import { SubscriptionService } from './subscription-manager.interface';
-import { SubscriptionRegistrationOptions } from './subscription-manager.types';
+
 import { SUBSCRIPTIONS_PROVIDER } from './subscription-manager.constants';
+import { SubscriptionService } from './subscription-manager.interface';
+import { SubscriptionManagerService } from './subscription-manager.service';
+import { SubscriptionRegistrationOptions } from './subscription-manager.types';
 
 @Module({})
 export class SubscriptionManagerModule {
   private static imports: Required<ModuleMetadata>['imports'] = [];
+
   private static subscriptions: ParentType<SubscriptionService>[] = [];
+
   private static providers: Provider[] = [
     SubscriptionManagerService,
     {

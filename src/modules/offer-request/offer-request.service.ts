@@ -1,45 +1,46 @@
-import { get, isString, map } from 'lodash';
 import { Inject, Injectable } from '@nestjs/common';
+import { PubSub } from 'graphql-subscriptions';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
+import { get, isString, map } from 'lodash';
 
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
-import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
-import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
-import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
-import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
-import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
-import { FirebaseService } from '../firebase/firebase.service';
+import { Scope } from '../auth/auth.constants';
+import { Identity } from '../auth/auth.types';
 import {
   omitUndefined,
   paginate,
   preparePaginatedResult,
 } from '../common/common.utils';
-import { Identity } from '../auth/auth.types';
-import { Scope } from '../auth/auth.constants';
-import { SorterService } from '../sorter/sorter.service';
-import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-order-column';
-import {
-  OfferRequestFiltererContext,
-  OfferRequestSorterContext,
-} from './offer-request.types';
 import { FiltererService } from '../filterer/filterer.service';
+import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { OfferRole } from '../offer/dto/offer/offer-role.enum';
+import { SorterService } from '../sorter/sorter.service';
+
+import { AddressesAnsweredInput } from './dto/address-answered/addresses-answered.input';
+import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
+import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
+import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
+import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
+import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
+import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
+import { OfferRequestListArgs } from './dto/offer-request-list/offer-request-list.args';
+import { OfferRequestListDto } from './dto/offer-request-list/offer-request-list.dto';
+import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-order-column';
+import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
 import {
   OfferRequestFilterColumn,
   OfferRequestStatus,
 } from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
+import {
+  OfferRequestFiltererContext,
+  OfferRequestSorterContext,
+} from './offer-request.types';
 import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { PubSub } from 'graphql-subscriptions';
-import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
-import { AddressesAnsweredInput } from './dto/address-answered/addresses-answered.input';
 import { OfferRequestQuestionInput } from './offer-request-question/dto/offer-request-question/offer-request-question.input';
-import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
-import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
-import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
-import { OfferRole } from '../offer/dto/offer/offer-role.enum';
 import { OfferRequestQuestionType } from './offer-request-question/offer-request-question.constants';
+import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
 import { offerRequestQuestionsToTree } from './offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
 
 @Injectable()
@@ -84,6 +85,7 @@ export class OfferRequestService {
 
     return offerRequests;
   }
+
   async getOfferRequestById(id: string): Promise<OfferRequestDto | null> {
     const offerRequestRef = this.getOfferRequestsRef().child(id);
 
@@ -139,6 +141,7 @@ export class OfferRequestService {
     nodes = this.sorterService.sort(nodes, orderBy || [], {});
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, limit, offset });
 
     return preparePaginatedResult({
@@ -309,6 +312,7 @@ export class OfferRequestService {
     input: OfferRequestUpdateQuestionsInput,
   ): Promise<OfferRequestDto> {
     const { offerRequestId, questions: inputQuestions } = input;
+
     const plainQuestions = inputQuestions.map(
       OfferRequestQuestionInput.adapter.toInternal,
     ) as PlainOfferRequestQuestion[];

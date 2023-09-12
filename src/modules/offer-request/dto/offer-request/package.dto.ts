@@ -1,7 +1,7 @@
-import { Field, Int, Float, ObjectType, InputType } from '@nestjs/graphql';
+/* eslint-disable @typescript-eslint/naming-convention */
+import { Field, Float, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { PackageDB } from 'hero24-types';
 import { MaybeType } from 'src/modules/common/common.types';
-
 import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 

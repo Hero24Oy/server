@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { SubscriptionManagerService } from '../subscription-manager/subscription-manager.service';
+
 import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
+import { SubscriptionManagerService } from '../subscription-manager/subscription-manager.service';
 
 @Module({
   imports: [SubscriptionManagerModule.forRoot()],

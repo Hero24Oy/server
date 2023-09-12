@@ -1,5 +1,4 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-
 import { MaybeType } from 'src/modules/common/common.types';
 import {
   convertFirebaseMapToList,
@@ -7,9 +6,10 @@ import {
 } from 'src/modules/common/common.utils';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
 import { OfferRequestQuestionType } from '../../offer-request-question.constants';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
+
+import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
 
 type QuestionType = typeof OfferRequestQuestionType.IMAGE;
 

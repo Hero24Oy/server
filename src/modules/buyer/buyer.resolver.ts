@@ -2,16 +2,16 @@ import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+
 import { BUYER_PROFILE_UPDATED_SUBSCRIPTION } from './buyer.constants';
 import { BuyerService } from './buyer.service';
 import { BuyerProfileSubscriptionFilter } from './buyer.utils/buyer-subscription-filter.util';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
-
-import { AuthGuard } from '../auth/guards/auth.guard';
-import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 @Resolver()
 export class BuyerResolver {

@@ -1,20 +1,21 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseApp } from '../firebase/firebase.decorator';
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
+import { SellerProfileFilterInput } from './dto/seller/seller-profile-filter.input';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
-import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
-import { SellerService } from './seller.service';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { SELLER_PROFILE_UPDATED_SUBSCRIPTION } from './seller.constants';
-import { SellerProfileFilterInput } from './dto/seller/seller-profile-filter.input';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { PubSub } from 'graphql-subscriptions';
+import { SellerService } from './seller.service';
 import { SellerProfileSubscriptionFilter } from './seller.utils/seller-subscription-filter.util';
 
 @Resolver()

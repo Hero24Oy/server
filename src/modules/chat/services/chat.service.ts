@@ -1,32 +1,33 @@
-import { ChatDB } from 'hero24-types';
 import { Inject, Injectable } from '@nestjs/common';
-import { PubSub } from 'graphql-subscriptions';
-import { getDatabase, set, ref, get } from 'firebase/database';
+import { get, getDatabase, ref, set } from 'firebase/database';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
-
-import { FirebaseAppInstance } from '../../firebase/firebase.types';
-import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
-import { MaybeType } from '../../common/common.types';
-import { FirebaseService } from '../../firebase/firebase.service';
-import { ChatMessageDto } from '../dto/chat/chat-message.dto';
-import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
-import { Identity } from '../../auth/auth.types';
-import { ChatsArgs } from '../dto/chats/chats.args';
-import { ChatListDto } from '../dto/chats/chat-list.dto';
-import { ChatDto } from '../dto/chat/chat.dto';
-import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
-import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
-import { filterChats } from '../chat.utils/filter-chats.util';
-import { CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION } from '../chat.constants';
-import { ChatsOrderColumn } from '../dto/chats/chats-order-column.enum';
-import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
-import { ChatMemberDB, ChatsSorterContext } from '../chat.types';
-import { SorterService } from 'src/modules/sorter/sorter.service';
+import { PubSub } from 'graphql-subscriptions';
+import { ChatDB } from 'hero24-types';
 import {
   paginate,
   preparePaginatedResult,
 } from 'src/modules/common/common.utils';
+import { SorterService } from 'src/modules/sorter/sorter.service';
+
+import { Identity } from '../../auth/auth.types';
+import { MaybeType } from '../../common/common.types';
+import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
+import { FirebaseService } from '../../firebase/firebase.service';
+import { FirebaseAppInstance } from '../../firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
+import { CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION } from '../chat.constants';
+// eslint-disable-next-line import/no-cycle
+import { ChatMemberDB, ChatsSorterContext } from '../chat.types';
+import { filterChats } from '../chat.utils/filter-chats.util';
+import { ChatDto } from '../dto/chat/chat.dto';
+import { ChatMessageDto } from '../dto/chat/chat-message.dto';
+import { ChatListDto } from '../dto/chats/chat-list.dto';
+import { ChatsArgs } from '../dto/chats/chats.args';
+import { ChatsOrderColumn } from '../dto/chats/chats-order-column.enum';
 import { ChatCreationInput } from '../dto/creation/chat-creation.input';
+import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
+import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
+import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
 
 @Injectable()
 export class ChatService {
@@ -50,6 +51,7 @@ export class ChatService {
     const { limit, offset, filter, ordersBy = [] } = args;
 
     const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+
     const chatsSnapshot = await database
       .ref(FirebaseDatabasePath.CHATS)
       .once('value');
@@ -72,6 +74,7 @@ export class ChatService {
     });
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, offset, limit });
 
     return preparePaginatedResult({
@@ -93,7 +96,7 @@ export class ChatService {
     const chat: MaybeType<ChatDB> = chatSnapshot.val();
 
     if (!chat) {
-      throw new Error(`Chat isn't existed`);
+      throw new Error("Chat isn't existed");
     }
 
     return ChatDto.adapter.toExternal({ ...chat, id: chatId });
@@ -150,7 +153,9 @@ export class ChatService {
         id: snapshot.key,
       });
 
-      const member = chat.members.find((member) => member.id === identity.id);
+      const member = chat.members.find(
+        (memberDto) => memberDto.id === identity.id,
+      );
 
       if (!member) {
         return;
@@ -162,6 +167,7 @@ export class ChatService {
 
       if (!member.lastOpened) {
         unseenChatsCount++;
+
         return;
       }
 
@@ -200,9 +206,9 @@ export class ChatService {
       },
     };
 
-    const ref = await chatsRef.push(chat);
+    const pushRef = await chatsRef.push(chat);
 
-    return this.getChatById(ref.key || '', app);
+    return this.getChatById(pushRef.key || '', app);
   }
 
   async setChatSeenByAdmin(
@@ -216,17 +222,17 @@ export class ChatService {
 
     const snapshot = await get(seenByAdminRef);
 
-    const previousSeenByAdmin: boolean | null = snapshot.val();
+    const isPreviousSeenByAdmin: boolean | null = snapshot.val();
 
     await set(seenByAdminRef, seenByAdmin);
 
     const seenByAdminUpdatedDto: SeenByAdminUpdatedDto = {
-      previous: previousSeenByAdmin,
+      previous: isPreviousSeenByAdmin,
       current: seenByAdmin,
       chatId,
     };
 
-    this.pubSub.publish(CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION, {
+    void this.pubSub.publish(CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION, {
       [CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION]: seenByAdminUpdatedDto,
     });
 
@@ -239,12 +245,14 @@ export class ChatService {
     app: FirebaseAppInstance,
   ): Promise<boolean> {
     const database = getDatabase(app);
+
     const path = [
       FirebaseDatabasePath.CHATS,
       chatId,
       'data',
       'isAboutReclamation',
     ];
+
     const isAboutReclamationRef = ref(database, path.join('/'));
 
     await set(isAboutReclamationRef, isAboutReclamation);
@@ -358,7 +366,7 @@ export class ChatService {
       chatId,
     };
 
-    this.pubSub.publish(CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION, {
+    void this.pubSub.publish(CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION, {
       [CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION]: seenByAdminUpdatedDto,
     });
   }

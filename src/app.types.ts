@@ -1,31 +1,33 @@
 import DataLoader from 'dataloader';
+// This lib provides by Nest
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Request, Response } from 'express';
 
 import { Identity } from './modules/auth/auth.types';
-import { FirebaseAppInstance } from './modules/firebase/firebase.types';
-import { UserDto } from './modules/user/dto/user/user.dto';
 import { BuyerProfileDto } from './modules/buyer/dto/buyer/buyer-profile.dto';
-import { SellerProfileDto } from './modules/seller/dto/seller/seller-profile.dto';
 import { ChatMessageDto } from './modules/chat/dto/chat/chat-message.dto';
+import { FirebaseAppInstance } from './modules/firebase/firebase.types';
+import { SellerProfileDto } from './modules/seller/dto/seller/seller-profile.dto';
+import { UserDto } from './modules/user/dto/user/user.dto';
 
-export type GraphQLConnectionParams = {
+export type GraphQlConnectionParams = {
   authorization?: string;
 };
 
-export type GraphQLBaseContext = {
+export type GraphQlBaseContext = {
+  connectionParams?: GraphQlConnectionParams;
   req?: Request;
   res?: Response;
-  connectionParams?: GraphQLConnectionParams;
 };
 
-export type AppGraphQLContext = {
+export type AppGraphQlContext = {
+  app: FirebaseAppInstance;
+  buyerLoader: DataLoader<string, BuyerProfileDto | null>;
+  chatMessageLoader: DataLoader<string, ChatMessageDto | null>;
+  identity: Identity | null;
+  sellerLoader: DataLoader<string, SellerProfileDto | null>;
+  userLoader: DataLoader<string, UserDto | null>;
+  connectionParams?: GraphQlConnectionParams;
   req?: Request;
   res?: Response;
-  connectionParams?: GraphQLConnectionParams;
-  identity: Identity | null;
-  app: FirebaseAppInstance;
-  userLoader: DataLoader<string, UserDto | null>;
-  buyerLoader: DataLoader<string, BuyerProfileDto | null>;
-  sellerLoader: DataLoader<string, SellerProfileDto | null>;
-  chatMessageLoader: DataLoader<string, ChatMessageDto | null>;
 };

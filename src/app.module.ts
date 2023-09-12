@@ -1,31 +1,31 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
-import { Module } from '@nestjs/common';
 
-import { GraphQLContextManagerModule } from './modules/graphql-context-manager/graphql-context-manager.module';
-import { GraphQLContextManagerService } from './modules/graphql-context-manager/graphql-context-manager.service';
-import { GraphQLPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
-import { FirebaseModule } from './modules/firebase/firebase.module';
 import { AppResolver } from './app.resolver';
+import { GraphQlConnectionParams } from './app.types';
 import config, { configValidationSchema } from './config';
-import { UserModule } from './modules/user/user.module';
-import { CommonModule } from './modules/common/common.module';
-import { BuyerModule } from './modules/buyer/buyer.module';
-import { SellerModule } from './modules/seller/seller.module';
-import { OfferRequestModule } from './modules/offer-request/offer-request.module';
-import { ChatModule } from './modules/chat/chat.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BuyerModule } from './modules/buyer/buyer.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { CommonModule } from './modules/common/common.module';
+import { FeeModule } from './modules/fee/fee.module';
+import { FirebaseModule } from './modules/firebase/firebase.module';
+import { GraphQlContextManagerModule } from './modules/graphql-context-manager/graphql-context-manager.module';
+import { GraphQlContextManagerService } from './modules/graphql-context-manager/graphql-context-manager.service';
+import { GraphQlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
+import { ImageModule } from './modules/image/image.module';
 import { NewsModule } from './modules/news/news.module';
+import { OfferModule } from './modules/offer/offer.module';
+import { OfferRequestModule } from './modules/offer-request/offer-request.module';
+import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
+import { ReviewModule } from './modules/review/review.module';
+import { SellerModule } from './modules/seller/seller.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { SubscriberModule } from './modules/subscriber/subscriber.module';
-import { OfferModule } from './modules/offer/offer.module';
-import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
+import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
-import { GraphQLConnectionParams } from './app.types';
-import { FeeModule } from './modules/fee/fee.module';
-import { ImageModule } from './modules/image/image.module';
-import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -36,17 +36,20 @@ import { ReviewModule } from './modules/review/review.module';
     }),
     GraphQLModule.forRootAsync({
       driver: ApolloDriver,
-      imports: [GraphQLContextManagerModule.forRoot()],
-      inject: [ConfigService, GraphQLContextManagerService],
+      imports: [GraphQlContextManagerModule.forRoot()],
+      inject: [ConfigService, GraphQlContextManagerService],
       useFactory: (
         configService: ConfigService,
-        graphQLManagerService: GraphQLContextManagerService,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        graphQLManagerService: GraphQlContextManagerService,
       ): ApolloDriverConfig => ({
         autoSchemaFile: true,
         subscriptions: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'graphql-ws': true,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'subscriptions-transport-ws': {
-            onConnect: (connectionParams: GraphQLConnectionParams) =>
+            onConnect: (connectionParams: GraphQlConnectionParams) =>
               graphQLManagerService.createContext({ connectionParams }),
           },
         },
@@ -54,7 +57,7 @@ import { ReviewModule } from './modules/review/review.module';
         context: async (ctx) => graphQLManagerService.createContext(ctx),
       }),
     }),
-    GraphQLPubsubModule,
+    GraphQlPubsubModule,
     FirebaseModule,
     UserModule,
     CommonModule,

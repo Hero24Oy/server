@@ -1,6 +1,6 @@
-import { SELLER_PROFILE_UPDATED_SUBSCRIPTION } from '../seller.constants';
-import { SellerProfileFilterInput } from '../dto/seller/seller-profile-filter.input';
 import { SellerProfileDto } from '../dto/seller/seller-profile.dto';
+import { SellerProfileFilterInput } from '../dto/seller/seller-profile-filter.input';
+import { SELLER_PROFILE_UPDATED_SUBSCRIPTION } from '../seller.constants';
 
 type UserSubscriptionType = typeof SELLER_PROFILE_UPDATED_SUBSCRIPTION;
 

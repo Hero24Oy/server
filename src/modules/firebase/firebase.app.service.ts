@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { FirebaseAppInstance } from './firebase.types';
 
 @Injectable()
@@ -18,6 +19,7 @@ export class FirebaseAppService {
     const previousConnectionCount = this.userAppConnectionController.get(
       appName,
     ) as number;
+
     const updatedConnectionCount = previousConnectionCount + 1;
 
     this.userAppConnectionController.set(appName, updatedConnectionCount);
@@ -33,6 +35,7 @@ export class FirebaseAppService {
     const previousConnectionCount = this.userAppConnectionController.get(
       appName,
     ) as number;
+
     const updatedConnectionCount = previousConnectionCount - 1;
 
     if (updatedConnectionCount === 0) {
@@ -51,7 +54,7 @@ export class FirebaseAppService {
     executor: (resolve: () => void) => Promise<void>,
   ) {
     const deletingPromise = new Promise<void>((resolve) => {
-      executor(() => {
+      void executor(() => {
         resolve();
         this.deletingAppPromises.delete(appName);
       });

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-
 import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
 import { FirebaseService } from 'src/modules/firebase/firebase.service';
+import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
 
-import { OfferService } from './offer.service';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
-import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
+
+import { OfferService } from './offer.service';
 
 @Injectable()
 export class BuyerOfferService {
@@ -47,7 +47,7 @@ export class BuyerOfferService {
     const offer = await this.offerService.strictGetOfferById(offerId);
 
     if (!offer || offer.status !== 'completed') {
-      throw new Error(`Offer must be completed to approve`);
+      throw new Error('Offer must be completed to approve');
     }
 
     await database

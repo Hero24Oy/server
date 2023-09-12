@@ -1,8 +1,8 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { UserDB } from 'hero24-types';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { AddressDto } from '../../../common/dto/address/address.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-import { UserDB } from 'hero24-types';
 
 @ObjectType()
 @InputType('UserDataAddressInput')
