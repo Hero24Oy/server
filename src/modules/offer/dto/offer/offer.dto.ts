@@ -10,14 +10,13 @@ import {
 
 import { OfferDataDto } from './offer-data.dto';
 import { OfferEarningsDto } from './offer-earnings.dto';
-import { OfferStatus } from './offer-status.enum';
 
 @ObjectType()
 export class OfferDto {
   @Field(() => String)
   id: string;
 
-  @Field(() => OfferStatus)
+  @Field(() => String)
   status: OFFER_STATUS;
 
   @Field(() => OfferDataDto)
