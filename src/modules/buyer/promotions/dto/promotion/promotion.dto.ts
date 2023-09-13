@@ -4,7 +4,10 @@ import { PromotionDB } from 'hero24-types';
 import { timestampToDate } from 'src/modules/common/common.utils';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { DiscountFormat } from './discount-format.enum';
+import {
+  DiscountFormat,
+  firebaseToGraphqlDiscountFormat,
+} from './discount-format.enum';
 
 @ObjectType()
 export class PromotionDto {
@@ -19,7 +22,7 @@ export class PromotionDto {
   discount: number;
 
   @Field(() => DiscountFormat)
-  discountFormat: 'fixed' | 'percentage';
+  discountFormat: DiscountFormat;
 
   @Field(() => Date)
   startDate: Date;
@@ -38,7 +41,9 @@ PromotionDto.adapter = new FirebaseAdapter({
     id: internal.id,
     categoryId: internal.data.categoryId,
     discount: internal.data.discount,
-    discountFormat: internal.data.discountFormat,
+    discountFormat: firebaseToGraphqlDiscountFormat(
+      internal.data.discountFormat,
+    ),
     startDate: timestampToDate(internal.data.startDate),
     endDate: timestampToDate(internal.data.endDate),
     description: internal.data.description,
