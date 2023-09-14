@@ -1,3 +1,5 @@
+/* eslint-disable eslint-comments/disable-enable-pair -- we need global disable  */
+/* eslint-disable @cspell/spellchecker -- TODO: fix Rrequet field name */
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 import { MaybeType } from 'src/modules/common/common.types';

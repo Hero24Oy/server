@@ -208,9 +208,9 @@ export class ChatService {
       },
     };
 
-    const pushedChatref = await chatsRef.push(chat);
+    const pushedChatRef = await chatsRef.push(chat);
 
-    return this.getChatById(pushedChatref.key || '', app);
+    return this.getChatById(pushedChatRef.key || '', app);
   }
 
   async setChatSeenByAdmin(
