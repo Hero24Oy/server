@@ -362,7 +362,7 @@ export class OfferRequestService {
         return {
           ...question,
           preferredTime: agreedStartTime.getTime(),
-          suitableTimes: agreedStartTime.getTime(),
+          suitableTimes: null,
           suitableTimesCount: null,
         };
       }
