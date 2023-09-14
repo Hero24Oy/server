@@ -1,3 +1,6 @@
+/* eslint-disable eslint-comments/disable-enable-pair -- we need allow file disable */
+/* eslint-disable @cspell/spellchecker -- TODO: fix Rreqest variable */
+
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 
