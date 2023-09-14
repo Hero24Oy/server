@@ -28,7 +28,7 @@ export class HubSpotContactService {
     } catch (err) {
       const error = err as ApiException<unknown>;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison -- we HttpStatus return numbers of status codes
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison -- HttpStatus return numbers of status codes
       if (error.code === HttpStatus.CONFLICT) {
         const contact = await this.strictFindContactByEmail(properties.email);
 
