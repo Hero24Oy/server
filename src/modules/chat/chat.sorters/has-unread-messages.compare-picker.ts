@@ -4,7 +4,7 @@ export const hasUnreadMessagesComparePicker: ChatsComparePicker<number> = (
   chat,
   { identity },
 ) => {
-  const member = chat.members.find((member) => member.id === identity.id);
+  const member = chat.members.find((memberDto) => memberDto.id === identity.id);
 
   if (!member) {
     return 0;

@@ -1,16 +1,17 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseApp } from '../firebase/firebase.decorator';
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
-import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { SellerService } from './seller.service';
-import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class SellerResolver {

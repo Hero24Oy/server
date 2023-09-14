@@ -4,6 +4,7 @@ import {
 } from '@hubspot/api-client/lib/codegen/crm/contacts';
 
 import { EnumToString } from '../../common/common.types';
+
 import { HubSpotContactProperty } from './hub-spot-contact.constants';
 
 export type HubSpotContactPropertyName = EnumToString<HubSpotContactProperty>;
@@ -16,4 +17,5 @@ export type HubSpotContactProperties = {
 };
 
 export type HubSpotContactObject = SimplePublicObject;
+
 export type HubSpotContactAssociationsForObject = PublicAssociationsForObject;

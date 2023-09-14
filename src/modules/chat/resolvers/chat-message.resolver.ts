@@ -3,23 +3,23 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import map from 'lodash/map';
 
-import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
-import { Identity } from 'src/modules/auth/auth.types';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
-
+import { IsChatMember } from '../activators/chat-member.activator';
+import { ChatActivator } from '../chat.activator';
+import { UNSEEN_CHATS_CHANGED_SUBSCRIPTION } from '../chat.constants';
+import { ChatGuard } from '../chat.guard';
+import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
 import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 import { ChatMessageCreationArgs } from '../dto/creation/chat-message-creation.args';
+import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { ChatService } from '../services/chat.service';
 import { ChatMessageService } from '../services/chat-message.service';
-import { ChatGuard } from '../chat.guard';
-import { ChatActivator } from '../chat.activator';
-import { IsChatMember } from '../activators/chat-member.activator';
-import { UNSEEN_CHATS_CHANGED_SUBSCRIPTION } from '../chat.constants';
-import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
-import { hasMemberSeenChat } from '../chat.utils/has-member-seen-chat.util';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
+
+import { AuthIdentity } from '$modules/auth/auth.decorator';
+import { Identity } from '$modules/auth/auth.types';
+import { AuthGuard } from '$modules/auth/guards/auth.guard';
+import { FirebaseApp } from '$modules/firebase/firebase.decorator';
+import { FirebaseAppInstance } from '$modules/firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 
 @Resolver()
 export class ChatMessageResolver {
@@ -62,7 +62,7 @@ export class ChatMessageResolver {
       delta: 1,
     };
 
-    this.pubSub.publish(UNSEEN_CHATS_CHANGED_SUBSCRIPTION, {
+    void this.pubSub.publish(UNSEEN_CHATS_CHANGED_SUBSCRIPTION, {
       [UNSEEN_CHATS_CHANGED_SUBSCRIPTION]: payload,
     });
 

@@ -1,5 +1,6 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { SuitableTimes } from 'hero24-types';
+
 import { SuitableTimeItemDto } from './suitable-time-item.dto';
 
 @ObjectType()

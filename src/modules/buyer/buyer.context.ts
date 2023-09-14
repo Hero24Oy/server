@@ -1,16 +1,17 @@
-import DataLoader from 'dataloader';
 import { Injectable } from '@nestjs/common';
+import DataLoader from 'dataloader';
 
-import { AppGraphQLContext } from 'src/app.types';
+import { GraphQlContextProviderService } from '../graphql-context-manager/graphql-context-manager.interface';
 
-import { GraphQLContextProviderService } from '../graphql-context-manager/graphql-context-manager.interface';
 import { BuyerService } from './buyer.service';
 
+import { AppGraphQlContext } from '$/app.types';
+
 @Injectable()
-export class BuyerContext implements GraphQLContextProviderService {
+export class BuyerContext implements GraphQlContextProviderService {
   constructor(private buyerService: BuyerService) {}
 
-  async createContext(): Promise<Partial<AppGraphQLContext>> {
+  async createContext(): Promise<Partial<AppGraphQlContext>> {
     return {
       buyerLoader: new DataLoader((ids) =>
         this.buyerService.getBuyerByIds(ids),

@@ -1,22 +1,24 @@
 import { Inject, Module } from '@nestjs/common';
-import { UserMergeResolver } from './user-merge.resolver';
-import { UserMergeService } from './user-merge.service';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { PubSub } from 'graphql-subscriptions';
-import { FirebaseService } from '../firebase/firebase.service';
-import { FirebaseModule } from '../firebase/firebase.module';
-import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
-import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
+
+import { skipFirst } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseModule } from '../firebase/firebase.module';
+import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
+
 import {
   createUserMergeAddedEventHandler,
   createUserMergeUpdatedEventHandler,
 } from './user-merge.event-handlers';
-import { skipFirst } from '../common/common.utils';
+import { UserMergeResolver } from './user-merge.resolver';
+import { UserMergeService } from './user-merge.service';
 
 @Module({
-  imports: [FirebaseModule, GraphQLPubsubModule],
+  imports: [FirebaseModule, GraphQlPubsubModule],
   providers: [UserMergeResolver, UserMergeService],
 })
 export class UserMergeModule {

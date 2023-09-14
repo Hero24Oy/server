@@ -1,11 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { AddressesAnswered } from 'hero24-types';
 
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-import { MaybeType } from 'src/modules/common/common.types';
-
 import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';
+
+import { MaybeType } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @InputType()
 export class AddressesAnsweredInput {

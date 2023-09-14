@@ -1,19 +1,20 @@
 import { Module } from '@nestjs/common';
 
+import { FirebaseModule } from '../firebase/firebase.module';
+import { GraphQlContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
+import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
+
+import { UserContext } from './user.context';
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
-import { FirebaseModule } from '../firebase/firebase.module';
-import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 import { UserHubSpotModule } from './user-hub-spot/user-hub-spot.module';
-import { GraphQLContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
-import { UserContext } from './user.context';
 
 @Module({
   imports: [
     FirebaseModule,
-    GraphQLPubsubModule,
+    GraphQlPubsubModule,
     UserHubSpotModule,
-    GraphQLContextManagerModule.forFeature({
+    GraphQlContextManagerModule.forFeature({
       contexts: [UserContext],
       imports: [UserModule],
     }),

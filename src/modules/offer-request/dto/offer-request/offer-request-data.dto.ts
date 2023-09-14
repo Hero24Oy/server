@@ -1,13 +1,13 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { OfferRequestDB, OFFER_REQUEST_STATUS } from 'hero24-types';
-
-import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { OFFER_REQUEST_STATUS, OfferRequestDB } from 'hero24-types';
 
 import { OfferRequestDataChangesAcceptedDto } from './offer-request-data-changes-accepted.dto';
 import { OfferRequestDataInitialDto } from './offer-request-data-initial.dto';
 import { OfferRequestDataPickServiceProviderDto } from './offer-request-data-pick-service-provider.dto';
 import { OfferRequestDataRequestedChangesDto } from './offer-request-data-requested-changes.dto';
+
+import { MaybeType } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type OfferRequestDataDB = OfferRequestDB['data'];
 

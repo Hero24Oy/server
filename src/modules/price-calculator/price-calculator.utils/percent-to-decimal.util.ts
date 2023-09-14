@@ -1,1 +1,3 @@
-export const percentToDecimal = (percent: number): number => percent / 100;
+const HUNDRED = 100;
+
+export const percentToDecimal = (percent: number): number => percent / HUNDRED;

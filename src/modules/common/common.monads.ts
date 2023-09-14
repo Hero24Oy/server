@@ -22,6 +22,7 @@ export class Maybe<T> {
   }
 
   public async vow(): Promise<Maybe<Awaited<T>>> {
+    // eslint-disable-next-line @typescript-eslint/await-thenable -- we need await here if value is promise
     return new Maybe(await this.value);
   }
 

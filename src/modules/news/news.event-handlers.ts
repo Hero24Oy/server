@@ -1,10 +1,11 @@
-import { createSubscriptionEventEmitter } from 'src/modules/graphql-pubsub/graphql-pubsub.utils';
 import {
   NEWS_ADDED_SUBSCRIPTION,
-  NEWS_UPDATED_SUBSCRIPTION,
   NEWS_REMOVED_SUBSCRIPTION,
+  NEWS_UPDATED_SUBSCRIPTION,
 } from './news.constants';
 import { createNewsEventHandler } from './news.utils/create-news-event-handler.util';
+
+import { createSubscriptionEventEmitter } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 
 export const createNewsUpdatedEventHandler = createNewsEventHandler(
   createSubscriptionEventEmitter(NEWS_UPDATED_SUBSCRIPTION),
