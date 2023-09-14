@@ -9,7 +9,6 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataInput } from './dto/creation/user-data.input';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserAdminStatusEditingArgs } from './dto/editAdminStatus/user-admin-status-editing.args';
 import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
@@ -165,20 +164,28 @@ export class UserService {
 
   async editUserAdminStatus(
     args: UserAdminStatusEditingArgs,
-    app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    console.log({ args });
     const { userId, isAdmin } = args;
-    const database = getDatabase(app);
+
+    const database = this.firebaseService.getDefaultApp().database();
 
     const updatedUserData: Pick<UserDB, 'isAdmin'> = {
       ...UserAdminStatusEditInput.adapter.toInternal({ isAdmin }),
     };
 
-    await update(
-      ref(database, `${FirebaseDatabasePath.USERS}/${userId}`),
-      updatedUserData,
+    await database
+      .ref(`${FirebaseDatabasePath.USERS}/${userId}`)
+      .update(updatedUserData);
+
+    const adminUsersRef = database.ref(
+      `${FirebaseDatabasePath.ADMIN_USERS}/${userId}`,
     );
+
+    if (isAdmin) {
+      await adminUsersRef.set(true);
+    } else {
+      await adminUsersRef.remove();
+    }
 
     return this.getUserById(userId) as Promise<UserDto>;
   }

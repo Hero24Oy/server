@@ -102,7 +102,6 @@ export class UserResolver {
   @UseGuards(AuthGuard)
   async editUserAdminStatus(
     @Args() args: UserAdminStatusEditingArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
     const emitUserUpdated = createSubscriptionEventEmitter(
       USER_UPDATED_SUBSCRIPTION,
@@ -113,9 +112,9 @@ export class UserResolver {
       throw new Error(`User not found`);
     }
 
-    const user = await this.userService.editUserAdminStatus(args, app);
+    const user = await this.userService.editUserAdminStatus(args);
     emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
-    console.log({ user });
+
     return user;
   }
 
