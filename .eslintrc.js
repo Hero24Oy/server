@@ -64,7 +64,7 @@ const tsRules = {
     { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
   ], // Ignore variables with "_" prefix
   '@typescript-eslint/no-unused-expressions': ['error'],
-  '@typescript-eslint/explicit-function-return-type': 'off', // a lot of changes if you turn on
+  '@typescript-eslint/explicit-function-return-type': 'warn',
   '@typescript-eslint/no-floating-promises': 'error',
   '@typescript-eslint/no-use-before-define': [
     'error',
