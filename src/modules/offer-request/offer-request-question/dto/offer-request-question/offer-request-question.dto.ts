@@ -1,6 +1,5 @@
 import { createUnionType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
 
@@ -13,6 +12,8 @@ import { OfferRequestNumberQuestionDto } from './offer-request-number-question.d
 import { OfferRequestQuestionType } from './offer-request-question-type.enum';
 import { OfferRequestRadioQuestionDto } from './offer-request-radio-question.dto';
 import { OfferRequestTextAreaQuestionDto } from './offer-request-text-area-question.dto';
+
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 export const OfferRequestQuestionDto = createUnionType({
   name: 'OfferRequestQuestionDto',

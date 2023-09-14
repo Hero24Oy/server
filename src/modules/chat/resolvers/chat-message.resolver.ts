@@ -2,12 +2,6 @@ import { Inject, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import map from 'lodash/map';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
-import { Identity } from 'src/modules/auth/auth.types';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { FirebaseApp } from 'src/modules/firebase/firebase.decorator';
-import { FirebaseAppInstance } from 'src/modules/firebase/firebase.types';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import { IsChatMember } from '../activators/chat-member.activator';
 import { ChatActivator } from '../chat.activator';
@@ -19,6 +13,13 @@ import { ChatMessageCreationArgs } from '../dto/creation/chat-message-creation.a
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { ChatService } from '../services/chat.service';
 import { ChatMessageService } from '../services/chat-message.service';
+
+import { AuthIdentity } from '$modules/auth/auth.decorator';
+import { Identity } from '$modules/auth/auth.types';
+import { AuthGuard } from '$modules/auth/guards/auth.guard';
+import { FirebaseApp } from '$modules/firebase/firebase.decorator';
+import { FirebaseAppInstance } from '$modules/firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 
 @Resolver()
 export class ChatMessageResolver {

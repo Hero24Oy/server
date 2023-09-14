@@ -1,10 +1,11 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { SellerProfileDataDto } from './seller-profile-data';
+
+import { MaybeType } from '$modules/common/common.types';
+import { convertListToFirebaseMap } from '$modules/common/common.utils';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class SellerProfileDto {

@@ -1,11 +1,12 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { FeeDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { FeeCategory } from './fee-category.enum';
 import { FeeDataDto } from './fee-data.dto';
 import { FeeStatus } from './fee-status.enum';
+
+import { MaybeType } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class FeeDto {

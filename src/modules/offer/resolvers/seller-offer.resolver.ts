@@ -1,9 +1,6 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import { OfferInput } from '../dto/creation/offer.input';
 import { OfferChangeInput } from '../dto/editing/offer-change.input';
@@ -15,6 +12,10 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { emitOfferCreatedEvent } from '../offer.utils/emit-offer-created-event.util';
 import { OfferService } from '../services/offer.service';
 import { SellerOfferService } from '../services/seller-offer.service';
+
+import { AuthGuard } from '$modules/auth/guards/auth.guard';
+import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.filter';
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)

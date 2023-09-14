@@ -1,7 +1,7 @@
-import { AppGraphQlContext } from 'src/app.types';
-import { Identity } from 'src/modules/auth/auth.types';
-
 import { ChatGuardProviders } from './types';
+
+import { AppGraphQlContext } from '$/src/app.types';
+import { Identity } from '$modules/auth/auth.types';
 
 export const IsChatMember =
   <

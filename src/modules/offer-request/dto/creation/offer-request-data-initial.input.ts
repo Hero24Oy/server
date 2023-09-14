@@ -1,7 +1,6 @@
 import { Field, InputType, OmitType } from '@nestjs/graphql';
 import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
 import { map } from 'lodash';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestQuestionInput } from '../../offer-request-question/dto/offer-request-question/offer-request-question.input';
 import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
@@ -10,6 +9,8 @@ import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-
 import { AddressesAnsweredInput } from '../address-answered/addresses-answered.input';
 import { OfferRequestDataInitialDto } from '../offer-request/offer-request-data-initial.dto';
 import { PackageDto } from '../offer-request/package.dto';
+
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type OfferRequestInitialDataDB = OfferRequestDB['data']['initial'];
 

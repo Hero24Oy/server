@@ -7,9 +7,10 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable, tap } from 'rxjs';
-import { AppGraphQlContext } from 'src/app.types';
 
 import { FirebaseService } from './firebase.service';
+
+import { AppGraphQlContext } from '$/src/app.types';
 
 @Injectable()
 export class FirebaseInterceptor implements NestInterceptor {

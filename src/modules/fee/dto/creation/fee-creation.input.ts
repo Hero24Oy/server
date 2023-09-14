@@ -1,6 +1,5 @@
 import { InputType, PickType } from '@nestjs/graphql';
 import { FeeDB } from 'hero24-types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import {
   FEE_CUSTOMER_VAT,
@@ -10,6 +9,8 @@ import { FeeDto } from '../fee/fee.dto';
 import { FeeCategory } from '../fee/fee-category.enum';
 import { FeeDataDto } from '../fee/fee-data.dto';
 import { FeeStatus } from '../fee/fee-status.enum';
+
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 const pickedFields = [
   'data',

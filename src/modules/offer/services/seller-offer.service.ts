@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
-import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
-import { FirebaseService } from 'src/modules/firebase/firebase.service';
-import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
 
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { OfferInput } from '../dto/creation/offer.input';
@@ -19,6 +16,10 @@ import { unpauseJob } from '../offer.utils/unpause-job.uitl';
 import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
 
 import { OfferService } from './offer.service';
+
+import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
+import { FirebaseService } from '$modules/firebase/firebase.service';
+import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 
 @Injectable()
 export class SellerOfferService {

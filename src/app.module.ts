@@ -3,10 +3,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 
-import { GraphQlBaseContext } from '../dist/src/app.types';
-
 import { AppResolver } from './app.resolver';
-import { GraphQlConnectionParams } from './app.types';
+import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
 import config, { configValidationSchema } from './config';
 import { AuthModule } from './modules/auth/auth.module';
 import { BuyerModule } from './modules/buyer/buyer.module';

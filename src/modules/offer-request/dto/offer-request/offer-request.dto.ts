@@ -1,16 +1,17 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import {
-  convertFirebaseMapToList,
-  convertListToFirebaseMap,
-} from 'src/modules/common/common.utils';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestChatDto } from './offer-request-chat.dto';
 import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
 import { OfferRequestSubscriptionDto } from './offer-request-subscription.dto';
+
+import { MaybeType } from '$modules/common/common.types';
+import {
+  convertFirebaseMapToList,
+  convertListToFirebaseMap,
+} from '$modules/common/common.utils';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class OfferRequestDto {
