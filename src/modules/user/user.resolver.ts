@@ -20,6 +20,7 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { UserAdminStatusEditingArgs } from './dto/editAdminStatus/user-admin-status-editing.args';
 
 @Resolver()
 export class UserResolver {
@@ -93,6 +94,28 @@ export class UserResolver {
 
     emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
 
+    return user;
+  }
+
+  @Mutation(() => UserDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async editUserAdminStatus(
+    @Args() args: UserAdminStatusEditingArgs,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<UserDto> {
+    const emitUserUpdated = createSubscriptionEventEmitter(
+      USER_UPDATED_SUBSCRIPTION,
+    );
+    const beforeUpdateUser = await this.userService.getUserById(args.userId);
+
+    if (!beforeUpdateUser) {
+      throw new Error(`User not found`);
+    }
+
+    const user = await this.userService.editUserAdminStatus(args, app);
+    emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
+    console.log({ user });
     return user;
   }
 
