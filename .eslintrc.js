@@ -80,6 +80,15 @@ const tsRules = {
   '@typescript-eslint/no-unsafe-return': 'warn',
 };
 
+const spellCheckerRule = {
+  '@cspell/spellchecker': [
+    'error',
+    {
+      checkComments: true,
+    },
+  ],
+};
+
 const importSortOrderRule = {
   'simple-import-sort/imports': [
     'error',
@@ -331,6 +340,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:eslint-comments/recommended',
     'plugin:@typescript-eslint/recommended-type-checked',
+    'plugin:@cspell/recommended',
   ],
   plugins: [
     '@typescript-eslint/eslint-plugin',
@@ -347,6 +357,7 @@ module.exports = {
   rules: {
     ...initialRules,
     ...tsRules,
+    ...spellCheckerRule,
     ...importRules,
     ...paddingsRule,
     ...namingConventionRule,
