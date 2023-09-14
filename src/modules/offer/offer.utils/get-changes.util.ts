@@ -17,8 +17,12 @@ export const getChangedQuestions = (
   requestedChanges: OfferRequestDataRequestedChangesChangedQuestionsDto,
   initialQuestions: OfferRequestQuestionDto[],
 ): ReturnType => {
-  const requestedChangesWithoutDependencyIds = omitDependencyIds(requestedChanges.after);
-  const initialQuestionsWithoutDependencyIds = omitDependencyIds(initialQuestions);
+  const requestedChangesWithoutDependencyIds = omitDependencyIds(
+    requestedChanges.after,
+  );
+
+  const initialQuestionsWithoutDependencyIds =
+    omitDependencyIds(initialQuestions);
 
   const differences = differenceWith(
     requestedChangesWithoutDependencyIds,

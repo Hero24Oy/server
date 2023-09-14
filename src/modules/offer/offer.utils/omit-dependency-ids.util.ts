@@ -1,7 +1,10 @@
-import { cloneDeep, omit } from "lodash";
-import { OfferRequestQuestionDto } from "src/modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto";
+import { cloneDeep, omit } from 'lodash';
 
-export const omitDependencyIds = (questions: OfferRequestQuestionDto[]) =>
+import { OfferRequestQuestionDto } from '$modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
+
+export const omitDependencyIds = (
+  questions: OfferRequestQuestionDto[],
+): Omit<OfferRequestQuestionDto, 'depsId'>[] =>
   questions.map((question) => {
     const questionClone = cloneDeep(question);
 
