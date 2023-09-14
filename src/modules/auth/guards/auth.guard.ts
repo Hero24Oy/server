@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 import { GuardBoolean } from '$modules/common/common.types';
 
 @Injectable()

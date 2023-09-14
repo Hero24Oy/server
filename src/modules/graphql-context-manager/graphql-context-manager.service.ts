@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { GraphQlContextProviderService } from './graphql-context-manager.interface';
 
-import { AppGraphQlContext, GraphQlBaseContext } from '$/src/app.types';
+import { AppGraphQlContext, GraphQlBaseContext } from '$/app.types';
 
 @Injectable()
 export class GraphQlContextManagerService {

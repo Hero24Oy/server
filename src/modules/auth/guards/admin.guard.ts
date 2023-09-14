@@ -3,7 +3,7 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 
 import { Scope } from '../auth.constants';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 import { GuardBoolean } from '$modules/common/common.types';
 
 @Injectable()

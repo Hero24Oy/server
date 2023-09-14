@@ -4,7 +4,7 @@ import { GraphQlContextProviderService } from '../graphql-context-manager/graphq
 
 import { AuthService } from './auth.service';
 
-import { AppGraphQlContext, GraphQlBaseContext } from '$/src/app.types';
+import { AppGraphQlContext, GraphQlBaseContext } from '$/app.types';
 
 @Injectable()
 export class AuthContext implements GraphQlContextProviderService {

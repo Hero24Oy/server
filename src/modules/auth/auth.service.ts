@@ -6,7 +6,7 @@ import { Scope, SCOPE_SPECIFIER_HEADER_NAME } from './auth.constants';
 import { Identity } from './auth.types';
 import { getScope } from './auth.utils';
 
-import { GraphQlBaseContext } from '$/src/app.types';
+import { GraphQlBaseContext } from '$/app.types';
 
 @Injectable()
 export class AuthService {

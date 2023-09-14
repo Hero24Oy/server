@@ -16,7 +16,7 @@ import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { OfferService } from '../services/offer.service';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 import { Scope } from '$modules/auth/auth.constants';
 import { AuthIdentity } from '$modules/auth/auth.decorator';
 import { Identity } from '$modules/auth/auth.types';

@@ -3,7 +3,7 @@ import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { ChatDto } from '../dto/chat/chat.dto';
 import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 import { MaybeType } from '$modules/common/common.types';
 import { isNotNull } from '$modules/common/common.utils';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';

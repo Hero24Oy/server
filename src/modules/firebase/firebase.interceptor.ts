@@ -10,7 +10,7 @@ import { Observable, tap } from 'rxjs';
 
 import { FirebaseService } from './firebase.service';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 
 @Injectable()
 export class FirebaseInterceptor implements NestInterceptor {

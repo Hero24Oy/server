@@ -5,7 +5,7 @@ import { GraphQlContextProviderService } from '../graphql-context-manager/graphq
 
 import { ChatMessageService } from './services/chat-message.service';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 
 @Injectable()
 export class ChatContext implements GraphQlContextProviderService {

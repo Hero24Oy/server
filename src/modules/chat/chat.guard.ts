@@ -7,7 +7,7 @@ import { CHAT_ACTIVATOR_METADATA_KEY } from './chat.constants';
 import { ChatService } from './services/chat.service';
 import { ChatMessageService } from './services/chat-message.service';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 import { RecordType } from '$modules/common/common.types';
 
 @Injectable()

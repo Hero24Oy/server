@@ -35,7 +35,7 @@ import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-update
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { ChatService } from '../services/chat.service';
 
-import { AppGraphQlContext } from '$/src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 import { Scope } from '$modules/auth/auth.constants';
 import { AuthIdentity } from '$modules/auth/auth.decorator';
 
