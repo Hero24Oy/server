@@ -2,12 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { UserMergeDB } from 'hero24-types';
 
+import { Identity } from '../auth/auth.types';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { UserMergeDto } from './dto/user-merge/user-merge.dto';
-import { UserMergeInput } from './dto/user-merge/user-merge.input';
 import { FirebaseService } from '../firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { Identity } from '../auth/auth.types';
+
+import { UserMergeDto } from './dto/user-merge/user-merge.dto';
+import { UserMergeInput } from './dto/user-merge/user-merge.input';
 
 @Injectable()
 export class UserMergeService {

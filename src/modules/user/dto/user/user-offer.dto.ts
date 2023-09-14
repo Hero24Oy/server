@@ -27,7 +27,6 @@ UserOfferDto.adapter = new FirebaseAdapter({
   toExternal: (internal) =>
     Object.keys(internal).map((offerId) => ({
       offerId,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       offerRequestId: internal[offerId]!.offerRequestId,
     })),
 });

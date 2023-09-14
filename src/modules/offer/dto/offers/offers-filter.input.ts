@@ -1,6 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { OFFER_STATUS } from 'hero24-types';
-
 import { MaybeType } from 'src/modules/common/common.types';
 
 import { OfferStatus } from '../offer/offer-status.enum';

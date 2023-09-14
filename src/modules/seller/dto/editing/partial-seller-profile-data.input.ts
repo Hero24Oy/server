@@ -1,6 +1,5 @@
-import { Field, InputType, Float } from '@nestjs/graphql';
+import { Field, Float, InputType } from '@nestjs/graphql';
 import { SellerProfileDB } from 'hero24-types';
-
 import { MaybeType } from 'src/modules/common/common.types';
 import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';

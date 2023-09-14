@@ -1,12 +1,12 @@
-import { Module, forwardRef } from '@nestjs/common';
-
-import { GraphQLPubsubModule } from 'src/modules/graphql-pubsub/graphql-pubsub.module';
-import { SubscriptionManagerModule } from 'src/modules/subscription-manager/subscription-manager.module';
+import { forwardRef, Module } from '@nestjs/common';
+import { GraphQlPubsubModule } from 'src/modules/graphql-pubsub/graphql-pubsub.module';
 import { HubSpotContactModule } from 'src/modules/hub-spot/hub-spot-contact/hub-spot-contact.module';
+import { SubscriptionManagerModule } from 'src/modules/subscription-manager/subscription-manager.module';
 
 import { UserModule } from '../user.module';
-import { UserHubSpotSubscription } from './user-hub-spot.subscription';
+
 import { UserHubSpotService } from './user-hub-spot.service';
+import { UserHubSpotSubscription } from './user-hub-spot.subscription';
 
 // We could add this module to the app module to avoid circular dependencies,
 // but this module is part of the user module, and we only needed to split the code on logic blocks.
@@ -15,7 +15,7 @@ import { UserHubSpotService } from './user-hub-spot.service';
     forwardRef(() => UserModule),
     HubSpotContactModule,
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQLPubsubModule, UserHubSpotModule],
+      imports: [GraphQlPubsubModule, UserHubSpotModule],
       subscriptions: [UserHubSpotSubscription],
     }),
   ],

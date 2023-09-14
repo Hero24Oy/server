@@ -1,9 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-
 import { MaybeType } from 'src/modules/common/common.types';
 
-import { ImageDataDto } from './image-data.dto';
 import { ImageCategory } from './image-category.enum';
+import { ImageDataDto } from './image-data.dto';
 
 @ObjectType()
 export class ImageDto {

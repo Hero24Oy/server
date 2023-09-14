@@ -1,21 +1,22 @@
-import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { Inject, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
-import { NewsService } from './news.service';
-import { NewsDto } from './dto/news/news.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+
 import { NewsCreationInput } from './dto/creation/news-creation-input';
 import { NewsEditingInput } from './dto/editing/news-editing.input';
+import { NewsDto } from './dto/news/news.dto';
+import { NewsListArgs } from './dto/news-list/news-list.args';
+import { NewsListDto } from './dto/news-list/news-list.dto';
 import {
   NEWS_ADDED_SUBSCRIPTION,
   NEWS_REMOVED_SUBSCRIPTION,
   NEWS_UPDATED_SUBSCRIPTION,
 } from './news.constants';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { PubSub } from 'graphql-subscriptions';
-import { NewsListDto } from './dto/news-list/news-list.dto';
-import { NewsListArgs } from './dto/news-list/news-list.args';
+import { NewsService } from './news.service';
 
 @Resolver()
 export class NewsResolver {

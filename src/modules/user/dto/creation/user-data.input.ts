@@ -1,15 +1,14 @@
 import { InputType, OmitType } from '@nestjs/graphql';
 import { Address, UserDB } from 'hero24-types';
 import { isNumber } from 'lodash';
-
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { convertListToFirebaseMap } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';
 import { UserDataDto } from '../user/user-data.dto';
+import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';
 import { UserDataAddressDto } from '../user/user-data-address.dto';
 
-const OMITTED_FIELDS = [
+const omittedFields = [
   'createdAt',
   'updatedAt',
   'deletedAt',
@@ -19,7 +18,7 @@ const OMITTED_FIELDS = [
 @InputType()
 export class UserDataInput extends OmitType(
   UserDataDto,
-  OMITTED_FIELDS,
+  omittedFields,
   InputType,
 ) {
   static adapter: FirebaseAdapter<

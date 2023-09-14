@@ -1,5 +1,4 @@
 import { Field, InputType } from '@nestjs/graphql';
-
 import { MaybeType } from 'src/modules/common/common.types';
 
 import { FeeStatus } from '../fee/fee-status.enum';

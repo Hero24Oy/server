@@ -1,4 +1,5 @@
 import { createSubscriptionEventEmitter } from 'src/modules/graphql-pubsub/graphql-pubsub.utils';
+
 import {
   USERMERGE_ADDED_SUBSCRIPTION,
   USERMERGE_UPDATED_SUBSCRIPTION,

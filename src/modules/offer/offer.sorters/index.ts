@@ -1,5 +1,6 @@
 import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
 import { OffersComparePicker } from '../offer.types';
+
 import { idComparePicker } from './id-compare-picker';
 import { startTimeComparePicker } from './start-time-compare-picker';
 import { statusComparePicker } from './status-compare-picker';

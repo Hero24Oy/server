@@ -1,5 +1,4 @@
 import { OFFER_STATUS } from 'hero24-types';
-
 import { HubSpotDealStage } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.constants/hub-spot-deal-stage.constant';
 
 export const HUB_SPOT_DEAL_STAGE_BY_OFFER_STATUS = {

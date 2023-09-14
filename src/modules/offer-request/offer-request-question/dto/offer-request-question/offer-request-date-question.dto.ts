@@ -1,12 +1,12 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-
 import { MaybeType } from 'src/modules/common/common.types';
 import { SuitableTimeDto } from 'src/modules/common/dto/suitable-time/suitable-time.dto';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
+
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
-import { OfferRequestQuestionType } from '../../offer-request-question.constants';
+import { OfferRequestQuestionType } from './offer-request-question-type.enum';
 
 type QuestionType = typeof OfferRequestQuestionType.DATE;
 

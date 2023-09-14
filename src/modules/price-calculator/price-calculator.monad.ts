@@ -17,7 +17,7 @@ export class RoundedNumber {
     return this.run((value) => value + other.val());
   }
 
-  subtract(other): RoundedNumber {
+  subtract(other: RoundedNumber): RoundedNumber {
     return this.run((value) => value - other.val());
   }
 

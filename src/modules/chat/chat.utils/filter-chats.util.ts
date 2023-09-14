@@ -1,13 +1,13 @@
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isString from 'lodash/isString';
-
-import { ChatDto } from '../dto/chat/chat.dto';
-import { ChatsFilterInput } from '../dto/chats/chats-filter.input';
-import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
-import { MaybeType } from '../../common/common.types';
-import { Identity } from '../../auth/auth.types';
 import { Scope } from 'src/modules/auth/auth.constants';
+
+import { Identity } from '../../auth/auth.types';
+import { MaybeType } from '../../common/common.types';
+import { ChatDto } from '../dto/chat/chat.dto';
+import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
+import { ChatsFilterInput } from '../dto/chats/chats-filter.input';
 
 type FilterChatsProps = {
   chats: ChatDto[];
@@ -54,6 +54,7 @@ export const filterChats = (props: FilterChatsProps) => {
 
   if (isString(orderIdSearch)) {
     const searchQuery = orderIdSearch.trim();
+
     chats = chats.filter(
       (chat) =>
         chat.offerId?.includes(searchQuery) ||

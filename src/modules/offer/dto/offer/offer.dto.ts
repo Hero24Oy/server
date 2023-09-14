@@ -1,12 +1,11 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OFFER_STATUS, OfferDB } from 'hero24-types';
-
 import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
 } from 'src/modules/common/common.utils';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferDataDto } from './offer-data.dto';
 import { OfferEarningsDto } from './offer-earnings.dto';

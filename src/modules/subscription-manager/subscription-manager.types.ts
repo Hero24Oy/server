@@ -1,7 +1,11 @@
 import { ModuleMetadata } from '@nestjs/common';
 
 import { ParentType } from '../common/common.types';
-import { SubscriptionService } from './subscription-manager.interface';
+
+export interface SubscriptionService {
+  subscribe(): Promise<Unsubscribe> | Unsubscribe;
+  disabled?: () => boolean;
+}
 
 export type SubscriptionRegistrationOptions = {
   subscriptions: ParentType<SubscriptionService>[];

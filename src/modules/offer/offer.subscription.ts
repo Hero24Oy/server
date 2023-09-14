@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reference } from 'firebase-admin/database';
-
 import { skipFirst } from 'src/modules/common/common.utils';
 
-import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
 import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
+import { SubscriptionService } from '../subscription-manager/subscription-manager.types';
+
 import { createOfferEventHandler } from './offer.utils/create-offer-event-handler.util';
 import { OfferService } from './services/offer.service';
 
@@ -51,10 +51,10 @@ export class OfferSubscription implements SubscriptionService {
   }
 
   private childChangedHandler = createOfferEventHandler((offer) => {
-    this.offerService.offerUpdated(offer);
+    void this.offerService.offerUpdated(offer);
   });
 
   private childAddedHandler = createOfferEventHandler((offer) => {
-    this.offerService.offerUpdated(offer);
+    void this.offerService.offerUpdated(offer);
   });
 }

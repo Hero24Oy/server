@@ -1,10 +1,11 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-
+import { ChatDB } from 'hero24-types';
 import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
-import { ChatMemberDB } from '../../chat.types';
 import { ChatMemberRole } from './chat-member-role.enum';
+
+export type ChatMemberDB = ChatDB['data']['members'][string];
 
 @ObjectType()
 export class ChatMemberDto {

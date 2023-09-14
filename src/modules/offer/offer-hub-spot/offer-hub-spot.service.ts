@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
+import { FeeService } from 'src/modules/fee/fee.service';
+import { FeePriceCalculatorService } from 'src/modules/fee/fee-price-calculator/fee-price-calculator.service';
+import { HubSpotDealProperty } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.constants/hub-spot-deal-property.constant';
+import { HubSpotDealType } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.constants/hub-spot-deal-type.constant';
+import { HubSpotDealService } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.service';
 import {
   HubSpotDealObject,
   HubSpotDealProperties,
 } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.types';
-import { HubSpotDealService } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.service';
+import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
+import { RoundedNumber } from 'src/modules/price-calculator/price-calculator.monad';
+import { UserDto } from 'src/modules/user/dto/user/user.dto';
 import { UserService } from 'src/modules/user/user.service';
 import { UserHubSpotService } from 'src/modules/user/user-hub-spot/user-hub-spot.service';
-import { UserDto } from 'src/modules/user/dto/user/user.dto';
-import { HubSpotDealProperty } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.constants/hub-spot-deal-property.constant';
-import { HubSpotDealType } from 'src/modules/hub-spot/hub-spot-deal/hub-spot-deal.constants/hub-spot-deal-type.constant';
-import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
-import { FeePriceCalculatorService } from 'src/modules/fee/fee-price-calculator/fee-price-calculator.service';
-import { FeeService } from 'src/modules/fee/fee.service';
-import { RoundedNumber } from 'src/modules/price-calculator/price-calculator.monad';
 
-import { OfferPriceCalculatorService } from '../offer-price-calculator/offer-price-calculator.service';
 import { OfferDto } from '../dto/offer/offer.dto';
-import { HUB_SPOT_DEAL_STAGE_BY_OFFER_STATUS } from './offer-hub-spot.constants';
+import { OfferPriceCalculatorService } from '../offer-price-calculator/offer-price-calculator.service';
 import { OfferService } from '../services/offer.service';
+
+import { HUB_SPOT_DEAL_STAGE_BY_OFFER_STATUS } from './offer-hub-spot.constants';
 
 @Injectable()
 export class OfferHubSpotService {
@@ -43,6 +43,7 @@ export class OfferHubSpotService {
     const { sellerProfileId, buyerProfileId } = offer.data.initial;
 
     const buyerUser = await this.userService.strictGetUserById(buyerProfileId);
+
     const sellerUser = await this.userService.strictGetUserById(
       sellerProfileId,
     );
@@ -79,14 +80,17 @@ export class OfferHubSpotService {
       offer.data.initial;
 
     const buyerUser = await this.userService.strictGetUserById(buyerProfileId);
+
     const sellerUser = await this.userService.strictGetUserById(
       sellerProfileId,
     );
 
     const amount = this.offerPriceCalculator.getGrossAmount(offer);
+
     const duration = this.offerPriceCalculator
       .getPurchasedDuration(offer)
       .asHours();
+
     const pricePerHour = this.offerPriceCalculator.getPricePerHour(offer);
 
     const closeDate = agreedStartTime;
@@ -145,7 +149,7 @@ export class OfferHubSpotService {
   }
 
   private async getHubSpotContactId(user: UserDto) {
-    const hubSpotContactId = user.hubSpotContactId;
+    const { hubSpotContactId } = user;
 
     if (!hubSpotContactId) {
       const contact = await this.userHubSpotService.strictUpsertContact(user);

@@ -1,14 +1,15 @@
 import { Field, InputType, OmitType } from '@nestjs/graphql';
 import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
-import { AddressesAnsweredInput } from '../address-answered/addresses-answered.input';
-import { OfferRequestQuestionInput } from '../../offer-request-question/dto/offer-request-question/offer-request-question.input';
-import { OfferRequestDataInitialDto } from '../offer-request/offer-request-data-initial.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-import { PackageDto } from '../offer-request/package.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
-import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
-import { offerRequestQuestionsToArray } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-array.util';
 import { map } from 'lodash';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+import { OfferRequestQuestionInput } from '../../offer-request-question/dto/offer-request-question/offer-request-question.input';
+import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
+import { offerRequestQuestionsToArray } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-array.util';
+import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+import { AddressesAnsweredInput } from '../address-answered/addresses-answered.input';
+import { OfferRequestDataInitialDto } from '../offer-request/offer-request-data-initial.dto';
+import { PackageDto } from '../offer-request/package.dto';
 
 type OfferRequestInitialDataDB = OfferRequestDB['data']['initial'];
 

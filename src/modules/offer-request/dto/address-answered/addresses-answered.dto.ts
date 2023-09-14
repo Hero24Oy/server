@@ -1,9 +1,8 @@
-import { AddressesAnswered } from 'hero24-types';
 import { createUnionType } from '@nestjs/graphql';
-
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-import { AddressDto } from 'src/modules/common/dto/address/address.dto';
+import { AddressesAnswered } from 'hero24-types';
 import { assertNever } from 'src/modules/common/common.utils';
+import { AddressDto } from 'src/modules/common/dto/address/address.dto';
+import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { BasicAddressesDto } from './basic-addresses.dto';
 import { DeliveryAddressesDto } from './delivery-addresses.dto';

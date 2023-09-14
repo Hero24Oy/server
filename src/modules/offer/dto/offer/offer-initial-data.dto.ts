@@ -1,6 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferDB } from 'hero24-types';
-
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PurchaseDto } from './purchase.dto';

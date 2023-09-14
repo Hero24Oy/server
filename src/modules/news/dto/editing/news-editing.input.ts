@@ -1,4 +1,5 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql';
+
 import { NewsCreationInput } from '../creation/news-creation-input';
 
 @InputType()

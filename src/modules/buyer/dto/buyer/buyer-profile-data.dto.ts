@@ -1,6 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BuyerProfileDB } from 'hero24-types';
-
 import { MaybeType } from 'src/modules/common/common.types';
 import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 

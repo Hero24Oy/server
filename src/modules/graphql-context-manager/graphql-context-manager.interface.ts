@@ -1,5 +1,5 @@
-import { AppGraphQLContext, GraphQLBaseContext } from 'src/app.types';
+import { AppGraphQlContext, GraphQlBaseContext } from 'src/app.types';
 
-export interface GraphQLContextProviderService {
-  createContext(ctx: GraphQLBaseContext): Promise<Partial<AppGraphQLContext>>;
+export interface GraphQlContextProviderService {
+  createContext(ctx: GraphQlBaseContext): Promise<Partial<AppGraphQlContext>>;
 }

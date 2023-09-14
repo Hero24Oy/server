@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-
-import { ref, getDatabase, get } from 'firebase/database';
+import { get, getDatabase, ref } from 'firebase/database';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+
 import { SettingsDto } from './dto/settings/settings.dto';
 import { Settings } from './settings.types';
 

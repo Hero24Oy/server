@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSnapshot } from 'firebase-admin/database';
-
-import { Unsubscribe } from 'src/modules/subscription-manager/subscription-manager.types';
-import { SubscriptionService } from 'src/modules/subscription-manager/subscription-manager.interface';
+import { skipFirst } from 'src/modules/common/common.utils';
 import { subscribeOnFirebaseEvent } from 'src/modules/firebase/firebase.utils';
+import {
+  SubscriptionService,
+  Unsubscribe,
+} from 'src/modules/subscription-manager/subscription-manager.types';
 
 import { OpenOfferRequestService } from './open-offer-request.service';
-import { skipFirst } from 'src/modules/common/common.utils';
 
 @Injectable()
 export class OpenOfferRequestSubscription implements SubscriptionService {
@@ -65,7 +66,7 @@ export class OpenOfferRequestSubscription implements SubscriptionService {
         return;
       }
 
-      this.openOfferRequestService.emitOpenOfferRequestListItemAdded(
+      void this.openOfferRequestService.emitOpenOfferRequestListItemAdded(
         snapshot.key,
       );
     } catch (error) {
