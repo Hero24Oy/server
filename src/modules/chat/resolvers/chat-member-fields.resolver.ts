@@ -2,14 +2,15 @@ import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
 import { ChatMemberDto } from '../dto/chat/chat-member.dto';
 import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
-import { AppGraphQLContext } from 'src/app.types';
+
+import { AppGraphQlContext } from '$/app.types';
 
 @Resolver(() => ChatMemberDto)
 export class ChatMemberFieldsResolver {
   @ResolveField(() => String, { nullable: true })
   async userName(
     @Parent() parent: ChatMemberDto,
-    @Context() { userLoader }: AppGraphQLContext,
+    @Context() { userLoader }: AppGraphQlContext,
   ) {
     const user = await userLoader.load(parent.id);
 
@@ -19,7 +20,7 @@ export class ChatMemberFieldsResolver {
   @ResolveField(() => String, { nullable: true })
   async avatar(
     @Parent() parent: ChatMemberDto,
-    @Context() { userLoader }: AppGraphQLContext,
+    @Context() { userLoader }: AppGraphQlContext,
   ) {
     const user = await userLoader.load(parent.id);
 
@@ -29,7 +30,7 @@ export class ChatMemberFieldsResolver {
   @ResolveField(() => String, { nullable: true })
   async buyerName(
     @Parent() parent: ChatMemberDto,
-    @Context() { buyerLoader }: AppGraphQLContext,
+    @Context() { buyerLoader }: AppGraphQlContext,
   ) {
     if (parent.role === ChatMemberRole.ADMIN) {
       return null;
@@ -43,7 +44,7 @@ export class ChatMemberFieldsResolver {
   @ResolveField(() => String, { nullable: true })
   async sellerName(
     @Parent() parent: ChatMemberDto,
-    @Context() { sellerLoader }: AppGraphQLContext,
+    @Context() { sellerLoader }: AppGraphQlContext,
   ) {
     if (parent.role !== ChatMemberRole.SELLER) {
       return null;

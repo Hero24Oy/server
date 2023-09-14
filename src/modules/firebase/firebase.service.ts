@@ -1,24 +1,27 @@
-import * as admin from 'firebase-admin';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { deleteApp, initializeApp, getApps } from 'firebase/app';
+import { deleteApp, getApps, initializeApp } from 'firebase/app';
 import { AuthError, getAuth, signInWithCustomToken } from 'firebase/auth';
+import * as admin from 'firebase-admin';
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 import { v4 as uuidv4 } from 'uuid';
 
+import { callRepeatedlyAsync } from '../common/common.utils';
+
+import { FirebaseAppService } from './firebase.app.service';
+import { FirebaseDatabasePath, MAX_TRYING_COUNT } from './firebase.constants';
 import {
   FirebaseAdminAppInstance,
   FirebaseAdminStorage,
   FirebaseAppInstance,
 } from './firebase.types';
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
-import { FirebaseAppService } from './firebase.app.service';
-import { callRepeatedlyAsync } from '../common/common.utils';
-import { FirebaseDatabasePath, MAX_TRYING_COUNT } from './firebase.constants';
 
 @Injectable()
 export class FirebaseService {
   private app: FirebaseAdminAppInstance;
+
   private storage: FirebaseAdminStorage;
+
   private logger = new Logger(FirebaseService.name);
 
   constructor(
@@ -141,7 +144,8 @@ export class FirebaseService {
     }
 
     if (!userId) {
-      this.logger.debug(`UserId isn't provided`);
+      this.logger.debug("UserId isn't provided");
+
       return app;
     }
 
@@ -155,6 +159,7 @@ export class FirebaseService {
           );
         } catch (err) {
           const error = err as Error;
+
           this.logger.debug(
             `Authorization is failed, userId is "${userId}" with message ${error.message}`,
           );

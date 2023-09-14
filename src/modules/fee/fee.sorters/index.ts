@@ -1,5 +1,6 @@
 import { FeeListOrderColumn } from '../dto/fee-list/fee-list-order-column.enum';
 import { FeeListComparePicker } from '../fee.types';
+
 import { amountPaidComparePicker } from './amount-paid.compare-picker';
 import { createdAtComparePicker } from './created-at.compare-picker';
 import { customerVATComparePicker } from './customer-vat.compare-picker';

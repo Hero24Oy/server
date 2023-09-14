@@ -1,7 +1,9 @@
 import { ResolveField, Resolver, Root } from '@nestjs/graphql';
-import { MaybeType } from 'src/modules/common/common.types';
-import { OfferRequestService } from 'src/modules/offer-request/offer-request.service';
+
 import { OfferInitialDataDto } from '../dto/offer/offer-initial-data.dto';
+
+import { MaybeType } from '$modules/common/common.types';
+import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 
 @Resolver(() => OfferInitialDataDto)
 export class OfferInitialDataFieldResolver {

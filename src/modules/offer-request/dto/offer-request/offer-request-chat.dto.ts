@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestChat } from 'hero24-types';
 
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class OfferRequestChatDto {

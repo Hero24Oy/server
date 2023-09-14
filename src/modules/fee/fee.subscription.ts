@@ -3,15 +3,16 @@ import { Reference } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 
 import { skipFirst } from '../common/common.utils';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { SubscriptionService } from '../subscription-manager/subscription-manager.types';
+
 import {
   createFeeCreatedEventHandler,
   createFeeUpdatedEventHandler,
 } from './fee.event-handler';
-import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
 
 @Injectable()
 export class FeeSubscription implements SubscriptionService {

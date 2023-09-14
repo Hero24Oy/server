@@ -7,6 +7,7 @@ import {
 } from '@nestjs/graphql';
 
 import { OfferDto } from '../offer/offer.dto';
+
 import { OfferIdInput } from './offer-id.input';
 
 @InputType()

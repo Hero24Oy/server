@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { DateScalar } from './common.scalar';
-import { GraphQLContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
+
+import { GraphQlContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
+
 import { CommonContext } from './common.context';
+import { DateScalar } from './common.scalar';
 
 @Module({
   imports: [
-    GraphQLContextManagerModule.forFeature({
+    GraphQlContextManagerModule.forFeature({
       contexts: [CommonContext],
     }),
   ],

@@ -1,9 +1,10 @@
 import { ModuleMetadata } from '@nestjs/common';
 
 import { ParentType } from '../common/common.types';
-import { GraphQLContextProviderService } from './graphql-context-manager.interface';
+
+import { GraphQlContextProviderService } from './graphql-context-manager.interface';
 
 export type ContextRegistrationOptions = {
-  contexts: ParentType<GraphQLContextProviderService>[];
+  contexts: ParentType<GraphQlContextProviderService>[];
   imports?: ModuleMetadata['imports'];
 };

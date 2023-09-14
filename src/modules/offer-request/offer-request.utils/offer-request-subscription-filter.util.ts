@@ -1,12 +1,12 @@
 import { includes, isEmpty } from 'lodash';
 
-import { AppGraphQLContext } from 'src/app.types';
-import { Scope } from 'src/modules/auth/auth.constants';
-import { OfferRole } from 'src/modules/offer/dto/offer/offer-role.enum';
-
 import { OfferRequestDto } from '../dto/offer-request/offer-request.dto';
-import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from '../offer-request.constants';
 import { OfferRequestUpdatedSubscriptionArgs } from '../dto/subscriptions/offer-request-updated-subscription.args';
+import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from '../offer-request.constants';
+
+import { AppGraphQlContext } from '$/app.types';
+import { Scope } from '$modules/auth/auth.constants';
+import { OfferRole } from '$modules/offer/dto/offer/offer-role.enum';
 
 type OfferRequestSubscriptionType = typeof OFFER_REQUEST_UPDATED_SUBSCRIPTION;
 
@@ -17,10 +17,11 @@ export const getOfferRequestSubscriptionFilter =
   (
     payload: Payload,
     variables: OfferRequestUpdatedSubscriptionArgs,
-    context: AppGraphQLContext,
+    context: AppGraphQlContext,
   ) => {
     const offerRequest = payload[type];
     const { identity } = context;
+
     const {
       input: { role, statuses, ids },
     } = variables;

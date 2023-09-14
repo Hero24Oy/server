@@ -2,17 +2,17 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as bodyParser from 'body-parser';
 
+import { MAXIMUM_UPLOAD_SIZE } from './app.constants';
 import { AppModule } from './app.module';
 import { FirebaseInterceptor } from './modules/firebase/firebase.interceptor';
-import { MAXIMUM_UPLOAD_SIZE } from './app.constants';
 
-async function bootstrap() {
+const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
   const firebaseInterceptor = app.get(FirebaseInterceptor);
 
-  const PORT = configService.getOrThrow('app.port');
+  const port: string = configService.getOrThrow('app.port');
 
   app.useGlobalInterceptors(firebaseInterceptor);
 
@@ -21,7 +21,7 @@ async function bootstrap() {
     bodyParser.urlencoded({ limit: MAXIMUM_UPLOAD_SIZE, extended: true }),
   );
 
-  await app.listen(PORT);
-}
+  await app.listen(port);
+};
 
-bootstrap();
+void bootstrap();

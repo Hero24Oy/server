@@ -1,37 +1,38 @@
 import { Inject, Module } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
-import { ChatFieldsResolver } from './resolvers/chat-fields.resolver';
-import { ChatResolver } from './resolvers/chat.resolver';
-import { ChatService } from './services/chat.service';
+import { skipFirst } from '../common/common.utils';
+import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseModule } from '../firebase/firebase.module';
-import { GraphQLPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
-import { ChatMessageService } from './services/chat-message.service';
-import { ChatMessageResolver } from './resolvers/chat-message.resolver';
-import { ChatMemberFieldsResolver } from './resolvers/chat-member-fields.resolver';
+import { GraphQlContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
+import { OfferRequestModule } from '../offer-request/offer-request.module';
 import { SorterModule } from '../sorter/sorter.module';
-import { CHAT_SORTERS } from './chat.sorters';
+
+import { ChatContext } from './chat.context';
 import {
   createChatAddedEventHandler,
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
-import { skipFirst } from '../common/common.utils';
-import { GraphQLContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
-import { ChatContext } from './chat.context';
-import { OfferRequestModule } from '../offer-request/offer-request.module';
+import { CHAT_SORTERS } from './chat.sorters';
+import { ChatResolver } from './resolvers/chat.resolver';
+import { ChatFieldsResolver } from './resolvers/chat-fields.resolver';
+import { ChatMemberFieldsResolver } from './resolvers/chat-member-fields.resolver';
+import { ChatMessageResolver } from './resolvers/chat-message.resolver';
+import { ChatService } from './services/chat.service';
+import { ChatMessageService } from './services/chat-message.service';
 
 @Module({
   imports: [
     FirebaseModule,
-    GraphQLPubsubModule,
+    GraphQlPubsubModule,
     OfferRequestModule,
     SorterModule.create(CHAT_SORTERS),
-    GraphQLContextManagerModule.forFeature({
+    GraphQlContextManagerModule.forFeature({
       imports: [ChatModule],
       contexts: [ChatContext],
     }),

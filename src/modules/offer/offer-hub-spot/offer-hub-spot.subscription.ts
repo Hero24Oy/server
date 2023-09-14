@@ -2,16 +2,17 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PubSub } from 'graphql-subscriptions';
 
-import { HubSpotSubscription } from 'src/modules/hub-spot/hub-spot-subscription.interface';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
-
+import { OfferDto } from '../dto/offer/offer.dto';
 import {
   OFFER_CREATED_SUBSCRIPTION,
   OFFER_UPDATED_SUBSCRIPTION,
 } from '../offer.constants';
-import { OfferDto } from '../dto/offer/offer.dto';
+
 import { OfferHubSpotService } from './offer-hub-spot.service';
-import { subscribeToEvent } from 'src/modules/graphql-pubsub/graphql-pubsub.utils';
+
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
+import { subscribeToEvent } from '$modules/graphql-pubsub/graphql-pubsub.utils';
+import { HubSpotSubscription } from '$modules/hub-spot/hub-spot-subscription.interface';
 
 @Injectable()
 export class OfferHubSpotSubscription extends HubSpotSubscription {
