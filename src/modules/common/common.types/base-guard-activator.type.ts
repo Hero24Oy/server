@@ -1,4 +1,4 @@
-import { AppGraphQlContext } from 'src/app.types';
+import { AppGraphQlContext } from '$/app.types';
 
 export type BaseGuardActivator<
   Args extends object,

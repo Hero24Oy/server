@@ -1,8 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserMergeDB } from 'hero24-types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { MergeStatus } from './merge-status.dto';
+
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class UserMergeDto {

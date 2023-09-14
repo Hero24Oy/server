@@ -1,7 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { SortOrder } from 'src/modules/common/sort-order/sort-order.enum';
 
 import { FeeListOrderColumn } from './fee-list-order-column.enum';
+
+import { SortOrder } from '$modules/common/sort-order/sort-order.enum';
 
 @InputType()
 export class FeeListOrderInput {

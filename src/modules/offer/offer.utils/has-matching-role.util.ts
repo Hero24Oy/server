@@ -1,8 +1,8 @@
-import { Scope } from 'src/modules/auth/auth.constants';
-import { Identity } from 'src/modules/auth/auth.types';
-
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferRole } from '../dto/offer/offer-role.enum';
+
+import { Scope } from '$modules/auth/auth.constants';
+import { Identity } from '$modules/auth/auth.types';
 
 export const hasMatchingRole = (
   offer: OfferDto,

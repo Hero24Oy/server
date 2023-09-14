@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { NewsDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
+
+import { MaybeType } from '$modules/common/common.types';
 
 @ObjectType()
 export class NewsDto {

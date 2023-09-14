@@ -1,6 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import {
   OfferRequestQuestionAdapter,
@@ -9,6 +8,8 @@ import {
 import { PlainOfferRequestQuestion } from '../../offer-request-question/offer-request-question.types';
 import { offerRequestQuestionsToArray } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-array.util';
 import { offerRequestQuestionsToTree } from '../../offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type ChangedQuestionsDB = Required<
   OfferRequestDB['data']

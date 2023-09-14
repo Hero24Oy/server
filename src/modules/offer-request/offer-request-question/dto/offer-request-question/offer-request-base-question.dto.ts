@@ -1,12 +1,13 @@
 import { Field, InputType, Int, InterfaceType } from '@nestjs/graphql';
 import { OfferRequestQuestion } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { QUESTION_FLAT_ID_NAME } from '../../offer-request-question.constants';
 
 import { OfferRequestQuestionType } from './offer-request-question-type.enum';
+
+import { MaybeType } from '$modules/common/common.types';
+import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type BaseOfferRequestQuestionDB<
   Type extends OfferRequestQuestionType = OfferRequestQuestionType,

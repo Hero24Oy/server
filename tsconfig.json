@@ -7,10 +7,10 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
+      "$/*": ["src/*"],
       "$modules/*": ["src/modules/*"],
       "$configs/*": ["src/config/*"],
-      "$config": ["src/config/index.ts"],
-      "$/*": ["*"]
+      "$config": ["src/config/index.ts"]
     },
     "module": "commonjs",
     "declaration": true,

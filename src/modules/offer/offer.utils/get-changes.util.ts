@@ -1,10 +1,11 @@
 import { DateQuestionDB, OfferRequestQuestion, QuestionDB } from 'hero24-types';
 import differenceWith from 'lodash/differenceWith';
 import isEqual from 'lodash/isEqual';
-import { OfferRequestDataRequestedChangesChangedQuestionsDto } from 'src/modules/offer-request/dto/offer-request/offer-request-data-requested-changes-changed-questions.dto';
-import { OfferRequestQuestionDto } from 'src/modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
 
 import { isDateQuestion } from './is-date-quesiton.util';
+
+import { OfferRequestDataRequestedChangesChangedQuestionsDto } from '$modules/offer-request/dto/offer-request/offer-request-data-requested-changes-changed-questions.dto';
+import { OfferRequestQuestionDto } from '$modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
 
 type ReturnType = {
   dateQuestion: DateQuestionDB | undefined;
