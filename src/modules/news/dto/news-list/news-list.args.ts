@@ -1,8 +1,9 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { MaybeType } from 'src/modules/common/common.types';
-import { PaginationArgs } from 'src/modules/common/dto/pagination.args';
 
 import { NewsListFilterInput } from './news-list-filter.input';
+
+import { MaybeType } from '$modules/common/common.types';
+import { PaginationArgs } from '$modules/common/dto/pagination.args';
 
 @ArgsType()
 export class NewsListArgs extends PaginationArgs {

@@ -1,12 +1,6 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
-import { Identity } from 'src/modules/auth/auth.types';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
-import { OfferRole } from 'src/modules/offer/dto/offer/offer-role.enum';
 
 import { OfferRequestDto } from '../dto/offer-request/offer-request.dto';
 import { OfferRequestListDto } from '../dto/offer-request-list/offer-request-list.dto';
@@ -18,6 +12,13 @@ import {
   OPEN_OFFER_REQUEST_LIST_ITEM_ADDED,
   OPEN_OFFER_REQUEST_LIST_ITEM_REMOVED,
 } from './open-offer-request.constants';
+
+import { AuthIdentity } from '$modules/auth/auth.decorator';
+import { Identity } from '$modules/auth/auth.types';
+import { AuthGuard } from '$modules/auth/guards/auth.guard';
+import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.filter';
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
+import { OfferRole } from '$modules/offer/dto/offer/offer-role.enum';
 
 @Resolver()
 @UseGuards(AuthGuard)

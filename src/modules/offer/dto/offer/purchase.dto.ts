@@ -1,7 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { Purchase } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+import { MaybeType } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class PurchaseDto {

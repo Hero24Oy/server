@@ -1,9 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from './offer-request-data-requested-changes-changed-questions.dto';
+
+import { MaybeType } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type RequestedChangesDB = Exclude<
   OfferRequestDB['data']['requestedChanges'],

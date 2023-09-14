@@ -8,9 +8,6 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { AppGraphQlContext } from 'src/app.types';
-import { Scope } from 'src/modules/auth/auth.constants';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
 
 import { Identity } from '../../auth/auth.types';
 import { AdminGuard } from '../../auth/guards/admin.guard';
@@ -37,6 +34,10 @@ import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { ChatService } from '../services/chat.service';
+
+import { AppGraphQlContext } from '$/app.types';
+import { Scope } from '$modules/auth/auth.constants';
+import { AuthIdentity } from '$modules/auth/auth.decorator';
 
 @Resolver()
 export class ChatResolver {

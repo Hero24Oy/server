@@ -3,11 +3,6 @@ import { get, getDatabase, ref, set } from 'firebase/database';
 import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 import { ChatDB } from 'hero24-types';
-import {
-  paginate,
-  preparePaginatedResult,
-} from 'src/modules/common/common.utils';
-import { SorterService } from 'src/modules/sorter/sorter.service';
 
 import { Identity } from '../../auth/auth.types';
 import { MaybeType } from '../../common/common.types';
@@ -28,6 +23,9 @@ import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
+
+import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
+import { SorterService } from '$modules/sorter/sorter.service';
 
 @Injectable()
 export class ChatService {

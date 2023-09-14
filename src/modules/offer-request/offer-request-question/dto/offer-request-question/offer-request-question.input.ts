@@ -1,6 +1,4 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { TypeSafeRequired } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 
 import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
 
@@ -13,6 +11,9 @@ import { OfferRequestNumberQuestionDto } from './offer-request-number-question.d
 import { OfferRequestQuestionAdapter } from './offer-request-question.dto';
 import { OfferRequestRadioQuestionDto } from './offer-request-radio-question.dto';
 import { OfferRequestTextAreaQuestionDto } from './offer-request-text-area-question.dto';
+
+import { TypeSafeRequired } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @InputType()
 export class OfferRequestQuestionInput {
