@@ -32,7 +32,7 @@ const initialRules = {
       allow: ['constructors'],
     },
   ],
-  'no-param-reassign': 'off', // we need allow parameter reassign
+  'no-param-reassign': 'error',
   'no-dupe-keys': 'error',
   'no-console': ['error', { allow: ['warn', 'error', 'debug'] }],
   'no-underscore-dangle': ['off'], // we regulate an use of an underscore by other rules
