@@ -359,9 +359,12 @@ export class OfferRequestService {
 
     const questions = map(initialQuestions, (question) => {
       if (question.type === OfferRequestQuestionType.DATE) {
-        question.preferredTime = agreedStartTime.getTime();
-        question.suitableTimes = null;
-        question.suitableTimesCount = null;
+        return {
+          ...question,
+          preferredTime: agreedStartTime.getTime(),
+          suitableTimes: agreedStartTime.getTime(),
+          suitableTimesCount: null,
+        };
       }
 
       return question;
