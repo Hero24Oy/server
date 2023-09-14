@@ -6,6 +6,7 @@ import { OfferRequestDataRequestedChangesChangedQuestionsDto } from 'src/modules
 import { OfferRequestQuestionDto } from 'src/modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
 
 import { isDateQuestion } from './is-date-quesiton.util';
+import { omitDependencyIds } from './omit-dependency-ids.util';
 
 type ReturnType = {
   dateQuestion: DateQuestionDB | undefined;
@@ -16,9 +17,12 @@ export const getChangedQuestions = (
   requestedChanges: OfferRequestDataRequestedChangesChangedQuestionsDto,
   initialQuestions: OfferRequestQuestionDto[],
 ): ReturnType => {
+  const requestedChangesWithoutDependencyIds = omitDependencyIds(requestedChanges.after);
+  const initialQuestionsWithoutDependencyIds = omitDependencyIds(initialQuestions);
+
   const differences = differenceWith(
-    requestedChanges.after,
-    initialQuestions,
+    requestedChangesWithoutDependencyIds,
+    initialQuestionsWithoutDependencyIds,
     isEqual,
   );
 
