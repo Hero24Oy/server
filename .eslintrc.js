@@ -12,6 +12,7 @@ const EXCLUDE_NAMES_NAMING_CONVENTION = [
 ];
 const excludeNamesNamingConventionRegex =
   EXCLUDE_NAMES_NAMING_CONVENTION.join('|');
+const underscoreAndExcludeNamingConventionRegex = `^(_|${excludeNamesNamingConventionRegex})`;
 
 const initialRules = {
   'eslint-comments/require-description': [
@@ -98,6 +99,12 @@ const importRules = {
   'no-duplicate-imports': 'error', // imports from the same source must be in one record
   'import/no-cycle': ['error', { maxDepth: '∞' }],
   'import/prefer-default-export': 'off', // we use only named exports in the project
+  'import/no-extraneous-dependencies': [
+    'error',
+    {
+      devDependencies: ['scripts/*.ts'],
+    },
+  ],
   ...importSortOrderRule,
 };
 
@@ -147,9 +154,7 @@ const namingConventionRule = {
       format: ['strictCamelCase'],
       filter: {
         match: false,
-        regex: `(\b${DB_REGEXP}|^(_|${EXCLUDE_NAMES_NAMING_CONVENTION.join(
-          '|',
-        )}))`,
+        regex: `(\b${DB_REGEXP}|^(_|${excludeNamesNamingConventionRegex}))`,
       },
     },
     {
@@ -159,7 +164,7 @@ const namingConventionRule = {
       format: ['UPPER_CASE'],
       filter: {
         match: false,
-        regex: `^(_|${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
@@ -168,7 +173,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: `^(_|${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
@@ -177,7 +182,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase', 'UPPER_CASE'],
       filter: {
         match: false,
-        regex: `^(_|${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
@@ -186,7 +191,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: `^(_|${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
@@ -194,7 +199,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: `^(_|${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
@@ -202,7 +207,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: `^(${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
@@ -210,7 +215,7 @@ const namingConventionRule = {
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: `^(_|${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
@@ -245,7 +250,7 @@ const namingConventionRule = {
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: `^(_|${excludeNamesNamingConventionRegex})`,
+        regex: underscoreAndExcludeNamingConventionRegex,
       },
     },
     {
