@@ -33,7 +33,7 @@ const initialRules = {
       allow: ['constructors'],
     },
   ],
-  'no-param-reassign': 'off', // we need allow parameter reassign
+  'no-param-reassign': 'error',
   'no-dupe-keys': 'error',
   'no-console': ['error', { allow: ['warn', 'error', 'debug'] }],
   'no-underscore-dangle': ['off'], // we regulate an use of an underscore by other rules
@@ -64,7 +64,7 @@ const tsRules = {
     { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
   ], // Ignore variables with "_" prefix
   '@typescript-eslint/no-unused-expressions': ['error'],
-  '@typescript-eslint/explicit-function-return-type': 'off', // a lot of changes if you turn on
+  '@typescript-eslint/explicit-function-return-type': 'warn',
   '@typescript-eslint/no-floating-promises': 'error',
   '@typescript-eslint/no-use-before-define': [
     'error',
@@ -79,6 +79,15 @@ const tsRules = {
   '@typescript-eslint/no-unsafe-assignment': 'warn',
   '@typescript-eslint/no-unsafe-member-access': 'warn',
   '@typescript-eslint/no-unsafe-return': 'warn',
+};
+
+const spellCheckerRule = {
+  '@cspell/spellchecker': [
+    'error',
+    {
+      checkComments: true,
+    },
+  ],
 };
 
 const importSortOrderRule = {
@@ -336,6 +345,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:eslint-comments/recommended',
     'plugin:@typescript-eslint/recommended-type-checked',
+    'plugin:@cspell/recommended',
   ],
   plugins: [
     '@typescript-eslint/eslint-plugin',
@@ -352,6 +362,7 @@ module.exports = {
   rules: {
     ...initialRules,
     ...tsRules,
+    ...spellCheckerRule,
     ...importRules,
     ...paddingsRule,
     ...namingConventionRule,
