@@ -1,8 +1,8 @@
 import isString from 'lodash/isString';
 
+import { MaybeType } from '../../common/common.types';
 import { FeeDto } from '../dto/fee/fee.dto';
 import { FeeListFilterInput } from '../dto/fee-list/fee-list-filter.input';
-import { MaybeType } from '../../common/common.types';
 
 type Props = {
   fees: FeeDto[];

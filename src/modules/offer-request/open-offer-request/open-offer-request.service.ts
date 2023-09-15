@@ -1,16 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
-import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
-import { FirebaseService } from 'src/modules/firebase/firebase.service';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
-import { createSubscriptionEventEmitter } from 'src/modules/graphql-pubsub/graphql-pubsub.utils';
+import { OfferRequestService } from '../offer-request.service';
 
 import {
   OPEN_OFFER_REQUEST_LIST_ITEM_ADDED,
   OPEN_OFFER_REQUEST_LIST_ITEM_REMOVED,
 } from './open-offer-request.constants';
-import { OfferRequestService } from '../offer-request.service';
+
+import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
+import { FirebaseService } from '$modules/firebase/firebase.service';
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
+import { createSubscriptionEventEmitter } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 
 @Injectable()
 export class OpenOfferRequestService {

@@ -1,7 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ColumnFilter } from './filterer.types';
+
 import { COLUMN_FILTER_PROVIDER } from './filterer.constants';
 import { FiltererService } from './filterer.service';
+import { ColumnFilter } from './filterer.types';
 
 @Module({
   providers: [FiltererService],

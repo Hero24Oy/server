@@ -1,9 +1,9 @@
 import { isNumber } from 'lodash';
 
 type HasNextPageArgs = {
+  total: number;
   limit?: number;
   offset?: number;
-  total: number;
 };
 
 export const hasNextPage = ({ limit, offset, total }: HasNextPageArgs) => {

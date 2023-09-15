@@ -1,9 +1,10 @@
 import { OfferRequestQuestion } from 'hero24-types';
+
+import { OfferRequestQuestionType } from '../dto/offer-request-question/offer-request-question-type.enum';
 import {
   DependencyId,
   OmittedDependencyIdPlainOfferRequestQuestion,
 } from '../offer-request-question.types';
-import { OfferRequestQuestionType } from '../offer-request-question.constants';
 
 export const fillQuestion = (
   question: OmittedDependencyIdPlainOfferRequestQuestion,

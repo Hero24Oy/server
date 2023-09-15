@@ -3,21 +3,21 @@ import { FeeDB } from 'hero24-types';
 
 import { Identity } from '../auth/auth.types';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
-import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
 import { OfferRequestService } from '../offer-request/offer-request.service';
 import { SorterService } from '../sorter/sorter.service';
 
 import { FeeCreationArgs } from './dto/creation/fee-creation.args';
 import { FeeCreationInput } from './dto/creation/fee-creation.input';
+import { FeeEditingArgs } from './dto/editing/fee-editing.args';
 import { FeeDto } from './dto/fee/fee.dto';
+import { FeeDataDto } from './dto/fee/fee-data.dto';
 import { FeeListArgs } from './dto/fee-list/fee-list.args';
 import { FeeListDto } from './dto/fee-list/fee-list.dto';
-import { FeeEditingArgs } from './dto/editing/fee-editing.args';
-import { FeeDataDto } from './dto/fee/fee-data.dto';
 import { FeeListOrderColumn } from './dto/fee-list/fee-list-order-column.enum';
-import { filterFees } from './fee.utils/filter-fees.util';
 import { FeeListSorterContext } from './fee.types';
+import { filterFees } from './fee.utils/filter-fees.util';
 
 @Injectable()
 export class FeeService {
@@ -80,6 +80,7 @@ export class FeeService {
     }
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, offset, limit });
 
     return preparePaginatedResult({
@@ -92,6 +93,7 @@ export class FeeService {
 
   async createFee(args: FeeCreationArgs): Promise<FeeDto> {
     const feeInput = FeeCreationInput.adapter.toInternal(args.input);
+
     const userId =
       await this.offerRequestService.strictGetBuyerIdByOfferRequestId(
         feeInput.offerRequest,

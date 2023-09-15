@@ -1,25 +1,26 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseApp } from '../firebase/firebase.decorator';
+import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
+
+import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
+import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import { UserService } from './user.service';
-import { UserCreationArgs } from './dto/creation/user-creation.args';
-import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
-import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
-import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 import {
   USER_CREATED_SUBSCRIPTION,
   USER_UPDATED_SUBSCRIPTION,
 } from './user.constants';
-import { PubSub } from 'graphql-subscriptions';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
-import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { UserService } from './user.service';
 import { UserAdminStatusEditingArgs } from './dto/editAdminStatus/user-admin-status-editing.args';
 
 @Resolver()
@@ -66,6 +67,7 @@ export class UserResolver {
     const emitUserCreated = createSubscriptionEventEmitter(
       USER_CREATED_SUBSCRIPTION,
     );
+
     const user = await this.userService.createUser(args, app);
 
     emitUserCreated<UserCreatedDto>(this.pubSub, { user });
@@ -87,7 +89,7 @@ export class UserResolver {
     const beforeUpdateUser = await this.userService.getUserById(args.userId);
 
     if (!beforeUpdateUser) {
-      throw new Error(`User not found`);
+      throw new Error('User not found');
     }
 
     const user = await this.userService.editUserData(args, app);

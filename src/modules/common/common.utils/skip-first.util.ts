@@ -1,9 +1,10 @@
 export const skipFirst = <Fn extends (...args: unknown[]) => void>(fn: Fn) => {
-  let first = true;
+  let isFirst = true;
 
   return (...args: Parameters<Fn>) => {
-    if (first) {
-      first = false;
+    if (isFirst) {
+      isFirst = false;
+
       return;
     }
 

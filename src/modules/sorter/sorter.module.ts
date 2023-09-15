@@ -1,7 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ComparePicker } from './sorter.types';
+
 import { COMPARE_PICKERS_PROVIDER } from './sorter.constants';
 import { SorterService } from './sorter.service';
+import { ComparePicker } from './sorter.types';
 
 @Module({
   providers: [SorterService],

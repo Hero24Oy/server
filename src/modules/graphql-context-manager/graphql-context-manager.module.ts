@@ -1,24 +1,27 @@
 import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
 
 import { ParentType } from '../common/common.types';
-import { GraphQLContextProviderService } from './graphql-context-manager.interface';
-import { GraphQLContextManagerService } from './graphql-context-manager.service';
+
+import { GraphQlContextProviderService } from './graphql-context-manager.interface';
+import { GraphQlContextManagerService } from './graphql-context-manager.service';
 import { ContextRegistrationOptions } from './graphql-context-manager.types';
 
 @Module({})
-export class GraphQLContextManagerModule {
+export class GraphQlContextManagerModule {
   private static imports: Required<ModuleMetadata>['imports'] = [];
-  private static contextProviderServices: ParentType<GraphQLContextProviderService>[] =
+
+  private static contextProviderServices: ParentType<GraphQlContextProviderService>[] =
     [];
 
   static forFeature(options: ContextRegistrationOptions): DynamicModule {
     const { contexts, imports = [] } = options;
-    GraphQLContextManagerModule.contextProviderServices.push(...contexts);
 
-    GraphQLContextManagerModule.imports.push(...imports);
+    GraphQlContextManagerModule.contextProviderServices.push(...contexts);
+
+    GraphQlContextManagerModule.imports.push(...imports);
 
     return {
-      module: GraphQLContextManagerModule,
+      module: GraphQlContextManagerModule,
       imports,
       providers: contexts,
       exports: contexts,
@@ -27,24 +30,24 @@ export class GraphQLContextManagerModule {
 
   static forRoot(): DynamicModule {
     return {
-      module: GraphQLContextManagerModule,
-      imports: GraphQLContextManagerModule.imports,
+      module: GraphQlContextManagerModule,
+      imports: GraphQlContextManagerModule.imports,
       providers: [
         {
-          provide: GraphQLContextManagerService,
-          inject: GraphQLContextManagerModule.contextProviderServices,
+          provide: GraphQlContextManagerService,
+          inject: GraphQlContextManagerModule.contextProviderServices,
           useFactory: (
-            ...contextProviders: GraphQLContextProviderService[]
+            ...contextProviders: GraphQlContextProviderService[]
           ) => {
-            return new GraphQLContextManagerService(...contextProviders);
+            return new GraphQlContextManagerService(...contextProviders);
           },
         },
-        ...GraphQLContextManagerModule.contextProviderServices,
+        ...GraphQlContextManagerModule.contextProviderServices,
       ],
       exports: [
         {
-          provide: GraphQLContextManagerService,
-          useExisting: GraphQLContextManagerService,
+          provide: GraphQlContextManagerService,
+          useExisting: GraphQlContextManagerService,
         },
       ],
     };

@@ -1,15 +1,16 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 
-import { MaybeType } from 'src/modules/common/common.types';
+import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
+
+import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
+import { OfferRequestQuestionType } from './offer-request-question-type.enum';
+
+import { MaybeType } from '$modules/common/common.types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
-} from 'src/modules/common/common.utils';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
-
-import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
-import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
-import { OfferRequestQuestionType } from '../../offer-request-question.constants';
+} from '$modules/common/common.utils';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type QuestionType = typeof OfferRequestQuestionType.IMAGE;
 

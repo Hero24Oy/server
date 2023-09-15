@@ -86,6 +86,7 @@ export class UserService {
     }
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, limit, offset });
 
     return preparePaginatedResult({
@@ -126,6 +127,7 @@ export class UserService {
           isCreatedFromWeb,
         },
       );
+
       updatedUserId = newUserRef.key;
     } else if (userId) {
       // user
@@ -136,7 +138,7 @@ export class UserService {
     }
 
     if (!updatedUserId) {
-      throw new Error(`The user can't be created`);
+      throw new Error("The user can't be created");
     }
 
     return this.getUserById(updatedUserId) as Promise<UserDto>;

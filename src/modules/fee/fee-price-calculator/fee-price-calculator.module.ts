@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { FeePriceCalculatorService } from './fee-price-calculator.service';
 
 @Module({

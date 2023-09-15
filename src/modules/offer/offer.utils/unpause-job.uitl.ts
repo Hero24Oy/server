@@ -1,6 +1,7 @@
 import moment from 'moment';
-import { WorkTimeDto } from '../dto/offer/work-time.dto';
+
 import { OfferDto } from '../dto/offer/offer.dto';
+import { WorkTimeDto } from '../dto/offer/work-time.dto';
 
 type ReturnType = {
   pauseDurationMS: number;

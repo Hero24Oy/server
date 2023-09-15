@@ -2,25 +2,22 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { OfferDB } from 'hero24-types';
 
-import { Identity } from 'src/modules/auth/auth.types';
-import {
-  paginate,
-  preparePaginatedResult,
-} from 'src/modules/common/common.utils';
-import { FirebaseDatabasePath } from 'src/modules/firebase/firebase.constants';
-import { FirebaseService } from 'src/modules/firebase/firebase.service';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
-import { SorterService } from 'src/modules/sorter/sorter.service';
-
 import { OfferStatusInput } from '../dto/editing/offer-status.input';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
-import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
 import { OfferArgs } from '../dto/offers/offers.args';
+import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
 import { emitOfferUpdatedEvent } from '../offer.utils/emit-offer-updated-event.util';
 import { filterOffers } from '../offer.utils/filter-offers.util';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
-import { Scope } from 'src/modules/auth/auth.constants';
+
+import { Scope } from '$modules/auth/auth.constants';
+import { Identity } from '$modules/auth/auth.types';
+import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
+import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
+import { FirebaseService } from '$modules/firebase/firebase.service';
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
+import { SorterService } from '$modules/sorter/sorter.service';
 
 @Injectable()
 export class OfferService {
@@ -76,6 +73,7 @@ export class OfferService {
     const database = this.firebaseService.getDefaultApp().database();
 
     const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+
     await offerRef.child('status').set(status);
 
     return true;
@@ -111,17 +109,18 @@ export class OfferService {
 
         if (filter?.ids?.includes(snapshot.key)) {
           nodes.push(offerConverted);
+
           return;
         }
 
         if (shouldFetchAllOffers) {
           nodes.push(offerConverted);
+
           return;
         }
 
         if (hasMatchingRole(offerConverted, identity, role)) {
           nodes.push(offerConverted);
-          return;
         }
       } catch (error) {
         this.logger.error(`Error while converting offer ${snapshot.key}`);

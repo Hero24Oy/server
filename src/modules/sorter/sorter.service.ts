@@ -1,9 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SortOrder } from '../common/sort-order/sort-order.enum';
-import { OrderInstruction, SortablePrimitives } from './sorter.types';
+
 import { COMPARE_PICKERS_PROVIDER } from './sorter.constants';
-import { ComparePicker } from './sorter.types';
+import {
+  ComparePicker,
+  OrderInstruction,
+  SortablePrimitives,
+} from './sorter.types';
 import { isLess } from './sorter.utils';
 
 @Injectable()

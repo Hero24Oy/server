@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 
-import { HubSpotDealService } from './hub-spot-deal.service';
 import { HubSpotClientModule } from '../hub-spot-client/hub-spot-client.module';
+
+import { HubSpotDealService } from './hub-spot-deal.service';
 
 @Module({
   imports: [HubSpotClientModule],

@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 
-import { GraphQLBaseContext, AppGraphQLContext } from 'src/app.types';
+import { GraphQlContextProviderService } from '../graphql-context-manager/graphql-context-manager.interface';
 
-import { GraphQLContextProviderService } from '../graphql-context-manager/graphql-context-manager.interface';
 import { AuthService } from './auth.service';
 
+import { AppGraphQlContext, GraphQlBaseContext } from '$/app.types';
+
 @Injectable()
-export class AuthContext implements GraphQLContextProviderService {
+export class AuthContext implements GraphQlContextProviderService {
   constructor(private authService: AuthService) {}
 
   async createContext(
-    ctx: GraphQLBaseContext,
-  ): Promise<Partial<AppGraphQLContext>> {
+    ctx: GraphQlBaseContext,
+  ): Promise<Partial<AppGraphQlContext>> {
     const identity = await this.authService.authorizeUser(ctx);
 
     return { identity };

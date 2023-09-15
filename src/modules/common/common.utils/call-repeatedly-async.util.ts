@@ -6,7 +6,7 @@ export const callRepeatedlyAsync = async (
   try {
     return await handler();
   } catch (error) {
-    if (condition(error) && step > 1) {
+    if (condition(error as Error) && step > 1) {
       return callRepeatedlyAsync(handler, condition, step - 1);
     }
 
