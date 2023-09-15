@@ -8,8 +8,8 @@ export const omitDependencyIds = (
     const questionClone = cloneDeep(question);
 
     if ('options' in questionClone) {
-      questionClone.options = questionClone.options.map(
-        (options) => options && omit(options, ['questions']),
+      questionClone.options = questionClone.options.map((options) =>
+        omit(options, ['questions']),
       );
     }
 
