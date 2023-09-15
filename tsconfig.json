@@ -10,7 +10,8 @@
       "$/*": ["src/*"],
       "$modules/*": ["src/modules/*"],
       "$configs/*": ["src/config/*"],
-      "$config": ["src/config/index.ts"]
+      "$config": ["src/config/index.ts"],
+      "$imports/*": ["src/imports/*"]
     },
     "module": "commonjs",
     "declaration": true,
