@@ -1,6 +1,6 @@
-import { isString } from 'lodash';
-
 import { SortablePrimitives } from './sorter.types';
+
+import { isString } from '$imports/lodash';
 
 export const isLess = <Primitive extends SortablePrimitives>(
   left: Primitive,

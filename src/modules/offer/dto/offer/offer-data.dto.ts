@@ -1,11 +1,11 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferDB } from 'hero24-types';
-import isNumber from 'lodash/isNumber';
 
 import { OfferInitialDataDto } from './offer-initial-data.dto';
 import { PurchaseDto } from './purchase.dto';
 import { WorkTimeDto } from './work-time.dto';
 
+import { isNumber } from '$imports/lodash';
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 

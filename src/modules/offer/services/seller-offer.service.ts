@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import get from 'lodash/get';
-import omit from 'lodash/omit';
 
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { OfferInput } from '../dto/creation/offer.input';
@@ -17,6 +15,7 @@ import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
 
 import { OfferService } from './offer.service';
 
+import { get, omit } from '$imports/lodash';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';

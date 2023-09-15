@@ -1,9 +1,11 @@
-import _ from 'lodash';
 import precision from 'precision';
 
 import { RoundedNumber } from '../price-calculator.monad';
 
+import { ceil, floor, round } from '$imports/lodash';
+
 const MAX_PRECISION = 12;
+const mathFunctions = { ceil, floor, round };
 
 type RoundDirection = 'ceil' | 'round' | 'floor';
 
@@ -12,7 +14,7 @@ export const roundToStep = (
   numberStep: number,
   roundDirection: RoundDirection,
 ) => {
-  const roundFunction = _[roundDirection];
+  const roundFunction = mathFunctions[roundDirection];
   const value = new RoundedNumber(numberValue, MAX_PRECISION);
   const step = new RoundedNumber(numberStep, MAX_PRECISION);
 

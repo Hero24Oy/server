@@ -1,11 +1,11 @@
 import { InputType, OmitType } from '@nestjs/graphql';
 import { Address, UserDB } from 'hero24-types';
-import { isNumber } from 'lodash';
 
 import { UserDataDto } from '../user/user-data.dto';
 import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';
 import { UserDataAddressDto } from '../user/user-data-address.dto';
 
+import { isNumber } from '$imports/lodash';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 

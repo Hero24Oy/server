@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { ChatDB } from 'hero24-types';
-import { isNumber, max } from 'lodash';
 
 import { ChatMemberDto } from './chat-member.dto';
 
+import { isNumber, max } from '$imports/lodash';
 import { MaybeType } from '$modules/common/common.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';

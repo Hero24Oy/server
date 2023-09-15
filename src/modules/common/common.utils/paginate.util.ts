@@ -1,6 +1,6 @@
-import { isNumber } from 'lodash';
-
 import { PaginationArgs } from '../dto/pagination.args';
+
+import { isNumber } from '$imports/lodash';
 
 type PaginateArgs<Node> = PaginationArgs & {
   nodes: Node[];

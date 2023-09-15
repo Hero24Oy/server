@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { WorkTime } from 'hero24-types';
-import isNumber from 'lodash/isNumber';
 
+import { isNumber } from '$imports/lodash';
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 

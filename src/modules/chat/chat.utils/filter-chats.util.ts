@@ -1,13 +1,10 @@
-import isArray from 'lodash/isArray';
-import isBoolean from 'lodash/isBoolean';
-import isString from 'lodash/isString';
-
 import { Identity } from '../../auth/auth.types';
 import { MaybeType } from '../../common/common.types';
 import { ChatDto } from '../dto/chat/chat.dto';
 import { ChatMemberRole } from '../dto/chat/chat-member-role.enum';
 import { ChatsFilterInput } from '../dto/chats/chats-filter.input';
 
+import { isArray, isBoolean, isString } from '$imports/lodash';
 import { Scope } from '$modules/auth/auth.constants';
 
 type FilterChatsProps = {

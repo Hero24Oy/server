@@ -1,9 +1,8 @@
-import isArray from 'lodash/isArray';
-import isBoolean from 'lodash/isBoolean';
-
 import { MaybeType } from '../../common/common.types';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OffersFilterInput } from '../dto/offers/offers-filter.input';
+
+import { isArray, isBoolean } from '$imports/lodash';
 
 type FilterOffersProps = {
   offers: OfferDto[];

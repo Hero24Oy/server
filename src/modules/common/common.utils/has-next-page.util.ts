@@ -1,4 +1,4 @@
-import { isNumber } from 'lodash';
+import { isNumber } from '$imports/lodash';
 
 type HasNextPageArgs = {
   total: number;
