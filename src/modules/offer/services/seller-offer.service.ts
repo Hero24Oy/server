@@ -200,12 +200,12 @@ export class SellerOfferService {
       initial: { questions },
     } = offerRequest.data;
 
-    const { dateQuestion, otherChanges } = getChangedQuestions(
+    const { isDateChanges, isOtherChanges } = getChangedQuestions(
       changedQuestions,
       questions,
     );
 
-    if (isAcceptTimeChanges && dateQuestion) {
+    if (isAcceptTimeChanges && isDateChanges) {
       await offerRef
         .child('data')
         .child('initial')
@@ -213,10 +213,8 @@ export class SellerOfferService {
         .set(agreedStartTime.getTime());
     }
 
-    const isTimeChangeAccepted = !dateQuestion || isAcceptTimeChanges;
-
-    const isDetailsChangeAccepted =
-      !otherChanges.length || isAcceptDetailsChanges;
+    const isTimeChangeAccepted = !isDateChanges || isAcceptTimeChanges;
+    const isDetailsChangeAccepted = !isOtherChanges || isAcceptDetailsChanges;
 
     await this.offerRequestService.updateAcceptedChanges({
       offerRequestId,
