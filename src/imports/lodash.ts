@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-imports -- disable rule this file as we can`t exclude files from rule. */
+/* eslint-disable no-restricted-imports -- disable rule for this file as we can`t exclude files from no-restricted-imports rule. */
 import capitalize from 'lodash/capitalize';
 import ceil from 'lodash/ceil';
 import cloneDeep from 'lodash/cloneDeep';
