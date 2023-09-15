@@ -107,16 +107,17 @@ const importSortOrderRule = {
 const importRules = {
   'no-duplicate-imports': 'error', // imports from the same source must be in one record
   'no-restricted-imports': [
-    'error', 
+    'error',
     {
       patterns: [
         {
-          group: ["lodash", "!lodash/"], // disallow imports from 'lodash' directly
-          message: "Please use directly function import from 'lodash/function' instead."
+          group: ["lodash", "!./lodash", "!$imports/lodash"], // disallow imports from 'lodash' and 'lodash/*' directly
+          message: "Please use '$imports/lodash' instead."
         }
       ]
     },
   ],
+  'import/extensions': 'off',
   'import/no-cycle': ['error', { maxDepth: '∞' }],
   'import/prefer-default-export': 'off', // we use only named exports in the project
   'import/no-extraneous-dependencies': [
