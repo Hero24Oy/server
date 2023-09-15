@@ -167,6 +167,10 @@ const paddingsRule = {
   ],
 };
 
+const commentsRule = {
+  "eslint-comments/disable-enable-pair": "off"
+}
+
 const namingConventionRule = {
   '@typescript-eslint/naming-convention': [
     'error',
@@ -377,6 +381,7 @@ module.exports = {
     ...spellCheckerRule,
     ...importRules,
     ...paddingsRule,
+    ...commentsRule,
     ...namingConventionRule,
   },
   overrides: [

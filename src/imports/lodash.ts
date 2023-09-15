@@ -1,4 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- for no-restricted-imports disabling.
 /* eslint-disable no-restricted-imports -- disable rule this file as we can`t exclude files from rule. */
 import capitalize from 'lodash/capitalize';
 import ceil from 'lodash/ceil';
