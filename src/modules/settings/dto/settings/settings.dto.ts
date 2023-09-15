@@ -1,4 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+
 import { DictionaryDto } from './dictionary.dto';
 
 @ObjectType()

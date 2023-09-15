@@ -1,4 +1,5 @@
 import moment from 'moment';
+
 import { NewsDto } from '../dto/news/news.dto';
 
 export const isNewsActive = (news: NewsDto) => {

@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { SubscriptionService } from '../subscription-manager/subscription-manager.interface';
-import { Unsubscribe } from '../subscription-manager/subscription-manager.types';
-import { OfferRequestService } from './offer-request.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
+import {
+  SubscriptionService,
+  Unsubscribe,
+} from '../subscription-manager/subscription-manager.types';
+
+import { OfferRequestService } from './offer-request.service';
 import { createOfferRequestEventHandler } from './offer-request.utils/create-offer-request-event-handler.util';
 
 @Injectable()

@@ -2,16 +2,15 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Address, SupportedLanguages, UserDB } from 'hero24-types';
 import { isNumber } from 'lodash';
 
-import { MaybeType } from 'src/modules/common/common.types';
+import { UserDataActiveRouteDto } from './user-data-active-route.dto';
+import { UserDataAddressDto } from './user-data-address.dto';
 
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { MaybeType } from '$modules/common/common.types';
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
-} from 'src/modules/common/common.utils';
-
-import { UserDataAddressDto } from './user-data-address.dto';
-import { UserDataActiveRouteDto } from './user-data-active-route.dto';
+} from '$modules/common/common.utils';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class UserDataDto {

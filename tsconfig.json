@@ -1,5 +1,17 @@
 {
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "$/*": ["src/*"],
+      "$modules/*": ["src/modules/*"],
+      "$configs/*": ["src/config/*"],
+      "$config": ["src/config/index.ts"]
+    },
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -9,7 +21,6 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -19,5 +30,6 @@
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
     "esModuleInterop": true
-  }
+  },
+  "exclude": ["node_modules", "dist"]
 }

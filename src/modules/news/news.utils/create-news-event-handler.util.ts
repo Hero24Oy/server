@@ -1,5 +1,7 @@
 import { DataSnapshot } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
+import { NewsDB } from 'hero24-types';
+
 import { NewsDto } from '../dto/news/news.dto';
 
 export const createNewsEventHandler =
@@ -10,8 +12,7 @@ export const createNewsEventHandler =
       return;
     }
 
-    eventEmitter(
-      pubsub,
-      NewsDto.convertFromFirebaseType(snapshot.val(), snapshot.key),
-    );
+    const news: NewsDB = snapshot.val();
+
+    eventEmitter(pubsub, NewsDto.convertFromFirebaseType(news, snapshot.key));
   };

@@ -1,8 +1,8 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 
-import { ImageCreationDataInput } from './image-creation-data.input';
-
 import { ImageDto } from '../image/image.dto';
+
+import { ImageCreationDataInput } from './image-creation-data.input';
 
 @InputType()
 export class ImageCreationInput extends PickType(

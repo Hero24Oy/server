@@ -1,14 +1,15 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
 import { ApiException } from '@hubspot/api-client/lib/codegen/crm/contacts';
-
-import { MaybeType } from 'src/modules/common/common.types';
+import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { HubSpotClientService } from '../hub-spot-client/hub-spot-client.service';
+
 import {
   HubSpotContactAssociationsForObject,
   HubSpotContactObject,
   HubSpotContactProperties,
 } from './hub-spot-contact.types';
+
+import { MaybeType } from '$modules/common/common.types';
 
 @Injectable()
 export class HubSpotContactService {
@@ -28,6 +29,7 @@ export class HubSpotContactService {
     } catch (err) {
       const error = err as ApiException<unknown>;
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison -- HttpStatus return numbers of status codes
       if (error.code === HttpStatus.CONFLICT) {
         const contact = await this.strictFindContactByEmail(properties.email);
 

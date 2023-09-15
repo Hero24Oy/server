@@ -1,6 +1,8 @@
 import { OFFER_REQUEST_STATUS } from 'hero24-types';
+
 import { ColumnFilter } from '../filterer/filterer.types';
 import { ComparePicker, SortablePrimitives } from '../sorter/sorter.types';
+
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
 import { OfferRequestFilterColumn } from './offer-request.constants';
 

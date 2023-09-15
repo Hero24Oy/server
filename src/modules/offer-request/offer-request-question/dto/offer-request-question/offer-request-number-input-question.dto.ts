@@ -1,11 +1,13 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 
-import { MaybeType } from 'src/modules/common/common.types';
-import { TranslationFieldDto } from 'src/modules/common/dto/translation-field.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { PlainOfferRequestQuestion } from '../../offer-request-question.types';
+
 import { OfferRequestBaseQuestionDto } from './offer-request-base-question.dto';
-import { OfferRequestQuestionType } from '../../offer-request-question.constants';
+import { OfferRequestQuestionType } from './offer-request-question-type.enum';
+
+import { MaybeType } from '$modules/common/common.types';
+import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type QuestionType = typeof OfferRequestQuestionType.NUMBER_INPUT;
 
