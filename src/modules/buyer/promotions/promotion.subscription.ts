@@ -5,9 +5,9 @@ import { skipFirst } from '../../common/common.utils';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
 import { subscribeOnFirebaseEvent } from '../../firebase/firebase.utils';
-import { SubscriptionService } from '../../subscription-manager/subscription-manager.interface';
 import { createPromotionsEventHandler } from './promotion.utils/create-promotion-event-handler.util';
 import { PromotionService } from './services/promotion.service';
+import { SubscriptionService } from '$/modules/subscription-manager/subscription-manager.types';
 
 @Injectable()
 export class PromotionSubscription implements SubscriptionService {
