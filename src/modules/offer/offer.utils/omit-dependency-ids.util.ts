@@ -1,4 +1,5 @@
-import { cloneDeep, omit } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import omit from 'lodash/omit';
 
 import { OfferRequestQuestionDto } from '$modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
 
