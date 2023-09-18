@@ -15,7 +15,7 @@ import { ReviewListDto } from './dto/review-list/review-list.dto';
 
 @Injectable()
 export class ReviewService {
-  database: Database;
+  private readonly database: Database;
 
   constructor(
     private readonly firebaseService: FirebaseService,

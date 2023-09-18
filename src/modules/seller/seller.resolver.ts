@@ -2,6 +2,7 @@ import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
+import { AdminGuard } from '../auth/guards/admin.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
@@ -94,7 +95,7 @@ export class SellerResolver {
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
+  @UseGuards(AdminGuard)
   async setIsSellerApproved(
     @Args('sellerId') sellerId: string,
     @Args('isApproved') isApproved: boolean,
