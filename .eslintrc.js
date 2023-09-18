@@ -106,7 +106,6 @@ const importSortOrderRule = {
 
 const importRules = {
   'no-duplicate-imports': 'error', // imports from the same source must be in one record
-  'import/extensions': 'off',
   'import/no-cycle': ['error', { maxDepth: '∞' }],
   'import/prefer-default-export': 'off', // we use only named exports in the project
   'import/no-extraneous-dependencies': [
