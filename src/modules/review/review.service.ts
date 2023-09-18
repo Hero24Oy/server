@@ -8,7 +8,7 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { SellerService } from '../seller/seller.service';
 
-import { ReviewCreationArgs } from './dto/creation/review-creation.args';
+import { ReviewDataInput } from './dto/creation/review-data.input';
 import { ReviewDto } from './dto/review/review.dto';
 import { ReviewListDto } from './dto/review-list/review-list.dto';
 import { ReviewListInput } from './dto/review-list/review-list.input';
@@ -68,9 +68,7 @@ export class ReviewService {
     });
   }
 
-  async createReview(args: ReviewCreationArgs): Promise<ReviewDto> {
-    const { input } = args;
-
+  async createReview(input: ReviewDataInput): Promise<ReviewDto> {
     const internalReview = ReviewDto.adapter.toInternal({
       ...input,
       createdAt: new Date(),

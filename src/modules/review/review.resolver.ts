@@ -6,7 +6,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
-import { ReviewCreationArgs } from './dto/creation/review-creation.args';
+import { ReviewDataInput } from './dto/creation/review-data.input';
 import { ReviewDto } from './dto/review/review.dto';
 import { ReviewFilterInput } from './dto/review/review-filter.input';
 import { ReviewListDto } from './dto/review-list/review-list.dto';
@@ -25,14 +25,16 @@ export class ReviewResolver {
   @Query(() => ReviewListDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async reviewList(@Args() input: ReviewListInput): Promise<ReviewListDto> {
+  async reviewList(
+    @Args('input') input: ReviewListInput,
+  ): Promise<ReviewListDto> {
     return this.reviewService.getReviews(input);
   }
 
   @Mutation(() => ReviewDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async createReview(@Args() args: ReviewCreationArgs): Promise<ReviewDto> {
+  async createReview(@Args('input') args: ReviewDataInput): Promise<ReviewDto> {
     return this.reviewService.createReview(args);
   }
 
