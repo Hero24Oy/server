@@ -1,4 +1,4 @@
-import last from 'lodash/isNumber';
+import last from 'lodash/last';
 
 import { PaginatedType } from '../dto/pagination.dto';
 
