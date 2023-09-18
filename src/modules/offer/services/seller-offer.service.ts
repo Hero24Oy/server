@@ -10,7 +10,7 @@ import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 import { WorkTimeDto } from '../dto/offer/work-time.dto';
-import { haveChangedQuestions } from '../offer.utils/have-changes.util';
+import { hasChangedQuestions } from '../offer.utils/has-changes.util';
 import { hydrateOffer } from '../offer.utils/hydrate-offer.util';
 import { unpauseJob } from '../offer.utils/unpause-job.uitl';
 import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
@@ -200,7 +200,7 @@ export class SellerOfferService {
       initial: { questions },
     } = offerRequest.data;
 
-    const { hasDateChanges, haveOtherChanges } = haveChangedQuestions(
+    const { hasDateChanges, hasOtherChanges } = hasChangedQuestions(
       changedQuestions,
       questions,
     );
@@ -214,7 +214,7 @@ export class SellerOfferService {
     }
 
     const isTimeChangeAccepted = !hasDateChanges || isAcceptTimeChanges;
-    const isDetailsChangeAccepted = !haveOtherChanges || isAcceptDetailsChanges;
+    const isDetailsChangeAccepted = !hasOtherChanges || isAcceptDetailsChanges;
 
     await this.offerRequestService.updateAcceptedChanges({
       offerRequestId,
