@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
-import { get, isString, map } from 'lodash';
+import get from 'lodash/get';
+import isString from 'lodash/isString';
+import map from 'lodash/map';
 
 import { Scope } from '../auth/auth.constants';
 import { Identity } from '../auth/auth.types';

@@ -1,4 +1,4 @@
-import { round } from 'lodash';
+import round from 'lodash/round';
 
 export class RoundedNumber {
   constructor(private value: number, private precision: number = 15) {}
