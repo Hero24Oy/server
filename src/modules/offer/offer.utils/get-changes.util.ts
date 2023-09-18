@@ -1,21 +1,22 @@
 import { OfferRequestQuestion, QuestionDB } from 'hero24-types';
+import differenceWith from 'lodash/differenceWith';
+import isEqual from 'lodash/isEqual';
 
 import {
-  ChangedQuestionsWithoutDate,
-  GetChangedQuestionsReturnType,
+  ChangedQuestionWithoutDate,
+  HaveQuestionsChangesReturnType,
 } from '../types';
 
 import { isDateQuestion } from './is-date-quesiton.util';
 import { omitDependencyIds } from './omit-dependency-ids.util';
 
-import { differenceWith, isEqual } from '$imports/lodash';
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from '$modules/offer-request/dto/offer-request/offer-request-data-requested-changes-changed-questions.dto';
 import { OfferRequestQuestionDto } from '$modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
 
-export const getChangedQuestions = (
+export const haveQuestionsChanges = (
   requestedChanges: OfferRequestDataRequestedChangesChangedQuestionsDto,
   initialQuestions: OfferRequestQuestionDto[],
-): GetChangedQuestionsReturnType => {
+): HaveQuestionsChangesReturnType => {
   const requestedChangesWithoutDependencyIds = omitDependencyIds(
     requestedChanges.after,
   );
@@ -31,12 +32,12 @@ export const getChangedQuestions = (
 
   const dateQuestion = differences.find(isDateQuestion);
 
-  const otherChanges = differences.find(
+  const anyOtherQuestion = differences.find(
     (question: OfferRequestQuestion | QuestionDB) => !isDateQuestion(question),
-  ) as ChangedQuestionsWithoutDate | undefined;
+  ) as ChangedQuestionWithoutDate | undefined;
 
   return {
-    isDateChanges: Boolean(dateQuestion),
-    isOtherChanges: Boolean(otherChanges),
+    hasDateChanges: Boolean(dateQuestion),
+    haveOtherChanges: Boolean(anyOtherQuestion),
   };
 };

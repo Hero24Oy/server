@@ -5,12 +5,12 @@ import {
   QuestionDB,
 } from 'hero24-types';
 
-export type GetChangedQuestionsReturnType = {
-  isDateChanges: boolean;
-  isOtherChanges: boolean;
+export type HaveQuestionsChangesReturnType = {
+  hasDateChanges: boolean;
+  haveOtherChanges: boolean;
 };
 
-export type ChangedQuestionsWithoutDate = Exclude<
+export type ChangedQuestionWithoutDate = Exclude<
   OfferRequestQuestion | QuestionDB,
   OfferRequestDateQuestion | DateQuestionDB
 >;

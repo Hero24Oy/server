@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
+import { get, isString, map } from 'lodash';
 
 import { Scope } from '../auth/auth.constants';
 import { Identity } from '../auth/auth.types';
@@ -40,8 +41,6 @@ import {} from './offer-request-question/offer-request-question.constants';
 import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
 import { offerRequestQuestionsToTree } from './offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
 import { OfferRequestStatus } from './open-offer-request/dto/offer-request-status.enum';
-
-import { get, isString, map } from '$imports/lodash';
 
 @Injectable()
 export class OfferRequestService {

@@ -1,8 +1,8 @@
+import { last } from 'lodash';
+
 import { PaginatedType } from '../dto/pagination.dto';
 
 import { hasNextPage } from './has-next-page.util';
-
-import { last } from '$imports/lodash';
 
 type PreparePaginatedResultArgs<Node extends { id: string }> = {
   nodes: Node[];

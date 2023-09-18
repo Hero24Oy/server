@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import get from 'lodash/get';
+import omit from 'lodash/omit';
 
 import { AcceptanceGuardInput } from '../dto/creation/acceptance-guard.input';
 import { OfferInput } from '../dto/creation/offer.input';
@@ -8,14 +10,13 @@ import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 import { WorkTimeDto } from '../dto/offer/work-time.dto';
-import { getChangedQuestions } from '../offer.utils/get-changes.util';
+import { haveQuestionsChanges } from '../offer.utils/get-changes.util';
 import { hydrateOffer } from '../offer.utils/hydrate-offer.util';
 import { unpauseJob } from '../offer.utils/unpause-job.uitl';
 import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
 
 import { OfferService } from './offer.service';
 
-import { get, omit } from '$imports/lodash';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
@@ -199,12 +200,12 @@ export class SellerOfferService {
       initial: { questions },
     } = offerRequest.data;
 
-    const { isDateChanges, isOtherChanges } = getChangedQuestions(
+    const { hasDateChanges, haveOtherChanges } = haveQuestionsChanges(
       changedQuestions,
       questions,
     );
 
-    if (isAcceptTimeChanges && isDateChanges) {
+    if (isAcceptTimeChanges && hasDateChanges) {
       await offerRef
         .child('data')
         .child('initial')
@@ -212,8 +213,8 @@ export class SellerOfferService {
         .set(agreedStartTime.getTime());
     }
 
-    const isTimeChangeAccepted = !isDateChanges || isAcceptTimeChanges;
-    const isDetailsChangeAccepted = !isOtherChanges || isAcceptDetailsChanges;
+    const isTimeChangeAccepted = !hasDateChanges || isAcceptTimeChanges;
+    const isDetailsChangeAccepted = !haveOtherChanges || isAcceptDetailsChanges;
 
     await this.offerRequestService.updateAcceptedChanges({
       offerRequestId,

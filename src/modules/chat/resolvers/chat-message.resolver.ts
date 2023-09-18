@@ -1,6 +1,7 @@
 import { Inject, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
+import map from 'lodash/map';
 
 import { IsChatMember } from '../activators/chat-member.activator';
 import { ChatActivator } from '../chat.activator';
@@ -13,7 +14,6 @@ import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated
 import { ChatService } from '../services/chat.service';
 import { ChatMessageService } from '../services/chat-message.service';
 
-import { map } from '$imports/lodash';
 import { AuthIdentity } from '$modules/auth/auth.decorator';
 import { Identity } from '$modules/auth/auth.types';
 import { AuthGuard } from '$modules/auth/guards/auth.guard';

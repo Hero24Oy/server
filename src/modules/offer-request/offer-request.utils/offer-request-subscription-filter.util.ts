@@ -1,9 +1,10 @@
+import { includes, isEmpty } from 'lodash';
+
 import { OfferRequestDto } from '../dto/offer-request/offer-request.dto';
 import { OfferRequestUpdatedSubscriptionArgs } from '../dto/subscriptions/offer-request-updated-subscription.args';
 import { OFFER_REQUEST_UPDATED_SUBSCRIPTION } from '../offer-request.constants';
 
 import { AppGraphQlContext } from '$/app.types';
-import { includes, isEmpty } from '$imports/lodash';
 import { Scope } from '$modules/auth/auth.constants';
 import { OfferRole } from '$modules/offer/dto/offer/offer-role.enum';
 
