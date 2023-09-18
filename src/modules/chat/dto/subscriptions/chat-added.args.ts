@@ -7,6 +7,7 @@ export class ChatAddedArgs {
   @Field(() => Boolean, {
     nullable: true,
     deprecationReason: IS_FROM_APP_DEPRECATED_MESSAGE,
+    description: IS_FROM_APP_DEPRECATED_MESSAGE,
   })
   isFromApp?: boolean;
 }
