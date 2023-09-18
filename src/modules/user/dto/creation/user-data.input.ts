@@ -33,7 +33,7 @@ UserDataInput.adapter = new FirebaseAdapter({
     email: internal.email,
     emailVerified: internal.emailVerified,
     pushToken: internal.pushToken && Object.keys(internal.pushToken),
-    name: internal.name,
+    name: internal.name || ' ',
     firstName: internal.firstName,
     lastName: internal.lastName,
     photoURL: internal.photoURL,

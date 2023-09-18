@@ -1,27 +1,30 @@
-import { InputType, PartialType, PickType } from '@nestjs/graphql';
-import { UserDB } from 'hero24-types';
-
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { Field, InputType } from '@nestjs/graphql';
 
 import { UserDto } from '../user/user.dto';
 
-const PICKED_FIELDS = ['isAdmin'] as const;
+import { FirebaseAdapter } from '$/modules/firebase/firebase.adapter';
 
 @InputType()
-export class UserAdminStatusEditInput extends PartialType(
-  PickType(UserDto, PICKED_FIELDS, InputType),
-) {
+export class UserAdminStatusEditInput {
+  @Field(() => Boolean)
+  isAdmin: UserDto['isAdmin'];
+
+  @Field(() => String)
+  id: UserDto['id'];
+
   static adapter: FirebaseAdapter<
-    Pick<UserDB, keyof UserAdminStatusEditInput>,
+    Pick<UserDto, keyof UserAdminStatusEditInput>,
     UserAdminStatusEditInput
   >;
 }
 
 UserAdminStatusEditInput.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
-    isAdmin: internal.isAdmin,
+    id: internal.id,
+    isAdmin: internal.isAdmin || false,
   }),
   toInternal: (external) => ({
+    id: external.id,
     isAdmin: external.isAdmin ?? false,
   }),
 });

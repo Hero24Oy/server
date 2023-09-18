@@ -1,21 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { UserDB } from 'hero24-types';
-
 import { get, getDatabase, push, ref, set, update } from 'firebase/database';
+import { PubSub } from 'graphql-subscriptions';
+import { UserDB } from 'hero24-types';
 
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
+
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataInput } from './dto/creation/user-data.input';
 import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
-import { UserAdminStatusEditingArgs } from './dto/editAdminStatus/user-admin-status-editing.args';
 import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
+import { USER_UPDATED_SUBSCRIPTION } from './user.constants';
 
 @Injectable()
 export class UserService {
@@ -164,32 +167,23 @@ export class UserService {
     return this.getUserById(userId) as Promise<UserDto>;
   }
 
-  async editUserAdminStatus(
-    args: UserAdminStatusEditingArgs,
-  ): Promise<UserDto> {
-    const { userId, isAdmin } = args;
+  async editUserAdminStatus(args: UserAdminStatusEditInput): Promise<UserDto> {
+    const { id, isAdmin } = args;
 
     const database = this.firebaseService.getDefaultApp().database();
 
-    const updatedUserData: Pick<UserDB, 'isAdmin'> = {
-      ...UserAdminStatusEditInput.adapter.toInternal({ isAdmin }),
-    };
-
     await database
-      .ref(`${FirebaseDatabasePath.USERS}/${userId}`)
-      .update(updatedUserData);
+      .ref(FirebaseDatabasePath.USERS)
+      .child(id)
+      .update({ isAdmin });
 
-    const adminUsersRef = database.ref(
-      `${FirebaseDatabasePath.ADMIN_USERS}/${userId}`,
-    );
+    const adminUsersRef = database
+      .ref(FirebaseDatabasePath.ADMIN_USERS)
+      .child(id);
 
-    if (isAdmin) {
-      await adminUsersRef.set(true);
-    } else {
-      await adminUsersRef.remove();
-    }
+    await adminUsersRef.set(isAdmin || null);
 
-    return this.getUserById(userId) as Promise<UserDto>;
+    return this.strictGetUserById(id);
   }
 
   async unbindUserOfferRequests(
@@ -239,5 +233,13 @@ export class UserService {
     const userById = new Map(users.map((user) => [user.id, user]));
 
     return userIds.map((userId) => userById.get(userId) || null);
+  }
+
+  emitUserUpdate(userChanges: UserUpdatedDto, pubSub: PubSub): void {
+    const emitUserUpdated = createSubscriptionEventEmitter(
+      USER_UPDATED_SUBSCRIPTION,
+    );
+
+    emitUserUpdated<UserUpdatedDto>(pubSub, userChanges);
   }
 }

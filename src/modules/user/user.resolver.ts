@@ -2,6 +2,7 @@ import { Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
+import { AdminGuard } from '../auth/guards/admin.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
@@ -10,18 +11,14 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
-import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import {
-  USER_CREATED_SUBSCRIPTION,
-  USER_UPDATED_SUBSCRIPTION,
-} from './user.constants';
+import { USER_CREATED_SUBSCRIPTION } from './user.constants';
 import { UserService } from './user.service';
-import { UserAdminStatusEditingArgs } from './dto/editAdminStatus/user-admin-status-editing.args';
 
 @Resolver()
 export class UserResolver {
@@ -82,42 +79,29 @@ export class UserResolver {
     @Args() args: UserDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    const emitUserUpdated = createSubscriptionEventEmitter(
-      USER_UPDATED_SUBSCRIPTION,
+    const beforeUpdateUser = await this.userService.strictGetUserById(
+      args.userId,
     );
-
-    const beforeUpdateUser = await this.userService.getUserById(args.userId);
-
-    if (!beforeUpdateUser) {
-      throw new Error('User not found');
-    }
 
     const user = await this.userService.editUserData(args, app);
 
-    emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
+    this.userService.emitUserUpdate({ beforeUpdateUser, user }, this.pubSub);
 
     return user;
   }
 
-  @Mutation(() => UserDto)
+  @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
+  @UseGuards(AdminGuard)
   async editUserAdminStatus(
-    @Args() args: UserAdminStatusEditingArgs,
-  ): Promise<UserDto> {
-    const emitUserUpdated = createSubscriptionEventEmitter(
-      USER_UPDATED_SUBSCRIPTION,
-    );
-    const beforeUpdateUser = await this.userService.getUserById(args.userId);
+    @Args('input') input: UserAdminStatusEditInput,
+  ): Promise<boolean> {
+    const beforeUpdateUser = await this.userService.strictGetUserById(input.id);
+    const user = await this.userService.editUserAdminStatus(input);
 
-    if (!beforeUpdateUser) {
-      throw new Error(`User not found`);
-    }
+    this.userService.emitUserUpdate({ beforeUpdateUser, user }, this.pubSub);
 
-    const user = await this.userService.editUserAdminStatus(args);
-    emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
-
-    return user;
+    return Boolean(user);
   }
 
   @Mutation(() => Boolean)

@@ -92,7 +92,7 @@ UserDataDto.adapter = new FirebaseAdapter({
     emailVerified: internal.emailVerified,
     pushToken:
       internal.pushToken && convertFirebaseMapToList(internal.pushToken),
-    name: internal.name,
+    name: internal.name || ' ',
     firstName: internal.firstName,
     lastName: internal.lastName,
     photoURL: internal.photoURL,
