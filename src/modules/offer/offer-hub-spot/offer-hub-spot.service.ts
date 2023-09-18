@@ -41,23 +41,9 @@ export class OfferHubSpotService {
   }
 
   async createDeal(offer: OfferDto): Promise<HubSpotDealObject> {
-    const { sellerProfileId, buyerProfileId } = offer.data.initial;
-
-    const buyerUser = await this.userService.strictGetUserById(buyerProfileId);
-
-    const sellerUser = await this.userService.strictGetUserById(
-      sellerProfileId,
-    );
-
-    const buyerHubSpotContactId = await this.getHubSpotContactId(buyerUser);
-    const sellerHubSpotContactId = await this.getHubSpotContactId(sellerUser);
-
     const properties = await this.prepareDealProperties(offer);
 
-    const deal = await this.hubSpotDealService.createDeal(properties, [
-      buyerHubSpotContactId,
-      sellerHubSpotContactId,
-    ]);
+    const deal = await this.hubSpotDealService.createDeal(properties);
 
     await this.offerService.setHubSpotDealId(offer.id, deal.id);
 
