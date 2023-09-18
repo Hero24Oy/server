@@ -1,6 +1,6 @@
 import { Client as HubSpotClient } from '@hubspot/api-client';
 import fs from 'fs';
-import { capitalize } from 'lodash';
+import capitalize from 'lodash/capitalize';
 
 const notStringAndNotNumberRegexp = /[^a-zA-Z0-9]/g;
 const multipleUnderscoreRegexp = /_+/g;

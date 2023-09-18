@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { ChatDB } from 'hero24-types';
-import { isNumber, max } from 'lodash';
+import isNumber from 'lodash/isNumber';
+import max from 'lodash/max';
 
 import { ChatMemberDto } from './chat-member.dto';
 

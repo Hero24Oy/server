@@ -1,5 +1,6 @@
 import { OfferRequestQuestion } from 'hero24-types';
-import { isString, omit } from 'lodash';
+import isString from 'lodash/isString';
+import omit from 'lodash/omit';
 
 import { QUESTION_FLAT_ID_NAME } from '../offer-request-question.constants';
 import {
