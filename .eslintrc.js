@@ -106,17 +106,6 @@ const importSortOrderRule = {
 
 const importRules = {
   'no-duplicate-imports': 'error', // imports from the same source must be in one record
-  'no-restricted-imports': [
-    'error',
-    {
-      patterns: [
-        {
-          group: ["lodash", "!./lodash", "!$imports/lodash"], // disallow imports from 'lodash' and 'lodash/*' directly
-          message: "Please use '$imports/lodash' instead."
-        }
-      ]
-    },
-  ],
   'import/extensions': 'off',
   'import/no-cycle': ['error', { maxDepth: '∞' }],
   'import/prefer-default-export': 'off', // we use only named exports in the project
@@ -166,10 +155,6 @@ const paddingsRule = {
     },
   ],
 };
-
-const commentsRule = {
-  "eslint-comments/disable-enable-pair": "off"
-}
 
 const namingConventionRule = {
   '@typescript-eslint/naming-convention': [
@@ -381,7 +366,6 @@ module.exports = {
     ...spellCheckerRule,
     ...importRules,
     ...paddingsRule,
-    ...commentsRule,
     ...namingConventionRule,
   },
   overrides: [
