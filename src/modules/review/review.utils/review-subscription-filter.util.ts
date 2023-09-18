@@ -8,10 +8,10 @@ type Payload = Record<UserSubscriptionType, ReviewDto>;
 
 export const ReviewSubscriptionFilter =
   (type: UserSubscriptionType) =>
-  (payload: Payload, { filter }: { filter: ReviewFilterInput }) => {
+  (payload: Payload, { input }: { input: ReviewFilterInput }) => {
     const review = payload[type];
 
-    if (!filter.ids?.includes(review.id)) {
+    if (!input.ids?.includes(review.id)) {
       return false;
     }
 
