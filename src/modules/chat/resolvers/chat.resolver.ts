@@ -31,6 +31,8 @@ import { ChatsArgs } from '../dto/chats/chats.args';
 import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
+import { ChatAddedArgs } from '../dto/subscriptions/chat-added.args';
+import { ChatUpdatedArgs } from '../dto/subscriptions/chat-updated.args';
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
 import { UnseenChatsChangedDto } from '../dto/subscriptions/unseen-chats-updated-dto';
 import { ChatService } from '../services/chat.service';
@@ -161,7 +163,7 @@ export class ChatResolver {
     name: CHAT_UPDATED_SUBSCRIPTION,
     filter: (
       payload: { [CHAT_UPDATED_SUBSCRIPTION]: ChatDto },
-      { chatIds }: { chatIds?: string[] },
+      { chatIds }: ChatUpdatedArgs,
       { identity }: AppGraphQlContext,
     ) => {
       if (!identity) {
@@ -184,10 +186,7 @@ export class ChatResolver {
     },
   })
   @UseGuards(AuthGuard)
-  subscribeOnChatUpdate(
-    @Args('chatIds', { type: () => [String], nullable: true })
-    _chatIds: string[],
-  ) {
+  subscribeOnChatUpdate(@Args() _args: ChatUpdatedArgs) {
     return this.pubSub.asyncIterator(CHAT_UPDATED_SUBSCRIPTION);
   }
 
@@ -216,7 +215,7 @@ export class ChatResolver {
     },
   })
   @UseGuards(AuthGuard)
-  subscribeOnChatAdd() {
+  subscribeOnChatAdd(@Args() _args: ChatAddedArgs) {
     return this.pubSub.asyncIterator(CHAT_ADDED_SUBSCRIPTION);
   }
 
