@@ -1,4 +1,5 @@
-import { includes, isEmpty } from 'lodash';
+import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 
 import { OfferRequestDto } from '../dto/offer-request/offer-request.dto';
 import { OfferRequestUpdatedSubscriptionArgs } from '../dto/subscriptions/offer-request-updated-subscription.args';

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 
 import { HubSpotContactService } from '../../hub-spot/hub-spot-contact/hub-spot-contact.service';
 import {

@@ -15,7 +15,7 @@ export class HubSpotDealService {
 
   async createDeal(
     properties: HubSpotDealProperties,
-    contactIds: string[],
+    contactIds: string[] = [],
   ): Promise<HubSpotDealObject> {
     return this.hubSpotClientService.client.crm.deals.basicApi.create({
       properties,

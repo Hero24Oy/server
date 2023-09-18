@@ -21,4 +21,5 @@ export type HubSpotDealProperties = {
   [HubSpotDealProperty.EXTRA_TIME]: string;
   [HubSpotDealProperty.MATERIAL_FEE]: string;
   [HubSpotDealProperty.DEAL_NAME]: string;
+  [HubSpotDealProperty.DEAL_ID]: string;
 };
