@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 
 import {
   ChangedQuestionWithoutDate,
-  HaveQuestionsChangesReturnType,
+  HaveChangedQuestionsReturnType,
 } from '../types';
 
 import { isDateQuestion } from './is-date-quesiton.util';
@@ -13,10 +13,10 @@ import { omitDependencyIds } from './omit-dependency-ids.util';
 import { OfferRequestDataRequestedChangesChangedQuestionsDto } from '$modules/offer-request/dto/offer-request/offer-request-data-requested-changes-changed-questions.dto';
 import { OfferRequestQuestionDto } from '$modules/offer-request/offer-request-question/dto/offer-request-question/offer-request-question.dto';
 
-export const haveQuestionsChanges = (
+export const haveChangedQuestions = (
   requestedChanges: OfferRequestDataRequestedChangesChangedQuestionsDto,
   initialQuestions: OfferRequestQuestionDto[],
-): HaveQuestionsChangesReturnType => {
+): HaveChangedQuestionsReturnType => {
   const requestedChangesWithoutDependencyIds = omitDependencyIds(
     requestedChanges.after,
   );

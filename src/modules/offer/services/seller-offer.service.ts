@@ -10,7 +10,7 @@ import { OfferExtendInput } from '../dto/editing/offer-extend.input';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferStatus } from '../dto/offer/offer-status.enum';
 import { WorkTimeDto } from '../dto/offer/work-time.dto';
-import { haveQuestionsChanges } from '../offer.utils/get-changes.util';
+import { haveChangedQuestions } from '../offer.utils/have-changes.util';
 import { hydrateOffer } from '../offer.utils/hydrate-offer.util';
 import { unpauseJob } from '../offer.utils/unpause-job.uitl';
 import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
@@ -200,7 +200,7 @@ export class SellerOfferService {
       initial: { questions },
     } = offerRequest.data;
 
-    const { hasDateChanges, haveOtherChanges } = haveQuestionsChanges(
+    const { hasDateChanges, haveOtherChanges } = haveChangedQuestions(
       changedQuestions,
       questions,
     );

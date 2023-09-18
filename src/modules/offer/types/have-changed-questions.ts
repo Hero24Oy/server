@@ -5,7 +5,7 @@ import {
   QuestionDB,
 } from 'hero24-types';
 
-export type HaveQuestionsChangesReturnType = {
+export type HaveChangedQuestionsReturnType = {
   hasDateChanges: boolean;
   haveOtherChanges: boolean;
 };
