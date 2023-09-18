@@ -34,7 +34,7 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private async subscribeOnUserUpdates() {
+  private async subscribeOnUserUpdates(): Promise<() => void> {
     return subscribeToEvent({
       pubSub: this.pubSub,
       eventHandler: this.userUpdatedHandler,
@@ -45,13 +45,13 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
   private userUpdatedHandler = async ({
     user,
     beforeUpdateUser,
-  }: UserUpdatedDto) => {
+  }: UserUpdatedDto): Promise<void> => {
     if (this.userHubSpotService.shouldUpdateContact(user, beforeUpdateUser)) {
       void this.userHubSpotService.upsertContact(user);
     }
   };
 
-  private async subscribeOnUserCreation() {
+  private async subscribeOnUserCreation(): Promise<() => void> {
     return subscribeToEvent({
       pubSub: this.pubSub,
       eventHandler: this.userCreatedHandler,
@@ -59,7 +59,9 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
     });
   }
 
-  private userCreatedHandler = async ({ user }: UserCreatedDto) => {
+  private userCreatedHandler = async ({
+    user,
+  }: UserCreatedDto): Promise<void> => {
     void this.userHubSpotService.upsertContact(user);
   };
 }

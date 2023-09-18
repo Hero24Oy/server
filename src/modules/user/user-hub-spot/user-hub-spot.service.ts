@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Maybe } from 'graphql/jsutils/Maybe';
 import { isEqual } from 'lodash';
 
 import { HubSpotContactService } from '../../hub-spot/hub-spot-contact/hub-spot-contact.service';
@@ -53,7 +54,7 @@ export class UserHubSpotService {
     return contact;
   }
 
-  public shouldUpdateContact(user: UserDto, previous: UserDto) {
+  public shouldUpdateContact(user: UserDto, previous: UserDto): boolean {
     return !isEqual(
       this.getCompareValues(user),
       this.getCompareValues(previous),
@@ -62,14 +63,14 @@ export class UserHubSpotService {
 
   private prepareContactProperties(user: UserDto): HubSpotContactProperties {
     return {
-      [HubSpotContactProperty.EMAIL]: user.data.email,
-      [HubSpotContactProperty.FIRST_NAME]: user.data.firstName || '',
-      [HubSpotContactProperty.LAST_NAME]: user.data.lastName || '',
-      [HubSpotContactProperty.PHONE_NUMBER]: user.data.phone || '',
+      [HubSpotContactProperty.EMAIL]: user.data.email ?? '',
+      [HubSpotContactProperty.FIRST_NAME]: user.data.firstName ?? '',
+      [HubSpotContactProperty.LAST_NAME]: user.data.lastName ?? '',
+      [HubSpotContactProperty.PHONE_NUMBER]: user.data.phone ?? '',
     };
   }
 
-  private getCompareValues = (compareUser: UserDto) => [
+  private getCompareValues = (compareUser: UserDto): Maybe<string>[] => [
     compareUser.data.email,
     compareUser.data.firstName,
     compareUser.data.lastName,

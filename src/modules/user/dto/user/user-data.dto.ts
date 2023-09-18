@@ -1,6 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Address, SupportedLanguages, UserDB } from 'hero24-types';
+import { Address, SupportedLanguages } from 'hero24-types';
 import { isNumber } from 'lodash';
+
+import { UserDbWithPartialData } from '../../user.types';
 
 import { UserDataActiveRouteDto } from './user-data-active-route.dto';
 import { UserDataAddressDto } from './user-data-address.dto';
@@ -14,8 +16,8 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class UserDataDto {
-  @Field(() => String)
-  email: string;
+  @Field(() => String, { nullable: true })
+  email: MaybeType<string>;
 
   @Field(() => Boolean, { nullable: true })
   emailVerified?: MaybeType<boolean>;
@@ -23,8 +25,8 @@ export class UserDataDto {
   @Field(() => [String], { nullable: true })
   pushToken?: MaybeType<string[]>;
 
-  @Field(() => String)
-  name: string;
+  @Field(() => String, { nullable: true })
+  name: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
   firstName?: MaybeType<string>;
@@ -32,8 +34,8 @@ export class UserDataDto {
   @Field(() => String, { nullable: true })
   lastName?: MaybeType<string>;
 
-  @Field(() => String)
-  photoURL: string;
+  @Field(() => String, { nullable: true })
+  photoURL: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
   language?: MaybeType<string>;
@@ -65,8 +67,8 @@ export class UserDataDto {
   @Field(() => String, { nullable: true })
   ssn?: MaybeType<string>;
 
-  @Field(() => Date)
-  createdAt: Date;
+  @Field(() => Date, { nullable: true })
+  createdAt: MaybeType<Date>;
 
   @Field(() => Date, { nullable: true })
   updatedAt?: MaybeType<Date>;
@@ -83,7 +85,7 @@ export class UserDataDto {
   @Field(() => Date, { nullable: true })
   lastAskedReviewTime?: MaybeType<Date>;
 
-  static adapter: FirebaseAdapter<UserDB['data'], UserDataDto>;
+  static adapter: FirebaseAdapter<UserDbWithPartialData['data'], UserDataDto>;
 }
 
 UserDataDto.adapter = new FirebaseAdapter({
@@ -114,7 +116,7 @@ UserDataDto.adapter = new FirebaseAdapter({
     certificate: internal.certificate,
     insurance: internal.insurance,
     ssn: internal.ssn,
-    createdAt: new Date(internal.createdAt),
+    createdAt: new Date(internal.createdAt ?? 0),
     updatedAt: isNumber(internal.updatedAt)
       ? new Date(internal.updatedAt)
       : null,
@@ -128,16 +130,16 @@ UserDataDto.adapter = new FirebaseAdapter({
       : null,
   }),
   toInternal: (external) => ({
-    email: external.email,
+    email: external.email ?? undefined,
     emailVerified: external.emailVerified ?? false,
     pushToken: external.pushToken
       ? convertListToFirebaseMap(external.pushToken)
       : undefined,
-    name: external.name,
+    name: external.name ?? undefined,
     firstName: external.firstName ?? undefined,
     lastName: external.lastName ?? undefined,
-    photoURL: external.photoURL,
-    language: external.language || '',
+    photoURL: external.photoURL ?? undefined,
+    language: external.language || undefined,
     isActive: external.isActive ?? undefined,
     activeRoute: external.activeRoute
       ? UserDataActiveRouteDto.adapter.toInternal(external.activeRoute)
@@ -148,7 +150,7 @@ UserDataDto.adapter = new FirebaseAdapter({
           Address
         >)
       : undefined,
-    phone: external.phone || '',
+    phone: external.phone || undefined,
     iban: external.iban ?? undefined,
     birthDate: external.birthDate ? Number(external.birthDate) : undefined,
     certificate: external.certificate ?? undefined,
