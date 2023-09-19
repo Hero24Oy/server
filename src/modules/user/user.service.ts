@@ -3,6 +3,7 @@ import { get, getDatabase, push, ref, set, update } from 'firebase/database';
 import { PubSub } from 'graphql-subscriptions';
 import { UserDB } from 'hero24-types';
 
+import { TypeSafeRequired } from '../common/common.types';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -27,7 +28,7 @@ import {
 @Injectable()
 export class UserService {
   constructor(
-    private firebaseService: FirebaseService,
+    private readonly firebaseService: FirebaseService,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
 
@@ -39,7 +40,7 @@ export class UserService {
       .child(userId)
       .get();
 
-    const user: UserDB | null = userSnapshot.val();
+    const user = userSnapshot.val() as UserDB | null;
 
     return user && UserDto.adapter.toExternal({ id: userId, ...user });
   }
@@ -54,12 +55,12 @@ export class UserService {
     return user;
   }
 
-  async getAllUsers() {
+  async getAllUsers(): Promise<TypeSafeRequired<UserDto>[]> {
     const database = this.firebaseService.getDefaultApp().database();
     const usersRef = database.ref(FirebaseDatabasePath.USERS);
 
     const usersSnapshot = await usersRef.get();
-    const usersTable: Record<string, UserDB> = usersSnapshot.val() || {};
+    const usersTable = (usersSnapshot.val() as Record<string, UserDB>) || {};
 
     return Object.entries(usersTable).map(([id, user]) =>
       UserDto.adapter.toExternal({ id, ...user }),
@@ -151,7 +152,11 @@ export class UserService {
       throw new Error("The user can't be created");
     }
 
-    return this.getUserById(updatedUserId) as Promise<UserDto>;
+    const user = await this.strictGetUserById(updatedUserId);
+
+    this.emitUserCreate(user);
+
+    return user;
   }
 
   async editUserData(
@@ -160,6 +165,7 @@ export class UserService {
   ): Promise<UserDto> {
     const { userId } = args;
     const database = getDatabase(app);
+    const beforeUpdateUser = await this.strictGetUserById(userId);
 
     const updatedUserData: Omit<Partial<UserDB['data']>, 'createdAt'> = {
       ...PartialUserDataInput.adapter.toInternal(args.data),
@@ -171,11 +177,16 @@ export class UserService {
       updatedUserData,
     );
 
-    return this.getUserById(userId) as Promise<UserDto>;
+    const user = await this.strictGetUserById(userId);
+
+    this.emitUserUpdate({ beforeUpdateUser, user });
+
+    return user;
   }
 
   async editUserAdminStatus(args: UserAdminStatusEditInput): Promise<UserDto> {
     const { id, isAdmin } = args;
+    const beforeUpdateUser = await this.strictGetUserById(id);
 
     const database = this.firebaseService.getDefaultApp().database();
 
@@ -190,7 +201,11 @@ export class UserService {
 
     await adminUsersRef.set(isAdmin || null);
 
-    return this.strictGetUserById(id);
+    const user = await this.strictGetUserById(id);
+
+    this.emitUserUpdate({ beforeUpdateUser, user });
+
+    return user;
   }
 
   async unbindUserOfferRequests(
@@ -221,10 +236,13 @@ export class UserService {
 
     const phoneSnapshot = await get(ref(database, path.join('/')));
 
-    return phoneSnapshot.val() || '';
+    return (phoneSnapshot.val() as string) || '';
   }
 
-  async setHubSpotContactId(userId: string, hubSpotContactId?: string) {
+  async setHubSpotContactId(
+    userId: string,
+    hubSpotContactId?: string,
+  ): Promise<void> {
     const database = this.firebaseService.getDefaultApp().database();
 
     await database

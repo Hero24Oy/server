@@ -1,13 +1,11 @@
-import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { PubSub } from 'graphql-subscriptions';
 
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
@@ -19,10 +17,7 @@ import { UserService } from './user.service';
 
 @Resolver()
 export class UserResolver {
-  constructor(
-    private userService: UserService,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @Query(() => UserDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
@@ -58,11 +53,7 @@ export class UserResolver {
     @Args() args: UserCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    const user = await this.userService.createUser(args, app);
-
-    this.userService.emitUserCreate(user);
-
-    return user;
+    return this.userService.createUser(args, app);
   }
 
   @Mutation(() => UserDto)
@@ -72,15 +63,7 @@ export class UserResolver {
     @Args() args: UserDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    const beforeUpdateUser = await this.userService.strictGetUserById(
-      args.userId,
-    );
-
-    const user = await this.userService.editUserData(args, app);
-
-    this.userService.emitUserUpdate({ beforeUpdateUser, user });
-
-    return user;
+    return this.userService.editUserData(args, app);
   }
 
   @Mutation(() => Boolean)
@@ -89,10 +72,7 @@ export class UserResolver {
   async editUserAdminStatus(
     @Args('input') input: UserAdminStatusEditInput,
   ): Promise<boolean> {
-    const beforeUpdateUser = await this.userService.strictGetUserById(input.id);
     const user = await this.userService.editUserAdminStatus(input);
-
-    this.userService.emitUserUpdate({ beforeUpdateUser, user });
 
     return Boolean(user);
   }
