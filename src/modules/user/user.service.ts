@@ -260,6 +260,23 @@ export class UserService {
     return userIds.map((userId) => userById.get(userId) || null);
   }
 
+  async createAdmin(
+    input: UserDataInput,
+    app: FirebaseAppInstance,
+  ): Promise<UserDto> {
+    const auth = this.firebaseService.getDefaultApp().auth();
+    const { uid: userId } = await auth.createUser({ email: input.email });
+
+    const newUser = await this.createUser(
+      { data: input, isCreatedFromWeb: true, userId },
+      app,
+    );
+
+    await this.editUserAdminStatus({ id: userId, isAdmin: true });
+
+    return newUser;
+  }
+
   emitUserUpdate(userChanges: UserUpdatedDto): void {
     const emitUserUpdated = createSubscriptionEventEmitter(
       USER_UPDATED_SUBSCRIPTION,

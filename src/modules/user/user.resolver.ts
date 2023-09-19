@@ -8,6 +8,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataInput } from './dto/creation/user-data.input';
 import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserDto } from './dto/user/user.dto';
@@ -54,6 +55,16 @@ export class UserResolver {
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
     return this.userService.createUser(args, app);
+  }
+
+  @Mutation(() => UserDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async createAdmin(
+    @Args('data') data: UserDataInput,
+    @FirebaseApp() app: FirebaseAppInstance,
+  ): Promise<UserDto> {
+    return this.userService.createAdmin(data, app);
   }
 
   @Mutation(() => UserDto)
