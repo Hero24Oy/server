@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { NewsDB } from 'hero24-types';
 
-import { FirebaseService } from '../firebase/firebase.service';
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { NewsDto } from './dto/news/news.dto';
-import { NewsCreationInput } from './dto/creation/news-creation-input';
-import { NewsEditingInput } from './dto/editing/news-editing.input';
 import {
   omitUndefined,
   paginate,
   preparePaginatedResult,
 } from '../common/common.utils';
-import { NewsListDto } from './dto/news-list/news-list.dto';
+import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
+
+import { NewsCreationInput } from './dto/creation/news-creation-input';
+import { NewsEditingInput } from './dto/editing/news-editing.input';
+import { NewsDto } from './dto/news/news.dto';
 import { NewsListArgs } from './dto/news-list/news-list.args';
+import { NewsListDto } from './dto/news-list/news-list.dto';
 import { isNewsActive } from './news.utils/is-news-active.util';
 
 @Injectable()
@@ -57,9 +58,9 @@ export class NewsService {
       const newsId = newsSnapshot.key;
 
       if (newsId) {
-        newsList.push(
-          NewsDto.convertFromFirebaseType(newsSnapshot.val(), newsId),
-        );
+        const news: NewsDB = newsSnapshot.val();
+
+        newsList.push(NewsDto.convertFromFirebaseType(news, newsId));
       }
     });
 
@@ -80,6 +81,7 @@ export class NewsService {
     }
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, offset, limit });
 
     return preparePaginatedResult({

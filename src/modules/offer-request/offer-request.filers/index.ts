@@ -1,6 +1,6 @@
 import {
-  StatusColumnFilterConfig,
   statusColumnFilter,
+  StatusColumnFilterConfig,
 } from './status.column-filter';
 
 export type OfferRequestFiltererConfigs = {

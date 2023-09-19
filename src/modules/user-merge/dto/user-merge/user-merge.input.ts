@@ -1,15 +1,17 @@
 import { InputType, OmitType } from '@nestjs/graphql';
-import { UserMergeDto } from './user-merge.dto';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
 import { UserMergeDB } from 'hero24-types';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 
-const OMITTED_FIELDS = ['createdAt'] as const;
+import { UserMergeDto } from './user-merge.dto';
+
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
+
+const omittedFields = ['createdAt'] as const;
 
 @InputType()
 export class UserMergeInput extends OmitType(
   UserMergeDto,
-  OMITTED_FIELDS,
+  omittedFields,
   InputType,
 ) {
   static adapter: FirebaseAdapter<UserMergeDB, UserMergeInput>;

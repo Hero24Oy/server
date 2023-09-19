@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { get, getDatabase, ref, remove, set } from 'firebase/database';
+import { Database } from 'firebase-admin/database';
 import { SellerProfileDB } from 'hero24-types';
+
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
+import { SellerProfileDataDto } from './dto/seller/seller-profile-data';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
-import { FirebaseService } from '../firebase/firebase.service';
-import { Database } from 'firebase-admin/database';
-import { paginate, preparePaginatedResult } from '../common/common.utils';
-import { SellerProfileDataDto } from './dto/seller/seller-profile-data';
 
 @Injectable()
 export class SellerService {
@@ -85,6 +87,7 @@ export class SellerService {
     let nodes = sellers;
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, limit, offset });
 
     return preparePaginatedResult({

@@ -1,21 +1,21 @@
-import fs from 'fs';
 import { Client as HubSpotClient } from '@hubspot/api-client';
-import { capitalize } from 'lodash';
+import fs from 'fs';
+import capitalize from 'lodash/capitalize';
 
-const NOT_STRING_AND_NOT_NUMBER_REGEXP = /[^a-zA-Z0-9]/g;
-const MULTIPLE_UNDERSCORE_REGEXP = /_+/g;
-const FIRST_OR_LATEST_UNDERSCORE_REGEXP = /(^_)|(_$)/g;
+const notStringAndNotNumberRegexp = /[^a-zA-Z0-9]/g;
+const multipleUnderscoreRegexp = /_+/g;
+const firstOrLatestUnderscoreRegexp = /(^_)|(_$)/g;
 
 const prepareLabel = (label: string): string => {
   return label
     .toUpperCase()
-    .replace(NOT_STRING_AND_NOT_NUMBER_REGEXP, '_')
-    .replace(MULTIPLE_UNDERSCORE_REGEXP, '_')
-    .replace(FIRST_OR_LATEST_UNDERSCORE_REGEXP, '');
+    .replace(notStringAndNotNumberRegexp, '_')
+    .replace(multipleUnderscoreRegexp, '_')
+    .replace(firstOrLatestUnderscoreRegexp, '');
 };
 
-const serializeEnum = (name: string, record: Record<string, string>) => {
-  const capitalized = capitalize(name);
+const serializeEnum = (enumName: string, record: Record<string, string>) => {
+  const capitalized = capitalize(enumName);
 
   return `export enum HubSpot${capitalized}Property {
   ${Object.entries(record)
@@ -33,9 +33,9 @@ const print = (path: string, data: string) => {
 };
 
 type CreatePropertiesEnum = {
-  saveFilePath: string;
-  hubSpotObjectType: string;
   hubSpotClient: HubSpotClient;
+  hubSpotObjectType: string;
+  saveFilePath: string;
 };
 
 /**
@@ -82,5 +82,6 @@ export const __dev__createPropertiesEnum = async ({
 
   await print(saveFilePath, enumString);
 
+  // eslint-disable-next-line no-console -- we need console log here
   console.log(`Enum was successful created by path ${saveFilePath}`);
 };

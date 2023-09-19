@@ -1,6 +1,7 @@
 import { PubSub } from 'graphql-subscriptions';
 
 import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
+
 import { OFFER_UPDATED_SUBSCRIPTION } from './offer.constants';
 import { createOfferEventHandler } from './offer.utils/create-offer-event-handler.util';
 

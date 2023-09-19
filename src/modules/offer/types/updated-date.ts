@@ -1,7 +1,8 @@
 import { WorkTime } from 'hero24-types';
 
-import { DeeplyNonNullable, MaybeType } from 'src/modules/common/common.types';
 import { OfferDataDto } from '../dto/offer/offer-data.dto';
+
+import { DeeplyNonNullable, MaybeType } from '$modules/common/common.types';
 
 export type UpdatedDateDB = {
   isPaused: boolean;

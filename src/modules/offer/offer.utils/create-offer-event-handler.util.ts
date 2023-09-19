@@ -1,5 +1,5 @@
-import { OfferDB } from 'hero24-types';
 import { DataSnapshot } from 'firebase-admin/database';
+import { OfferDB } from 'hero24-types';
 
 import { OfferDto } from '../dto/offer/offer.dto';
 

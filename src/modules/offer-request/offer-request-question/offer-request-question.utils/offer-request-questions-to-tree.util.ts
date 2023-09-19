@@ -1,12 +1,15 @@
 import { OfferRequestQuestion } from 'hero24-types';
+import isString from 'lodash/isString';
+import omit from 'lodash/omit';
+
+import { QUESTION_FLAT_ID_NAME } from '../offer-request-question.constants';
 import {
   DependencyId,
-  PlainOfferRequestQuestion,
   OmittedDependencyIdPlainOfferRequestQuestion,
+  PlainOfferRequestQuestion,
 } from '../offer-request-question.types';
+
 import { fillQuestion } from './fill-question.util';
-import { isString, omit } from 'lodash';
-import { QUESTION_FLAT_ID_NAME } from '../offer-request-question.constants';
 
 export const offerRequestQuestionsToTree = (
   questions: PlainOfferRequestQuestion[],

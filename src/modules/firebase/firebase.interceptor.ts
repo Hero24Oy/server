@@ -6,11 +6,11 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 import { FirebaseService } from './firebase.service';
-import { AppGraphQLContext } from 'src/app.types';
+
+import { AppGraphQlContext } from '$/app.types';
 
 @Injectable()
 export class FirebaseInterceptor implements NestInterceptor {
@@ -20,16 +20,20 @@ export class FirebaseInterceptor implements NestInterceptor {
 
   async intercept(
     executionContext: ExecutionContext,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- we need any here
     next: CallHandler<any>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- we need any here
   ): Promise<Observable<any>> {
     try {
-      const graphQLExecutionContext =
+      const graphQlExecutionContext =
         GqlExecutionContext.create(executionContext);
-      const context = graphQLExecutionContext.getContext<AppGraphQLContext>();
+
+      const context = graphQlExecutionContext.getContext<AppGraphQlContext>();
 
       const { identity } = context;
 
       const app = await this.firebaseService.initializeApp(identity?.id);
+
       context.app = app;
 
       const destroyApp = () => this.firebaseService.destroyApp(app);

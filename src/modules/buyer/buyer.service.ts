@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { getDatabase, ref, set, update } from 'firebase/database';
 import { BuyerProfileDB } from 'hero24-types';
 
-import { getDatabase, ref, set, update } from 'firebase/database';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
-import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class BuyerService {
@@ -59,6 +60,7 @@ export class BuyerService {
 
     const database = getDatabase(app);
     const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
+
     await set(ref(database, path.join('/')), data);
 
     return this.strictGetBuyerProfileById(id);
@@ -72,6 +74,7 @@ export class BuyerService {
 
     const database = getDatabase(app);
     const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
+
     await update(ref(database, path.join('/')), data);
 
     return this.strictGetBuyerProfileById(id);

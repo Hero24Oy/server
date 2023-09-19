@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { get, getDatabase, push, ref, set, update } from 'firebase/database';
 import { UserDB } from 'hero24-types';
 
-import { ref, getDatabase, get, set, push, update } from 'firebase/database';
-
+import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
+import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+
+import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataInput } from './dto/creation/user-data.input';
+import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
+import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import { UserCreationArgs } from './dto/creation/user-creation.args';
-import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
-import { UserDataInput } from './dto/creation/user-data.input';
-import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
-import { FirebaseService } from '../firebase/firebase.service';
-import { paginate, preparePaginatedResult } from '../common/common.utils';
 
 @Injectable()
 export class UserService {
@@ -84,6 +84,7 @@ export class UserService {
     }
 
     const total = nodes.length;
+
     nodes = paginate({ nodes, limit, offset });
 
     return preparePaginatedResult({
@@ -124,6 +125,7 @@ export class UserService {
           isCreatedFromWeb,
         },
       );
+
       updatedUserId = newUserRef.key;
     } else if (userId) {
       // user
@@ -134,7 +136,7 @@ export class UserService {
     }
 
     if (!updatedUserId) {
-      throw new Error(`The user can't be created`);
+      throw new Error("The user can't be created");
     }
 
     return this.getUserById(updatedUserId) as Promise<UserDto>;

@@ -1,4 +1,3 @@
-export type OptionalKeys<T> = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  [K in keyof T]-?: {} extends Pick<T, K> ? K : never;
-}[keyof T];
+export type OptionalKeys<Type> = {
+  [Key in keyof Type]-?: object extends Pick<Type, Key> ? Key : never;
+}[keyof Type];

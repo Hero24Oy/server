@@ -1,5 +1,7 @@
+// eslint-disable-next-line max-classes-per-file -- we need it this
 import { Type } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+
 export interface EdgeType<T> {
   cursor: string;
   node: T;
@@ -7,9 +9,9 @@ export interface EdgeType<T> {
 
 export interface PaginatedType<T> {
   edges: EdgeType<T>[];
-  total: number;
+  endCursor: string | null;
   hasNextPage: boolean;
-  endCursor: string | null; // Todo: it's never used
+  total: number; // Todo: it's never used
 }
 
 export function Paginated<T>(classRef: Type<T>): Type<PaginatedType<T>> {

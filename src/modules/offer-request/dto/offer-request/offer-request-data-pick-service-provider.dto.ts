@@ -1,10 +1,11 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB, PickStrategy } from 'hero24-types';
+
 import {
   convertFirebaseMapToList,
   convertListToFirebaseMap,
-} from 'src/modules/common/common.utils';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+} from '$modules/common/common.utils';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type PickServiceProviderDB = Exclude<
   OfferRequestDB['data']['pickServiceProvider'],

@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OfferRequestDB } from 'hero24-types';
 
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 type ChangesAcceptedDB = Required<OfferRequestDB['data']>['changesAccepted'];
 

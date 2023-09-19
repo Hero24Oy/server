@@ -1,28 +1,28 @@
-import { Args, Query, Resolver, Subscription } from '@nestjs/graphql';
 import {
   Inject,
   UnauthorizedException,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
+import { Args, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
-import { AppGraphQLContext } from 'src/app.types';
-import { AuthIdentity } from 'src/modules/auth/auth.decorator';
-import { Identity } from 'src/modules/auth/auth.types';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception.filter';
-import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
-
+import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
-import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
-import { OfferService } from '../services/offer.service';
-import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { OfferSubscriptionInput } from '../dto/offers/offers-subsribption.input';
-import { Scope } from 'src/modules/auth/auth.constants';
-import { OfferIdInput } from '../dto/editing/offer-id.input';
+import { OFFER_UPDATED_SUBSCRIPTION } from '../offer.constants';
+import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
+import { OfferService } from '../services/offer.service';
+
+import { AppGraphQlContext } from '$/app.types';
+import { Scope } from '$modules/auth/auth.constants';
+import { AuthIdentity } from '$modules/auth/auth.decorator';
+import { Identity } from '$modules/auth/auth.types';
+import { AuthGuard } from '$modules/auth/guards/auth.guard';
+import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.filter';
+import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 
 @UseGuards(AuthGuard)
 @UseFilters(FirebaseExceptionFilter)
@@ -55,7 +55,7 @@ export class OfferResolver {
     filter: (
       payload: { [OFFER_UPDATED_SUBSCRIPTION]: OfferDto },
       variables: { input: OfferSubscriptionInput },
-      { identity }: AppGraphQLContext,
+      { identity }: AppGraphQlContext,
     ) => {
       // ? what if provided offerId is not related to the user
       // if ids are provided, filter by them
