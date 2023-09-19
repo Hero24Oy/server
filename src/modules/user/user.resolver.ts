@@ -8,16 +8,13 @@ import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
-import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import { USER_CREATED_SUBSCRIPTION } from './user.constants';
 import { UserService } from './user.service';
 
 @Resolver()
@@ -61,13 +58,9 @@ export class UserResolver {
     @Args() args: UserCreationArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    const emitUserCreated = createSubscriptionEventEmitter(
-      USER_CREATED_SUBSCRIPTION,
-    );
-
     const user = await this.userService.createUser(args, app);
 
-    emitUserCreated<UserCreatedDto>(this.pubSub, { user });
+    this.userService.emitUserCreate(user);
 
     return user;
   }
@@ -85,7 +78,7 @@ export class UserResolver {
 
     const user = await this.userService.editUserData(args, app);
 
-    this.userService.emitUserUpdate({ beforeUpdateUser, user }, this.pubSub);
+    this.userService.emitUserUpdate({ beforeUpdateUser, user });
 
     return user;
   }
@@ -99,7 +92,7 @@ export class UserResolver {
     const beforeUpdateUser = await this.userService.strictGetUserById(input.id);
     const user = await this.userService.editUserAdminStatus(input);
 
-    this.userService.emitUserUpdate({ beforeUpdateUser, user }, this.pubSub);
+    this.userService.emitUserUpdate({ beforeUpdateUser, user });
 
     return Boolean(user);
   }

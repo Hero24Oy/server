@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { get, getDatabase, push, ref, set, update } from 'firebase/database';
 import { PubSub } from 'graphql-subscriptions';
 import { UserDB } from 'hero24-types';
@@ -7,6 +7,7 @@ import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
@@ -18,11 +19,17 @@ import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import { USER_UPDATED_SUBSCRIPTION } from './user.constants';
+import {
+  USER_CREATED_SUBSCRIPTION,
+  USER_UPDATED_SUBSCRIPTION,
+} from './user.constants';
 
 @Injectable()
 export class UserService {
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private firebaseService: FirebaseService,
+    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+  ) {}
 
   async getUserById(userId: string): Promise<UserDto | null> {
     const database = this.firebaseService.getDefaultApp().database();
@@ -235,11 +242,19 @@ export class UserService {
     return userIds.map((userId) => userById.get(userId) || null);
   }
 
-  emitUserUpdate(userChanges: UserUpdatedDto, pubSub: PubSub): void {
+  emitUserUpdate(userChanges: UserUpdatedDto): void {
     const emitUserUpdated = createSubscriptionEventEmitter(
       USER_UPDATED_SUBSCRIPTION,
     );
 
-    emitUserUpdated<UserUpdatedDto>(pubSub, userChanges);
+    emitUserUpdated<UserUpdatedDto>(this.pubSub, userChanges);
+  }
+
+  emitUserCreate(user: UserDto): void {
+    const emitUserCreated = createSubscriptionEventEmitter(
+      USER_CREATED_SUBSCRIPTION,
+    );
+
+    emitUserCreated<UserDto>(this.pubSub, user);
   }
 }
