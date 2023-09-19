@@ -59,13 +59,7 @@ export class UserService {
   async getUsers(args: UsersArgs): Promise<UserListDto> {
     const { limit, offset, search } = args;
 
-    const usersSnapshot = await this.database
-      .ref(FirebaseDatabasePath.USERS)
-      .get();
-
-    const users = Object.entries(
-      (usersSnapshot.val() as Record<string, UserDB>) || {},
-    ).map(([id, user]) => UserDto.adapter.toExternal({ id, ...user }));
+    const users = await this.getAllUsers();
 
     let nodes = users;
 

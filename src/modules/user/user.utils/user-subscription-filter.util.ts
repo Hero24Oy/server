@@ -16,7 +16,7 @@ export const UserSubscriptionFilter =
   (type: UserSubscriptionType) =>
   (
     payload: Payload,
-    _variables: void,
+    _variables: unknown,
     { identity }: AppGraphQlContext,
   ): boolean => {
     const user = payload[type];

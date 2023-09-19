@@ -133,8 +133,8 @@ export class OfferHubSpotService {
       [HubSpotDealProperty.AMOUNT]: `${amount}`,
       [HubSpotDealProperty.DURATION]: `${duration}`,
       [HubSpotDealProperty.PRICE_PER_HOUR]: `${pricePerHour}`,
-      [HubSpotDealProperty.BUYER_PROFILE]: buyerUser.data.email ?? '',
-      [HubSpotDealProperty.SELLER_PROFILE]: sellerUser.data.email ?? '',
+      [HubSpotDealProperty.BUYER_PROFILE]: buyerUser.data.email,
+      [HubSpotDealProperty.SELLER_PROFILE]: sellerUser.data.email,
       [HubSpotDealProperty.CLOSE_DATE]: closeDate.toISOString(),
       [HubSpotDealProperty.DEAL_OWNER]: this.dealOwner,
       [HubSpotDealProperty.SERVICE_CATEGORY]: categoryId,
@@ -149,7 +149,7 @@ export class OfferHubSpotService {
     return properties;
   }
 
-  private async getHubSpotContactId(user: UserDto) {
+  private async getHubSpotContactId(user: UserDto): Promise<string> {
     const { hubSpotContactId } = user;
 
     if (!hubSpotContactId) {
