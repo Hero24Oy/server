@@ -8,7 +8,7 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { ReviewDataInput } from './dto/creation/review-data.input';
 import { ReviewDto } from './dto/review/review.dto';
-import { ReviewFilterInput } from './dto/review/review-filter.input';
+import { SubscribeToReviewUpdateInput } from './dto/review/subscribe-to-review-update.input';
 import { ReviewListDto } from './dto/review-list/review-list.dto';
 import { ReviewListInput } from './dto/review-list/review-list.input';
 import { REVIEW_UPDATED_SUBSCRIPTION } from './review.constants';
@@ -45,7 +45,7 @@ export class ReviewResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   subscribeOnReviewUpdate(
-    @Args('input') _input: ReviewFilterInput,
+    @Args('input') _input: SubscribeToReviewUpdateInput,
   ): AsyncIterator<unknown> {
     return this.pubSub.asyncIterator(REVIEW_UPDATED_SUBSCRIPTION);
   }
