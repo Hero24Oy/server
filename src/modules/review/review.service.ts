@@ -8,14 +8,14 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { SellerService } from '../seller/seller.service';
 
-import { ReviewCreationArgs } from './dto/creation/review-creation.args';
+import { ReviewDataInput } from './dto/creation/review-data.input';
 import { ReviewDto } from './dto/review/review.dto';
-import { ReviewListArgs } from './dto/review-list/review-list.args';
 import { ReviewListDto } from './dto/review-list/review-list.dto';
+import { ReviewListInput } from './dto/review-list/review-list.input';
 
 @Injectable()
 export class ReviewService {
-  database: Database;
+  private readonly database: Database;
 
   constructor(
     private readonly firebaseService: FirebaseService,
@@ -24,27 +24,33 @@ export class ReviewService {
     this.database = this.firebaseService.getDefaultApp().database();
   }
 
-  async getReview(id: string): Promise<ReviewDto> {
+  async getReview(id: string): Promise<ReviewDto | null> {
     const reviewSnapshot = await this.database
       .ref(FirebaseDatabasePath.REVIEWS)
       .child(id)
       .get();
 
-    const review: ReviewDB = await reviewSnapshot.val();
+    const review: ReviewDB | null = await reviewSnapshot.val();
 
-    return ReviewDto.adapter.toExternal({ ...review, id });
+    return review ? ReviewDto.adapter.toExternal({ ...review, id }) : null;
   }
 
-  async getReviews(args: ReviewListArgs): Promise<ReviewListDto> {
-    const { sellerId, offset, limit } = args;
-
-    const seller = await this.sellerService.strictGetSellerById(sellerId);
-
+  async getAllReviews(): Promise<Record<string, ReviewDB>> {
     const allReviewsSnapshot = await this.database
       .ref(FirebaseDatabasePath.REVIEWS)
       .get();
 
-    const allReviews: Record<string, ReviewDB> = allReviewsSnapshot.val();
+    const allReviews: Record<string, ReviewDB> = allReviewsSnapshot.val() ?? {};
+
+    return allReviews;
+  }
+
+  async getReviews(input: ReviewListInput): Promise<ReviewListDto> {
+    const { sellerId, offset, limit } = input;
+
+    const seller = await this.sellerService.strictGetSellerById(sellerId);
+
+    const allReviews = await this.getAllReviews();
 
     let nodes = Object.entries(allReviews)
       .filter(([id]) => seller.reviews?.includes(id))
@@ -62,9 +68,7 @@ export class ReviewService {
     });
   }
 
-  async createReview(args: ReviewCreationArgs): Promise<ReviewDto> {
-    const { input } = args;
-
+  async createReview(input: ReviewDataInput): Promise<ReviewDto> {
     const internalReview = ReviewDto.adapter.toInternal({
       ...input,
       createdAt: new Date(),

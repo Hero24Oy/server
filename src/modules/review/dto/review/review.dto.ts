@@ -1,7 +1,8 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ReviewDB } from 'hero24-types';
-import { MaybeType } from 'src/modules/common/common.types';
-import { FirebaseAdapter } from 'src/modules/firebase/firebase.adapter';
+
+import { MaybeType } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class ReviewDto {
@@ -12,7 +13,7 @@ export class ReviewDto {
   createdAt: Date;
 
   @Field(() => String)
-  sellerProfile: string;
+  sellerProfileId: string;
 
   @Field(() => String)
   text: string;
@@ -24,13 +25,13 @@ export class ReviewDto {
   name?: MaybeType<string>;
 
   @Field(() => String)
-  offerRequest: string;
+  offerRequestId: string;
 
   @Field(() => String)
-  offer: string;
+  offerId: string;
 
   @Field(() => String, { nullable: true })
-  category?: MaybeType<string>;
+  categoryId?: MaybeType<string>;
 
   static adapter: FirebaseAdapter<ReviewDB & { id: string }, ReviewDto>;
 }
@@ -39,26 +40,26 @@ ReviewDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     id: internal.id,
     createdAt: new Date(internal.data.initial.createdAt),
-    sellerProfile: internal.data.initial.sellerProfile,
+    sellerProfileId: internal.data.initial.sellerProfile,
     text: internal.data.initial.text,
     rating: internal.data.initial.rating,
     name: internal.data.initial.name ?? undefined,
-    offerRequest: internal.data.initial.sellerProfile,
-    offer: internal.data.initial.sellerProfile,
-    category: internal.data.initial.sellerProfile ?? undefined,
+    offerRequestId: internal.data.initial.offerRequest,
+    offerId: internal.data.initial.offer,
+    categoryId: internal.data.initial.category ?? undefined,
   }),
   toInternal: (external) => ({
     id: external.id,
     data: {
       initial: {
         createdAt: Number(external.createdAt),
-        sellerProfile: external.sellerProfile,
+        sellerProfile: external.sellerProfileId,
         text: external.text,
         rating: external.rating,
         name: external.name ?? undefined,
-        offerRequest: external.offerRequest,
-        offer: external.offer,
-        category: external.category ?? undefined,
+        offerRequest: external.offerRequestId,
+        offer: external.offerId,
+        category: external.categoryId ?? undefined,
       },
     },
   }),

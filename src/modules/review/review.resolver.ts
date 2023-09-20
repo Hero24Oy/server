@@ -6,11 +6,11 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
-import { ReviewCreationArgs } from './dto/creation/review-creation.args';
+import { ReviewDataInput } from './dto/creation/review-data.input';
 import { ReviewDto } from './dto/review/review.dto';
-import { ReviewFilterInput } from './dto/review/review-filter.input';
-import { ReviewListArgs } from './dto/review-list/review-list.args';
+import { SubscribeToReviewUpdateInput } from './dto/review/subscribe-to-review-update.input';
 import { ReviewListDto } from './dto/review-list/review-list.dto';
+import { ReviewListInput } from './dto/review-list/review-list.input';
 import { REVIEW_UPDATED_SUBSCRIPTION } from './review.constants';
 import { ReviewService } from './review.service';
 import { ReviewSubscriptionFilter } from './review.utils/review-subscription-filter.util';
@@ -25,14 +25,16 @@ export class ReviewResolver {
   @Query(() => ReviewListDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async reviewList(@Args() args: ReviewListArgs): Promise<ReviewListDto> {
-    return this.reviewService.getReviews(args);
+  async reviewList(
+    @Args('input') input: ReviewListInput,
+  ): Promise<ReviewListDto> {
+    return this.reviewService.getReviews(input);
   }
 
   @Mutation(() => ReviewDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async createReview(@Args() args: ReviewCreationArgs): Promise<ReviewDto> {
+  async createReview(@Args('input') args: ReviewDataInput): Promise<ReviewDto> {
     return this.reviewService.createReview(args);
   }
 
@@ -43,7 +45,7 @@ export class ReviewResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   subscribeOnReviewUpdate(
-    @Args('filter') _filter: ReviewFilterInput,
+    @Args('input') _input: SubscribeToReviewUpdateInput,
   ): AsyncIterator<unknown> {
     return this.pubSub.asyncIterator(REVIEW_UPDATED_SUBSCRIPTION);
   }
