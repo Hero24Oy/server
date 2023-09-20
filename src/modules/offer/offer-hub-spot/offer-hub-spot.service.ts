@@ -149,7 +149,7 @@ export class OfferHubSpotService {
     return properties;
   }
 
-  private async getHubSpotContactId(user: UserDto) {
+  private async getHubSpotContactId(user: UserDto): Promise<string> {
     const { hubSpotContactId } = user;
 
     if (!hubSpotContactId) {

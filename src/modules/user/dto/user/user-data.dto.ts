@@ -65,8 +65,8 @@ export class UserDataDto {
   @Field(() => String, { nullable: true })
   ssn?: MaybeType<string>;
 
-  @Field(() => Date)
-  createdAt: Date;
+  @Field(() => Date, { nullable: true })
+  createdAt: MaybeType<Date>;
 
   @Field(() => Date, { nullable: true })
   updatedAt?: MaybeType<Date>;
@@ -114,7 +114,7 @@ UserDataDto.adapter = new FirebaseAdapter({
     certificate: internal.certificate,
     insurance: internal.insurance,
     ssn: internal.ssn,
-    createdAt: new Date(internal.createdAt),
+    createdAt: new Date(internal.createdAt ?? 0),
     updatedAt: isNumber(internal.updatedAt)
       ? new Date(internal.updatedAt)
       : null,
@@ -128,7 +128,7 @@ UserDataDto.adapter = new FirebaseAdapter({
       : null,
   }),
   toInternal: (external) => ({
-    email: external.email,
+    email: external.email ?? undefined,
     emailVerified: external.emailVerified ?? false,
     pushToken: external.pushToken
       ? convertListToFirebaseMap(external.pushToken)
@@ -137,7 +137,7 @@ UserDataDto.adapter = new FirebaseAdapter({
     firstName: external.firstName ?? undefined,
     lastName: external.lastName ?? undefined,
     photoURL: external.photoURL,
-    language: external.language || '',
+    language: external.language ?? 'en',
     isActive: external.isActive ?? undefined,
     activeRoute: external.activeRoute
       ? UserDataActiveRouteDto.adapter.toInternal(external.activeRoute)
@@ -148,7 +148,7 @@ UserDataDto.adapter = new FirebaseAdapter({
           Address
         >)
       : undefined,
-    phone: external.phone || '',
+    phone: external.phone ?? '',
     iban: external.iban ?? undefined,
     birthDate: external.birthDate ? Number(external.birthDate) : undefined,
     certificate: external.certificate ?? undefined,

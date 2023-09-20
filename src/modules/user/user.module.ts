@@ -14,6 +14,7 @@ import { UserHubSpotModule } from './user-hub-spot/user-hub-spot.module';
     FirebaseModule,
     GraphQlPubsubModule,
     UserHubSpotModule,
+    GraphQlPubsubModule,
     GraphQlContextManagerModule.forFeature({
       contexts: [UserContext],
       imports: [UserModule],

@@ -1,11 +1,9 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
@@ -21,12 +19,13 @@ import {
   USER_UPDATED_SUBSCRIPTION,
 } from './user.constants';
 import { UserService } from './user.service';
+import { UserSubscriptionFilter } from './user.utils/user-subscription-filter.util';
 
 @Resolver()
 export class UserResolver {
   constructor(
-    private userService: UserService,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    private readonly userService: UserService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
   @Query(() => UserDto, { nullable: true })
@@ -39,35 +38,26 @@ export class UserResolver {
   @Query(() => UserListDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async users(
-    @Args() args: UsersArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserListDto> {
-    return this.userService.getUsers(args, app);
+  async users(@Args() args: UsersArgs): Promise<UserListDto> {
+    return this.userService.getUsers(args);
   }
 
   @Query(() => String)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async phone(
-    @Args('userId') userId: string,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ) {
-    return this.userService.getUserPhone(userId, app);
+  async phone(@Args('userId') userId: string): Promise<string> {
+    return this.userService.getUserPhone(userId);
   }
 
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async createUser(
-    @Args() args: UserCreationArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserDto> {
+  async createUser(@Args() args: UserCreationArgs): Promise<UserDto> {
     const emitUserCreated = createSubscriptionEventEmitter(
       USER_CREATED_SUBSCRIPTION,
     );
 
-    const user = await this.userService.createUser(args, app);
+    const user = await this.userService.createUser(args);
 
     emitUserCreated<UserCreatedDto>(this.pubSub, { user });
 
@@ -77,10 +67,7 @@ export class UserResolver {
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async editUserData(
-    @Args() args: UserDataEditingArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserDto> {
+  async editUserData(@Args() args: UserDataEditingArgs): Promise<UserDto> {
     const emitUserUpdated = createSubscriptionEventEmitter(
       USER_UPDATED_SUBSCRIPTION,
     );
@@ -91,7 +78,7 @@ export class UserResolver {
       throw new Error('User not found');
     }
 
-    const user = await this.userService.editUserData(args, app);
+    const user = await this.userService.editUserData(args);
 
     emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
 
@@ -105,12 +92,27 @@ export class UserResolver {
     @Args('userId', { type: () => String }) userId: string,
     @Args('offerRequestIds', { type: () => [String] })
     offerRequestIds: string[],
-    @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<boolean> {
-    return this.userService.unbindUserOfferRequests(
-      userId,
-      offerRequestIds,
-      app,
-    );
+    return this.userService.unbindUserOfferRequests(userId, offerRequestIds);
+  }
+
+  @Subscription(() => UserUpdatedDto, {
+    name: USER_UPDATED_SUBSCRIPTION,
+    filter: UserSubscriptionFilter(USER_UPDATED_SUBSCRIPTION),
+  })
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  subscribeOnUserUpdate(): AsyncIterator<unknown> {
+    return this.pubSub.asyncIterator(USER_UPDATED_SUBSCRIPTION);
+  }
+
+  @Subscription(() => UserCreatedDto, {
+    name: USER_CREATED_SUBSCRIPTION,
+    filter: UserSubscriptionFilter(USER_CREATED_SUBSCRIPTION),
+  })
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  subscribeOnUserCreate(): AsyncIterator<unknown> {
+    return this.pubSub.asyncIterator(USER_CREATED_SUBSCRIPTION);
   }
 }
