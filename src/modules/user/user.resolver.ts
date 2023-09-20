@@ -5,9 +5,12 @@ import { PubSub } from 'graphql-subscriptions';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
+import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
+import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
@@ -50,7 +53,13 @@ export class UserResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createUser(@Args() args: UserCreationArgs): Promise<UserDto> {
+    const emitUserCreated = createSubscriptionEventEmitter(
+      USER_CREATED_SUBSCRIPTION,
+    );
+
     const user = await this.userService.createUser(args);
+
+    emitUserCreated<UserCreatedDto>(this.pubSub, { user });
 
     return user;
   }
@@ -59,6 +68,10 @@ export class UserResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async editUserData(@Args() args: UserDataEditingArgs): Promise<UserDto> {
+    const emitUserUpdated = createSubscriptionEventEmitter(
+      USER_UPDATED_SUBSCRIPTION,
+    );
+
     const beforeUpdateUser = await this.userService.getUserById(args.userId);
 
     if (!beforeUpdateUser) {
@@ -66,6 +79,8 @@ export class UserResolver {
     }
 
     const user = await this.userService.editUserData(args);
+
+    emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
 
     return user;
   }
@@ -81,7 +96,7 @@ export class UserResolver {
     return this.userService.unbindUserOfferRequests(userId, offerRequestIds);
   }
 
-  @Subscription(() => UserDto, {
+  @Subscription(() => UserUpdatedDto, {
     name: USER_UPDATED_SUBSCRIPTION,
     filter: UserSubscriptionFilter(USER_UPDATED_SUBSCRIPTION),
   })
@@ -91,7 +106,7 @@ export class UserResolver {
     return this.pubSub.asyncIterator(USER_UPDATED_SUBSCRIPTION);
   }
 
-  @Subscription(() => UserDto, {
+  @Subscription(() => UserCreatedDto, {
     name: USER_CREATED_SUBSCRIPTION,
     filter: UserSubscriptionFilter(USER_CREATED_SUBSCRIPTION),
   })
