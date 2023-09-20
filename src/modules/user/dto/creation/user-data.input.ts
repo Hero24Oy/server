@@ -1,6 +1,6 @@
 import { InputType, OmitType } from '@nestjs/graphql';
 import { Address, UserDB } from 'hero24-types';
-import { isNumber } from 'lodash';
+import isNumber from 'lodash/isNumber';
 
 import { UserDataDto } from '../user/user-data.dto';
 import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';

@@ -1,6 +1,6 @@
 import { InputType, OmitType } from '@nestjs/graphql';
 import { UserMergeDB } from 'hero24-types';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 
 import { UserMergeDto } from './user-merge.dto';
 

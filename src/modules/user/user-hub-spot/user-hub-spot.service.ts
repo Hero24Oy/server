@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Maybe } from 'graphql/jsutils/Maybe';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 
 import { HubSpotContactService } from '../../hub-spot/hub-spot-contact/hub-spot-contact.service';
 import {

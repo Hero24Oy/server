@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Address, SupportedLanguages, UserDB } from 'hero24-types';
-import { isNumber } from 'lodash';
+import isNumber from 'lodash/isNumber';
 
 import { UserDataActiveRouteDto } from './user-data-active-route.dto';
 import { UserDataAddressDto } from './user-data-address.dto';
