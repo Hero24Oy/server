@@ -1,8 +1,7 @@
 import { InputType, OmitType } from '@nestjs/graphql';
-import { Address } from 'hero24-types';
+import { Address, UserDB } from 'hero24-types';
 import { isNumber } from 'lodash';
 
-import { UserDbWithPartialData } from '../../user.types';
 import { UserDataDto } from '../user/user-data.dto';
 import { UserDataActiveRouteDto } from '../user/user-data-active-route.dto';
 import { UserDataAddressDto } from '../user/user-data-address.dto';
@@ -24,7 +23,7 @@ export class UserDataInput extends OmitType(
   InputType,
 ) {
   static adapter: FirebaseAdapter<
-    Pick<UserDbWithPartialData['data'], keyof UserDataInput>,
+    Pick<UserDB['data'], keyof UserDataInput>,
     UserDataInput
   >;
 }
@@ -69,7 +68,7 @@ UserDataInput.adapter = new FirebaseAdapter({
     firstName: external.firstName ?? undefined,
     lastName: external.lastName ?? undefined,
     photoURL: external.photoURL ?? undefined,
-    language: external.language ?? undefined,
+    language: external.language ?? 'en',
     isActive: external.isActive ?? undefined,
     activeRoute: external.activeRoute
       ? UserDataActiveRouteDto.adapter.toInternal(external.activeRoute)
@@ -80,7 +79,7 @@ UserDataInput.adapter = new FirebaseAdapter({
           Address
         >)
       : undefined,
-    phone: external.phone ?? undefined,
+    phone: external.phone ?? '',
     iban: external.iban ?? undefined,
     birthDate: external.birthDate ? Number(external.birthDate) : undefined,
     certificate: external.certificate ?? undefined,
