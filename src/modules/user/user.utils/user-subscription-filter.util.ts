@@ -1,4 +1,5 @@
-import { UserDto } from '../dto/user/user.dto';
+import { UserCreatedDto } from '../dto/subscriptions/user-created.dto';
+import { UserUpdatedDto } from '../dto/subscriptions/user-updated.dto';
 import {
   USER_CREATED_SUBSCRIPTION,
   USER_UPDATED_SUBSCRIPTION,
@@ -10,7 +11,7 @@ type UserSubscriptionType =
   | typeof USER_CREATED_SUBSCRIPTION
   | typeof USER_UPDATED_SUBSCRIPTION;
 
-type Payload = Record<UserSubscriptionType, UserDto>;
+type Payload = Record<UserSubscriptionType, UserUpdatedDto | UserCreatedDto>;
 
 export const UserSubscriptionFilter =
   (type: UserSubscriptionType) =>
@@ -19,7 +20,7 @@ export const UserSubscriptionFilter =
     _variables: unknown,
     { identity }: AppGraphQlContext,
   ): boolean => {
-    const user = payload[type];
+    const { user } = payload[type];
 
     if (user.id !== identity?.id) {
       return false;
