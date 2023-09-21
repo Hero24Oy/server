@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
 
-import { configProvider } from '$config';
+import { CONFIG_PROVIDER } from '$config';
 
-export const Config = () => Inject(configProvider);
+export const Config = () => Inject(CONFIG_PROVIDER);

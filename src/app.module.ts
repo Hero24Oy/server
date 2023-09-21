@@ -6,7 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
 import config, {
-  configProvider,
+  CONFIG_PROVIDER,
   ConfigType,
   configValidationSchema,
 } from './config';
@@ -40,25 +40,23 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     GraphQLModule.forRootAsync({
       driver: ApolloDriver,
       imports: [GraphQlContextManagerModule.forRoot()],
-      inject: [configProvider, GraphQlContextManagerService],
+      inject: [CONFIG_PROVIDER, GraphQlContextManagerService],
       useFactory: (
         serverConfig: ConfigType,
         graphQLManagerService: GraphQlContextManagerService,
-      ): ApolloDriverConfig => {
-        return {
-          autoSchemaFile: true,
-          subscriptions: {
-            'graphql-ws': true,
-            'subscriptions-transport-ws': {
-              onConnect: (connectionParams: GraphQlConnectionParams) =>
-                graphQLManagerService.createContext({ connectionParams }),
-            },
+      ): ApolloDriverConfig => ({
+        autoSchemaFile: true,
+        subscriptions: {
+          'graphql-ws': true,
+          'subscriptions-transport-ws': {
+            onConnect: (connectionParams: GraphQlConnectionParams) =>
+              graphQLManagerService.createContext({ connectionParams }),
           },
-          playground: serverConfig.app.isDevelopment,
-          context: async (ctx: GraphQlBaseContext) =>
-            graphQLManagerService.createContext(ctx),
-        };
-      },
+        },
+        playground: serverConfig.app.isDevelopment,
+        context: async (ctx: GraphQlBaseContext) =>
+          graphQLManagerService.createContext(ctx),
+      }),
     }),
     GraphQlPubsubModule,
     FirebaseModule,

@@ -3,13 +3,13 @@ import * as bodyParser from 'body-parser';
 
 import { MAXIMUM_UPLOAD_SIZE } from './app.constants';
 import { AppModule } from './app.module';
-import { configProvider, ConfigType } from './config';
+import { CONFIG_PROVIDER, ConfigType } from './config';
 import { FirebaseInterceptor } from './modules/firebase/firebase.interceptor';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
-  const config: ConfigType = app.get(configProvider);
+  const config = app.get<ConfigType>(CONFIG_PROVIDER);
   const firebaseInterceptor = app.get(FirebaseInterceptor);
 
   const { port } = config.app;

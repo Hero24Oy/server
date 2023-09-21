@@ -39,7 +39,7 @@ export class OfferHubSpotService {
     private readonly feePriceCalculator: FeePriceCalculatorService,
     private readonly feeService: FeeService,
   ) {
-    this.dealOwner = this.config.hubSpot.dealOwner ?? '';
+    this.dealOwner = this.config.hubSpot.dealOwner;
   }
 
   async createDeal(offer: OfferDto): Promise<HubSpotDealObject> {

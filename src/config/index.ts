@@ -23,6 +23,6 @@ const registerConfig = registerAs('config', () => config);
 
 export type ConfigType = NestJsConfigType<typeof registerConfig>;
 
-export const configProvider = registerConfig.KEY;
+export const CONFIG_PROVIDER = registerConfig.KEY;
 
 export default registerConfig;
