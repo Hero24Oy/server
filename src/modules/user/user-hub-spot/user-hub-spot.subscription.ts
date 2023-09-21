@@ -11,7 +11,8 @@ import {
 
 import { UserHubSpotService } from './user-hub-spot.service';
 
-import { Config, configProvider } from '$config';
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { subscribeToEvent } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 import { HubSpotSubscription } from '$modules/hub-spot/hub-spot-subscription.interface';
 import { Unsubscribe } from '$modules/subscription-manager/subscription-manager.types';
@@ -21,8 +22,8 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
   constructor(
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
     private readonly userHubSpotService: UserHubSpotService,
-    @Inject(configProvider)
-    protected readonly config: Config,
+    @Config()
+    protected readonly config: ConfigType,
   ) {
     super();
   }

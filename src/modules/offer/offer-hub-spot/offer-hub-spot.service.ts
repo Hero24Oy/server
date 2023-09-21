@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferPriceCalculatorService } from '../offer-price-calculator/offer-price-calculator.service';
@@ -6,7 +6,8 @@ import { OfferService } from '../services/offer.service';
 
 import { HUB_SPOT_DEAL_STAGE_BY_OFFER_STATUS } from './offer-hub-spot.constants';
 
-import { Config, configProvider } from '$config';
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { FeeService } from '$modules/fee/fee.service';
 import { FeePriceCalculatorService } from '$modules/fee/fee-price-calculator/fee-price-calculator.service';
 import { HubSpotDealProperty } from '$modules/hub-spot/hub-spot-deal/hub-spot-deal.constants/hub-spot-deal-property.constant';
@@ -30,8 +31,8 @@ export class OfferHubSpotService {
     private readonly hubSpotDealService: HubSpotDealService,
     private readonly userHubSpotService: UserHubSpotService,
     private readonly userService: UserService,
-    @Inject(configProvider)
-    private readonly config: Config,
+    @Config()
+    private readonly config: ConfigType,
     private readonly offerRequestService: OfferRequestService,
     private readonly offerService: OfferService,
     private readonly offerPriceCalculator: OfferPriceCalculatorService,

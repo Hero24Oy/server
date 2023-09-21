@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { deleteApp, getApps, initializeApp } from 'firebase/app';
 import { AuthError, getAuth, signInWithCustomToken } from 'firebase/auth';
 import * as admin from 'firebase-admin';
@@ -16,7 +16,8 @@ import {
   FirebaseConfig,
 } from './firebase.types';
 
-import { Config, configProvider } from '$config';
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 
 @Injectable()
 export class FirebaseService {
@@ -27,8 +28,8 @@ export class FirebaseService {
   private readonly logger = new Logger(FirebaseService.name);
 
   constructor(
-    @Inject(configProvider)
-    private readonly config: Config,
+    @Config()
+    private readonly config: ConfigType,
     private readonly firebaseAppService: FirebaseAppService,
   ) {
     this.app = admin.initializeApp({

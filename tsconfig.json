@@ -7,10 +7,11 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "$/*": ["src/*"],
       "$modules/*": ["src/modules/*"],
       "$configs/*": ["src/config/*"],
-      "$config": ["src/config/index"]
+      "$config": ["src/config/index"],
+      "$decorator": ["src/common/decorators/index"],
+      "$/*": ["src/*"]
     },
     "module": "commonjs",
     "declaration": true,

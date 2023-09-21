@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Reference } from 'firebase-admin/database';
 
 import { FirebaseService } from '../firebase/firebase.service';
@@ -11,7 +11,8 @@ import {
 import { createOfferEventHandler } from './offer.utils/create-offer-event-handler.util';
 import { OfferService } from './services/offer.service';
 
-import { Config, configProvider } from '$config';
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { skipFirst } from '$modules/common/common.utils';
 
 @Injectable()
@@ -19,8 +20,7 @@ export class OfferSubscription implements SubscriptionService {
   constructor(
     private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
-    @Inject(configProvider)
-    protected readonly config: Config,
+    @Config() protected readonly config: ConfigType,
   ) {}
 
   public subscribe(): Unsubscribe {

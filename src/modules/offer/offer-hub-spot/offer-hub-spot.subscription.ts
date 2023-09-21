@@ -10,7 +10,8 @@ import {
 import { OfferHubSpotService } from './offer-hub-spot.service';
 
 import { Unsubscribe } from '$/modules/subscription-manager/subscription-manager.types';
-import { Config, configProvider } from '$config';
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 import { subscribeToEvent } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 import { HubSpotSubscription } from '$modules/hub-spot/hub-spot-subscription.interface';
@@ -21,8 +22,8 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
 
   constructor(
     private readonly offerHubSpotService: OfferHubSpotService,
-    @Inject(configProvider)
-    protected readonly config: Config,
+    @Config()
+    protected readonly config: ConfigType,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {
     super();

@@ -6,8 +6,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
 import config, {
-  Config,
   configProvider,
+  ConfigType,
   configValidationSchema,
 } from './config';
 import { AuthModule } from './modules/auth/auth.module';
@@ -42,7 +42,7 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
       imports: [GraphQlContextManagerModule.forRoot()],
       inject: [configProvider, GraphQlContextManagerService],
       useFactory: (
-        serverConfig: Config,
+        serverConfig: ConfigType,
         graphQLManagerService: GraphQlContextManagerService,
       ): ApolloDriverConfig => {
         return {
