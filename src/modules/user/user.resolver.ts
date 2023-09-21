@@ -62,7 +62,11 @@ export class UserResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AdminGuard)
   async createAdmin(@Args('data') data: UserDataInput): Promise<UserDto> {
-    return this.userService.createAdmin(data);
+    const user = await this.userService.createAdmin(data);
+
+    this.userService.emitUserCreated({ user });
+
+    return user;
   }
 
   @Mutation(() => UserDto)
