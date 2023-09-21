@@ -18,7 +18,7 @@ import { UserService } from './user.service';
 
 @Resolver()
 export class UserResolver {
-  constructor(private userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Query(() => UserDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
@@ -43,28 +43,26 @@ export class UserResolver {
   async phone(
     @Args('userId') userId: string,
     @FirebaseApp() app: FirebaseAppInstance,
-  ) {
+  ): Promise<string> {
     return this.userService.getUserPhone(userId, app);
   }
 
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async createUser(
-    @Args() args: UserCreationArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserDto> {
-    return this.userService.createUser(args, app);
+  async createUser(@Args() args: UserCreationArgs): Promise<UserDto> {
+    const user = await this.userService.createUser(args);
+
+    this.userService.emitUserCreate({ user });
+
+    return user;
   }
 
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AdminGuard)
-  async createAdmin(
-    @Args('data') data: UserDataInput,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserDto> {
-    return this.userService.createAdmin(data, app);
+  async createAdmin(@Args('data') data: UserDataInput): Promise<UserDto> {
+    return this.userService.createAdmin(data);
   }
 
   @Mutation(() => UserDto)
@@ -74,7 +72,13 @@ export class UserResolver {
     @Args() args: UserDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    return this.userService.editUserData(args, app);
+    const { userId } = args;
+    const beforeUpdateUser = await this.userService.strictGetUserById(userId);
+    const user = await this.userService.editUserData(args, app);
+
+    this.userService.emitUserUpdate({ beforeUpdateUser, user });
+
+    return user;
   }
 
   @Mutation(() => Boolean)
@@ -83,7 +87,10 @@ export class UserResolver {
   async editUserAdminStatus(
     @Args('input') input: UserAdminStatusEditInput,
   ): Promise<boolean> {
+    const beforeUpdateUser = await this.userService.strictGetUserById(input.id);
     const user = await this.userService.editUserAdminStatus(input);
+
+    this.userService.emitUserUpdate({ beforeUpdateUser, user });
 
     return Boolean(user);
   }
