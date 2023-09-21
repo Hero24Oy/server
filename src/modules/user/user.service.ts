@@ -9,7 +9,6 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataInput } from './dto/creation/user-data.input';
@@ -21,10 +20,8 @@ import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import {
-  USER_CREATED_SUBSCRIPTION,
-  USER_UPDATED_SUBSCRIPTION,
-} from './user.constants';
+import { emitUserCreated } from './user.utils/emit-user-created.util';
+import { emitUserUpdated } from './user.utils/emit-user-updated.util';
 
 @Injectable()
 export class UserService {
@@ -257,19 +254,11 @@ export class UserService {
     return newUser;
   }
 
-  emitUserUpdate(userChanges: UserUpdatedDto): void {
-    const emitUserUpdated = createSubscriptionEventEmitter(
-      USER_UPDATED_SUBSCRIPTION,
-    );
-
+  emitUserUpdated(userChanges: UserUpdatedDto): void {
     emitUserUpdated<UserUpdatedDto>(this.pubSub, userChanges);
   }
 
-  emitUserCreate(user: UserCreatedDto): void {
-    const emitUserCreated = createSubscriptionEventEmitter(
-      USER_CREATED_SUBSCRIPTION,
-    );
-
+  emitUserCreated(user: UserCreatedDto): void {
     emitUserCreated<UserCreatedDto>(this.pubSub, user);
   }
 }

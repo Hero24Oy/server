@@ -53,7 +53,7 @@ export class UserResolver {
   async createUser(@Args() args: UserCreationArgs): Promise<UserDto> {
     const user = await this.userService.createUser(args);
 
-    this.userService.emitUserCreate({ user });
+    this.userService.emitUserCreated({ user });
 
     return user;
   }
@@ -76,7 +76,7 @@ export class UserResolver {
     const beforeUpdateUser = await this.userService.strictGetUserById(userId);
     const user = await this.userService.editUserData(args, app);
 
-    this.userService.emitUserUpdate({ beforeUpdateUser, user });
+    this.userService.emitUserUpdated({ beforeUpdateUser, user });
 
     return user;
   }
@@ -90,7 +90,7 @@ export class UserResolver {
     const beforeUpdateUser = await this.userService.strictGetUserById(input.id);
     const user = await this.userService.editUserAdminStatus(input);
 
-    this.userService.emitUserUpdate({ beforeUpdateUser, user });
+    this.userService.emitUserUpdated({ beforeUpdateUser, user });
 
     return Boolean(user);
   }
