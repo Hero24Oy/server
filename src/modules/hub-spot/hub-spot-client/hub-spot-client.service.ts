@@ -1,13 +1,17 @@
 import * as HubSpot from '@hubspot/api-client';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+
+import { Config, configProvider } from '$config';
 
 @Injectable()
 export class HubSpotClientService {
   public readonly client: HubSpot.Client;
 
-  constructor(configService: ConfigService) {
-    const accessToken = configService.getOrThrow<string>('hubSpot.accessToken');
+  constructor(
+    @Inject(configProvider)
+    private readonly config: Config,
+  ) {
+    const { accessToken } = this.config.hubSpot;
 
     this.client = new HubSpot.Client({
       accessToken,

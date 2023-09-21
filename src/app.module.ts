@@ -1,11 +1,15 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
-import config, { configValidationSchema } from './config';
+import config, {
+  Config,
+  configProvider,
+  configValidationSchema,
+} from './config';
 import { AuthModule } from './modules/auth/auth.module';
 import { BuyerModule } from './modules/buyer/buyer.module';
 import { ChatModule } from './modules/chat/chat.module';
@@ -36,23 +40,25 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     GraphQLModule.forRootAsync({
       driver: ApolloDriver,
       imports: [GraphQlContextManagerModule.forRoot()],
-      inject: [ConfigService, GraphQlContextManagerService],
+      inject: [configProvider, GraphQlContextManagerService],
       useFactory: (
-        configService: ConfigService,
+        serverConfig: Config,
         graphQLManagerService: GraphQlContextManagerService,
-      ): ApolloDriverConfig => ({
-        autoSchemaFile: true,
-        subscriptions: {
-          'graphql-ws': true,
-          'subscriptions-transport-ws': {
-            onConnect: (connectionParams: GraphQlConnectionParams) =>
-              graphQLManagerService.createContext({ connectionParams }),
+      ): ApolloDriverConfig => {
+        return {
+          autoSchemaFile: true,
+          subscriptions: {
+            'graphql-ws': true,
+            'subscriptions-transport-ws': {
+              onConnect: (connectionParams: GraphQlConnectionParams) =>
+                graphQLManagerService.createContext({ connectionParams }),
+            },
           },
-        },
-        playground: configService.get<boolean>('app.isDevelopment'),
-        context: async (ctx: GraphQlBaseContext) =>
-          graphQLManagerService.createContext(ctx),
-      }),
+          playground: serverConfig.app.isDevelopment,
+          context: async (ctx: GraphQlBaseContext) =>
+            graphQLManagerService.createContext(ctx),
+        };
+      },
     }),
     GraphQlPubsubModule,
     FirebaseModule,
