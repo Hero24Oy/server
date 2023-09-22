@@ -5,7 +5,10 @@ import { UserDB } from 'hero24-types';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
+import {
+  FirebaseAppInstance,
+  FirebaseTableReference,
+} from '../firebase/firebase.types';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataInput } from './dto/creation/user-data.input';
@@ -17,17 +20,18 @@ import { UsersArgs } from './dto/users/users.args';
 
 @Injectable()
 export class UserService {
-  constructor(private firebaseService: FirebaseService) {}
+  private userTableRef: FirebaseTableReference<UserDB>;
+
+  constructor(firebaseService: FirebaseService) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.userTableRef = database.ref(FirebaseDatabasePath.USERS);
+  }
 
   async getUserById(userId: string): Promise<UserDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const userSnapshot = await this.userTableRef.child(userId).get();
 
-    const userSnapshot = await database
-      .ref(FirebaseDatabasePath.USERS)
-      .child(userId)
-      .get();
-
-    const user: UserDB | null = userSnapshot.val();
+    const user = userSnapshot.val();
 
     return user && UserDto.adapter.toExternal({ id: userId, ...user });
   }
@@ -42,12 +46,10 @@ export class UserService {
     return user;
   }
 
-  async getAllUsers() {
-    const database = this.firebaseService.getDefaultApp().database();
-    const usersRef = database.ref(FirebaseDatabasePath.USERS);
+  async getAllUsers(): Promise<UserDto[]> {
+    const usersSnapshot = await this.userTableRef.get();
 
-    const usersSnapshot = await usersRef.get();
-    const usersTable: Record<string, UserDB> = usersSnapshot.val() || {};
+    const usersTable = usersSnapshot.val() || {};
 
     return Object.entries(usersTable).map(([id, user]) =>
       UserDto.adapter.toExternal({ id, ...user }),
@@ -193,14 +195,14 @@ export class UserService {
     return phoneSnapshot.val() || '';
   }
 
-  async setHubSpotContactId(userId: string, hubSpotContactId?: string) {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    await database
-      .ref(FirebaseDatabasePath.USERS)
+  async setHubSpotContactId(
+    userId: string,
+    hubSpotContactId: string,
+  ): Promise<void> {
+    await this.userTableRef
       .child(userId)
       .child('hubSpotContactId')
-      .set(hubSpotContactId || null);
+      .set(hubSpotContactId);
   }
 
   async getUserByIds(userIds: readonly string[]): Promise<(UserDto | null)[]> {
