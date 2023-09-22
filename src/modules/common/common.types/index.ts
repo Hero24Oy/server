@@ -11,3 +11,6 @@ export * from './enum-to-string.type';
 export * from './keys.type';
 export * from './values.type';
 export * from './deeply-non-nullable.type';
+export * from './primitive.type';
+export * from './extract-keys.type';
+export * from './extract-object.type';
