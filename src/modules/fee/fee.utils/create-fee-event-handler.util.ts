@@ -1,21 +1,22 @@
-import { DataSnapshot } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 import { FeeDB } from 'hero24-types';
 
 import { FeeDto } from '../dto/fee/fee.dto';
 
+import { FirebaseSnapshot } from '$/modules/firebase/firebase.types';
+
 export const createFeeEventHandler =
   (eventEmitter: (pubsub: PubSub, fee: FeeDto) => void) =>
   (pubsub: PubSub) =>
-  (snapshot: DataSnapshot) => {
-    if (!snapshot.key) {
+  (snapshot: FirebaseSnapshot<FeeDB>): void => {
+    const fee = snapshot.val();
+
+    if (!snapshot.key || !fee) {
       return;
     }
 
-    const fees: FeeDB = snapshot.val();
-
     eventEmitter(
       pubsub,
-      FeeDto.adapter.toExternal({ ...fees, id: snapshot.key }),
+      FeeDto.adapter.toExternal({ ...fee, id: snapshot.key }),
     );
   };

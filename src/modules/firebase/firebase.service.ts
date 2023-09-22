@@ -14,6 +14,7 @@ import {
   FirebaseAdminAppInstance,
   FirebaseAdminStorage,
   FirebaseAppInstance,
+  FirebaseTable,
 } from './firebase.types';
 
 @Injectable()
@@ -177,9 +178,9 @@ export class FirebaseService {
   async getIsAdmin(userId: string) {
     const isAdminSnapshot = await this.app
       .database()
-      .ref(FirebaseDatabasePath.ADMIN_USERS)
+      .ref<FirebaseTable<boolean>>(FirebaseDatabasePath.ADMIN_USERS)
       .child(userId)
-      .once('value');
+      .get();
 
     return Boolean(isAdminSnapshot.val());
   }

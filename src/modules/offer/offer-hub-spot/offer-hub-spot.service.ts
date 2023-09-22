@@ -18,9 +18,7 @@ import {
 } from '$modules/hub-spot/hub-spot-deal/hub-spot-deal.types';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 import { RoundedNumber } from '$modules/price-calculator/price-calculator.monad';
-import { UserDto } from '$modules/user/dto/user/user.dto';
 import { UserService } from '$modules/user/user.service';
-import { UserHubSpotService } from '$modules/user/user-hub-spot/user-hub-spot.service';
 
 @Injectable()
 export class OfferHubSpotService {
@@ -28,7 +26,6 @@ export class OfferHubSpotService {
 
   constructor(
     private hubSpotDealService: HubSpotDealService,
-    private userHubSpotService: UserHubSpotService,
     private userService: UserService,
     private configService: ConfigService,
     private offerRequestService: OfferRequestService,
@@ -137,17 +134,5 @@ export class OfferHubSpotService {
     };
 
     return properties;
-  }
-
-  private async getHubSpotContactId(user: UserDto) {
-    const { hubSpotContactId } = user;
-
-    if (!hubSpotContactId) {
-      const contact = await this.userHubSpotService.strictUpsertContact(user);
-
-      return contact.id;
-    }
-
-    return hubSpotContactId;
   }
 }

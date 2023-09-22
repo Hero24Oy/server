@@ -11,9 +11,14 @@ import { emitOfferUpdatedEvent } from '../offer.utils/emit-offer-updated-event.u
 import { filterOffers } from '../offer.utils/filter-offers.util';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 
+import { FirebaseTableReference } from '$/modules/firebase/firebase.types';
 import { Scope } from '$modules/auth/auth.constants';
 import { Identity } from '$modules/auth/auth.types';
-import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
+import {
+  isNotNull,
+  paginate,
+  preparePaginatedResult,
+} from '$modules/common/common.utils';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
@@ -23,25 +28,26 @@ import { SorterService } from '$modules/sorter/sorter.service';
 export class OfferService {
   private logger = new Logger(OfferService.name);
 
+  readonly offerTableRef: FirebaseTableReference<OfferDB>;
+
   constructor(
-    private readonly firebaseService: FirebaseService,
     private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
-  ) {}
+    firebaseService: FirebaseService,
+  ) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.offerTableRef = database.ref(FirebaseDatabasePath.OFFERS);
+  }
 
   async offerUpdated(offer: OfferDto): Promise<void> {
     emitOfferUpdatedEvent(this.pubSub, offer);
   }
 
   async getOfferById(offerId: string): Promise<OfferDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const snapshot = await this.offerTableRef.child(offerId).get();
 
-    const snapshot = await database
-      .ref(FirebaseDatabasePath.OFFERS)
-      .child(offerId)
-      .get();
-
-    const offer: OfferDB | null = snapshot.val();
+    const offer = snapshot.val();
 
     return offer && OfferDto.adapter.toExternal({ id: offerId, ...offer });
   }
@@ -56,76 +62,69 @@ export class OfferService {
     return offer;
   }
 
-  async setHubSpotDealId(offerId: string, dealId: string | null) {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    await database
-      .ref(FirebaseDatabasePath.OFFERS)
+  async setHubSpotDealId(
+    offerId: string,
+    dealId: string | null,
+  ): Promise<void> {
+    await this.offerTableRef
       .child(offerId)
       .child('hubSpotDealId')
-      .set(dealId);
+      // Todo: add support nulls to hero24-types
+      .set(dealId as string);
   }
 
   async updateOfferStatus({
     offerId,
     status,
   }: OfferStatusInput): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
-
-    await offerRef.child('status').set(status);
+    await this.offerTableRef.child(offerId).child('status').set(status);
 
     return true;
   }
 
+  async getAllOffers(): Promise<OfferDto[]> {
+    const offersSnapshot = await this.offerTableRef.get();
+
+    const offers = offersSnapshot.val() || {};
+
+    return Object.entries(offers)
+      .map(([id, offer]) => ({ id, ...offer }))
+      .map((offer) => {
+        try {
+          // * in case data is corrupted, we we should handle it without crashing the app
+          return OfferDto.adapter.toExternal(offer);
+        } catch (error) {
+          this.logger.error(`Error while converting offer ${offer.id}`);
+          this.logger.error(error);
+        }
+
+        return null;
+      })
+      .filter(isNotNull);
+  }
+
   async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
-    const database = this.firebaseService.getDefaultApp().database();
     const { limit, offset, filter, ordersBy = [], role } = args;
 
-    const offersSnapshot = await database
-      .ref(FirebaseDatabasePath.OFFERS)
-      .once('value');
-
-    let nodes: OfferDto[] = [];
+    const allOffers = await this.getAllOffers();
 
     // * if there are no ids provided, just push all offers (for admin panel)
-    const shouldFetchAllOffers =
-      !filter?.ids && identity.scope === Scope.ADMIN && !args.role;
+    const shouldFetchAllOffers = !filter?.ids && identity.scope === Scope.ADMIN;
 
-    offersSnapshot.forEach((snapshot) => {
-      if (!snapshot.key) {
-        return;
+    let nodes: OfferDto[] = allOffers.filter((offer) => {
+      if (shouldFetchAllOffers) {
+        return true;
       }
 
-      const offer: OfferDB = snapshot.val();
-
-      // * in case data is corrupted, we we should handle it without crashing the app
-      try {
-        const offerConverted = OfferDto.adapter.toExternal({
-          ...offer,
-          id: snapshot.key,
-        });
-
-        if (filter?.ids?.includes(snapshot.key)) {
-          nodes.push(offerConverted);
-
-          return;
-        }
-
-        if (shouldFetchAllOffers) {
-          nodes.push(offerConverted);
-
-          return;
-        }
-
-        if (hasMatchingRole(offerConverted, identity, role)) {
-          nodes.push(offerConverted);
-        }
-      } catch (error) {
-        this.logger.error(`Error while converting offer ${snapshot.key}`);
-        this.logger.error(error);
+      if (filter?.ids?.includes(offer.id)) {
+        return true;
       }
+
+      if (hasMatchingRole(offer, identity, role)) {
+        return true;
+      }
+
+      return false;
     });
 
     // * we don't need to filter by id, as we did it in forEach loop above
