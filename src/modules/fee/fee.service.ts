@@ -5,6 +5,7 @@ import { Identity } from '../auth/auth.types';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseTableReference } from '../firebase/firebase.types';
 import { OfferRequestService } from '../offer-request/offer-request.service';
 import { SorterService } from '../sorter/sorter.service';
 
@@ -21,25 +22,26 @@ import { filterFees } from './fee.utils/filter-fees.util';
 
 @Injectable()
 export class FeeService {
+  private feeTableRef: FirebaseTableReference<FeeDB>;
+
   constructor(
-    private firebaseService: FirebaseService,
     private chatsSorter: SorterService<
       FeeListOrderColumn,
       FeeDto,
       FeeListSorterContext
     >,
     private offerRequestService: OfferRequestService,
-  ) {}
+    firebaseService: FirebaseService,
+  ) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.feeTableRef = database.ref(FirebaseDatabasePath.FEES);
+  }
 
   async getFeeById(id: string): Promise<FeeDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const feeSnapshot = await this.feeTableRef.child(id).get();
 
-    const feeSnapshot = await database
-      .ref(FirebaseDatabasePath.FEES)
-      .child(id)
-      .get();
-
-    const fee: FeeDB | null = feeSnapshot.val();
+    const fee = feeSnapshot.val();
 
     return fee && FeeDto.adapter.toExternal({ ...fee, id });
   }
@@ -55,13 +57,11 @@ export class FeeService {
   }
 
   async getAllFees(): Promise<FeeDto[]> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const feesSnapshot = await this.feeTableRef.get();
 
-    const feesSnapshot = await database.ref(FirebaseDatabasePath.FEES).get();
+    const fees = feesSnapshot.val() || {};
 
-    const fees: Record<string, FeeDB> | null = feesSnapshot.val();
-
-    return Object.entries(fees || {}).map(([id, fee]) =>
+    return Object.entries(fees).map(([id, fee]) =>
       FeeDto.adapter.toExternal({ ...fee, id }),
     );
   }
@@ -104,9 +104,7 @@ export class FeeService {
       userId,
     };
 
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const feeRef = await database.ref(FirebaseDatabasePath.FEES).push(fee);
+    const feeRef = await this.feeTableRef.push(fee);
 
     if (!feeRef.key) {
       throw new Error("Fee wasn't created");
@@ -118,13 +116,7 @@ export class FeeService {
   async editFee(args: FeeEditingArgs): Promise<FeeDto> {
     const data: FeeDB['data'] = FeeDataDto.adapter.toInternal(args.data);
 
-    const database = this.firebaseService.getDefaultApp().database();
-
-    await database
-      .ref(FirebaseDatabasePath.FEES)
-      .child(args.id)
-      .child('data')
-      .update(data);
+    await this.feeTableRef.child(args.id).child('data').update(data);
 
     return this.strictGetFeeById(args.id);
   }
