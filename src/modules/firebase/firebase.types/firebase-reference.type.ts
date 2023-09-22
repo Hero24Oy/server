@@ -3,6 +3,7 @@ import { Reference } from 'firebase-admin/database';
 import { FirebaseQuery } from './firebase-query.type';
 // eslint-disable-next-line import/no-cycle -- Firebase Reference is required in Firebase Thenable Reference and vice versa
 import { FirebaseThenableReference } from './firebase-thenable-reference.type';
+import { InferEntityFromTable } from './infer-entity-from-table.type';
 
 import { ExtractKeys, ExtractObject } from '$/modules/common/common.types';
 
@@ -16,13 +17,7 @@ export interface FirebaseReference<Entity>
     field: Field,
   ): FirebaseReference<ExtractObject<Entity>[Field]>;
 
-  push<
-    Item = ExtractObject<Entity> extends never
-      ? never
-      : ExtractObject<Entity> extends Record<string, unknown>
-      ? ExtractObject<Entity>[string]
-      : never,
-  >(
+  push<Item extends InferEntityFromTable<Entity>>(
     value?: Item,
   ): FirebaseThenableReference<Item>;
 
@@ -30,9 +25,5 @@ export interface FirebaseReference<Entity>
 
   set(value: Exclude<Entity, undefined>): Promise<void>;
 
-  update(
-    values: ExtractObject<Entity> extends never
-      ? never
-      : Partial<ExtractObject<Entity>>,
-  ): Promise<void>;
+  update(values: Partial<ExtractObject<Entity>>): Promise<void>;
 }

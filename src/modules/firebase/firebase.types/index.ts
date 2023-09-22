@@ -5,3 +5,4 @@ export * from './firebase-event-callback.type';
 export * from './firebase-query.type';
 export * from './firebase-reference.type';
 export * from './firebase-snapshot.type';
+export * from './infer-entity-from-table.type';
