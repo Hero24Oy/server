@@ -214,8 +214,9 @@ export class UserService {
     const path = [FirebaseDatabasePath.USERS, userId, 'data', 'phone'];
 
     const phoneSnapshot = await get(ref(database, path.join('/')));
+    const phone: string = phoneSnapshot.val() || '';
 
-    return (phoneSnapshot.val() as string) || '';
+    return phone;
   }
 
   async setHubSpotContactId(
