@@ -34,11 +34,6 @@ declare global {
       HUB_SPOT_ACCESS_TOKEN: string;
       HUB_SPOT_DEAL_OWNER_ID: string;
       HUB_SPOT_DISABLED: 'true' | 'false';
-
-      // Visma
-      VISMA_PRIVATE_KEY: string;
-      VISMA_API_KEY: string;
-      VISMA_NOTIFY_ENDPOINT: string;
     }
   }
 }
