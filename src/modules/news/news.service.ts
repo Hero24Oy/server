@@ -8,6 +8,7 @@ import {
 } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { NewsCreationInput } from './dto/creation/news-creation-input';
 import { NewsEditingInput } from './dto/editing/news-editing.input';
@@ -18,18 +19,18 @@ import { isNewsActive } from './news.utils/is-news-active.util';
 
 @Injectable()
 export class NewsService {
-  constructor(private firebaseService: FirebaseService) {}
+  private readonly newsTableRef: FirebaseTableReference<NewsDB>;
+
+  constructor(firebaseService: FirebaseService) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.newsTableRef = database.ref(FirebaseDatabasePath.NEWS);
+  }
 
   async getNews(id: string): Promise<NewsDto | null> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+    const newsSnapshot = await this.newsTableRef.child(id).get();
 
-    const newsSnapshot = await database
-      .ref(FirebaseDatabasePath.NEWS)
-      .child(id)
-      .once('value');
-
-    const news: NewsDB | null = newsSnapshot.val();
+    const news = newsSnapshot.val();
 
     return news && NewsDto.convertFromFirebaseType(news, id);
   }
@@ -45,26 +46,13 @@ export class NewsService {
   }
 
   private async getAllNews(): Promise<NewsDto[]> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
+    const newsTableSnapshot = await this.newsTableRef.get();
 
-    const newsTableSnapshot = await database
-      .ref(FirebaseDatabasePath.NEWS)
-      .once('value');
+    const newsTable = newsTableSnapshot.val() || {};
 
-    const newsList: NewsDto[] = [];
-
-    newsTableSnapshot.forEach((newsSnapshot) => {
-      const newsId = newsSnapshot.key;
-
-      if (newsId) {
-        const news: NewsDB = newsSnapshot.val();
-
-        newsList.push(NewsDto.convertFromFirebaseType(news, newsId));
-      }
-    });
-
-    return newsList;
+    return Object.entries(newsTable).map(([id, news]) =>
+      NewsDto.convertFromFirebaseType(news, id),
+    );
   }
 
   async getNewsList(args: NewsListArgs): Promise<NewsListDto> {
@@ -93,9 +81,6 @@ export class NewsService {
   }
 
   async createNews(input: NewsCreationInput): Promise<NewsDto> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
-
     const { description, title, startAt, endAt, label, link } = input;
 
     const news: NewsDB = {
@@ -107,7 +92,7 @@ export class NewsService {
       endAt: Number(endAt),
     };
 
-    const { key } = await database.ref(FirebaseDatabasePath.NEWS).push(news);
+    const { key } = await this.newsTableRef.push(news);
 
     if (!key) {
       throw new Error("News wasn't created");
@@ -119,9 +104,6 @@ export class NewsService {
   async editNews(input: NewsEditingInput): Promise<NewsDto> {
     const { title, description, label, link, startAt, endAt, id } = input;
 
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
-
     const newsUpdates = omitUndefined<Partial<NewsDB>>({
       title: title ?? undefined,
       description: description ?? undefined,
@@ -131,15 +113,12 @@ export class NewsService {
       endAt: endAt ? Number(endAt) : undefined,
     });
 
-    await database.ref(FirebaseDatabasePath.NEWS).child(id).update(newsUpdates);
+    await this.newsTableRef.child(id).update(newsUpdates);
 
     return this.strictGetNews(id);
   }
 
   async removeNews(newsId: string): Promise<void> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
-
-    await database.ref(FirebaseDatabasePath.NEWS).child(newsId).remove();
+    await this.newsTableRef.child(newsId).remove();
   }
 }
