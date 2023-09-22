@@ -6,3 +6,5 @@ export * from './firebase-query.type';
 export * from './firebase-reference.type';
 export * from './firebase-snapshot.type';
 export * from './infer-entity-from-table.type';
+export * from './firebase-table.type';
+export * from './firebase-table-reference.type';
