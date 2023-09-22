@@ -8,6 +8,7 @@ import {
   OPEN_OFFER_REQUEST_LIST_ITEM_REMOVED,
 } from './open-offer-request.constants';
 
+import { FirebaseTableReference } from '$/modules/firebase/firebase.types';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
@@ -21,7 +22,7 @@ export class OpenOfferRequestService {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  public getOpenOfferRequestsRef() {
+  public getOpenOfferRequestsRef(): FirebaseTableReference<boolean> {
     const app = this.firebaseService.getDefaultApp();
 
     return app.database().ref(FirebaseDatabasePath.OPEN_OFFER_REQUESTS);
@@ -35,11 +36,11 @@ export class OpenOfferRequestService {
     OPEN_OFFER_REQUEST_LIST_ITEM_ADDED,
   );
 
-  public emitOpenOfferRequestListItemRemoved(id: string) {
+  public emitOpenOfferRequestListItemRemoved(id: string): void {
     this.emitItemRemoved(this.pubSub, id);
   }
 
-  public async emitOpenOfferRequestListItemAdded(id: string) {
+  public async emitOpenOfferRequestListItemAdded(id: string): Promise<void> {
     const offerRequest =
       await this.offerRequestService.strictGetOfferRequestById(id);
 
