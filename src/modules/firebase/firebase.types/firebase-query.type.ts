@@ -9,11 +9,7 @@ export type FirebaseQuery<Entity> = Omit<Query, OverriddenFields> & {
   get(): Promise<FirebaseSnapshot<Entity>>;
   limitToFirst(limit: number): FirebaseQuery<Entity>;
   limitToLast(limit: number): FirebaseQuery<Entity>;
-  off(
-    eventType?: EventType,
-    callback?: FirebaseEventCallback<Entity>,
-    context?: unknown,
-  ): void;
+  off(eventType?: EventType, callback?: FirebaseEventCallback<Entity>): void;
   on(
     eventType: EventType,
     callback: FirebaseEventCallback<Entity>,
