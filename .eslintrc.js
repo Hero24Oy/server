@@ -9,6 +9,7 @@ const EXCLUDE_NAMES_NAMING_CONVENTION = [
   'generalPauseDurationMS',
   'downloadURL',
   'databaseURL',
+  'refFromURL',
 ];
 const excludeNamesNamingConventionRegex =
   EXCLUDE_NAMES_NAMING_CONVENTION.join('|');
@@ -111,10 +112,10 @@ const importRules = {
     {
       patterns: [
         {
-          group: ["lodash", "!lodash/",], // disallow imports from 'lodash' directly
-          message: "Please use 'lodash/*' instead."
-        }
-      ]
+          group: ['lodash', '!lodash/'], // disallow imports from 'lodash' directly
+          message: "Please use 'lodash/*' instead.",
+        },
+      ],
     },
   ],
   'import/no-cycle': ['error', { maxDepth: '∞' }],
