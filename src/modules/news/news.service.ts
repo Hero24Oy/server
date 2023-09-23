@@ -19,7 +19,7 @@ import { isNewsActive } from './news.utils/is-news-active.util';
 
 @Injectable()
 export class NewsService {
-  private readonly newsTableRef: FirebaseTableReference<NewsDB>;
+  readonly newsTableRef: FirebaseTableReference<NewsDB>;
 
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();

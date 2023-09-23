@@ -22,15 +22,15 @@ import { filterFees } from './fee.utils/filter-fees.util';
 
 @Injectable()
 export class FeeService {
-  private feeTableRef: FirebaseTableReference<FeeDB>;
+  readonly feeTableRef: FirebaseTableReference<FeeDB>;
 
   constructor(
-    private chatsSorter: SorterService<
+    private readonly chatsSorter: SorterService<
       FeeListOrderColumn,
       FeeDto,
       FeeListSorterContext
     >,
-    private offerRequestService: OfferRequestService,
+    private readonly offerRequestService: OfferRequestService,
     firebaseService: FirebaseService,
   ) {
     const database = firebaseService.getDefaultApp().database();

@@ -11,7 +11,7 @@ import { UserMergeInput } from './dto/user-merge/user-merge.input';
 
 @Injectable()
 export class UserMergeService {
-  private userMergeTableRef: FirebaseTableReference<UserMergeDB>;
+  readonly userMergeTableRef: FirebaseTableReference<UserMergeDB>;
 
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();

@@ -30,7 +30,7 @@ import { SorterService } from '$modules/sorter/sorter.service';
 
 @Injectable()
 export class ChatService {
-  private chatTableRef: FirebaseTableReference<ChatDB>;
+  readonly chatTableRef: FirebaseTableReference<ChatDB>;
 
   constructor(
     private chatsSorter: SorterService<
@@ -38,7 +38,7 @@ export class ChatService {
       ChatDto,
       ChatsSorterContext
     >,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
     firebaseService: FirebaseService,
   ) {
     const database = firebaseService.getDefaultApp().database();

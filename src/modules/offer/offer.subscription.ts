@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reference } from 'firebase-admin/database';
 
-import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
-import { SubscriptionService } from '../subscription-manager/subscription-manager.types';
+import {
+  SubscriptionService,
+  Unsubscribe,
+} from '../subscription-manager/subscription-manager.types';
 
 import { createOfferEventHandler } from './offer.utils/create-offer-event-handler.util';
 import { OfferService } from './services/offer.service';
@@ -14,26 +16,22 @@ import { skipFirst } from '$modules/common/common.utils';
 @Injectable()
 export class OfferSubscription implements SubscriptionService {
   constructor(
-    private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
     protected readonly configService: ConfigService,
   ) {}
 
-  public subscribe() {
-    const offerRef = this.firebaseService
-      .getDefaultApp()
-      .database()
-      .ref('offers');
+  public subscribe(): Unsubscribe {
+    const { offerTableRef } = this.offerService;
 
     const unsubscribes = [
-      this.subscribeOnOfferCreation(offerRef),
-      this.subscribeOnOfferChanges(offerRef),
+      this.subscribeOnOfferCreation(offerTableRef),
+      this.subscribeOnOfferChanges(offerTableRef),
     ];
 
-    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
+    return (): void => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private subscribeOnOfferCreation(offerRef: Reference) {
+  private subscribeOnOfferCreation(offerRef: Reference): Unsubscribe {
     // Firebase child added event calls on every exist item first, than on every creation event.
     // So we should skip every exists items using limit to last 1 so as not to retrieve all items
     return subscribeOnFirebaseEvent(
@@ -43,7 +41,7 @@ export class OfferSubscription implements SubscriptionService {
     );
   }
 
-  private subscribeOnOfferChanges(offerRef: Reference) {
+  private subscribeOnOfferChanges(offerRef: Reference): Unsubscribe {
     return subscribeOnFirebaseEvent(
       offerRef,
       'child_changed',
