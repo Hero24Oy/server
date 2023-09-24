@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Reference } from 'firebase-admin/database';
+import { OfferDB } from 'hero24-types';
 
+import { FirebaseReference } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import {
   SubscriptionService,
@@ -31,7 +32,9 @@ export class OfferSubscription implements SubscriptionService {
     return (): void => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private subscribeOnOfferCreation(offerRef: Reference): Unsubscribe {
+  private subscribeOnOfferCreation(
+    offerRef: FirebaseReference<Record<string, OfferDB>>,
+  ) {
     // Firebase child added event calls on every exist item first, than on every creation event.
     // So we should skip every exists items using limit to last 1 so as not to retrieve all items
     return subscribeOnFirebaseEvent(
@@ -41,7 +44,9 @@ export class OfferSubscription implements SubscriptionService {
     );
   }
 
-  private subscribeOnOfferChanges(offerRef: Reference): Unsubscribe {
+  private subscribeOnOfferChanges(
+    offerRef: FirebaseReference<Record<string, OfferDB>>,
+  ) {
     return subscribeOnFirebaseEvent(
       offerRef,
       'child_changed',
