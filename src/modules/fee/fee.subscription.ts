@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Reference } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
+import { FeeDB } from 'hero24-types';
 
 import { skipFirst } from '../common/common.utils';
+import { FirebaseReference } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import {
@@ -23,12 +24,12 @@ export class FeeSubscription implements SubscriptionService {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  public subscribe(): Unsubscribe {
+  public async subscribe(): Promise<Unsubscribe> {
     const { feeTableRef } = this.feeService;
 
     const unsubscribes = [
-      this.subscribeOnFeeUpdates(feeTableRef, this.pubSub),
-      this.subscribeOnFeeCreation(feeTableRef, this.pubSub),
+      await this.subscribeOnFeeUpdates(feeTableRef, this.pubSub),
+      await this.subscribeOnFeeCreation(feeTableRef, this.pubSub),
     ];
 
     return async () => {
@@ -36,10 +37,10 @@ export class FeeSubscription implements SubscriptionService {
     };
   }
 
-  private subscribeOnFeeUpdates(
-    rootFeesRef: Reference,
+  private async subscribeOnFeeUpdates(
+    rootFeesRef: FirebaseReference<Record<string, FeeDB>>,
     pubsub: PubSub,
-  ): Unsubscribe {
+  ) {
     return subscribeOnFirebaseEvent(
       rootFeesRef,
       'child_changed',
@@ -47,10 +48,10 @@ export class FeeSubscription implements SubscriptionService {
     );
   }
 
-  private subscribeOnFeeCreation(
-    rootFeesRef: Reference,
+  private async subscribeOnFeeCreation(
+    rootFeesRef: FirebaseReference<Record<string, FeeDB>>,
     pubsub: PubSub,
-  ): Unsubscribe {
+  ) {
     return subscribeOnFirebaseEvent(
       // Firebase child added event calls on every exist item first, than on every creation event.
       // So we should skip every exists items using limit to last 1 so as not to retrieve all items
