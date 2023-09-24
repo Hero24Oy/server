@@ -23,11 +23,14 @@ interface OverriddenQuery<Entity> {
   get(): Promise<FirebaseSnapshot<Entity>>;
   limitToFirst(limit: number): FirebaseQuery<Entity>;
   limitToLast(limit: number): FirebaseQuery<Entity>;
-  off(eventType?: EventType, callback?: FirebaseEventCallback<Entity>): void;
-  on(
-    eventType: EventType,
-    callback: FirebaseEventCallback<Entity>,
-  ): FirebaseEventCallback<Entity>;
+  off<Event extends EventType>(
+    eventType?: Event,
+    callback?: FirebaseEventCallback<Event, Entity>,
+  ): void;
+  on<Event extends EventType>(
+    eventType: Event,
+    callback: FirebaseEventCallback<Event, Entity>,
+  ): FirebaseEventCallback<Event, Entity>;
   once(eventType: EventType): Promise<DataSnapshot>;
   orderByChild(path: string): FirebaseQuery<Entity>;
   orderByKey(): FirebaseQuery<Entity>;
