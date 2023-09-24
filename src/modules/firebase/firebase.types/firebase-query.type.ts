@@ -21,7 +21,6 @@ interface OverriddenQuery<Entity> {
     key?: string | undefined,
   ): FirebaseQuery<Entity>;
   get(): Promise<FirebaseSnapshot<Entity>>;
-  isEqual<OtherEntity>(other: FirebaseQuery<OtherEntity> | null): boolean;
   limitToFirst(limit: number): FirebaseQuery<Entity>;
   limitToLast(limit: number): FirebaseQuery<Entity>;
   off(eventType?: EventType, callback?: FirebaseEventCallback<Entity>): void;
