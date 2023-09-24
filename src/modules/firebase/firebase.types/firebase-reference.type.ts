@@ -1,4 +1,3 @@
-import { TransactionResult } from 'firebase/database';
 import { Reference } from 'firebase-admin/database';
 
 // eslint-disable-next-line import/no-cycle -- Firebase Reference is required in Firebase Query and vice versa
@@ -6,6 +5,7 @@ import { FirebaseQuery } from './firebase-query.type';
 import { FirebaseSnapshot } from './firebase-snapshot.type';
 // eslint-disable-next-line import/no-cycle -- Firebase Reference is required in Firebase Thenable Reference and vice versa
 import { FirebaseThenableReference } from './firebase-thenable-reference.type';
+import { FirebaseTransactionResult } from './firebase-transaction-result.type';
 import { InferEntityFromTable } from './infer-entity-from-table.type';
 
 import {
@@ -19,7 +19,7 @@ interface OverriddenReference<Entity> extends FirebaseQuery<Entity> {
     field: Field,
   ): FirebaseReference<ExtractObject<Entity>[Field]>;
 
-  parent: FirebaseReference<Record<string, Entity>>;
+  parent: FirebaseReference<Record<string, Entity>> | null;
 
   push<Item extends InferEntityFromTable<Entity>>(
     value?: Item,
@@ -27,7 +27,8 @@ interface OverriddenReference<Entity> extends FirebaseQuery<Entity> {
 
   remove(): Promise<void>;
 
-  root: FirebaseReference<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- todo: remove it during refactoring
+  root: FirebaseReference<any>;
 
   set(value: Exclude<Entity, undefined>): Promise<void>;
 
@@ -39,7 +40,7 @@ interface OverriddenReference<Entity> extends FirebaseQuery<Entity> {
       snapshot: FirebaseSnapshot<Entity> | null,
     ) => void,
     applyLocally?: boolean,
-  ): Promise<TransactionResult>;
+  ): Promise<FirebaseTransactionResult<Entity>>;
 
   update(values: Partial<ExtractObject<Entity>>): Promise<void>;
 }
