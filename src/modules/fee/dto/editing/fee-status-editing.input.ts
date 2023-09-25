@@ -1,9 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { FeeStatus } from 'hero24-types';
+
+import { FeeStatus } from '../fee/fee-status.enum';
 
 @InputType()
 export class FeeStatusEditingInput {
-  @Field(() => String)
+  @Field(() => FeeStatus)
   status: FeeStatus;
 
   @Field(() => String)
