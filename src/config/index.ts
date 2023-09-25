@@ -10,13 +10,13 @@ export const configValidationSchema = Joi.object()
   .concat(firebaseValidationSchema)
   .concat(hubSpotValidationSchema);
 
-const config = {
+const getConfig = () => ({
   app: app(),
   firebase: firebase(),
   hubSpot: hubSpot(),
-};
+});
 
-const registerConfig = registerAs('config', () => config);
+const registerConfig = registerAs('config', getConfig);
 
 export type ConfigType = NestJsConfigType<typeof registerConfig>;
 
