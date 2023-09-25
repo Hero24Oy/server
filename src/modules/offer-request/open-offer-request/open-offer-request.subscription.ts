@@ -31,7 +31,7 @@ export class OpenOfferRequestSubscription implements SubscriptionService {
 
   private async subscribeToOpenOfferRequestRemoval() {
     return subscribeOnFirebaseEvent(
-      this.openOfferRequestService.getOpenOfferRequestsRef(),
+      this.openOfferRequestService.openOfferRequestTableRef,
       'child_removed',
       this.childRemovedHandler,
     );
@@ -41,7 +41,7 @@ export class OpenOfferRequestSubscription implements SubscriptionService {
     return subscribeOnFirebaseEvent(
       // Firebase child added event calls on every exist item first, than on every creation event.
       // So we should skip every exists items using limit to last 1 so as not to retrieve all items
-      this.openOfferRequestService.getOpenOfferRequestsRef().limitToLast(1),
+      this.openOfferRequestService.openOfferRequestTableRef.limitToLast(1),
       'child_added',
       skipFirst(this.childAddedHandler),
     );

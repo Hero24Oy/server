@@ -8,24 +8,30 @@ import {
   OPEN_OFFER_REQUEST_LIST_ITEM_REMOVED,
 } from './open-offer-request.constants';
 
-import { FirebaseTableReference } from '$/modules/firebase/firebase.types';
+import { FirebaseReference } from '$/modules/firebase/firebase.types';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 import { createSubscriptionEventEmitter } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 
+type OfferRequestId = string;
+
 @Injectable()
 export class OpenOfferRequestService {
+  readonly openOfferRequestTableRef: FirebaseReference<
+    Record<OfferRequestId, boolean>
+  >;
+
   constructor(
-    private readonly firebaseService: FirebaseService,
     private readonly offerRequestService: OfferRequestService,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
-  ) {}
+    firebaseService: FirebaseService,
+  ) {
+    const database = firebaseService.getDefaultApp().database();
 
-  public getOpenOfferRequestsRef(): FirebaseTableReference<boolean> {
-    const app = this.firebaseService.getDefaultApp();
-
-    return app.database().ref(FirebaseDatabasePath.OPEN_OFFER_REQUESTS);
+    this.openOfferRequestTableRef = database.ref(
+      FirebaseDatabasePath.OPEN_OFFER_REQUESTS,
+    );
   }
 
   private emitItemRemoved = createSubscriptionEventEmitter(
