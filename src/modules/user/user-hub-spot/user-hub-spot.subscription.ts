@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PubSub } from 'graphql-subscriptions';
 
 import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
@@ -12,20 +11,24 @@ import {
 
 import { UserHubSpotService } from './user-hub-spot.service';
 
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { subscribeToEvent } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 import { HubSpotSubscription } from '$modules/hub-spot/hub-spot-subscription.interface';
+import { Unsubscribe } from '$modules/subscription-manager/subscription-manager.types';
 
 @Injectable()
 export class UserHubSpotSubscription extends HubSpotSubscription {
   constructor(
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
-    private userHubSpotService: UserHubSpotService,
-    protected configService: ConfigService,
+    private readonly userHubSpotService: UserHubSpotService,
+    @Config()
+    protected readonly config: ConfigType,
   ) {
     super();
   }
 
-  public async subscribe(): Promise<() => void> {
+  public async subscribe(): Promise<Unsubscribe> {
     const unsubscribes = await Promise.all([
       this.subscribeOnUserUpdates(),
       this.subscribeOnUserCreation(),
@@ -34,7 +37,7 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private async subscribeOnUserUpdates() {
+  private async subscribeOnUserUpdates(): Promise<() => void> {
     return subscribeToEvent({
       pubSub: this.pubSub,
       eventHandler: this.userUpdatedHandler,
@@ -45,13 +48,13 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
   private userUpdatedHandler = async ({
     user,
     beforeUpdateUser,
-  }: UserUpdatedDto) => {
+  }: UserUpdatedDto): Promise<void> => {
     if (this.userHubSpotService.shouldUpdateContact(user, beforeUpdateUser)) {
       void this.userHubSpotService.upsertContact(user);
     }
   };
 
-  private async subscribeOnUserCreation() {
+  private async subscribeOnUserCreation(): Promise<() => void> {
     return subscribeToEvent({
       pubSub: this.pubSub,
       eventHandler: this.userCreatedHandler,
@@ -59,7 +62,9 @@ export class UserHubSpotSubscription extends HubSpotSubscription {
     });
   }
 
-  private userCreatedHandler = async ({ user }: UserCreatedDto) => {
+  private userCreatedHandler = async ({
+    user,
+  }: UserCreatedDto): Promise<void> => {
     void this.userHubSpotService.upsertContact(user);
   };
 }

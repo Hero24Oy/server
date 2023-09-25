@@ -111,10 +111,10 @@ const importRules = {
     {
       patterns: [
         {
-          group: ["lodash", "!lodash/",], // disallow imports from 'lodash' directly
-          message: "Please use 'lodash/*' instead."
-        }
-      ]
+          group: ['lodash', '!lodash/'], // disallow imports from 'lodash' directly
+          message: "Please use 'lodash/*' instead.",
+        },
+      ],
     },
   ],
   'import/no-cycle': ['error', { maxDepth: '∞' }],
@@ -338,6 +338,22 @@ const override = {
       '@typescript-eslint/no-misused-promises': 'off',
     },
   },
+  env: {
+    files: ['env.d.ts'],
+    rules: {
+      'typescript-sort-keys/interface': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+    },
+  },
+  disableReturnType: {
+    files: [
+      'src/common/decorators/**/*.ts', // we don't need set return type for decorators
+      'src/config/*.ts', // we don't need duplicate type
+    ],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+    },
+  },
 };
 
 module.exports = {
@@ -385,5 +401,7 @@ module.exports = {
     override.modules,
     override.namingConventionExceptions,
     override.enableAsyncMethodsWithoutAwait,
+    override.env,
+    override.disableReturnType,
   ],
 };

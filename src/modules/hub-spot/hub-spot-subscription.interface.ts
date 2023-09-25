@@ -1,15 +1,15 @@
-import { ConfigService } from '@nestjs/config';
-
 import {
   SubscriptionService,
   Unsubscribe,
 } from '../subscription-manager/subscription-manager.types';
 
-export abstract class HubSpotSubscription implements SubscriptionService {
-  protected abstract configService: ConfigService;
+import { ConfigType } from '$config';
 
-  public disabled() {
-    return this.configService.getOrThrow<boolean>('hubSpot.disabled');
+export abstract class HubSpotSubscription implements SubscriptionService {
+  protected abstract config: ConfigType;
+
+  public isDisabled(): boolean {
+    return this.config.hubSpot.disabled;
   }
 
   public abstract subscribe(): Promise<Unsubscribe> | Unsubscribe;

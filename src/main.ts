@@ -1,18 +1,18 @@
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as bodyParser from 'body-parser';
 
 import { MAXIMUM_UPLOAD_SIZE } from './app.constants';
 import { AppModule } from './app.module';
+import { CONFIG_PROVIDER, ConfigType } from './config';
 import { FirebaseInterceptor } from './modules/firebase/firebase.interceptor';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
+  const config = app.get<ConfigType>(CONFIG_PROVIDER);
   const firebaseInterceptor = app.get(FirebaseInterceptor);
 
-  const port: string = configService.getOrThrow('app.port');
+  const { port } = config.app;
 
   app.useGlobalInterceptors(firebaseInterceptor);
 
