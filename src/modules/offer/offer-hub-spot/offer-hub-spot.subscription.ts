@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PubSub } from 'graphql-subscriptions';
 
 import { OfferDto } from '../dto/offer/offer.dto';
@@ -10,23 +9,27 @@ import {
 
 import { OfferHubSpotService } from './offer-hub-spot.service';
 
+import { Unsubscribe } from '$/modules/subscription-manager/subscription-manager.types';
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 import { subscribeToEvent } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 import { HubSpotSubscription } from '$modules/hub-spot/hub-spot-subscription.interface';
 
 @Injectable()
 export class OfferHubSpotSubscription extends HubSpotSubscription {
-  private logger = new Logger(OfferHubSpotSubscription.name);
+  private readonly logger = new Logger(OfferHubSpotSubscription.name);
 
   constructor(
-    private offerHubSpotService: OfferHubSpotService,
-    protected configService: ConfigService,
+    private readonly offerHubSpotService: OfferHubSpotService,
+    @Config()
+    protected readonly config: ConfigType,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {
     super();
   }
 
-  public async subscribe() {
+  public async subscribe(): Promise<Unsubscribe> {
     const unsubscribes = [
       await this.subscribeOnOfferCreation(),
       await this.subscribeOnOfferChanges(),
@@ -35,7 +38,7 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private async subscribeOnOfferCreation() {
+  private async subscribeOnOfferCreation(): Promise<() => void> {
     return subscribeToEvent({
       pubSub: this.pubSub,
       eventHandler: this.offerCreatedHandler,
@@ -43,7 +46,7 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     });
   }
 
-  private async subscribeOnOfferChanges() {
+  private async subscribeOnOfferChanges(): Promise<() => void> {
     return subscribeToEvent({
       pubSub: this.pubSub,
       eventHandler: this.offerUpdatedHandler,
@@ -51,7 +54,7 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     });
   }
 
-  private offerUpdatedHandler = async (offer: OfferDto) => {
+  private offerUpdatedHandler = async (offer: OfferDto): Promise<void> => {
     try {
       if (!offer.hubSpotDealId) {
         return;
@@ -63,7 +66,7 @@ export class OfferHubSpotSubscription extends HubSpotSubscription {
     }
   };
 
-  private offerCreatedHandler = async (offer: OfferDto) => {
+  private offerCreatedHandler = async (offer: OfferDto): Promise<void> => {
     try {
       await this.offerHubSpotService.createDeal(offer);
     } catch (err) {

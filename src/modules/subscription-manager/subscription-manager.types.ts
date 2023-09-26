@@ -4,7 +4,7 @@ import { ParentType } from '../common/common.types';
 
 export interface SubscriptionService {
   subscribe(): Promise<Unsubscribe> | Unsubscribe;
-  disabled?: () => boolean;
+  isDisabled?: () => boolean;
 }
 
 export type SubscriptionRegistrationOptions = {
