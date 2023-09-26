@@ -235,13 +235,10 @@ export class OfferRequestService {
   }
 
   async updatePurchase(purchase: OfferRequestPurchaseInput): Promise<true> {
-    const { id, fixedPrice, fixedDuration } = purchase;
+    const { id } = purchase;
 
-    const updatedInitial: Partial<OfferRequestDB['data']['initial']> =
-      omitUndefined({
-        fixedPrice: fixedPrice as unknown as undefined,
-        fixedDuration: fixedDuration as unknown as undefined,
-      });
+    const updatedInitial =
+      OfferRequestPurchaseInput.adapter.toInternal(purchase);
 
     try {
       await this.offerRequestTableRef
