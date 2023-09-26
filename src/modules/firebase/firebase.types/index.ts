@@ -8,3 +8,4 @@ export * from './firebase-snapshot.type';
 export * from './infer-entity-from-table.type';
 export * from './firebase-table.type';
 export * from './firebase-table-reference.type';
+export * from './firebase-config.type';
