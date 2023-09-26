@@ -12,6 +12,7 @@ import { SorterService } from '../sorter/sorter.service';
 import { FeeCreationArgs } from './dto/creation/fee-creation.args';
 import { FeeCreationInput } from './dto/creation/fee-creation.input';
 import { FeeEditingArgs } from './dto/editing/fee-editing.args';
+import { FeeStatusEditingInput } from './dto/editing/fee-status-editing.input';
 import { FeeDto } from './dto/fee/fee.dto';
 import { FeeDataDto } from './dto/fee/fee-data.dto';
 import { FeeListArgs } from './dto/fee-list/fee-list.args';
@@ -119,5 +120,13 @@ export class FeeService {
     await this.feeTableRef.child(args.id).child('data').update(data);
 
     return this.strictGetFeeById(args.id);
+  }
+
+  async editFeeStatus(args: FeeStatusEditingInput): Promise<boolean> {
+    const { id, status } = args;
+
+    await this.feeTableRef.child(id).update({ status });
+
+    return true;
   }
 }
