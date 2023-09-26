@@ -10,6 +10,7 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { FeeCreationArgs } from './dto/creation/fee-creation.args';
 import { FeeEditingArgs } from './dto/editing/fee-editing.args';
+import { FeeStatusEditingInput } from './dto/editing/fee-status-editing.input';
 import { FeeDto } from './dto/fee/fee.dto';
 import { FeeListArgs } from './dto/fee-list/fee-list.args';
 import { FeeListDto } from './dto/fee-list/fee-list.dto';
@@ -20,6 +21,8 @@ import {
 } from './fee.constants';
 import { FeeService } from './fee.service';
 import { FeeSubscriptionFilter } from './fee.utils/fee-subscription-filter.util';
+
+import { AdminGuard } from '$modules/auth/guards/admin.guard';
 
 @Resolver()
 export class FeeResolver {
@@ -57,6 +60,15 @@ export class FeeResolver {
   @UseGuards(AuthGuard)
   async editFee(@Args() args: FeeEditingArgs): Promise<FeeDto> {
     return this.feeService.editFee(args);
+  }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async editFeeStatus(
+    @Args('input') input: FeeStatusEditingInput,
+  ): Promise<boolean> {
+    return this.feeService.editFeeStatus(input);
   }
 
   @Subscription(() => FeeDto, {
