@@ -1,3 +1,4 @@
+import { ConfigType as NestJsConfigType, registerAs } from '@nestjs/config';
 import * as Joi from 'joi';
 
 import app, { appValidationSchema } from './app';
@@ -9,8 +10,16 @@ export const configValidationSchema = Joi.object()
   .concat(firebaseValidationSchema)
   .concat(hubSpotValidationSchema);
 
-export default () => ({
+const getConfig = () => ({
   app: app(),
   firebase: firebase(),
   hubSpot: hubSpot(),
 });
+
+const registerConfig = registerAs('config', getConfig);
+
+export type ConfigType = NestJsConfigType<typeof registerConfig>;
+
+export const CONFIG_PROVIDER = registerConfig.KEY;
+
+export default registerConfig;

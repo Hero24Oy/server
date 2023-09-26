@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Reference } from 'firebase-admin/database';
 
 import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
-import { SubscriptionService } from '../subscription-manager/subscription-manager.types';
+import {
+  SubscriptionService,
+  Unsubscribe,
+} from '../subscription-manager/subscription-manager.types';
 
 import { createOfferEventHandler } from './offer.utils/create-offer-event-handler.util';
 import { OfferService } from './services/offer.service';
 
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { skipFirst } from '$modules/common/common.utils';
 
 @Injectable()
@@ -16,10 +20,10 @@ export class OfferSubscription implements SubscriptionService {
   constructor(
     private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
-    protected readonly configService: ConfigService,
+    @Config() protected readonly config: ConfigType,
   ) {}
 
-  public subscribe() {
+  public subscribe(): Unsubscribe {
     const offerRef = this.firebaseService
       .getDefaultApp()
       .database()
@@ -33,7 +37,7 @@ export class OfferSubscription implements SubscriptionService {
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private subscribeOnOfferCreation(offerRef: Reference) {
+  private subscribeOnOfferCreation(offerRef: Reference): () => void {
     // Firebase child added event calls on every exist item first, than on every creation event.
     // So we should skip every exists items using limit to last 1 so as not to retrieve all items
     return subscribeOnFirebaseEvent(
@@ -43,7 +47,7 @@ export class OfferSubscription implements SubscriptionService {
     );
   }
 
-  private subscribeOnOfferChanges(offerRef: Reference) {
+  private subscribeOnOfferChanges(offerRef: Reference): () => void {
     return subscribeOnFirebaseEvent(
       offerRef,
       'child_changed',
