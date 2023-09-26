@@ -5,6 +5,7 @@ import path from 'path';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { ImageCreationInput } from './dto/creation/image-creation.input';
 import { ImageDto } from './dto/image/image.dto';
@@ -14,9 +15,18 @@ import { ImageCategoryType } from './image.types';
 
 @Injectable()
 export class ImageService {
-  constructor(private readonly firebaseService: FirebaseService) {}
+  private readonly imageTableRef: FirebaseTableReference<ImageDB>;
 
-  private async uploadImageToStorage(base64Data: string, storagePath: string) {
+  constructor(private readonly firebaseService: FirebaseService) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.imageTableRef = database.ref(FirebaseDatabasePath.IMAGES);
+  }
+
+  private async uploadImageToStorage(
+    base64Data: string,
+    storagePath: string,
+  ): Promise<string> {
     const bucket = this.firebaseService.getStorage().bucket();
 
     const imageData = Buffer.from(base64Data, 'base64');
@@ -32,37 +42,28 @@ export class ImageService {
     return getDownloadURL(file);
   }
 
-  private async deleteImageFromStorage(storagePath: string) {
+  private async deleteImageFromStorage(storagePath: string): Promise<void> {
     const bucket = this.firebaseService.getStorage().bucket();
 
     const file = bucket.file(storagePath);
 
-    return file.delete();
+    await file.delete();
   }
 
-  private async getStorageFileUrl(storagePath: string) {
+  private async getStorageFileUrl(storagePath: string): Promise<string> {
     const storage = this.firebaseService.getStorage().bucket();
 
     return getDownloadURL(storage.file(storagePath));
   }
 
   private async getImageData(id: string): Promise<ImageDB | null> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const imageDataSnapshot = await this.imageTableRef.child(id).get();
 
-    const imageDataSnapshot = await database
-      .ref(FirebaseDatabasePath.IMAGES)
-      .child(id)
-      .get();
-
-    const imageData: ImageDB | null = imageDataSnapshot.val();
-
-    return imageData;
+    return imageDataSnapshot.val();
   }
 
   private async deleteImageFromDB(id: string): Promise<true> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    await database.ref(FirebaseDatabasePath.IMAGES).child(id).remove();
+    await this.imageTableRef.child(id).remove();
 
     return true;
   }
@@ -84,21 +85,15 @@ export class ImageService {
 
     const storagePath = path.join(STORAGE_PATH, category, subcategory, id);
 
-    const imageData: ImageDataDto = {
+    const imageData = {
       ...data,
       storagePath,
-    };
+    } satisfies ImageDataDto;
 
     try {
       const downloadURL = await this.uploadImageToStorage(base64, storagePath);
 
-      const database = this.firebaseService.getDefaultApp().database();
-
-      await database
-        .ref(FirebaseDatabasePath.IMAGES)
-        .child(id)
-        .child('data')
-        .set(imageData);
+      await this.imageTableRef.child(id).child('data').set(imageData);
 
       const image: ImageDto = {
         id,

@@ -9,6 +9,7 @@ const EXCLUDE_NAMES_NAMING_CONVENTION = [
   'generalPauseDurationMS',
   'downloadURL',
   'databaseURL',
+  'refFromURL',
 ];
 const excludeNamesNamingConventionRegex =
   EXCLUDE_NAMES_NAMING_CONVENTION.join('|');

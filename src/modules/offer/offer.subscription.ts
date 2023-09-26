@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Reference } from 'firebase-admin/database';
+import { OfferDB } from 'hero24-types';
 
-import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseReference } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import {
   SubscriptionService,
@@ -18,26 +18,24 @@ import { skipFirst } from '$modules/common/common.utils';
 @Injectable()
 export class OfferSubscription implements SubscriptionService {
   constructor(
-    private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
     @Config() protected readonly config: ConfigType,
   ) {}
 
   public subscribe(): Unsubscribe {
-    const offerRef = this.firebaseService
-      .getDefaultApp()
-      .database()
-      .ref('offers');
+    const { offerTableRef } = this.offerService;
 
     const unsubscribes = [
-      this.subscribeOnOfferCreation(offerRef),
-      this.subscribeOnOfferChanges(offerRef),
+      this.subscribeOnOfferCreation(offerTableRef),
+      this.subscribeOnOfferChanges(offerTableRef),
     ];
 
-    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
+    return (): void => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private subscribeOnOfferCreation(offerRef: Reference): () => void {
+  private subscribeOnOfferCreation(
+    offerRef: FirebaseReference<Record<string, OfferDB>>,
+  ): () => void {
     // Firebase child added event calls on every exist item first, than on every creation event.
     // So we should skip every exists items using limit to last 1 so as not to retrieve all items
     return subscribeOnFirebaseEvent(
@@ -47,7 +45,9 @@ export class OfferSubscription implements SubscriptionService {
     );
   }
 
-  private subscribeOnOfferChanges(offerRef: Reference): () => void {
+  private subscribeOnOfferChanges(
+    offerRef: FirebaseReference<Record<string, OfferDB>>,
+  ): () => void {
     return subscribeOnFirebaseEvent(
       offerRef,
       'child_changed',

@@ -14,6 +14,7 @@ import {
   FirebaseAdminStorage,
   FirebaseAppInstance,
   FirebaseConfig,
+  FirebaseTable,
 } from './firebase.types';
 
 import { ConfigType } from '$config';
@@ -49,7 +50,7 @@ export class FirebaseService {
     return this.config.firebase.clientSdk;
   }
 
-  getDefaultApp(): admin.app.App {
+  getDefaultApp(): FirebaseAdminAppInstance {
     return this.app;
   }
 
@@ -151,9 +152,9 @@ export class FirebaseService {
   async getIsAdmin(userId: string): Promise<boolean> {
     const isAdminSnapshot = await this.app
       .database()
-      .ref(FirebaseDatabasePath.ADMIN_USERS)
+      .ref<FirebaseTable<boolean>>(FirebaseDatabasePath.ADMIN_USERS)
       .child(userId)
-      .once('value');
+      .get();
 
     return Boolean(isAdminSnapshot.val());
   }

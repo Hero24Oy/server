@@ -1,14 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { get, getDatabase, ref, set } from 'firebase/database';
-import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 import { ChatDB } from 'hero24-types';
 
 import { Identity } from '../../auth/auth.types';
-import { MaybeType } from '../../common/common.types';
 import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
 import { FirebaseService } from '../../firebase/firebase.service';
-import { FirebaseAppInstance } from '../../firebase/firebase.types';
+import {
+  FirebaseAppInstance,
+  FirebaseTableReference,
+} from '../../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../../graphql-pubsub/graphql-pubsub.constants';
 import { CHAT_SEEN_BY_ADMIN_UPDATED_SUBSCRIPTION } from '../chat.constants';
 import { ChatsSorterContext } from '../chat.types';
@@ -29,42 +30,35 @@ import { SorterService } from '$modules/sorter/sorter.service';
 
 @Injectable()
 export class ChatService {
+  readonly chatTableRef: FirebaseTableReference<ChatDB>;
+
   constructor(
-    private firebaseService: FirebaseService,
     private chatsSorter: SorterService<
       ChatsOrderColumn,
       ChatDto,
       ChatsSorterContext
     >,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
-  ) {}
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+    firebaseService: FirebaseService,
+  ) {
+    const database = firebaseService.getDefaultApp().database();
 
-  private getChatsRef() {
-    const app = this.firebaseService.getDefaultApp();
+    this.chatTableRef = database.ref(FirebaseDatabasePath.CHATS);
+  }
 
-    return app.database().ref(FirebaseDatabasePath.CHATS);
+  async getAllChats(): Promise<ChatDto[]> {
+    const chatsSnapshot = await this.chatTableRef.get();
+    const chats = chatsSnapshot.val() || {};
+
+    return Object.entries(chats)
+      .map(([id, chat]) => ({ id, ...chat }))
+      .map(ChatDto.adapter.toExternal);
   }
 
   async getChats(args: ChatsArgs, identity: Identity): Promise<ChatListDto> {
     const { limit, offset, filter, ordersBy = [] } = args;
 
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
-
-    const chatsSnapshot = await database
-      .ref(FirebaseDatabasePath.CHATS)
-      .once('value');
-
-    let nodes: ChatDto[] = [];
-
-    chatsSnapshot.forEach((snapshot) => {
-      if (!snapshot.key) {
-        return;
-      }
-
-      const chat: ChatDB = snapshot.val();
-
-      nodes.push(ChatDto.adapter.toExternal({ ...chat, id: snapshot.key }));
-    });
+    let nodes = await this.getAllChats();
 
     nodes = filterChats({ identity, filter, chats: nodes });
     nodes = this.chatsSorter.sort(nodes, ordersBy, {
@@ -83,24 +77,20 @@ export class ChatService {
     });
   }
 
-  async getChatById(
+  async strictGetChatById(
     chatId: string,
     app: FirebaseAppInstance,
   ): Promise<ChatDto> {
-    const path = [FirebaseDatabasePath.CHATS, chatId];
-    const database = getDatabase(app);
-
-    const chatSnapshot = await get(ref(database, path.join('/')));
-    const chat: MaybeType<ChatDB> = chatSnapshot.val();
+    const chat = await this.getChatById(chatId, app);
 
     if (!chat) {
       throw new Error("Chat isn't existed");
     }
 
-    return ChatDto.adapter.toExternal({ ...chat, id: chatId });
+    return chat;
   }
 
-  async getChat(
+  async getChatById(
     chatId: string,
     app: FirebaseAppInstance,
   ): Promise<ChatDto | null> {
@@ -115,71 +105,42 @@ export class ChatService {
   }
 
   async getUnseenAdminChatsCount(): Promise<number> {
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+    const chats = await this.getAllChats();
 
-    const chatsSnapshot = await database.ref(FirebaseDatabasePath.CHATS).get();
-
-    let result = 0;
-
-    chatsSnapshot.forEach((snapshot) => {
-      if (snapshot.exists()) {
-        const chat: ChatDB = snapshot.val();
-
-        if (chat.data.inviteAdmin && !chat.data.seenByAdmin) {
-          result++;
-        }
+    return chats.reduce((unseenChatsCount, chat) => {
+      if (chat.inviteAdmin && !chat.seenByAdmin) {
+        return unseenChatsCount + 1;
       }
-    });
 
-    return result;
+      return unseenChatsCount;
+    }, 0);
   }
 
   async getUnseenChatsCount(identity: Identity): Promise<number> {
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+    const chats = await this.getAllChats();
 
-    const chatsSnapshot = await database.ref(FirebaseDatabasePath.CHATS).get();
-
-    let unseenChatsCount = 0;
-
-    chatsSnapshot.forEach((snapshot) => {
-      if (!snapshot.key) {
-        return;
-      }
-
-      const chatDb: ChatDB = snapshot.val();
-
-      const chat = ChatDto.adapter.toExternal({
-        ...chatDb,
-        id: snapshot.key,
-      });
-
+    return chats.reduce((unseenChatsCount, chat) => {
       const chatMember = chat.members.find(
         (member) => member.id === identity.id,
       );
 
-      if (!chatMember) {
-        return;
-      }
-
-      if (!chat.lastMessageDate) {
-        return;
+      if (!chatMember || !chat.lastMessageDate) {
+        return unseenChatsCount;
       }
 
       if (!chatMember.lastOpened) {
-        unseenChatsCount++;
-
-        return;
+        return unseenChatsCount + 1;
       }
 
       const lastOpenedDate = +chatMember.lastOpened;
       const lastMessageDate = +chat.lastMessageDate;
 
       if (lastMessageDate > lastOpenedDate) {
-        unseenChatsCount++;
+        return unseenChatsCount + 1;
       }
-    });
 
-    return unseenChatsCount;
+      return unseenChatsCount;
+    }, 0);
   }
 
   async createChat(
@@ -189,10 +150,7 @@ export class ChatService {
   ): Promise<ChatDto> {
     const { offerRequestId, role } = input;
 
-    const database = this.firebaseService.getDefaultApp().database();
-    const chatsRef = database.ref(FirebaseDatabasePath.CHATS);
-
-    const chat: ChatDB = {
+    const chatRef = await this.chatTableRef.push({
       data: {
         members: {
           [identity.id]: {
@@ -204,18 +162,20 @@ export class ChatService {
           offerRequest: offerRequestId,
         },
       },
-    };
+    });
 
-    const pushedChatRef = await chatsRef.push(chat);
+    if (!chatRef.key) {
+      throw new Error("Chats can't be created");
+    }
 
-    return this.getChatById(pushedChatRef.key || '', app);
+    return this.strictGetChatById(chatRef.key, app);
   }
 
   async setChatSeenByAdmin(
     chatId: string,
     seenByAdmin: boolean,
     app: FirebaseAppInstance,
-  ) {
+  ): Promise<boolean> {
     const database = getDatabase(app);
     const path = [FirebaseDatabasePath.CHATS, chatId, 'data', 'seenByAdmin'];
     const seenByAdminRef = ref(database, path.join('/'));
@@ -263,32 +223,25 @@ export class ChatService {
   async addMemberToChat(args: ChatMemberAdditionArgs): Promise<boolean> {
     const { userId, chatId, role } = args;
 
-    const chatMember: ChatMemberDB = {
-      role,
-    };
-
-    await this.getChatsRef()
+    await this.chatTableRef
       .child(chatId)
       .child('data')
       .child('members')
       .child(userId)
-      .set(chatMember);
+      .set({ role });
 
     return true;
   }
 
   async checkIsMember(identity: Identity, chatId: string): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const chatMemberSnapshot = await database
-      .ref(FirebaseDatabasePath.CHATS)
+    const chatMemberSnapshot = await this.chatTableRef
       .child(chatId)
       .child('data')
       .child('members')
       .child(identity.id)
-      .once('value');
+      .get();
 
-    const chatMember: ChatMemberDB | null = chatMemberSnapshot.val();
+    const chatMember = chatMemberSnapshot.val();
 
     return Boolean(chatMember);
   }
@@ -297,9 +250,8 @@ export class ChatService {
     chatId: string,
     chatMessage: ChatMessageDto,
     identity: Identity,
-  ) {
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
-    const chatRef = database.ref(FirebaseDatabasePath.CHATS).child(chatId);
+  ): Promise<void> {
+    const chatRef = this.chatTableRef.child(chatId);
 
     await chatRef
       .child('data')
@@ -319,12 +271,11 @@ export class ChatService {
       .update(chatMemberUpdates);
   }
 
-  async updateLastOpenedTime(chatId: string, identity: Identity) {
-    const app = this.firebaseService.getDefaultApp();
-
-    await app
-      .database()
-      .ref(FirebaseDatabasePath.CHATS)
+  async updateLastOpenedTime(
+    chatId: string,
+    identity: Identity,
+  ): Promise<void> {
+    await this.chatTableRef
       .child(chatId)
       .child('data')
       .child('members')
@@ -333,10 +284,8 @@ export class ChatService {
       .set(Date.now());
   }
 
-  async inviteAdmin(args: ChatInviteAdminArgs) {
+  async inviteAdmin(args: ChatInviteAdminArgs): Promise<void> {
     const { chatId, isAboutReclamation, isReasonGiven } = args;
-
-    const database = this.firebaseService.getDefaultApp().database();
 
     const values: Pick<
       ChatDB['data'],
@@ -354,11 +303,7 @@ export class ChatService {
       values.reasonGiven = true;
     }
 
-    await database
-      .ref(FirebaseDatabasePath.CHATS)
-      .child(chatId)
-      .child('data')
-      .update(values);
+    await this.chatTableRef.child(chatId).child('data').update(values);
 
     const seenByAdminUpdatedDto: SeenByAdminUpdatedDto = {
       previous: true,
