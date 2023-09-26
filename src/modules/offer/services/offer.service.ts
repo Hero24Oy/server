@@ -14,11 +14,7 @@ import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
 import { FirebaseTableReference } from '$/modules/firebase/firebase.types';
 import { Scope } from '$modules/auth/auth.constants';
 import { Identity } from '$modules/auth/auth.types';
-import {
-  isNotNull,
-  paginate,
-  preparePaginatedResult,
-} from '$modules/common/common.utils';
+import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
@@ -89,18 +85,17 @@ export class OfferService {
 
     return Object.entries(offers)
       .map(([id, offer]) => ({ id, ...offer }))
-      .map((offer) => {
+      .reduce((resultOffers: OfferDto[], offer) => {
         try {
           // * in case data is corrupted, we we should handle it without crashing the app
-          return OfferDto.adapter.toExternal(offer);
+          resultOffers.push(OfferDto.adapter.toExternal(offer));
         } catch (error) {
           this.logger.error(`Error while converting offer ${offer.id}`);
           this.logger.error(error);
         }
 
-        return null;
-      })
-      .filter(isNotNull);
+        return resultOffers;
+      }, []);
   }
 
   async getOffers(args: OfferArgs, identity: Identity): Promise<OfferListDto> {
@@ -127,7 +122,6 @@ export class OfferService {
       return false;
     });
 
-    // * we don't need to filter by id, as we did it in forEach loop above
     nodes = filterOffers({ offers: nodes, filter });
 
     if (ordersBy) {
