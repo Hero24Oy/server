@@ -140,6 +140,9 @@ export class NewsService {
     const app = this.firebaseService.getDefaultApp();
     const database = app.database();
 
-    await database.ref(FirebaseDatabasePath.NEWS).child(newsId).remove();
+    await database
+      .ref<Record<string, NewsDB>>(FirebaseDatabasePath.NEWS)
+      .child(newsId)
+      .remove();
   }
 }

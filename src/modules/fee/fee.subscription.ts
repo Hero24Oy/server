@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Reference } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
+import { FeeDB } from 'hero24-types';
 
 import { skipFirst } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseReference } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { SubscriptionService } from '../subscription-manager/subscription-manager.types';
@@ -36,7 +37,10 @@ export class FeeSubscription implements SubscriptionService {
     };
   }
 
-  private async subscribeOnFeeUpdates(rootFeesRef: Reference, pubsub: PubSub) {
+  private async subscribeOnFeeUpdates(
+    rootFeesRef: FirebaseReference<Record<string, FeeDB>>,
+    pubsub: PubSub,
+  ) {
     return subscribeOnFirebaseEvent(
       rootFeesRef,
       'child_changed',
@@ -44,7 +48,10 @@ export class FeeSubscription implements SubscriptionService {
     );
   }
 
-  private async subscribeOnFeeCreation(rootFeesRef: Reference, pubsub: PubSub) {
+  private async subscribeOnFeeCreation(
+    rootFeesRef: FirebaseReference<Record<string, FeeDB>>,
+    pubsub: PubSub,
+  ) {
     return subscribeOnFirebaseEvent(
       // Firebase child added event calls on every exist item first, than on every creation event.
       // So we should skip every exists items using limit to last 1 so as not to retrieve all items

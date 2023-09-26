@@ -62,7 +62,10 @@ export class ImageService {
   private async deleteImageFromDB(id: string): Promise<true> {
     const database = this.firebaseService.getDefaultApp().database();
 
-    await database.ref(FirebaseDatabasePath.IMAGES).child(id).remove();
+    await database
+      .ref<Record<string, ImageDB>>(FirebaseDatabasePath.IMAGES)
+      .child(id)
+      .remove();
 
     return true;
   }

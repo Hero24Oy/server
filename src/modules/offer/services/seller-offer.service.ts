@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { OfferDB } from 'hero24-types';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 
@@ -236,7 +237,9 @@ export class SellerOfferService {
     const database = this.firebaseService.getDefaultApp().database();
 
     const guard = database
-      .ref(FirebaseDatabasePath.OFFER_REQUEST_ACCEPTANCE_GUARDS)
+      .ref<Record<string, string>>(
+        FirebaseDatabasePath.OFFER_REQUEST_ACCEPTANCE_GUARDS,
+      )
       .child(offerRequestId);
 
     await new Promise<void>((resolve, reject) => {
@@ -267,7 +270,7 @@ export class SellerOfferService {
     const database = this.firebaseService.getDefaultApp().database();
 
     const createdOfferRef = await database
-      .ref(FirebaseDatabasePath.OFFERS)
+      .ref<Record<string, OfferDB>>(FirebaseDatabasePath.OFFERS)
       .push();
 
     if (!createdOfferRef.key) {

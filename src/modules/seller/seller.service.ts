@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { get, getDatabase, ref, remove, set } from 'firebase/database';
-import { Database } from 'firebase-admin/database';
 import { SellerProfileDB } from 'hero24-types';
 
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { FirebaseDatabase } from '../firebase/firebase.types/firebase-database.type';
 
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
@@ -18,7 +18,7 @@ import { SellersArgs } from './dto/sellers/sellers.args';
 
 @Injectable()
 export class SellerService {
-  database: Database;
+  database: FirebaseDatabase;
 
   constructor(private readonly firebaseService: FirebaseService) {
     this.database = this.firebaseService.getDefaultApp().database();
