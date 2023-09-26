@@ -20,7 +20,7 @@ import { FeePriceCalculatorModule } from './fee-price-calculator/fee-price-calcu
     GraphQlPubsubModule,
     SorterModule.create(FEE_SORTERS),
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQlPubsubModule, FirebaseModule],
+      imports: [GraphQlPubsubModule, FeeModule],
       subscriptions: [FeeSubscription],
     }),
   ],

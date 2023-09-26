@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 import { ChatMessageDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
@@ -7,24 +6,26 @@ import { FirebaseService } from '../../firebase/firebase.service';
 import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 import { ChatMessageCreationArgs } from '../dto/creation/chat-message-creation.args';
 
+import { FirebaseTableReference } from '$/modules/firebase/firebase.types';
 import { Identity } from '$modules/auth/auth.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 
 @Injectable()
 export class ChatMessageService {
-  constructor(private firebaseService: FirebaseService) {}
+  private readonly chatMessageTableRef: FirebaseTableReference<ChatMessageDB>;
+
+  constructor(firebaseService: FirebaseService) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.chatMessageTableRef = database.ref(FirebaseDatabasePath.CHAT_MESSAGES);
+  }
 
   async getChatMessageById(
     chatMessageId: string,
   ): Promise<ChatMessageDto | null> {
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+    const snapshot = await this.chatMessageTableRef.child(chatMessageId).get();
 
-    const snapshot = await database
-      .ref(FirebaseDatabasePath.CHAT_MESSAGES)
-      .child(chatMessageId)
-      .get();
-
-    const chatMessage: ChatMessageDB | null = snapshot.val();
+    const chatMessage = snapshot.val();
 
     return (
       chatMessage &&
@@ -32,29 +33,35 @@ export class ChatMessageService {
     );
   }
 
+  async strictGetChatMessageById(
+    chatMessageId: string,
+  ): Promise<ChatMessageDto> {
+    const chatMessage = await this.getChatMessageById(chatMessageId);
+
+    if (!chatMessage) {
+      throw new Error('Chat message is not found');
+    }
+
+    return chatMessage;
+  }
+
+  async getAllChatMessages(): Promise<ChatMessageDto[]> {
+    const chatMessagesSnapshot = await this.chatMessageTableRef.get();
+    const chatMessages = chatMessagesSnapshot.val() || {};
+
+    return Object.entries(chatMessages)
+      .map(([id, chatMessage]) => ({ id, ...chatMessage }))
+      .map(ChatMessageDto.adapter.toExternal);
+  }
+
   async getChatMessageByIds(
     messageIds: readonly string[],
   ): Promise<(ChatMessageDto | null)[]> {
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
+    const allChatMessages = await this.getAllChatMessages();
 
-    const chatMessagesSnapshot = await database
-      .ref(FirebaseDatabasePath.CHAT_MESSAGES)
-      .once('value');
-
-    const chatMessages: Record<string, ChatMessageDto> = {};
-
-    chatMessagesSnapshot.forEach((snapshot) => {
-      if (!snapshot.key) {
-        return;
-      }
-
-      const chatMessage: ChatMessageDB = snapshot.val();
-
-      chatMessages[snapshot.key] = ChatMessageDto.adapter.toExternal({
-        ...chatMessage,
-        id: snapshot.key,
-      });
-    });
+    const chatMessages = Object.fromEntries(
+      allChatMessages.map((chatMessage) => [chatMessage.id, chatMessage]),
+    );
 
     return messageIds.map((id) => chatMessages[id] || null);
   }
@@ -65,11 +72,7 @@ export class ChatMessageService {
   ): Promise<ChatMessageDto> {
     const { chatId, content, imageIds, location } = args;
 
-    const database = getAdminDatabase(this.firebaseService.getDefaultApp());
-
-    const messagesRef = database.ref(FirebaseDatabasePath.CHAT_MESSAGES);
-
-    const firebaseChatMessage: ChatMessageDB = {
+    const newMessageRef = await this.chatMessageTableRef.push({
       data: {
         initial: {
           chat: chatId,
@@ -81,20 +84,12 @@ export class ChatMessageService {
           ...(location ? { location } : {}),
         },
       },
-    };
-
-    const newMessageRef = await messagesRef.push(firebaseChatMessage);
+    });
 
     if (!newMessageRef.key) {
       throw new Error('Chat message cant be created');
     }
 
-    const chatMessage = await this.getChatMessageById(newMessageRef.key);
-
-    if (!chatMessage) {
-      throw new Error('Cant find the chat message');
-    }
-
-    return chatMessage;
+    return this.strictGetChatMessageById(newMessageRef.key);
   }
 }

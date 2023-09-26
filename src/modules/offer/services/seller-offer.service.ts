@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { OfferDB } from 'hero24-types';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 
@@ -18,23 +17,31 @@ import { UpdatedDateDB, UpdatedDateGraphql } from '../types';
 
 import { OfferService } from './offer.service';
 
+import { FirebaseService } from '$/modules/firebase/firebase.service';
+import { FirebaseTableReference } from '$/modules/firebase/firebase.types';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
-import { FirebaseService } from '$modules/firebase/firebase.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
+
+type SellerId = string;
 
 @Injectable()
 export class SellerOfferService {
+  private readonly acceptanceGuardTableRef: FirebaseTableReference<SellerId>;
+
   constructor(
-    private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
     private readonly offerRequestService: OfferRequestService,
-  ) {}
+    firebaseService: FirebaseService,
+  ) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.acceptanceGuardTableRef = database.ref(
+      FirebaseDatabasePath.OFFER_REQUEST_ACCEPTANCE_GUARDS,
+    );
+  }
 
   async markOfferAsSeenBySeller(offerId: string): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    await database
-      .ref(FirebaseDatabasePath.OFFERS)
+    await this.offerService.offerTableRef
       .child(offerId)
       .child('data')
       .child('seenBySeller')
@@ -44,24 +51,19 @@ export class SellerOfferService {
   }
 
   async cancelRequestToExtend(offerId: string): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
-    await database.ref(FirebaseDatabasePath.OFFERS).child(offerId).update({
-      timeToExtend: null,
-      reasonToExtend: null,
+    // TODO: update hero24-types to support nulls
+    await this.offerService.offerTableRef.child(offerId).update({
+      timeToExtend: null as unknown as undefined,
+      reasonToExtend: null as unknown as undefined,
     });
 
     return true;
   }
 
-  async extendOfferDuration({
-    reasonToExtend,
-    timeToExtend,
-    offerId,
-  }: OfferExtendInput): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
+  async extendOfferDuration(input: OfferExtendInput): Promise<boolean> {
+    const { reasonToExtend, timeToExtend, offerId } = input;
 
-    await database.ref(FirebaseDatabasePath.OFFERS).child(offerId).update({
+    await this.offerService.offerTableRef.child(offerId).update({
       timeToExtend,
       reasonToExtend,
     });
@@ -69,15 +71,10 @@ export class SellerOfferService {
     return true;
   }
 
-  async markJobCompleted({
-    actualStartTime,
-    actualCompletedTime,
-    workTime,
-    offerId,
-  }: OfferCompletedInput): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
+  async markJobCompleted(input: OfferCompletedInput): Promise<boolean> {
+    const { actualStartTime, actualCompletedTime, workTime, offerId } = input;
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+    const offerRef = this.offerService.offerTableRef.child(offerId);
 
     // mark status completed
     await this.offerService.updateOfferStatus({
@@ -109,12 +106,9 @@ export class SellerOfferService {
   }
 
   async startJob(offerId: string): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
     const timestamp = Date.now();
 
-    await database
-      .ref(FirebaseDatabasePath.OFFERS)
+    await this.offerService.offerTableRef
       .child(offerId)
       .child('data')
       .update({
@@ -123,7 +117,7 @@ export class SellerOfferService {
         workTime: [
           {
             startTime: timestamp,
-            endTime: null,
+            endTime: null as unknown as undefined,
           },
         ],
       });
@@ -132,8 +126,6 @@ export class SellerOfferService {
   }
 
   async toggleJobStatus(offerId: string): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
-
     const offer = await this.offerService.strictGetOfferById(offerId);
 
     // on startJob workTime should be initialized
@@ -159,16 +151,15 @@ export class SellerOfferService {
       updatedDate.workTime.push(workTime);
     }
 
-    const updatedDateConverted: UpdatedDateDB = {
+    const updatedDateConverted = {
       isPaused: updatedDate.isPaused,
       pauseDurationMS: updatedDate.pauseDurationMS,
       workTime: updatedDate.workTime.map((time) =>
         WorkTimeDto.adapter.toInternal(time),
       ),
-    };
+    } satisfies UpdatedDateDB;
 
-    await database
-      .ref(FirebaseDatabasePath.OFFERS)
+    await this.offerService.offerTableRef
       .child(offerId)
       .child('data')
       .update(updatedDateConverted);
@@ -176,16 +167,13 @@ export class SellerOfferService {
     return true;
   }
 
-  async acceptOfferChanges({
-    agreedStartTime,
-    offerId,
-  }: OfferChangeInput): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
+  async acceptOfferChanges(input: OfferChangeInput): Promise<boolean> {
+    const { agreedStartTime, offerId } = input;
 
     const isAcceptDetailsChanges = !agreedStartTime;
     const isAcceptTimeChanges = !isAcceptDetailsChanges;
 
-    const offerRef = database.ref(FirebaseDatabasePath.OFFERS).child(offerId);
+    const offerRef = this.offerService.offerTableRef.child(offerId);
     const offer = await this.offerService.strictGetOfferById(offerId);
     const offerRequestId = get(offer, ['data', 'initial', 'offerRequestId']);
 
@@ -230,17 +218,10 @@ export class SellerOfferService {
     return true;
   }
 
-  async createAcceptanceGuard({
-    offerRequestId,
-    sellerProfileId,
-  }: AcceptanceGuardInput): Promise<boolean> {
-    const database = this.firebaseService.getDefaultApp().database();
+  async createAcceptanceGuard(input: AcceptanceGuardInput): Promise<boolean> {
+    const { offerRequestId, sellerProfileId } = input;
 
-    const guard = database
-      .ref<Record<string, string>>(
-        FirebaseDatabasePath.OFFER_REQUEST_ACCEPTANCE_GUARDS,
-      )
-      .child(offerRequestId);
+    const guard = this.acceptanceGuardTableRef.child(offerRequestId);
 
     await new Promise<void>((resolve, reject) => {
       void guard.transaction(
@@ -267,11 +248,7 @@ export class SellerOfferService {
   async createOffer(offer: OfferInput): Promise<OfferDto> {
     await this.createAcceptanceGuard(offer.data.initial);
 
-    const database = this.firebaseService.getDefaultApp().database();
-
-    const createdOfferRef = await database
-      .ref<Record<string, OfferDB>>(FirebaseDatabasePath.OFFERS)
-      .push();
+    const createdOfferRef = await this.offerService.offerTableRef.push();
 
     if (!createdOfferRef.key) {
       throw new Error('Could not create offer');

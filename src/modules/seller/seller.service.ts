@@ -5,8 +5,10 @@ import { SellerProfileDB } from 'hero24-types';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
-import { FirebaseDatabase } from '../firebase/firebase.types/firebase-database.type';
+import {
+  FirebaseAppInstance,
+  FirebaseTableReference,
+} from '../firebase/firebase.types';
 
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
@@ -18,21 +20,18 @@ import { SellersArgs } from './dto/sellers/sellers.args';
 
 @Injectable()
 export class SellerService {
-  database: FirebaseDatabase;
+  sellerTableRef: FirebaseTableReference<SellerProfileDB>;
 
-  constructor(private readonly firebaseService: FirebaseService) {
-    this.database = this.firebaseService.getDefaultApp().database();
+  constructor(firebaseService: FirebaseService) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.sellerTableRef = database.ref(FirebaseDatabasePath.SELLER_PROFILES);
   }
 
   async getSellerById(sellerId: string): Promise<SellerProfileDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const snapshot = await this.sellerTableRef.child(sellerId).get();
 
-    const snapshot = await database
-      .ref(FirebaseDatabasePath.SELLER_PROFILES)
-      .child(sellerId)
-      .get();
-
-    const candidate: SellerProfileDB | null = snapshot.val();
+    const candidate = snapshot.val();
 
     return (
       candidate &&
@@ -51,14 +50,9 @@ export class SellerService {
   }
 
   async getAllSellers(): Promise<SellerProfileDto[]> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const sellerProfilesSnapshot = await this.sellerTableRef.get();
 
-    const sellerProfilesSnapshot = await database
-      .ref(FirebaseDatabasePath.SELLER_PROFILES)
-      .get();
-
-    const sellerProfiles: Record<string, SellerProfileDB> =
-      sellerProfilesSnapshot.val() || {};
+    const sellerProfiles = sellerProfilesSnapshot.val() || {};
 
     return Object.entries(sellerProfiles).map(([id, sellerProfile]) =>
       SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
@@ -101,8 +95,7 @@ export class SellerService {
   async createSeller(args: SellerProfileCreationArgs) {
     const { id, data } = args;
 
-    await this.database
-      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+    await this.sellerTableRef
       .child(id)
       .child('data')
       .set(SellerProfileDataDto.adapter.toInternal(data));
@@ -113,8 +106,7 @@ export class SellerService {
   async editSellerData(args: SellerProfileDataEditingArgs) {
     const { id, data } = args;
 
-    await this.database
-      .ref(FirebaseDatabasePath.SELLER_PROFILES)
+    await this.sellerTableRef
       .child(id)
       .child('data')
       .update(PartialSellerProfileDataInput.adapter.toInternal(data));

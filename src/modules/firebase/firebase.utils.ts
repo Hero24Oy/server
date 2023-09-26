@@ -9,5 +9,5 @@ export const subscribeOnFirebaseEvent = <Entity, Event extends EventType>(
 ): (() => void) => {
   ref.on(eventType, eventHandler);
 
-  return () => ref.off(eventType);
+  return () => ref.off(eventType, eventHandler);
 };

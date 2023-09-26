@@ -4,7 +4,10 @@ import { BuyerProfileDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
+import {
+  FirebaseAppInstance,
+  FirebaseTableReference,
+} from '../firebase/firebase.types';
 
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
@@ -12,14 +15,17 @@ import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-ed
 
 @Injectable()
 export class BuyerService {
-  constructor(private firebaseService: FirebaseService) {}
+  private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
+
+  constructor(firebaseService: FirebaseService) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.buyerTableRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
+  }
 
   async getAllBuyers(): Promise<BuyerProfileDto[]> {
-    const database = this.firebaseService.getDefaultApp().database();
-    const buyersRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
-
-    const buyersSnapshot = await buyersRef.get();
-    const buyers: Record<string, BuyerProfileDB> = buyersSnapshot.val() || {};
+    const buyersSnapshot = await this.buyerTableRef.get();
+    const buyers = buyersSnapshot.val() || {};
 
     return Object.entries(buyers).map(([id, buyerProfile]) =>
       BuyerProfileDto.adapter.toExternal({ id, ...buyerProfile }),
@@ -27,14 +33,9 @@ export class BuyerService {
   }
 
   async getBuyerById(buyerId: string): Promise<BuyerProfileDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const snapshot = await this.buyerTableRef.child(buyerId).get();
 
-    const snapshot = await database
-      .ref(FirebaseDatabasePath.BUYER_PROFILES)
-      .child(buyerId)
-      .get();
-
-    const candidate: BuyerProfileDB | null = snapshot.val();
+    const candidate = snapshot.val();
 
     return (
       candidate &&

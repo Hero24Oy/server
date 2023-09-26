@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { OfferDB } from 'hero24-types';
 
-import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseReference } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import {
@@ -19,23 +18,19 @@ import { skipFirst } from '$modules/common/common.utils';
 @Injectable()
 export class OfferSubscription implements SubscriptionService {
   constructor(
-    private readonly firebaseService: FirebaseService,
     private readonly offerService: OfferService,
     @Config() protected readonly config: ConfigType,
   ) {}
 
   public subscribe(): Unsubscribe {
-    const offerRef = this.firebaseService
-      .getDefaultApp()
-      .database()
-      .ref('offers');
+    const { offerTableRef } = this.offerService;
 
     const unsubscribes = [
-      this.subscribeOnOfferCreation(offerRef),
-      this.subscribeOnOfferChanges(offerRef),
+      this.subscribeOnOfferCreation(offerTableRef),
+      this.subscribeOnOfferChanges(offerTableRef),
     ];
 
-    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
+    return (): void => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
   private subscribeOnOfferCreation(
