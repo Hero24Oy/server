@@ -13,11 +13,16 @@ import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
+import { UserService } from '$modules/user/user.service';
+
 @Injectable()
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
-  constructor(firebaseService: FirebaseService) {
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    private readonly userService: UserService,
+  ) {
     const database = firebaseService.getDefaultApp().database();
 
     this.buyerTableRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
@@ -64,7 +69,11 @@ export class BuyerService {
 
     await set(ref(database, path.join('/')), data);
 
-    return this.strictGetBuyerProfileById(id);
+    const buyerProfile = await this.strictGetBuyerProfileById(id);
+
+    await this.userService.setHasBuyerProfile(id, true);
+
+    return buyerProfile;
   }
 
   async editBuyer(
@@ -79,6 +88,14 @@ export class BuyerService {
     await update(ref(database, path.join('/')), data);
 
     return this.strictGetBuyerProfileById(id);
+  }
+
+  async deleteBuyer(id: string): Promise<boolean> {
+    await this.buyerTableRef.child(id).remove();
+
+    await this.userService.setHasBuyerProfile(id, false);
+
+    return true;
   }
 
   async getBuyerByIds(

@@ -41,4 +41,11 @@ export class BuyerResolver {
   ): Promise<BuyerProfileDto> {
     return this.buyerService.editBuyer(args, app);
   }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async deleteBuyer(@Args('id') buyerId: string): Promise<boolean> {
+    return this.buyerService.deleteBuyer(buyerId);
+  }
 }

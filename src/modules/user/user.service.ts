@@ -212,4 +212,14 @@ export class UserService {
 
     return userIds.map((userId) => userById.get(userId) || null);
   }
+
+  async setHasBuyerProfile(
+    userId: string,
+    hasBuyerProfile: boolean,
+  ): Promise<void> {
+    await this.userTableRef
+      .child(userId)
+      .child('hasBuyerProfile')
+      .set(hasBuyerProfile);
+  }
 }
