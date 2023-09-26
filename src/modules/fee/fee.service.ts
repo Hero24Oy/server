@@ -132,11 +132,9 @@ export class FeeService {
 
   async editFeeStatus(args: FeeStatusEditingInput): Promise<boolean> {
     const database = this.firebaseService.getDefaultApp().database();
+    const { id, status } = args;
 
-    await database
-      .ref(FirebaseDatabasePath.FEES)
-      .child(args.id)
-      .update({ status: args.status });
+    await database.ref(FirebaseDatabasePath.FEES).child(id).update({ status });
 
     return true;
   }
