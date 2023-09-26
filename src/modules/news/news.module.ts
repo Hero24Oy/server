@@ -24,7 +24,7 @@ export class NewsModule {
 
   constructor(
     private readonly newsService: NewsService,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
   onApplicationBootstrap(): void {
