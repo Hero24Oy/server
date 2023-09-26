@@ -1,33 +1,25 @@
-import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
-import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataInput } from './dto/creation/user-data.input';
+import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
-import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
-import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
-import {
-  USER_CREATED_SUBSCRIPTION,
-  USER_UPDATED_SUBSCRIPTION,
-} from './user.constants';
 import { UserService } from './user.service';
+
+import { AdminGuard } from '$modules/auth/guards/admin.guard';
 
 @Resolver()
 export class UserResolver {
-  constructor(
-    private userService: UserService,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @Query(() => UserDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
@@ -52,24 +44,28 @@ export class UserResolver {
   async phone(
     @Args('userId') userId: string,
     @FirebaseApp() app: FirebaseAppInstance,
-  ) {
+  ): Promise<string> {
     return this.userService.getUserPhone(userId, app);
   }
 
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async createUser(
-    @Args() args: UserCreationArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserDto> {
-    const emitUserCreated = createSubscriptionEventEmitter(
-      USER_CREATED_SUBSCRIPTION,
-    );
+  async createUser(@Args() args: UserCreationArgs): Promise<UserDto> {
+    const user = await this.userService.createUser(args);
 
-    const user = await this.userService.createUser(args, app);
+    this.userService.emitUserCreated({ user });
 
-    emitUserCreated<UserCreatedDto>(this.pubSub, { user });
+    return user;
+  }
+
+  @Mutation(() => UserDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async createAdmin(@Args('data') data: UserDataInput): Promise<UserDto> {
+    const user = await this.userService.createAdmin(data);
+
+    this.userService.emitUserCreated({ user });
 
     return user;
   }
@@ -81,10 +77,6 @@ export class UserResolver {
     @Args() args: UserDataEditingArgs,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<UserDto> {
-    const emitUserUpdated = createSubscriptionEventEmitter(
-      USER_UPDATED_SUBSCRIPTION,
-    );
-
     const beforeUpdateUser = await this.userService.getUserById(args.userId);
 
     if (!beforeUpdateUser) {
@@ -93,9 +85,23 @@ export class UserResolver {
 
     const user = await this.userService.editUserData(args, app);
 
-    emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
+    this.userService.emitUserUpdated({ user, beforeUpdateUser });
 
     return user;
+  }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async editUserAdminStatus(
+    @Args('input') input: UserAdminStatusEditInput,
+  ): Promise<boolean> {
+    const beforeUpdateUser = await this.userService.strictGetUserById(input.id);
+    const user = await this.userService.editUserAdminStatus(input);
+
+    this.userService.emitUserUpdated({ beforeUpdateUser, user });
+
+    return Boolean(user);
   }
 
   @Mutation(() => Boolean)
