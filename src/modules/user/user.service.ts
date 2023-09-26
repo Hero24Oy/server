@@ -20,7 +20,7 @@ import { UsersArgs } from './dto/users/users.args';
 
 @Injectable()
 export class UserService {
-  private userTableRef: FirebaseTableReference<UserDB>;
+  private readonly userTableRef: FirebaseTableReference<UserDB>;
 
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();

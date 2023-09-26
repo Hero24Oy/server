@@ -26,7 +26,7 @@ type SellerId = string;
 
 @Injectable()
 export class SellerOfferService {
-  private acceptanceGuardTableRef: FirebaseTableReference<SellerId>;
+  private readonly acceptanceGuardTableRef: FirebaseTableReference<SellerId>;
 
   constructor(
     private readonly offerService: OfferService,

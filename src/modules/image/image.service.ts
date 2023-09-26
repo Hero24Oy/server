@@ -15,7 +15,7 @@ import { ImageCategoryType } from './image.types';
 
 @Injectable()
 export class ImageService {
-  private imageTableRef: FirebaseTableReference<ImageDB>;
+  private readonly imageTableRef: FirebaseTableReference<ImageDB>;
 
   constructor(private readonly firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
