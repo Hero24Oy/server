@@ -1,23 +1,34 @@
-import { Injectable } from '@nestjs/common';
-import { get, getDatabase, push, ref, set, update } from 'firebase/database';
+import { Inject, Injectable } from '@nestjs/common';
+import { get, getDatabase, ref, update } from 'firebase/database';
+import { PubSub } from 'graphql-subscriptions';
 import { UserDB } from 'hero24-types';
 
+import { TypeSafeRequired } from '../common/common.types';
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataInput } from './dto/creation/user-data.input';
+import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { PartialUserDataInput } from './dto/editing/partial-user-data.input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
+import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
+import { emitUserCreated } from './user.utils/emit-user-created.util';
+import { emitUserUpdated } from './user.utils/emit-user-updated.util';
 
 @Injectable()
 export class UserService {
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+  ) {}
 
   async getUserById(userId: string): Promise<UserDto | null> {
     const database = this.firebaseService.getDefaultApp().database();
@@ -42,7 +53,7 @@ export class UserService {
     return user;
   }
 
-  async getAllUsers() {
+  async getAllUsers(): Promise<TypeSafeRequired<UserDto>[]> {
     const database = this.firebaseService.getDefaultApp().database();
     const usersRef = database.ref(FirebaseDatabasePath.USERS);
 
@@ -95,13 +106,10 @@ export class UserService {
     });
   }
 
-  async createUser(
-    args: UserCreationArgs,
-    app: FirebaseAppInstance,
-  ): Promise<UserDto> {
+  async createUser(args: UserCreationArgs): Promise<UserDto> {
     const { data, isCreatedFromWeb, userId } = args;
 
-    const database = getDatabase(app);
+    const database = this.firebaseService.getDefaultApp().database();
 
     let updatedUserId = userId || null;
 
@@ -112,27 +120,25 @@ export class UserService {
 
     if (isCreatedFromWeb && userId) {
       // admin
-      await set(ref(database, `${FirebaseDatabasePath.USERS}/${userId}`), {
+      await database.ref(FirebaseDatabasePath.USERS).child(userId).set({
         data: newUserData,
         isCreatedFromWeb,
       });
     } else if (isCreatedFromWeb) {
       // admin
-      const newUserRef = await push(
-        ref(database, `${FirebaseDatabasePath.USERS}`),
-        {
-          data: newUserData,
-          isCreatedFromWeb,
-        },
-      );
+      const newUserRef = await database.ref(FirebaseDatabasePath.USERS).push({
+        data: newUserData,
+        isCreatedFromWeb,
+      });
 
       updatedUserId = newUserRef.key;
     } else if (userId) {
       // user
-      await set(
-        ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
-        newUserData,
-      );
+      await database
+        .ref(FirebaseDatabasePath.USERS)
+        .child(userId)
+        .child('data')
+        .set(newUserData);
     }
 
     if (!updatedUserId) {
@@ -162,6 +168,25 @@ export class UserService {
     return this.getUserById(userId) as Promise<UserDto>;
   }
 
+  async editUserAdminStatus(args: UserAdminStatusEditInput): Promise<UserDto> {
+    const { id, isAdmin } = args;
+
+    const database = this.firebaseService.getDefaultApp().database();
+
+    await database
+      .ref(FirebaseDatabasePath.USERS)
+      .child(id)
+      .update({ isAdmin });
+
+    const adminUsersRef = database
+      .ref(FirebaseDatabasePath.ADMIN_USERS)
+      .child(id);
+
+    await adminUsersRef.set(isAdmin || null);
+
+    return this.strictGetUserById(id);
+  }
+
   async unbindUserOfferRequests(
     userId: string,
     offerRequestIds: string[],
@@ -189,11 +214,15 @@ export class UserService {
     const path = [FirebaseDatabasePath.USERS, userId, 'data', 'phone'];
 
     const phoneSnapshot = await get(ref(database, path.join('/')));
+    const phone: string = phoneSnapshot.val() || '';
 
-    return phoneSnapshot.val() || '';
+    return phone;
   }
 
-  async setHubSpotContactId(userId: string, hubSpotContactId?: string) {
+  async setHubSpotContactId(
+    userId: string,
+    hubSpotContactId?: string,
+  ): Promise<void> {
     const database = this.firebaseService.getDefaultApp().database();
 
     await database
@@ -209,5 +238,28 @@ export class UserService {
     const userById = new Map(users.map((user) => [user.id, user]));
 
     return userIds.map((userId) => userById.get(userId) || null);
+  }
+
+  async createAdmin(input: UserDataInput): Promise<UserDto> {
+    const auth = this.firebaseService.getDefaultApp().auth();
+    const { uid: userId } = await auth.createUser({ email: input.email });
+
+    const newUser = await this.createUser({
+      data: input,
+      isCreatedFromWeb: true,
+      userId,
+    });
+
+    await this.editUserAdminStatus({ id: userId, isAdmin: true });
+
+    return newUser;
+  }
+
+  emitUserUpdated(userChanges: UserUpdatedDto): void {
+    emitUserUpdated<UserUpdatedDto>(this.pubSub, userChanges);
+  }
+
+  emitUserCreated(user: UserCreatedDto): void {
+    emitUserCreated<UserCreatedDto>(this.pubSub, user);
   }
 }
