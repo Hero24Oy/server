@@ -31,11 +31,8 @@ export class UserResolver {
   @Query(() => UserListDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async users(
-    @Args() args: UsersArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserListDto> {
-    return this.userService.getUsers(args, app);
+  async users(@Args() args: UsersArgs): Promise<UserListDto> {
+    return this.userService.getUsers(args);
   }
 
   @Query(() => String)

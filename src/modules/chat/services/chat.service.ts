@@ -24,6 +24,7 @@ import { ChatCreationInput } from '../dto/creation/chat-creation.input';
 import { ChatInviteAdminArgs } from '../dto/editing/chat-invite-admin.args';
 import { ChatMemberAdditionArgs } from '../dto/editing/chat-member-addition.args';
 import { SeenByAdminUpdatedDto } from '../dto/subscriptions/seen-by-admin-updated.dto';
+import { ChatMirror } from '../mirrors/chat.mirror';
 
 import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
 import { SorterService } from '$modules/sorter/sorter.service';
@@ -39,6 +40,7 @@ export class ChatService {
       ChatsSorterContext
     >,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+    private readonly chatMirror: ChatMirror,
     firebaseService: FirebaseService,
   ) {
     const database = firebaseService.getDefaultApp().database();
@@ -47,12 +49,9 @@ export class ChatService {
   }
 
   async getAllChats(): Promise<ChatDto[]> {
-    const chatsSnapshot = await this.chatTableRef.get();
-    const chats = chatsSnapshot.val() || {};
-
-    return Object.entries(chats)
-      .map(([id, chat]) => ({ id, ...chat }))
-      .map(ChatDto.adapter.toExternal);
+    return this.chatMirror
+      .getAll()
+      .map(([id, chat]) => ChatDto.adapter.toExternal({ id, ...chat }));
   }
 
   async getChats(args: ChatsArgs, identity: Identity): Promise<ChatListDto> {

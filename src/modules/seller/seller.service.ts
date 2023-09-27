@@ -17,12 +17,16 @@ import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfileDataDto } from './dto/seller/seller-profile-data';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
+import { SellerMirror } from './seller.mirror';
 
 @Injectable()
 export class SellerService {
   sellerTableRef: FirebaseTableReference<SellerProfileDB>;
 
-  constructor(firebaseService: FirebaseService) {
+  constructor(
+    private readonly sellerMirror: SellerMirror,
+    firebaseService: FirebaseService,
+  ) {
     const database = firebaseService.getDefaultApp().database();
 
     this.sellerTableRef = database.ref(FirebaseDatabasePath.SELLER_PROFILES);
@@ -50,35 +54,18 @@ export class SellerService {
   }
 
   async getAllSellers(): Promise<SellerProfileDto[]> {
-    const sellerProfilesSnapshot = await this.sellerTableRef.get();
+    return this.sellerMirror
+      .getAll()
 
-    const sellerProfiles = sellerProfilesSnapshot.val() || {};
-
-    return Object.entries(sellerProfiles).map(([id, sellerProfile]) =>
-      SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
-    );
+      .map(([id, sellerProfile]) =>
+        SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
+      );
   }
 
-  async getSellers(
-    args: SellersArgs,
-    app: FirebaseAppInstance,
-  ): Promise<SellerProfileListDto> {
+  async getSellers(args: SellersArgs): Promise<SellerProfileListDto> {
     const { offset, limit } = args;
 
-    const database = getDatabase(app);
-
-    const sellersSnapshot = await get(
-      ref(database, FirebaseDatabasePath.SELLER_PROFILES),
-    );
-
-    const sellersRecord: Record<string, SellerProfileDB> =
-      sellersSnapshot.val() || {};
-
-    const sellers = Object.entries(sellersRecord).map(([id, sellerProfile]) =>
-      SellerProfileDto.adapter.toExternal({ ...sellerProfile, id }),
-    );
-
-    let nodes = sellers;
+    let nodes = await this.getAllSellers();
 
     const total = nodes.length;
 

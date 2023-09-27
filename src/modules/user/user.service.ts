@@ -21,6 +21,7 @@ import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
+import { UserMirror } from './user.mirror';
 import { emitUserCreated } from './user.utils/emit-user-created.util';
 import { emitUserUpdated } from './user.utils/emit-user-updated.util';
 
@@ -38,6 +39,7 @@ export class UserService {
   >;
 
   constructor(
+    private readonly userMirror: UserMirror,
     private readonly firebaseService: FirebaseService,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {
@@ -66,29 +68,15 @@ export class UserService {
   }
 
   async getAllUsers(): Promise<UserDto[]> {
-    const usersSnapshot = await this.userTableRef.get();
-
-    const usersTable = usersSnapshot.val() || {};
-
-    return Object.entries(usersTable).map(([id, user]) =>
-      UserDto.adapter.toExternal({ id, ...user }),
-    );
+    return this.userMirror
+      .getAll()
+      .map(([id, user]) => UserDto.adapter.toExternal({ id, ...user }));
   }
 
-  async getUsers(
-    args: UsersArgs,
-    app: FirebaseAppInstance,
-  ): Promise<UserListDto> {
+  async getUsers(args: UsersArgs): Promise<UserListDto> {
     const { limit, offset, search } = args;
-    const database = getDatabase(app);
 
-    const usersSnapshot = await get(ref(database, FirebaseDatabasePath.USERS));
-
-    const users = Object.entries(
-      (usersSnapshot.val() as Record<string, UserDB>) || {},
-    ).map(([id, user]) => UserDto.adapter.toExternal({ id, ...user }));
-
-    let nodes = users;
+    let nodes = await this.getAllUsers();
 
     if (search) {
       const searchText = search.toLowerCase();
