@@ -20,7 +20,7 @@ export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
   constructor(
-    private readonly firebaseService: FirebaseService,
+    firebaseService: FirebaseService,
     private readonly userService: UserService,
   ) {
     const database = firebaseService.getDefaultApp().database();
@@ -71,7 +71,7 @@ export class BuyerService {
 
     const buyerProfile = await this.strictGetBuyerProfileById(id);
 
-    await this.userService.setHasBuyerProfile(id, true);
+    await this.userService.setHasProfile(id, 'hasBuyerProfile', true);
 
     return buyerProfile;
   }
@@ -90,14 +90,6 @@ export class BuyerService {
     return this.strictGetBuyerProfileById(id);
   }
 
-  async deleteBuyer(id: string): Promise<boolean> {
-    await this.buyerTableRef.child(id).remove();
-
-    await this.userService.setHasBuyerProfile(id, false);
-
-    return true;
-  }
-
   async getBuyerByIds(
     buyerIds: readonly string[],
   ): Promise<Array<BuyerProfileDto | null>> {
@@ -106,5 +98,13 @@ export class BuyerService {
     const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
     return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
+  }
+
+  async deleteBuyer(id: string): Promise<boolean> {
+    await this.buyerTableRef.child(id).remove();
+
+    await this.userService.setHasProfile(id, 'hasBuyerProfile', false);
+
+    return true;
   }
 }

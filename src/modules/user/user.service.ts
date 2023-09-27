@@ -213,13 +213,11 @@ export class UserService {
     return userIds.map((userId) => userById.get(userId) || null);
   }
 
-  async setHasBuyerProfile(
+  async setHasProfile(
     userId: string,
-    hasBuyerProfile: boolean,
+    value: keyof Pick<UserDto, 'hasBuyerProfile' | 'hasSellerProfile'>,
+    hasProfile: boolean,
   ): Promise<void> {
-    await this.userTableRef
-      .child(userId)
-      .child('hasBuyerProfile')
-      .set(hasBuyerProfile);
+    await this.userTableRef.child(userId).child(value).set(hasProfile);
   }
 }

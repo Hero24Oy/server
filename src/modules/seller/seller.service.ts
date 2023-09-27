@@ -18,11 +18,16 @@ import { SellerProfileDataDto } from './dto/seller/seller-profile-data';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 
+import { UserService } from '$modules/user/user.service';
+
 @Injectable()
 export class SellerService {
   sellerTableRef: FirebaseTableReference<SellerProfileDB>;
 
-  constructor(firebaseService: FirebaseService) {
+  constructor(
+    firebaseService: FirebaseService,
+    private readonly userService: UserService,
+  ) {
     const database = firebaseService.getDefaultApp().database();
 
     this.sellerTableRef = database.ref(FirebaseDatabasePath.SELLER_PROFILES);
@@ -99,6 +104,8 @@ export class SellerService {
       .child(id)
       .child('data')
       .set(SellerProfileDataDto.adapter.toInternal(data));
+
+    await this.userService.setHasProfile(id, 'hasSellerProfile', true);
 
     return this.getSellerById(id);
   }
@@ -211,5 +218,13 @@ export class SellerService {
     const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
 
     return sellerIds.map((sellerId) => sellerById.get(sellerId) || null);
+  }
+
+  async deleteSeller(id: string): Promise<boolean> {
+    await this.sellerTableRef.child(id).remove();
+
+    await this.userService.setHasProfile(id, 'hasSellerProfile', false);
+
+    return true;
   }
 }

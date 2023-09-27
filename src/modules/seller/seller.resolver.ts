@@ -105,4 +105,11 @@ export class SellerResolver {
   ): Promise<boolean> {
     return this.sellerService.setIsSellerApproved(sellerId, isApproved, app);
   }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async deleteSeller(@Args('id') sellerId: string): Promise<boolean> {
+    return this.sellerService.deleteSeller(sellerId);
+  }
 }

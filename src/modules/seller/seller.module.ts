@@ -7,9 +7,12 @@ import { SellerContext } from './seller.context';
 import { SellerResolver } from './seller.resolver';
 import { SellerService } from './seller.service';
 
+import { UserModule } from '$modules/user/user.module';
+
 @Module({
   imports: [
     FirebaseModule,
+    UserModule,
     GraphQlContextManagerModule.forFeature({
       imports: [SellerModule],
       contexts: [SellerContext],
