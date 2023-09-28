@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { HeroPortfolioDB } from 'hero24-types';
+import { HeroPortfolioDataDB } from 'hero24-types';
 
 import { HeroPortfolioDataDto } from './hero-portfolio-data.dto';
 
@@ -7,30 +7,26 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class HeroPortfolioDto {
-  @Field(() => String)
-  id: string;
-
-  @Field(() => String)
-  heroProfileId: string;
-
-  @Field(() => HeroPortfolioDataDto)
-  data: HeroPortfolioDataDto;
+  @Field(() => [HeroPortfolioDataDto])
+  data: HeroPortfolioDataDto[];
 
   static adapter: FirebaseAdapter<
-    HeroPortfolioDB & { heroProfileId: string; id: string },
-    HeroPortfolioDto
+    Record<string, HeroPortfolioDataDB>,
+    Record<'data', HeroPortfolioDataDto[]>
   >;
 }
 
 HeroPortfolioDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
-    id: internal.id,
-    heroProfileId: internal.heroProfileId,
-    data: HeroPortfolioDataDto.adapter.toExternal(internal.data),
+    data: Object.entries(internal).map(([id, item]) =>
+      HeroPortfolioDataDto.adapter.toExternal({ id, ...item }),
+    ),
   }),
-  toInternal: (external) => ({
-    id: external.id,
-    heroProfileId: external.heroProfileId,
-    data: HeroPortfolioDataDto.adapter.toInternal(external.data),
-  }),
+  toInternal: (external) =>
+    Object.fromEntries(
+      external.data.map((item) => [
+        item.id,
+        HeroPortfolioDataDto.adapter.toInternal(item),
+      ]),
+    ),
 });

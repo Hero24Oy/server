@@ -8,6 +8,9 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 @ObjectType()
 export class HeroPortfolioDataDto {
   @Field(() => String)
+  id: string;
+
+  @Field(() => String)
   category: string;
 
   @Field(() => String)
@@ -22,11 +25,15 @@ export class HeroPortfolioDataDto {
   @Field(() => Date)
   updatedAt: Date;
 
-  static adapter: FirebaseAdapter<HeroPortfolioDataDB, HeroPortfolioDataDto>;
+  static adapter: FirebaseAdapter<
+    HeroPortfolioDataDB & { id: string },
+    HeroPortfolioDataDto
+  >;
 }
 
 HeroPortfolioDataDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
+    id: internal.id,
     category: internal.category,
     description: internal.description,
     imageIds: internal.images && Object.keys(internal.images),
@@ -34,6 +41,7 @@ HeroPortfolioDataDto.adapter = new FirebaseAdapter({
     updatedAt: new Date(internal.updatedAt),
   }),
   toInternal: (external) => ({
+    id: external.id,
     category: external.category,
     description: external.description,
     images: external.imageIds
