@@ -11,7 +11,7 @@ export class HeroPortfolioDataDto {
   id: string;
 
   @Field(() => String)
-  category: string;
+  categoryId: string;
 
   @Field(() => String)
   description: string;
@@ -34,7 +34,7 @@ export class HeroPortfolioDataDto {
 HeroPortfolioDataDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     id: internal.id,
-    category: internal.category,
+    categoryId: internal.category,
     description: internal.description,
     imageIds: internal.images && Object.keys(internal.images),
     createdAt: new Date(internal.createdAt),
@@ -42,7 +42,7 @@ HeroPortfolioDataDto.adapter = new FirebaseAdapter({
   }),
   toInternal: (external) => ({
     id: external.id,
-    category: external.category,
+    category: external.categoryId,
     description: external.description,
     images: external.imageIds
       ? convertListToFirebaseMap(external.imageIds)

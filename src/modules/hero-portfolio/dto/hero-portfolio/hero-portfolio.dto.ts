@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { HeroPortfolioDataDB } from 'hero24-types';
+import { HeroPortfolioDB } from 'hero24-types';
 
 import { HeroPortfolioDataDto } from './hero-portfolio-data.dto';
 
@@ -11,7 +11,7 @@ export class HeroPortfolioDto {
   data: HeroPortfolioDataDto[];
 
   static adapter: FirebaseAdapter<
-    Record<string, HeroPortfolioDataDB>,
+    Record<string, HeroPortfolioDB>,
     Record<'data', HeroPortfolioDataDto[]>
   >;
 }
@@ -19,14 +19,14 @@ export class HeroPortfolioDto {
 HeroPortfolioDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     data: Object.entries(internal).map(([id, item]) =>
-      HeroPortfolioDataDto.adapter.toExternal({ id, ...item }),
+      HeroPortfolioDataDto.adapter.toExternal({ id, ...item.data }),
     ),
   }),
   toInternal: (external) =>
     Object.fromEntries(
       external.data.map((item) => [
         item.id,
-        HeroPortfolioDataDto.adapter.toInternal(item),
+        { data: HeroPortfolioDataDto.adapter.toInternal(item) },
       ]),
     ),
 });
