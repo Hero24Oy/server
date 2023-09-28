@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { getDatabase, ref, set, update } from 'firebase/database';
-import { BuyerProfileDB } from 'hero24-types';
+import { BuyerProfileDB, FeedDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -12,15 +12,19 @@ import {
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
+import { FeedDto } from './dto/feed/feed.dto';
 
 @Injectable()
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
+  private readonly feedTableRef: FirebaseTableReference<FeedDB['groupId']>;
+
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
 
     this.buyerTableRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
+    this.feedTableRef = database.ref(FirebaseDatabasePath.FEED);
   }
 
   async getAllBuyers(): Promise<BuyerProfileDto[]> {
@@ -89,5 +93,18 @@ export class BuyerService {
     const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
     return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
+  }
+
+  async listFeed(): Promise<FeedDto> {
+    const feedsSnapshot = await this.feedTableRef.get();
+    const feeds = feedsSnapshot.val();
+
+    if (!feeds) {
+      return { feeds: [] };
+    }
+
+    const result = FeedDto.adapter.toExternal(feeds);
+
+    return result;
   }
 }
