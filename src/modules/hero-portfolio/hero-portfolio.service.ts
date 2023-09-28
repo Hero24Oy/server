@@ -13,7 +13,7 @@ import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
 
 @Injectable()
 export class HeroPortfolioService {
-  private readonly heroPortfolioTableRef: FirebaseTableReference<
+  readonly heroPortfolioTableRef: FirebaseTableReference<
     Record<string, HeroPortfolioDB>
   >;
 
