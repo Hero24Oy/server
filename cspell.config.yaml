@@ -10,3 +10,8 @@ words:
   - 'uuidv4'
   - 'appspot'
   - 'hubspot'
+  - 'purchaseinvoicelist'
+  - 'Organisation' # Netvisor header
+  - 'TRANSID' # Netvisor header
+  - 'paymentstatus' # Netvisor query parameter
+  - 'lastmodifiedstart' # Netvisor query parameter

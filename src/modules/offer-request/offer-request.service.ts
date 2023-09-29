@@ -36,6 +36,7 @@ import { OfferRequestFiltererConfigs } from './offer-request.filers';
 import {
   OfferRequestFiltererContext,
   OfferRequestSorterContext,
+  PaidStatus,
 } from './offer-request.types';
 import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
 import { OfferRequestQuestionInput } from './offer-request-question/dto/offer-request-question/offer-request-question.input';
@@ -371,6 +372,20 @@ export class OfferRequestService {
       .child('data')
       .child('changesAccepted')
       .update({ timeChangeAccepted, detailsChangeAccepted });
+
+    return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  async updatePaidStatus(
+    offerRequestId: string,
+    status: PaidStatus,
+  ): Promise<OfferRequestDto> {
+    await this.offerRequestTableRef
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('prepaid')
+      .set(status);
 
     return this.strictGetOfferRequestById(offerRequestId);
   }

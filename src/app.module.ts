@@ -30,6 +30,8 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
+import { NetvisorModule } from '$modules/netvisor/netvisor.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -75,6 +77,7 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     UserMergeModule,
     FeeModule,
     ImageModule,
+    NetvisorModule,
   ],
   providers: [AppResolver],
 })

@@ -11,6 +11,7 @@
       "$configs/*": ["src/config/*"],
       "$config": ["src/config/index"],
       "$decorator": ["src/common/decorators/index"],
+      "$utils": ["src/common/utils/index"],
       "$/*": ["src/*"]
     },
     "module": "commonjs",
