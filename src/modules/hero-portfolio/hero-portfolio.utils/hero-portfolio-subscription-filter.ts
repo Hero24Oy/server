@@ -1,4 +1,3 @@
-import { HeroPortfolioListFilterInput } from '../dto/hero-portfolio-list/hero-portfolio-list-filter.input';
 import { HeroPortfolioCreatedDto } from '../dto/subscriptions/hero-portfolio-created.dto';
 import { HeroPortfolioRemovedDto } from '../dto/subscriptions/hero-portfolio-removed.dto';
 import {
@@ -17,8 +16,7 @@ interface Payload {
 
 export const HeroPortfolioSubscriptionFilter =
   (type: HeroPortfolioSubscriptionType) =>
-  (payload: Payload, { filter }: { filter: HeroPortfolioListFilterInput }) => {
-    const { sellerId } = filter;
+  (payload: Payload, { sellerId }: { sellerId: string }) => {
     const heroPortfolio = payload[type];
 
     if (sellerId !== heroPortfolio.sellerId) {

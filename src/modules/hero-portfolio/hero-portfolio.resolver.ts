@@ -8,7 +8,6 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { HeroPortfolioDataDto } from './dto/hero-portfolio/hero-portfolio-data.dto';
 import { HeroPortfolioListArgs } from './dto/hero-portfolio-list/hero-portfolio-list.args';
 import { HeroPortfolioListDto } from './dto/hero-portfolio-list/hero-portfolio-list.dto';
-import { HeroPortfolioListFilterInput } from './dto/hero-portfolio-list/hero-portfolio-list-filter.input';
 import {
   HERO_PORTFOLIO_CREATED,
   HERO_PORTFOLIO_REMOVED,
@@ -39,9 +38,7 @@ export class HeroPortfolioResolver {
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
   @UseGuards(AuthGuard)
-  subscribeOnHeroPortFoliosCreate(
-    @Args('filter') _filter: HeroPortfolioListFilterInput,
-  ) {
+  subscribeOnHeroPortFoliosCreate(@Args('sellerId') _sellerId: string) {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
@@ -50,9 +47,7 @@ export class HeroPortfolioResolver {
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })
   @UseGuards(AuthGuard)
-  subscribeOnHeroPortFoliosRemove(
-    @Args('filter') _filter: HeroPortfolioListFilterInput,
-  ) {
+  subscribeOnHeroPortFoliosRemove(@Args('sellerId') _sellerId: string) {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_REMOVED);
   }
 }
