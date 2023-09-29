@@ -1,0 +1,29 @@
+import { HeroPortfolioListFilterInput } from '../dto/hero-portfolio-list/hero-portfolio-list-filter.input';
+import { HeroPortfolioCreatedDto } from '../dto/subscriptions/hero-portfolio-created.dto';
+import { HeroPortfolioRemovedDto } from '../dto/subscriptions/hero-portfolio-removed.dto';
+import {
+  HERO_PORTFOLIO_CREATED,
+  HERO_PORTFOLIO_REMOVED,
+} from '../hero-portfolio.constants';
+
+type HeroPortfolioSubscriptionType =
+  | typeof HERO_PORTFOLIO_CREATED
+  | typeof HERO_PORTFOLIO_REMOVED;
+
+interface Payload {
+  [HERO_PORTFOLIO_CREATED]: HeroPortfolioCreatedDto;
+  [HERO_PORTFOLIO_REMOVED]: HeroPortfolioRemovedDto;
+}
+
+export const HeroPortfolioSubscriptionFilter =
+  (type: HeroPortfolioSubscriptionType) =>
+  (payload: Payload, { filter }: { filter: HeroPortfolioListFilterInput }) => {
+    const { sellerId } = filter;
+    const heroPortfolio = payload[type];
+
+    if (sellerId !== heroPortfolio.sellerId) {
+      return false;
+    }
+
+    return true;
+  };
