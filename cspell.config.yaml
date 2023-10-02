@@ -1,19 +1,23 @@
 words:
+  # Common
   - 'iban'
-  - 'netvisor'
   - 'signin'
   - 'signup'
-  - 'xlink'
   - 'workareas'
   - 'unattach'
+  # Uuid lib
   - 'uuidv'
   - 'uuidv4'
+  # Hubspot
   - 'appspot'
   - 'hubspot'
-  - 'purchaseinvoicelist'
+  # Netvisor
+  - 'netvisor'
   # Netvisor headers
   - 'Organisation'
   - 'TRANSID'
   # Netvisor query parameters
   - 'paymentstatus'
   - 'lastmodifiedstart'
+  # Netvisor return object field
+  - 'purchaseinvoicelist'
