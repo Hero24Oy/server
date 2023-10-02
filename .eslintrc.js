@@ -20,6 +20,7 @@ const initialRules = {
     'warn',
     { ignore: ['eslint-enable'] },
   ], // we don't need to comment why we used "eslint-enable"
+  'eslint-comments/disable-enable-pair': 'off',
   'prefer-arrow-callback': 'error',
   'arrow-parens': ['error', 'always'],
   'quote-props': ['error', 'consistent-as-needed'],

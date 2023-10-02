@@ -1,4 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- we need global disable
 /* eslint-disable @typescript-eslint/naming-convention -- we need disable this rule for headers */
 
 export enum NetvisorEndpoint {
@@ -49,4 +48,9 @@ export interface NetvisorPurchaseInvoiceListResponse {
       },
     ];
   };
+}
+
+export interface ScheduleFetchDay {
+  day: number;
+  transform: number;
 }

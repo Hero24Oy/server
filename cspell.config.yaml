@@ -11,7 +11,9 @@ words:
   - 'appspot'
   - 'hubspot'
   - 'purchaseinvoicelist'
-  - 'Organisation' # Netvisor header
-  - 'TRANSID' # Netvisor header
-  - 'paymentstatus' # Netvisor query parameter
-  - 'lastmodifiedstart' # Netvisor query parameter
+  # Netvisor headers
+  - 'Organisation'
+  - 'TRANSID'
+  # Netvisor query parameters
+  - 'paymentstatus'
+  - 'lastmodifiedstart'

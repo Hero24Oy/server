@@ -36,6 +36,7 @@ declare global {
       HUB_SPOT_DISABLED: 'true' | 'false';
 
       // Netvisor
+      NETVISOR_BASE_URL: string;
       NETVISOR_ORG_ID: string;
       NETVISOR_CUSTOMER_ID: string;
       NETVISOR_CUSTOMER_KEY: string;

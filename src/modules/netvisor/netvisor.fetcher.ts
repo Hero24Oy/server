@@ -1,4 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair -- we need global disable
 /* eslint-disable @typescript-eslint/naming-convention -- we need disable this rule for headers */
 import * as xml2js from 'xml2js';
 
@@ -11,16 +10,21 @@ import {
 } from './netvisor.types';
 
 import { ConfigType } from '$config';
-import { sha256 } from '$utils';
+import { CryptoService } from '$modules/crypto/crypto.service';
+import { UrlWithSearchParams } from '$utils';
 
 const parser = new xml2js.Parser();
 
 export class NetvisorFetcher {
   private readonly baseHeaders: NetvisorBaseHeaders;
 
-  private readonly baseUrl = 'https://isvapi.netvisor.fi/netvisor/';
+  private readonly baseUrl: string;
 
-  constructor(private readonly config: ConfigType['netvisor']) {
+  constructor(
+    private readonly config: ConfigType['netvisor'],
+    private readonly cryptoService: CryptoService,
+  ) {
+    this.baseUrl = config.baseUrl;
     this.baseHeaders = {
       'Content-Type': 'text/plain',
       'X-Netvisor-Authentication-Sender': config.sender,
@@ -36,9 +40,19 @@ export class NetvisorFetcher {
     const timestamp = Date.now();
     const transactionId = `TRANSID${timestamp}`;
 
-    const mac = sha256(
-      `${url}&${this.config.sender}&${this.config.customerId}&${timestamp}&FI&${this.config.orgId}&${transactionId}&${this.config.customerKey}&${this.config.partnerKey}`,
-    );
+    const verifiedString = [
+      url,
+      this.config.sender,
+      this.config.customerId,
+      timestamp,
+      'FI',
+      this.config.orgId,
+      transactionId,
+      this.config.customerKey,
+      this.config.partnerKey,
+    ].join('&');
+
+    const mac = this.cryptoService.hashWithSha256(verifiedString);
 
     const headers: NetvisorHeaders = {
       ...this.baseHeaders,
@@ -54,21 +68,21 @@ export class NetvisorFetcher {
     return parser.parseStringPromise(xml) as Promise<Type>;
   }
 
-  async getPurchaseInvoiceList(
+  async fetchPurchaseInvoiceList(
     startDate: string,
   ): Promise<string[] | undefined> {
-    const url = new URL(NetvisorEndpoint.PURCHASE_INVOICE_LIST, this.baseUrl);
-
-    url.searchParams.set('lastmodifiedstart', startDate);
-
-    Object.entries(purchaseInvoiceListParameters).forEach(([name, value]) => {
-      url.searchParams.set(name, value);
-    });
+    const url = new UrlWithSearchParams(
+      new URL(NetvisorEndpoint.PURCHASE_INVOICE_LIST, this.baseUrl),
+      new URLSearchParams({
+        ...purchaseInvoiceListParameters,
+        lastmodifiedstart: startDate,
+      }),
+    );
 
     const headers = this.createFullHeaders(url.toString());
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(url.getUrl(), {
         headers,
         method: 'GET',
       });

@@ -30,6 +30,7 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
+import { CryptoModule } from '$modules/crypto/crypto.module';
 import { NetvisorModule } from '$modules/netvisor/netvisor.module';
 
 @Module({
@@ -78,6 +79,7 @@ import { NetvisorModule } from '$modules/netvisor/netvisor.module';
     FeeModule,
     ImageModule,
     NetvisorModule,
+    CryptoModule,
   ],
   providers: [AppResolver],
 })
