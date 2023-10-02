@@ -2,6 +2,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
@@ -32,6 +33,7 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
 import { CryptoModule } from '$modules/crypto/crypto.module';
 import { NetvisorModule } from '$modules/netvisor/netvisor.module';
+import { Xml2JsModule } from '$modules/xml2js/xml2js.module';
 
 @Module({
   imports: [
@@ -80,6 +82,8 @@ import { NetvisorModule } from '$modules/netvisor/netvisor.module';
     ImageModule,
     NetvisorModule,
     CryptoModule,
+    Xml2JsModule,
+    ScheduleModule.forRoot(),
   ],
   providers: [AppResolver],
 })
