@@ -63,6 +63,7 @@ import { Xml2JsModule } from '$modules/xml2js/xml2js.module';
           graphQLManagerService.createContext(ctx),
       }),
     }),
+    ScheduleModule.forRoot(),
     GraphQlPubsubModule,
     FirebaseModule,
     UserModule,
@@ -83,7 +84,6 @@ import { Xml2JsModule } from '$modules/xml2js/xml2js.module';
     NetvisorModule,
     CryptoModule,
     Xml2JsModule,
-    ScheduleModule.forRoot(),
   ],
   providers: [AppResolver],
 })
