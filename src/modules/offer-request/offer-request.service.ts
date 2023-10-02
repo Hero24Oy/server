@@ -36,7 +36,6 @@ import { OfferRequestFiltererConfigs } from './offer-request.filers';
 import {
   OfferRequestFiltererContext,
   OfferRequestSorterContext,
-  PaidStatus,
 } from './offer-request.types';
 import { emitOfferRequestUpdated } from './offer-request.utils/emit-offer-request-updated.util';
 import { OfferRequestQuestionInput } from './offer-request-question/dto/offer-request-question/offer-request-question.input';
@@ -44,6 +43,7 @@ import { OfferRequestQuestionType } from './offer-request-question/dto/offer-req
 import {} from './offer-request-question/offer-request-question.constants';
 import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
 import { offerRequestQuestionsToTree } from './offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
+import { PaidStatus } from './open-offer-request/dto/offer-request-paid-status.enum';
 import { OfferRequestStatus } from './open-offer-request/dto/offer-request-status.enum';
 
 @Injectable()

@@ -24,5 +24,3 @@ export type OfferRequestColumnFilter<Config> = ColumnFilter<
 export type OfferRequestStatusEnum = {
   [Key in OFFER_REQUEST_STATUS as Uppercase<Key>]: Key;
 };
-
-export type PaidStatus = 'waiting' | 'paid';

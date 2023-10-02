@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/naming-convention -- we need disable this rule for headers */
-import * as xml2js from 'xml2js';
+import { Injectable } from '@nestjs/common';
+
+import { Xml2JsService } from '../xml2js/xml2js.service';
 
 import { purchaseInvoiceListParameters } from './netvisor.constants';
 import {
@@ -8,38 +9,45 @@ import {
   NetvisorHeaders,
   NetvisorPurchaseInvoiceListResponse,
 } from './netvisor.types';
+import { NetvisorHeadersName } from './netvisor.types/headers-name.type';
 
 import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { CryptoService } from '$modules/crypto/crypto.service';
-import { UrlWithSearchParams } from '$utils';
+import { CustomUrl } from '$utils';
 
-const parser = new xml2js.Parser();
-
+@Injectable()
 export class NetvisorFetcher {
   private readonly baseHeaders: NetvisorBaseHeaders;
 
   private readonly baseUrl: string;
 
+  private readonly config: ConfigType['netvisor'];
+
   constructor(
-    private readonly config: ConfigType['netvisor'],
+    @Config() config: ConfigType,
     private readonly cryptoService: CryptoService,
+    private readonly xml2JsService: Xml2JsService,
   ) {
-    this.baseUrl = config.baseUrl;
+    this.config = config.netvisor;
+
+    this.baseUrl = this.config.baseUrl;
     this.baseHeaders = {
-      'Content-Type': 'text/plain',
-      'X-Netvisor-Authentication-Sender': config.sender,
-      'X-Netvisor-Authentication-CustomerId': config.customerId,
-      'X-Netvisor-Authentication-PartnerId': config.partnerId,
-      'X-Netvisor-Interface-Language': 'FI',
-      'X-Netvisor-Organisation-Id': config.orgId,
-      'X-Netvisor-Authentication-MACHashCalculationAlgorithm': 'SHA256',
+      [NetvisorHeadersName.CONTENT_TYPE]: 'text/plain',
+      [NetvisorHeadersName.SENDER]: this.config.sender,
+      [NetvisorHeadersName.CUSTOMER_ID]: this.config.customerId,
+      [NetvisorHeadersName.PARTNER_ID]: this.config.partnerId,
+      [NetvisorHeadersName.LANGUAGE]: 'FI',
+      [NetvisorHeadersName.ORGANISATION_ID]: this.config.orgId,
+      [NetvisorHeadersName.ALGORITHM]: 'SHA256',
     };
   }
 
-  private createFullHeaders(url: string): NetvisorHeaders {
-    const timestamp = Date.now();
-    const transactionId = `TRANSID${timestamp}`;
-
+  private createMac(
+    url: string,
+    timestamp: number,
+    transactionId: string,
+  ): string {
     const verifiedString = [
       url,
       this.config.sender,
@@ -52,31 +60,35 @@ export class NetvisorFetcher {
       this.config.partnerKey,
     ].join('&');
 
-    const mac = this.cryptoService.hashWithSha256(verifiedString);
+    return this.cryptoService.hashWithSha256(verifiedString);
+  }
+
+  private createFullHeaders(url: string): NetvisorHeaders {
+    const timestamp = Date.now();
+    const transactionId = `TRANSID${timestamp}`;
+
+    const mac = this.createMac(url, timestamp, transactionId);
 
     const headers: NetvisorHeaders = {
       ...this.baseHeaders,
-      'X-Netvisor-Authentication-TransactionId': transactionId,
-      'X-Netvisor-Authentication-Timestamp': String(timestamp),
-      'X-Netvisor-Authentication-MAC': mac,
+      [NetvisorHeadersName.TRANSACTION_ID]: transactionId,
+      [NetvisorHeadersName.TIMESTAMP]: String(timestamp),
+      [NetvisorHeadersName.MAC]: mac,
     };
 
     return headers;
   }
 
-  private async createObjectFromXml<Type>(xml: string): Promise<Type> {
-    return parser.parseStringPromise(xml) as Promise<Type>;
-  }
-
   async fetchPurchaseInvoiceList(
     startDate: string,
   ): Promise<string[] | undefined> {
-    const url = new UrlWithSearchParams(
-      new URL(NetvisorEndpoint.PURCHASE_INVOICE_LIST, this.baseUrl),
-      new URLSearchParams({
+    const url = new CustomUrl(
+      this.baseUrl,
+      NetvisorEndpoint.PURCHASE_INVOICE_LIST,
+      {
         ...purchaseInvoiceListParameters,
         lastmodifiedstart: startDate,
-      }),
+      },
     );
 
     const headers = this.createFullHeaders(url.toString());
@@ -90,7 +102,7 @@ export class NetvisorFetcher {
       const xmlString = await response.text();
 
       const data =
-        await this.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
+        await this.xml2JsService.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
           xmlString,
         );
 

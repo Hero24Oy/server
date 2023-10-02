@@ -3,26 +3,19 @@ import { Cron } from '@nestjs/schedule';
 
 import { UPDATE_PAID_STATUS_CRON_TIME } from './netvisor.constants';
 import { NetvisorFetcher } from './netvisor.fetcher';
-import { getScheduleFetchDate } from './netvisor.utils/getScheduleFetchDate';
+import { getScheduleFetchDate } from './netvisor.utils/get-schedule-fetch-date';
 
-import { ConfigType } from '$config';
-import { Config } from '$decorator';
-import { CryptoService } from '$modules/crypto/crypto.service';
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
+import { PaidStatus } from '$modules/offer-request/open-offer-request/dto/offer-request-paid-status.enum';
 
 @Injectable()
 export class NetvisorSchedule {
-  private readonly fetcher: NetvisorFetcher;
-
   constructor(
-    @Config() config: ConfigType,
+    private readonly netvisorFetcher: NetvisorFetcher,
     private readonly offerService: OfferService,
     private readonly offerRequestService: OfferRequestService,
-    private readonly cryptoService: CryptoService,
-  ) {
-    this.fetcher = new NetvisorFetcher(config.netvisor, this.cryptoService);
-  }
+  ) {}
 
   @Cron(UPDATE_PAID_STATUS_CRON_TIME)
   async updatePaidStatus(): Promise<void> {
@@ -32,7 +25,9 @@ export class NetvisorSchedule {
       return;
     }
 
-    const paidInvoices = await this.fetcher.fetchPurchaseInvoiceList(startDate);
+    const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
+      startDate,
+    );
 
     if (!paidInvoices) {
       return;
@@ -43,7 +38,10 @@ export class NetvisorSchedule {
     offers.forEach((offer) => {
       const { offerRequestId } = offer.data.initial;
 
-      void this.offerRequestService.updatePaidStatus(offerRequestId, 'paid');
+      void this.offerRequestService.updatePaidStatus(
+        offerRequestId,
+        PaidStatus.PAID,
+      );
     });
   }
 }
