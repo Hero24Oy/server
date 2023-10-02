@@ -10,7 +10,7 @@ import { BuyerService } from './buyer.service';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
-import { FeedDto } from './dto/feed/feed.dto';
+import { FeedItemDto } from './dto/feed/feed-item-dto';
 
 @Resolver()
 export class BuyerResolver {
@@ -43,9 +43,9 @@ export class BuyerResolver {
     return this.buyerService.editBuyer(args, app);
   }
 
-  @Query(() => FeedDto)
+  @Query(() => [FeedItemDto])
   @UseFilters(FirebaseExceptionFilter)
-  async getFeeds(): Promise<FeedDto> {
+  async getFeeds(): Promise<FeedItemDto[]> {
     return this.buyerService.listFeed();
   }
 }

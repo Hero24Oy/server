@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { FeedDB } from 'hero24-types';
+import { FeedDBGroupItem } from 'hero24-types';
 
 import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
@@ -15,10 +15,7 @@ export class FeedEntityItemDto {
   @Field(() => TranslationFieldDto)
   name: TranslationFieldDto;
 
-  static adapter: FirebaseAdapter<
-    FeedDB['groupId']['items']['itemId'],
-    FeedEntityItemDto
-  >;
+  static adapter: FirebaseAdapter<FeedDBGroupItem, FeedEntityItemDto>;
 }
 
 FeedEntityItemDto.adapter = new FirebaseAdapter({

@@ -1,5 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { FeedDB } from 'hero24-types';
+import { FeedDBGroup } from 'hero24-types';
 
 import { FeedEntityItemDto } from './feed-entity-item-dto';
 
@@ -17,7 +17,7 @@ export class FeedEntityDto {
   @Field(() => Int)
   order: number;
 
-  static adapter: FirebaseAdapter<FeedDB['groupId'], FeedEntityDto>;
+  static adapter: FirebaseAdapter<FeedDBGroup, FeedEntityDto>;
 }
 
 FeedEntityDto.adapter = new FirebaseAdapter({
@@ -31,12 +31,12 @@ FeedEntityDto.adapter = new FirebaseAdapter({
   toInternal: (external) => ({
     name: external.name,
     order: external.order,
-    items: external.items.reduce((items, item, index) => {
+    items: Object.values(external.items).reduce((items, item, index) => {
       Object.assign(items, {
         [index.toString()]: FeedEntityItemDto.adapter.toInternal(item),
       });
 
       return items;
-    }, {} as FeedDB['groupId']['items']),
+    }, {} as FeedDBGroup['items']),
   }),
 });

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { getDatabase, ref, set, update } from 'firebase/database';
-import { BuyerProfileDB, FeedDB } from 'hero24-types';
+import { BuyerProfileDB, FeedDBGroup } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -18,7 +18,7 @@ import { FeedDto } from './dto/feed/feed.dto';
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
-  private readonly feedTableRef: FirebaseTableReference<FeedDB['groupId']>;
+  private readonly feedTableRef: FirebaseTableReference<FeedDBGroup>;
 
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
@@ -99,12 +99,10 @@ export class BuyerService {
     const feedsSnapshot = await this.feedTableRef.get();
     const feeds = feedsSnapshot.val();
 
-    if (!feeds) {
-      return { feeds: [] };
-    }
-
-    const result = FeedDto.adapter.toExternal(feeds);
-
-    return result;
+    return feeds
+      ? FeedDto.adapter
+          .toExternal(feeds)
+          .sort((a, b) => a.data.order - b.data.order)
+      : [];
   }
 }
