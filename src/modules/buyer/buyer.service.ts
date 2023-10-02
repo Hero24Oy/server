@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { getDatabase, ref, set, update } from 'firebase/database';
-import { BuyerProfileDB, FeedDBGroup } from 'hero24-types';
+import { BuyerProfileDB, CategoryGroupDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -10,15 +10,16 @@ import {
 } from '../firebase/firebase.types';
 
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
+import { CategoryGroupDto } from './dto/categoryGroups/category-group-dto';
+import { CategoryGroupsDto } from './dto/categoryGroups/category-groups-dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
-import { FeedDto } from './dto/feed/feed.dto';
 
 @Injectable()
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
-  private readonly feedTableRef: FirebaseTableReference<FeedDBGroup>;
+  private readonly feedTableRef: FirebaseTableReference<CategoryGroupDB>;
 
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
@@ -95,12 +96,12 @@ export class BuyerService {
     return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
   }
 
-  async listFeed(): Promise<FeedDto> {
+  async listCategories(): Promise<CategoryGroupDto[]> {
     const feedsSnapshot = await this.feedTableRef.get();
     const feeds = feedsSnapshot.val();
 
     return feeds
-      ? FeedDto.adapter
+      ? CategoryGroupsDto.adapter
           .toExternal(feeds)
           .sort((a, b) => a.data.order - b.data.order)
       : [];
