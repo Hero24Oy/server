@@ -15,6 +15,8 @@ import {
 import { HeroPortfolioService } from './hero-portfolio.service';
 import { HeroPortfolioSubscriptionFilter } from './hero-portfolio.utils/hero-portfolio-subscription-filter';
 
+import { AuthIdentity } from '$modules/auth/auth.decorator';
+import { Identity } from '$modules/auth/auth.types';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 
 @Resolver()
@@ -29,8 +31,9 @@ export class HeroPortfolioResolver {
   @UseGuards(AuthGuard)
   async heroPortfolios(
     @Args() args: HeroPortfolioListArgs,
+    @AuthIdentity() identity: Identity,
   ): Promise<HeroPortfolioListDto> {
-    return this.heroPortfolioService.getPortfolios(args);
+    return this.heroPortfolioService.getPortfolios(args, identity);
   }
 
   @Subscription(() => HeroPortfolioDataDto, {
