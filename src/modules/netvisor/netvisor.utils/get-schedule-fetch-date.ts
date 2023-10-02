@@ -1,6 +1,6 @@
 import { scheduleFetchDays } from '../netvisor.constants';
 
-import { formatDateForNetvisor } from './formatDateForNetvisor.util';
+import { formatDateForNetvisor } from './format-date-for-netvisor.util';
 
 export const getScheduleFetchDate = (): string | null => {
   const today = new Date();
