@@ -1,8 +1,14 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { CategoryGroupDB } from 'hero24-types';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import {
+  CategoryGroupDB,
+  CategoryGroupItemDB,
+  CategoryGroupItemsDB,
+} from 'hero24-types';
 
-import { CategoryGroupDataDto } from './category-group-data-dto';
+import { CategoryGroupItemDto } from './category-group-item-dto';
+import { categoryGroupDtoItemsToInternalReducer } from './category-groups.utils/categoryGroupDtoItemsToInternalReducer';
 
+import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 export interface CategoryGroupDbWithId extends CategoryGroupDB {
@@ -14,23 +20,34 @@ export class CategoryGroupDto {
   @Field(() => String)
   id: string;
 
-  @Field(() => CategoryGroupDataDto)
-  data: CategoryGroupDataDto;
+  @Field(() => TranslationFieldDto)
+  name: TranslationFieldDto;
+
+  @Field(() => Int)
+  order: number;
+
+  @Field(() => [CategoryGroupItemDto])
+  items: CategoryGroupItemDto[];
 
   static adapter: FirebaseAdapter<CategoryGroupDbWithId, CategoryGroupDto>;
 }
 
 CategoryGroupDto.adapter = new FirebaseAdapter({
-  toExternal: (internal) => ({
+  toExternal: (internal): CategoryGroupDto => ({
     id: internal.id,
-    data: CategoryGroupDataDto.adapter.toExternal({
-      name: internal.name,
-      order: internal.order,
-      items: internal.items,
-    }),
+    name: internal.name,
+    order: internal.order,
+    items: Object.values(internal.items as CategoryGroupItemDB[]).map((item) =>
+      CategoryGroupItemDto.adapter.toExternal(item),
+    ),
   }),
-  toInternal: (external) => ({
+  toInternal: (external): CategoryGroupDbWithId => ({
     id: external.id,
-    ...CategoryGroupDataDto.adapter.toInternal(external.data),
+    name: external.name,
+    order: external.order,
+    items: Object.values(external.items).reduce(
+      categoryGroupDtoItemsToInternalReducer,
+      {} as CategoryGroupItemsDB,
+    ),
   }),
 });

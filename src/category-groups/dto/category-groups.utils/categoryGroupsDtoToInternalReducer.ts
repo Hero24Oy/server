@@ -2,7 +2,7 @@ import { CategoryGroupsDB } from 'hero24-types';
 
 import { CategoryGroupDto } from '../category-group-dto';
 
-export const categoryGroupDtoToInternalReducer = (
+export const categoryGroupsDtoToInternalReducer = (
   res: CategoryGroupsDB,
   category: CategoryGroupDto,
 ): CategoryGroupsDB =>

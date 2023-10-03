@@ -1,8 +1,8 @@
 import { CategoryGroupsDB } from 'hero24-types';
 
 import { CategoryGroupDto } from './category-group-dto';
-import { categoryGroupDtoToExternalMapper } from './category-groups.utils/categoryGroupDtoToExternalMapper';
-import { categoryGroupDtoToInternalReducer } from './category-groups.utils/categoryGroupDtoToInternalReducer';
+import { categoryGroupsDtoToExternalMapper } from './category-groups.utils/categoryGroupsDtoToExternalMapper';
+import { categoryGroupsDtoToInternalReducer } from './category-groups.utils/categoryGroupsDtoToInternalReducer';
 
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
@@ -11,8 +11,8 @@ export class CategoryGroupsDto extends Array<CategoryGroupDto> {
 }
 
 CategoryGroupsDto.adapter = new FirebaseAdapter({
-  toExternal: (internal) =>
-    Object.entries(internal).map(categoryGroupDtoToExternalMapper),
-  toInternal: (external) =>
-    external.reduce(categoryGroupDtoToInternalReducer, {} as CategoryGroupsDB),
+  toExternal: (internal): CategoryGroupsDto =>
+    Object.entries(internal).map(categoryGroupsDtoToExternalMapper),
+  toInternal: (external): CategoryGroupsDB =>
+    external.reduce(categoryGroupsDtoToInternalReducer, {} as CategoryGroupsDB),
 });
