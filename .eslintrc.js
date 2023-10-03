@@ -355,6 +355,12 @@ const override = {
       '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
+  importExtensions: {
+    files: ['src/*.ts', "src/**/*.ts"],
+    rules: {
+      "import/extensions": "off",
+    },
+  }
 };
 
 module.exports = {
@@ -404,5 +410,6 @@ module.exports = {
     override.enableAsyncMethodsWithoutAwait,
     override.env,
     override.disableReturnType,
+    override.importExtensions,
   ],
 };
