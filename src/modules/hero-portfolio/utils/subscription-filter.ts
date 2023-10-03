@@ -1,9 +1,6 @@
-import { HeroPortfolioCreatedDto } from '../dto/subscriptions/hero-portfolio-created.dto';
-import { HeroPortfolioRemovedDto } from '../dto/subscriptions/hero-portfolio-removed.dto';
-import {
-  HERO_PORTFOLIO_CREATED,
-  HERO_PORTFOLIO_REMOVED,
-} from '../hero-portfolio.constants';
+import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from '../constants';
+import { HeroPortfolioCreatedDto } from '../dto/subscriptions/created';
+import { HeroPortfolioRemovedDto } from '../dto/subscriptions/removed';
 
 type HeroPortfolioSubscriptionType =
   | typeof HERO_PORTFOLIO_CREATED

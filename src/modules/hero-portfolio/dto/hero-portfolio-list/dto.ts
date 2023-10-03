@@ -1,6 +1,6 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { HeroPortfolioDto } from '../hero-portfolio/hero-portfolio.dto';
+import { HeroPortfolioDto } from '../hero-portfolio/dto';
 
 import { Paginated } from '$modules/common/dto/pagination.dto';
 

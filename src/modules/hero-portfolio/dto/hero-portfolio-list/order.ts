@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 
-import { HeroPortfolioOrderColumn } from './hero-portfolio-list-order-column.enum';
+import { HeroPortfolioOrderColumn } from './order-column';
 
 import { SortOrder } from '$modules/common/sort-order/sort-order.enum';
 

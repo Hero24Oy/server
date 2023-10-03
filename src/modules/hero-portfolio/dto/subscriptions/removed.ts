@@ -1,6 +1,6 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { HeroPortfolioCreatedDto } from './hero-portfolio-created.dto';
+import { HeroPortfolioCreatedDto } from './created';
 
 @ObjectType()
 export class HeroPortfolioRemovedDto extends HeroPortfolioCreatedDto {}

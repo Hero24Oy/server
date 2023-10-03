@@ -5,15 +5,14 @@ import { PubSub } from 'graphql-subscriptions';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
-import { HeroPortfolioDto } from './dto/hero-portfolio/hero-portfolio.dto';
-import { HeroPortfolioListDto } from './dto/hero-portfolio-list/hero-portfolio-list.dto';
-import { HeroPortfolioListInput } from './dto/hero-portfolio-list/hero-portfolio-list.input';
+import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
-  HERO_PORTFOLIO_CREATED,
-  HERO_PORTFOLIO_REMOVED,
-} from './hero-portfolio.constants';
-import { HeroPortfolioService } from './hero-portfolio.service';
-import { HeroPortfolioSubscriptionFilter } from './hero-portfolio.utils/hero-portfolio-subscription-filter';
+  HeroPortfolioDto,
+  HeroPortfolioListDto,
+  HeroPortfolioListInput,
+} from './dto';
+import { HeroPortfolioService } from './service';
+import { HeroPortfolioSubscriptionFilter } from './utils';
 
 import { AuthIdentity } from '$modules/auth/auth.decorator';
 import { Identity } from '$modules/auth/auth.types';

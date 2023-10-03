@@ -1,4 +1,4 @@
-import { HeroPortfolioListComparePicker } from '../hero-portfolio.types';
+import { HeroPortfolioListComparePicker } from '../types';
 
 export const createdAtComparePicker: HeroPortfolioListComparePicker<number> = (
   item,

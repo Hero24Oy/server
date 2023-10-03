@@ -6,16 +6,17 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
-import { HeroPortfolioDto } from './dto/hero-portfolio/hero-portfolio.dto';
-import { HeroPortfolioListDto } from './dto/hero-portfolio-list/hero-portfolio-list.dto';
-import { HeroPortfolioListInput } from './dto/hero-portfolio-list/hero-portfolio-list.input';
-import { HeroPortfolioOrderColumn } from './dto/hero-portfolio-list/hero-portfolio-list-order-column.enum';
-import { HeroPortfolioCreatedDto } from './dto/subscriptions/hero-portfolio-created.dto';
-import { HeroPortfolioRemovedDto } from './dto/subscriptions/hero-portfolio-removed.dto';
-import { defaultSorting } from './hero-portfolio.constants';
-import { HeroPortfolioListSorterContext } from './hero-portfolio.types';
-import { emitHeroPortfolioCreated } from './hero-portfolio.utils/emit-hero-portfolio-created';
-import { emitHeroPortfolioRemoved } from './hero-portfolio.utils/emit-hero-portfolio-removed';
+import { defaultSorting } from './constants';
+import {
+  HeroPortfolioCreatedDto,
+  HeroPortfolioDto,
+  HeroPortfolioListDto,
+  HeroPortfolioListInput,
+  HeroPortfolioOrderColumn,
+  HeroPortfolioRemovedDto,
+} from './dto';
+import { HeroPortfolioListSorterContext } from './types';
+import { emitHeroPortfolioCreated, emitHeroPortfolioRemoved } from './utils';
 
 import { Identity } from '$modules/auth/auth.types';
 import { paginate, preparePaginatedResult } from '$modules/common/common.utils';

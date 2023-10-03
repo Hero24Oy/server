@@ -3,7 +3,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { MaybeType } from '$modules/common/common.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
-import { HeroPortfolioDataWithIds } from '$modules/hero-portfolio/hero-portfolio.types';
+import { HeroPortfolioDataWithIds } from '$modules/hero-portfolio/types';
 
 @ObjectType()
 export class HeroPortfolioDto {

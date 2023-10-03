@@ -1,4 +1,4 @@
-import { HERO_PORTFOLIO_REMOVED } from '../hero-portfolio.constants';
+import { HERO_PORTFOLIO_REMOVED } from '../constants';
 
 import { createSubscriptionEventEmitter } from '$modules/graphql-pubsub/graphql-pubsub.utils';
 

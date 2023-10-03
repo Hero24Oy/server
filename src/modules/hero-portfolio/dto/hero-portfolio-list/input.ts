@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 
-import { HeroPortfolioListOrderInput } from './hero-portfolio-list-order.input';
+import { HeroPortfolioListOrderInput } from './order';
 
 import { MaybeType } from '$modules/common/common.types';
 import { PaginationArgs } from '$modules/common/dto/pagination.args';
