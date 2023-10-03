@@ -9,7 +9,7 @@ import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.fi
 
 @Resolver()
 export class CategoryGroupsResolver {
-  constructor(private categoryGroupsService: CategoryGroupsService) {}
+  constructor(private readonly categoryGroupsService: CategoryGroupsService) {}
 
   @Query(() => [CategoryGroupDto])
   @UseGuards(AuthGuard)

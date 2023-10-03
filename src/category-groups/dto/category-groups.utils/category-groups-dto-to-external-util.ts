@@ -4,7 +4,7 @@ import { CategoryGroupDbWithId, CategoryGroupDto } from '../category-group-dto';
 
 type FeedDtoToExternalMapperProps = [string, CategoryGroupDB];
 
-export const categoryGroupsDtoToExternalMapper = (
+export const categoryGroupsDtoToExternal = (
   input: FeedDtoToExternalMapperProps,
 ): CategoryGroupDto => {
   const [id, feed] = input;

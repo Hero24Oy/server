@@ -6,7 +6,7 @@ import {
 } from 'hero24-types';
 
 import { CategoryGroupItemDto } from './category-group-item-dto';
-import { categoryGroupDtoItemsToInternalReducer } from './category-groups.utils/categoryGroupDtoItemsToInternalReducer';
+import { categoryGroupDtoItemsToInternal } from './category-groups.utils/category-group-dto-items-to-internal-util';
 
 import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
@@ -46,7 +46,7 @@ CategoryGroupDto.adapter = new FirebaseAdapter({
     name: external.name,
     order: external.order,
     items: Object.values(external.items).reduce(
-      categoryGroupDtoItemsToInternalReducer,
+      categoryGroupDtoItemsToInternal,
       {} as CategoryGroupItemsDB,
     ),
   }),

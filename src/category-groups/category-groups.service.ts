@@ -28,6 +28,6 @@ export class CategoryGroupsService {
 
     return CategoryGroupsDto.adapter
       .toExternal(feeds)
-      .sort((a, b) => a.order - b.order);
+      .sort((groupA, groupB) => groupA.order - groupB.order);
   }
 }
