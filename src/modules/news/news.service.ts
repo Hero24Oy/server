@@ -15,13 +15,17 @@ import { NewsEditingInput } from './dto/editing/news-editing.input';
 import { NewsDto } from './dto/news/news.dto';
 import { NewsListArgs } from './dto/news-list/news-list.args';
 import { NewsListDto } from './dto/news-list/news-list.dto';
+import { NewsMirror } from './news.mirror';
 import { isNewsActive } from './news.utils/is-news-active.util';
 
 @Injectable()
 export class NewsService {
   readonly newsTableRef: FirebaseTableReference<NewsDB>;
 
-  constructor(firebaseService: FirebaseService) {
+  constructor(
+    private readonly newsMirror: NewsMirror,
+    firebaseService: FirebaseService,
+  ) {
     const database = firebaseService.getDefaultApp().database();
 
     this.newsTableRef = database.ref(FirebaseDatabasePath.NEWS);
@@ -46,13 +50,9 @@ export class NewsService {
   }
 
   private async getAllNews(): Promise<NewsDto[]> {
-    const newsTableSnapshot = await this.newsTableRef.get();
-
-    const newsTable = newsTableSnapshot.val() || {};
-
-    return Object.entries(newsTable).map(([id, news]) =>
-      NewsDto.convertFromFirebaseType(news, id),
-    );
+    return this.newsMirror
+      .getAll()
+      .map(([id, news]) => NewsDto.convertFromFirebaseType(news, id));
   }
 
   async getNewsList(args: NewsListArgs): Promise<NewsListDto> {
