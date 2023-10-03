@@ -5,7 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
-import { CategoryGroupsModule } from './category-groups/category-groups.module';
+import { CategoryGroupsModule } from './category-group/module';
 import config, {
   CONFIG_PROVIDER,
   ConfigType,

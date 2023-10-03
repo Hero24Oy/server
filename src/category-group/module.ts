@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { CategoryGroupsResolver } from './category-groups.resolver';
-import { CategoryGroupsService } from './category-groups.service';
-
+import { CategoryGroupsResolver, CategoryGroupsService } from '.';
 import { FirebaseModule } from '$modules/firebase/firebase.module';
 
 @Module({

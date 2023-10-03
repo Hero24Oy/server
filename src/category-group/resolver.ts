@@ -1,8 +1,8 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 
-import { CategoryGroupsService } from './category-groups.service';
-import { CategoryGroupDto } from './dto/category-group-dto';
+import { CategoryGroupDto } from './dto';
+import { CategoryGroupsService } from './service';
 
 import { AuthGuard } from '$modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.filter';

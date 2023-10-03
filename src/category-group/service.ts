@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryGroupDB } from 'hero24-types';
 
-import { CategoryGroupDto } from './dto/category-group-dto';
-import { CategoryGroupsDto } from './dto/category-groups-dto';
+import { CategoryGroupDto, CategoryGroupsDto } from './dto';
 
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';

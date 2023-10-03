@@ -1,8 +1,10 @@
 import { CategoryGroupsDB } from 'hero24-types';
 
+import {
+  categoryGroupsDtoToExternal,
+  categoryGroupsDtoToInternal,
+} from './category-group.utils';
 import { CategoryGroupDto } from './category-group-dto';
-import { categoryGroupsDtoToExternal } from './category-groups.utils/category-groups-dto-to-external-util';
-import { categoryGroupsDtoToInternal } from './category-groups.utils/category-groups-dto-to-internal-util';
 
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
