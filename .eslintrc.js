@@ -107,6 +107,7 @@ const importSortOrderRule = {
 };
 
 const importRules = {
+  'import/extensions': 'off', // if error then throws error on $module/???/module
   'no-duplicate-imports': 'error', // imports from the same source must be in one record
   'no-restricted-imports': [
     'error',

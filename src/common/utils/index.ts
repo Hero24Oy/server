@@ -1,1 +1,1 @@
-export * from './custom-url';
+export * from './custom-fetcher';

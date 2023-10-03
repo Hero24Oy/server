@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 
-import { Xml2JsService } from '../xml2js/xml2js.service';
+import { Xml2JsService } from '../xml2js/service';
 
-import { purchaseInvoiceListParameters } from './netvisor.constants';
+import { purchaseInvoiceListParameters } from './constants';
 import {
   NetvisorBaseHeaders,
   NetvisorEndpoint,
   NetvisorHeaders,
+  NetvisorHeadersName,
   NetvisorPurchaseInvoiceListResponse,
-} from './netvisor.types';
-import { NetvisorHeadersName } from './netvisor.types/headers-name.type';
+} from './types';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
-import { CryptoService } from '$modules/crypto/crypto.service';
-import { CustomUrl } from '$utils';
+import { CryptoService } from '$modules/crypto/service';
+import { CustomFetcher } from '$utils';
 
 @Injectable()
 export class NetvisorFetcher {
@@ -79,10 +79,8 @@ export class NetvisorFetcher {
     return headers;
   }
 
-  async fetchPurchaseInvoiceList(
-    startDate: string,
-  ): Promise<string[] | undefined> {
-    const url = new CustomUrl(
+  async fetchPurchaseInvoiceList(startDate: string): Promise<string[] | void> {
+    const fetcher = new CustomFetcher(
       this.baseUrl,
       NetvisorEndpoint.PURCHASE_INVOICE_LIST,
       {
@@ -91,13 +89,10 @@ export class NetvisorFetcher {
       },
     );
 
-    const headers = this.createFullHeaders(url.toString());
+    const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
 
     try {
-      const response = await fetch(url.getUrl(), {
-        headers,
-        method: 'GET',
-      });
+      const response = await fetcher.get(headers);
 
       const xmlString = await response.text();
 

@@ -1,4 +1,4 @@
-import { ScheduleFetchDay } from './netvisor.types';
+import { ScheduleFetchDay } from './types';
 
 export const UPDATE_PAID_STATUS_CRON_TIME = '0 0 12 * * 2,5'; // Tuesday and Friday at 12:00
 

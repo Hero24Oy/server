@@ -31,9 +31,9 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
-import { CryptoModule } from '$modules/crypto/crypto.module';
-import { NetvisorModule } from '$modules/netvisor/netvisor.module';
-import { Xml2JsModule } from '$modules/xml2js/xml2js.module';
+import { CryptoModule } from '$modules/crypto/module';
+import { NetvisorModule } from '$modules/netvisor/module';
+import { Xml2JsModule } from '$modules/xml2js/module';
 
 @Module({
   imports: [

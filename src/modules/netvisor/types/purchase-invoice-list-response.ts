@@ -1,4 +1,4 @@
-import { NetvisorPurchaseInvoice } from './purchase-invoice.type';
+import { NetvisorPurchaseInvoice } from './purchase-invoice';
 
 export interface NetvisorPurchaseInvoiceListResponse {
   Root: {

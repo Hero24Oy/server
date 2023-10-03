@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { Xml2JsService } from './xml2js.service';
+import { Xml2JsService } from './service';
 
 @Module({
   imports: [],

@@ -1,5 +1,5 @@
-import { NetvisorHeaders } from './headers.type';
-import { NetvisorHeadersName } from './headers-name.type';
+import { NetvisorHeaders } from './headers';
+import { NetvisorHeadersName } from './headers-name';
 
 export type NetvisorBaseHeaders = Pick<
   NetvisorHeaders,

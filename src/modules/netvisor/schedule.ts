@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
-import { UPDATE_PAID_STATUS_CRON_TIME } from './netvisor.constants';
-import { NetvisorFetcher } from './netvisor.fetcher';
-import { getScheduleFetchDate } from './netvisor.utils/get-schedule-fetch-date';
+import { UPDATE_PAID_STATUS_CRON_TIME } from './constants';
+import { NetvisorFetcher } from './fetcher';
+import { getScheduleFetchDate } from './utils';
 
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';

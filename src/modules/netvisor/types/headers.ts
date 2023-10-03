@@ -1,4 +1,4 @@
-import { NetvisorHeadersName } from './headers-name.type';
+import { NetvisorHeadersName } from './headers-name';
 
 export interface NetvisorHeaders extends Record<string, string> {
   [NetvisorHeadersName.CONTENT_TYPE]: string;
