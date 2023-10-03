@@ -22,7 +22,7 @@ import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constant
 @Resolver()
 export class HeroPortfolioResolver {
   constructor(
-    private heroPortfolioService: HeroPortfolioService,
+    private readonly heroPortfolioService: HeroPortfolioService,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
