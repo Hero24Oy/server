@@ -11,8 +11,6 @@ export const FRIDAY = 5;
 export const FROM_TUESDAY_TO_FRIDAY = 4;
 export const FROM_FRIDAY_TO_TUESDAY = 3;
 
-export const FORMAT_MAX_LENGTH = 2;
-
 export const scheduleFetchDays: ScheduleFetchDay[] = [
   { day: FRIDAY, transform: FROM_FRIDAY_TO_TUESDAY },
   { day: TUESDAY, transform: FROM_TUESDAY_TO_FRIDAY },
