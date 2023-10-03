@@ -44,6 +44,7 @@ export class BuyerResolver {
   }
 
   @Query(() => [CategoryGroupDto])
+  @UseGuards(AuthGuard)
   @UseFilters(FirebaseExceptionFilter)
   async categoryGroups(): Promise<CategoryGroupDto[]> {
     return this.buyerService.listCategories();
