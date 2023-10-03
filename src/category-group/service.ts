@@ -8,7 +8,7 @@ import { FirebaseService } from '$modules/firebase/firebase.service';
 import { FirebaseTableReference } from '$modules/firebase/firebase.types';
 
 @Injectable()
-export class CategoryGroupsService {
+export class CategoryGroupService {
   private readonly categoryGroupsRef: FirebaseTableReference<CategoryGroupDB>;
 
   constructor(firebaseService: FirebaseService) {
