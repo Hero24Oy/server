@@ -6,7 +6,7 @@ import {
 } from 'hero24-types';
 
 import { CategoryGroupDataItemDto } from './category-group-data-item-dto';
-import categoryGroupDataDtoToInternalReducer from './categoryGroups.utils/categoryGroupDataDtoToInternalReducer';
+import { categoryGroupDataDtoToInternalReducer } from './category-groups.utils/categoryGroupDataDtoToInternalReducer';
 
 import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';

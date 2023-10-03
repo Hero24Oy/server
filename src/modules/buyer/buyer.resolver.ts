@@ -8,7 +8,7 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 
 import { BuyerService } from './buyer.service';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
-import { CategoryGroupDto } from './dto/categoryGroups/category-group-dto';
+import { CategoryGroupDto } from './dto/category-groups/category-group-dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
