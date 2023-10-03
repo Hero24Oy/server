@@ -14,7 +14,7 @@ export class CategoryGroupService {
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
 
-    this.categoryGroupsRef = database.ref(FirebaseDatabasePath.FEED);
+    this.categoryGroupsRef = database.ref(FirebaseDatabasePath.CATEGORY_GROUP);
   }
 
   async getCategoryList(): Promise<CategoryGroupDto[]> {
