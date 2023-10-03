@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { CategoryGroupItemDB } from 'hero24-types';
+import { CategoryGroupItem } from 'hero24-types';
 
 import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
@@ -15,16 +15,17 @@ export class CategoryGroupItemDto {
   @Field(() => TranslationFieldDto)
   name: TranslationFieldDto;
 
-  static adapter: FirebaseAdapter<CategoryGroupItemDB, CategoryGroupItemDto>;
+  static adapter: FirebaseAdapter<CategoryGroupItem, CategoryGroupItemDto>;
 }
 
 CategoryGroupItemDto.adapter = new FirebaseAdapter({
-  toExternal: (internal): CategoryGroupItemDto => ({
-    categoryId: internal.categoryId,
-    imageName: internal.imageName,
-    name: internal.name,
-  }),
-  toInternal: (external): CategoryGroupItemDB => ({
+  toExternal: (internal): CategoryGroupItemDto =>
+    ({
+      categoryId: internal.categoryId,
+      imageName: internal.imageName,
+      name: internal.name,
+    } as CategoryGroupItemDto),
+  toInternal: (external): CategoryGroupItem => ({
     categoryId: external.categoryId,
     imageName: external.imageName,
     name: external.name,

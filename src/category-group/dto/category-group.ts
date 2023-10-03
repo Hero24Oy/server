@@ -1,12 +1,12 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { CategoryGroupDB } from 'hero24-types';
+import { CategoryGroup } from 'hero24-types';
 
-import { CategoryGroupItemDto } from './category-group-item-dto';
+import { CategoryGroupItemDto } from './category-group-item';
 
 import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
-export interface CategoryGroupDbWithId extends CategoryGroupDB {
+export interface CategoryGroupWithId extends CategoryGroup {
   id: string;
 }
 
@@ -24,17 +24,18 @@ export class CategoryGroupDto {
   @Field(() => [CategoryGroupItemDto])
   items: CategoryGroupItemDto[];
 
-  static adapter: FirebaseAdapter<CategoryGroupDbWithId, CategoryGroupDto>;
+  static adapter: FirebaseAdapter<CategoryGroupWithId, CategoryGroupDto>;
 }
 
 CategoryGroupDto.adapter = new FirebaseAdapter({
-  toExternal: (internal): CategoryGroupDto => ({
-    id: internal.id,
-    name: internal.name,
-    order: internal.order,
-    items: internal.items.map(CategoryGroupItemDto.adapter.toExternal),
-  }),
-  toInternal: (external): CategoryGroupDbWithId => ({
+  toExternal: (internal): CategoryGroupDto =>
+    ({
+      id: internal.id,
+      name: internal.name,
+      order: internal.order,
+      items: internal.items.map(CategoryGroupItemDto.adapter.toExternal),
+    } as CategoryGroupDto),
+  toInternal: (external): CategoryGroupWithId => ({
     id: external.id,
     name: external.name,
     order: external.order,

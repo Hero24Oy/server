@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CategoryGroupDB } from 'hero24-types';
+import { CategoryGroup } from 'hero24-types';
 
 import { CategoryGroupDto, CategoryGroupsDto } from './dto';
 
@@ -9,7 +9,7 @@ import { FirebaseTableReference } from '$modules/firebase/firebase.types';
 
 @Injectable()
 export class CategoryGroupService {
-  private readonly categoryGroupsRef: FirebaseTableReference<CategoryGroupDB>;
+  private readonly categoryGroupsRef: FirebaseTableReference<CategoryGroup>;
 
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
