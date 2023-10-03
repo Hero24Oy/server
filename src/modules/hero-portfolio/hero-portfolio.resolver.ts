@@ -5,9 +5,9 @@ import { PubSub } from 'graphql-subscriptions';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
-import { HeroPortfolioDataDto } from './dto/hero-portfolio/hero-portfolio-data.dto';
-import { HeroPortfolioListArgs } from './dto/hero-portfolio-list/hero-portfolio-list.args';
+import { HeroPortfolioDto } from './dto/hero-portfolio/hero-portfolio.dto';
 import { HeroPortfolioListDto } from './dto/hero-portfolio-list/hero-portfolio-list.dto';
+import { HeroPortfolioListInput } from './dto/hero-portfolio-list/hero-portfolio-list.input';
 import {
   HERO_PORTFOLIO_CREATED,
   HERO_PORTFOLIO_REMOVED,
@@ -30,13 +30,13 @@ export class HeroPortfolioResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async heroPortfolios(
-    @Args() args: HeroPortfolioListArgs,
+    @Args('input') args: HeroPortfolioListInput,
     @AuthIdentity() identity: Identity,
   ): Promise<HeroPortfolioListDto> {
     return this.heroPortfolioService.getPortfolios(args, identity);
   }
 
-  @Subscription(() => HeroPortfolioDataDto, {
+  @Subscription(() => HeroPortfolioDto, {
     name: HERO_PORTFOLIO_CREATED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
@@ -45,7 +45,7 @@ export class HeroPortfolioResolver {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
-  @Subscription(() => String, {
+  @Subscription(() => HeroPortfolioDto, {
     name: HERO_PORTFOLIO_REMOVED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })

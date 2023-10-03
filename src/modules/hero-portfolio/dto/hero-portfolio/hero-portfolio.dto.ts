@@ -1,32 +1,58 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { HeroPortfolioDB } from 'hero24-types';
+import { HeroPortfolioDataDB } from 'hero24-types';
 
-import { HeroPortfolioDataDto } from './hero-portfolio-data.dto';
-
+import { MaybeType } from '$modules/common/common.types';
+import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class HeroPortfolioDto {
-  @Field(() => [HeroPortfolioDataDto])
-  data: HeroPortfolioDataDto[];
+  @Field(() => String)
+  id: string;
+
+  @Field(() => String)
+  sellerId: string;
+
+  @Field(() => String)
+  categoryId: string;
+
+  @Field(() => String)
+  description: string;
+
+  @Field(() => [String], { nullable: true })
+  imageIds?: MaybeType<string[]>;
+
+  @Field(() => Date)
+  createdAt: Date;
+
+  @Field(() => Date)
+  updatedAt: Date;
 
   static adapter: FirebaseAdapter<
-    Record<string, HeroPortfolioDB>,
-    Record<'data', HeroPortfolioDataDto[]>
+    HeroPortfolioDataDB & { id: string; sellerId: string },
+    HeroPortfolioDto
   >;
 }
 
 HeroPortfolioDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
-    data: Object.entries(internal).map(([id, item]) =>
-      HeroPortfolioDataDto.adapter.toExternal({ id, ...item.data }),
-    ),
+    id: internal.id,
+    sellerId: internal.sellerId,
+    categoryId: internal.category,
+    description: internal.description,
+    imageIds: internal.images && Object.keys(internal.images),
+    createdAt: new Date(internal.createdAt),
+    updatedAt: new Date(internal.updatedAt),
   }),
-  toInternal: (external) =>
-    Object.fromEntries(
-      external.data.map((item) => [
-        item.id,
-        { data: HeroPortfolioDataDto.adapter.toInternal(item) },
-      ]),
-    ),
+  toInternal: (external) => ({
+    id: external.id,
+    category: external.categoryId,
+    sellerId: external.sellerId,
+    description: external.description,
+    images: external.imageIds
+      ? convertListToFirebaseMap(external.imageIds)
+      : undefined,
+    createdAt: Number(external.createdAt),
+    updatedAt: Number(external.updatedAt),
+  }),
 });

@@ -7,9 +7,8 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { HeroPortfolioDto } from './dto/hero-portfolio/hero-portfolio.dto';
-import { HeroPortfolioDataDto } from './dto/hero-portfolio/hero-portfolio-data.dto';
-import { HeroPortfolioListArgs } from './dto/hero-portfolio-list/hero-portfolio-list.args';
 import { HeroPortfolioListDto } from './dto/hero-portfolio-list/hero-portfolio-list.dto';
+import { HeroPortfolioListInput } from './dto/hero-portfolio-list/hero-portfolio-list.input';
 import { HeroPortfolioOrderColumn } from './dto/hero-portfolio-list/hero-portfolio-list-order-column.enum';
 import { HeroPortfolioCreatedDto } from './dto/subscriptions/hero-portfolio-created.dto';
 import { HeroPortfolioRemovedDto } from './dto/subscriptions/hero-portfolio-removed.dto';
@@ -34,7 +33,7 @@ export class HeroPortfolioService {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
     private readonly heroPortfolioSorter: SorterService<
       HeroPortfolioOrderColumn,
-      HeroPortfolioDataDto,
+      HeroPortfolioDto,
       HeroPortfolioListSorterContext
     >,
   ) {
@@ -46,20 +45,22 @@ export class HeroPortfolioService {
   }
 
   async getPortfolios(
-    args: HeroPortfolioListArgs,
+    args: HeroPortfolioListInput,
     identity: Identity,
   ): Promise<HeroPortfolioListDto> {
     const { sellerId, offset, limit, ordersBy } = args;
 
-    const heroPortfolios =
-      (await this.heroPortfolioTableRef.child(sellerId).get()).val() ?? {};
+    const snapshot = await this.heroPortfolioTableRef.child(sellerId).get();
+    const heroPortfolios = snapshot.val() ?? {};
 
-    const heroPortfoliosExternal =
-      HeroPortfolioDto.adapter.toExternal(heroPortfolios).data;
+    const heroPortfoliosExternal = Object.entries(heroPortfolios).map(
+      ([id, item]) =>
+        HeroPortfolioDto.adapter.toExternal({ id, sellerId, ...item.data }),
+    );
 
     const sortedHeroPortfoliosExternal = this.heroPortfolioSorter.sort(
       heroPortfoliosExternal,
-      ordersBy ?? [defaultSorting],
+      ordersBy ?? defaultSorting,
       { identity },
     );
 

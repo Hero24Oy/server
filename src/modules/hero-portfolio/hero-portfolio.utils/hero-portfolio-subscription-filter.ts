@@ -17,7 +17,7 @@ interface Payload {
 export const HeroPortfolioSubscriptionFilter =
   (type: HeroPortfolioSubscriptionType) =>
   (payload: Payload, { sellerId }: { sellerId: string }): boolean => {
-    const heroPortfolio = payload[type];
+    const { heroPortfolio } = payload[type];
 
     return sellerId === heroPortfolio.sellerId;
   };
