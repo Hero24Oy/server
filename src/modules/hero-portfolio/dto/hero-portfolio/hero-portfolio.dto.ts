@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { HeroPortfolioDataDB } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
+import { HeroPortfolioDataWithIds } from '$modules/hero-portfolio/hero-portfolio.types';
 
 @ObjectType()
 export class HeroPortfolioDto {
@@ -28,10 +28,7 @@ export class HeroPortfolioDto {
   @Field(() => Date)
   updatedAt: Date;
 
-  static adapter: FirebaseAdapter<
-    HeroPortfolioDataDB & { id: string; sellerId: string },
-    HeroPortfolioDto
-  >;
+  static adapter: FirebaseAdapter<HeroPortfolioDataWithIds, HeroPortfolioDto>;
 }
 
 HeroPortfolioDto.adapter = new FirebaseAdapter({
