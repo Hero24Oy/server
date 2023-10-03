@@ -16,12 +16,16 @@ import {
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
 import { CHAT_SORTERS } from './chat.sorters';
+import { ChatMirror } from './mirrors/chat.mirror';
+import { ChatMessageMirror } from './mirrors/chat-message.mirror';
 import { ChatResolver } from './resolvers/chat.resolver';
 import { ChatFieldsResolver } from './resolvers/chat-fields.resolver';
 import { ChatMemberFieldsResolver } from './resolvers/chat-member-fields.resolver';
 import { ChatMessageResolver } from './resolvers/chat-message.resolver';
 import { ChatService } from './services/chat.service';
 import { ChatMessageService } from './services/chat-message.service';
+
+import { SubscriptionManagerModule } from '$modules/subscription-manager/subscription-manager.module';
 
 @Module({
   imports: [
@@ -32,6 +36,10 @@ import { ChatMessageService } from './services/chat-message.service';
     GraphQlContextManagerModule.forFeature({
       imports: [ChatModule],
       contexts: [ChatContext],
+    }),
+    SubscriptionManagerModule.forFeature({
+      imports: [FirebaseModule],
+      subscriptions: [ChatMirror, ChatMessageMirror],
     }),
   ],
   providers: [

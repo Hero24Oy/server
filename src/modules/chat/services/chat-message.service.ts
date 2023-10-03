@@ -5,6 +5,7 @@ import { FirebaseDatabasePath } from '../../firebase/firebase.constants';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { ChatMessageDto } from '../dto/chat/chat-message.dto';
 import { ChatMessageCreationArgs } from '../dto/creation/chat-message-creation.args';
+import { ChatMessageMirror } from '../mirrors/chat-message.mirror';
 
 import { FirebaseTableReference } from '$/modules/firebase/firebase.types';
 import { Identity } from '$modules/auth/auth.types';
@@ -14,7 +15,10 @@ import { convertListToFirebaseMap } from '$modules/common/common.utils';
 export class ChatMessageService {
   private readonly chatMessageTableRef: FirebaseTableReference<ChatMessageDB>;
 
-  constructor(firebaseService: FirebaseService) {
+  constructor(
+    private readonly chatMessageMirror: ChatMessageMirror,
+    firebaseService: FirebaseService,
+  ) {
     const database = firebaseService.getDefaultApp().database();
 
     this.chatMessageTableRef = database.ref(FirebaseDatabasePath.CHAT_MESSAGES);
@@ -46,12 +50,11 @@ export class ChatMessageService {
   }
 
   async getAllChatMessages(): Promise<ChatMessageDto[]> {
-    const chatMessagesSnapshot = await this.chatMessageTableRef.get();
-    const chatMessages = chatMessagesSnapshot.val() || {};
-
-    return Object.entries(chatMessages)
-      .map(([id, chatMessage]) => ({ id, ...chatMessage }))
-      .map(ChatMessageDto.adapter.toExternal);
+    return this.chatMessageMirror
+      .getAll()
+      .map(([id, chatMessage]) =>
+        ChatMessageDto.adapter.toExternal({ id, ...chatMessage }),
+      );
   }
 
   async getChatMessageByIds(
