@@ -7,6 +7,7 @@ import { SorterModule } from '../sorter/sorter.module';
 import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
 import { UserModule } from '../user/user.module';
 
+import { OfferMirror } from './offer.mirror';
 import { OFFER_SORTERS } from './offer.sorters';
 import { OfferSubscription } from './offer.subscription';
 import { OfferHubSpotModule } from './offer-hub-spot/offer-hub-spot.module';
@@ -27,7 +28,7 @@ import { SellerOfferService } from './services/seller-offer.service';
     SorterModule.create(OFFER_SORTERS),
     SubscriptionManagerModule.forFeature({
       imports: [FirebaseModule, OfferModule],
-      subscriptions: [OfferSubscription],
+      subscriptions: [OfferSubscription, OfferMirror],
     }),
     OfferRequestModule,
   ],

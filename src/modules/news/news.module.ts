@@ -12,11 +12,21 @@ import {
   createNewsRemovedEventHandler,
   createNewsUpdatedEventHandler,
 } from './news.event-handlers';
+import { NewsMirror } from './news.mirror';
 import { NewsResolver } from './news.resolver';
 import { NewsService } from './news.service';
 
+import { SubscriptionManagerModule } from '$modules/subscription-manager/subscription-manager.module';
+
 @Module({
-  imports: [FirebaseModule, GraphQlPubsubModule],
+  imports: [
+    FirebaseModule,
+    GraphQlPubsubModule,
+    SubscriptionManagerModule.forFeature({
+      imports: [FirebaseModule],
+      subscriptions: [NewsMirror],
+    }),
+  ],
   providers: [NewsService, NewsResolver],
 })
 export class NewsModule {

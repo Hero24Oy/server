@@ -18,6 +18,7 @@ import { FeeDataDto } from './dto/fee/fee-data.dto';
 import { FeeListArgs } from './dto/fee-list/fee-list.args';
 import { FeeListDto } from './dto/fee-list/fee-list.dto';
 import { FeeListOrderColumn } from './dto/fee-list/fee-list-order-column.enum';
+import { FeeMirror } from './fee.mirror';
 import { FeeListSorterContext } from './fee.types';
 import { filterFees } from './fee.utils/filter-fees.util';
 
@@ -32,6 +33,7 @@ export class FeeService {
       FeeListSorterContext
     >,
     private readonly offerRequestService: OfferRequestService,
+    private readonly feeMirror: FeeMirror,
     firebaseService: FirebaseService,
   ) {
     const database = firebaseService.getDefaultApp().database();
@@ -58,13 +60,9 @@ export class FeeService {
   }
 
   async getAllFees(): Promise<FeeDto[]> {
-    const feesSnapshot = await this.feeTableRef.get();
-
-    const fees = feesSnapshot.val() || {};
-
-    return Object.entries(fees).map(([id, fee]) =>
-      FeeDto.adapter.toExternal({ ...fee, id }),
-    );
+    return this.feeMirror
+      .getAll()
+      .map(([id, fee]) => FeeDto.adapter.toExternal({ ...fee, id }));
   }
 
   async getFeeList(args: FeeListArgs, identity: Identity): Promise<FeeListDto> {
