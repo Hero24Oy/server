@@ -14,5 +14,5 @@ CategoryGroupsDto.adapter = new FirebaseAdapter({
   toExternal: (internal): CategoryGroupsDto =>
     Object.entries(internal).map(categoryGroupsDtoToExternal),
   toInternal: (external): CategoryGroupsDB =>
-    external.reduce(categoryGroupsDtoToInternal, {} as CategoryGroupsDB),
+    external.reduce(categoryGroupsDtoToInternal, {}),
 });
