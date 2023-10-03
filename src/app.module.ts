@@ -5,6 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
+import { CategoryGroupsModule } from './category-groups/category-groups.module';
 import config, {
   CONFIG_PROVIDER,
   ConfigType,
@@ -75,6 +76,7 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     UserMergeModule,
     FeeModule,
     ImageModule,
+    CategoryGroupsModule,
   ],
   providers: [AppResolver],
 })

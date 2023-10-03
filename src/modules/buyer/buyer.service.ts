@@ -10,8 +10,6 @@ import {
 } from '../firebase/firebase.types';
 
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
-import { CategoryGroupDto } from './dto/category-groups/category-group-dto';
-import { CategoryGroupsDto } from './dto/category-groups/category-groups-dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
@@ -94,18 +92,5 @@ export class BuyerService {
     const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
     return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
-  }
-
-  async listCategories(): Promise<CategoryGroupDto[]> {
-    const feedsSnapshot = await this.feedTableRef.get();
-    const feeds = feedsSnapshot.val();
-
-    if (!feeds) {
-      return [];
-    }
-
-    return CategoryGroupsDto.adapter
-      .toExternal(feeds)
-      .sort((a, b) => a.data.order - b.data.order);
   }
 }
