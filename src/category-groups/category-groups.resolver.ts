@@ -15,6 +15,6 @@ export class CategoryGroupsResolver {
   @UseGuards(AuthGuard)
   @UseFilters(FirebaseExceptionFilter)
   async categoryGroups(): Promise<CategoryGroupDto[]> {
-    return this.categoryGroupsService.listCategories();
+    return this.categoryGroupsService.getCategoryList();
   }
 }

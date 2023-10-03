@@ -18,7 +18,7 @@ export class CategoryGroupsService {
     this.categoryGroupsRef = database.ref(FirebaseDatabasePath.FEED);
   }
 
-  async listCategories(): Promise<CategoryGroupDto[]> {
+  async getCategoryList(): Promise<CategoryGroupDto[]> {
     const feedsSnapshot = await this.categoryGroupsRef.get();
     const feeds = feedsSnapshot.val();
 
