@@ -5,7 +5,7 @@ import { HeroPortfolioListOrderInput } from './order';
 import { MaybeType } from '$modules/common/common.types';
 import { PaginationArgs } from '$modules/common/dto/pagination.args';
 
-@InputType('HeroPortfolioListInput')
+@InputType()
 export class HeroPortfolioListInput extends PaginationArgs {
   @Field(() => String)
   sellerId: string;
