@@ -9,6 +9,7 @@ import {
   FirebaseTableReference,
 } from '../firebase/firebase.types';
 
+import { BuyerMirror } from './buyer.mirror';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
@@ -17,19 +18,21 @@ import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-ed
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
-  constructor(firebaseService: FirebaseService) {
+  constructor(
+    private readonly buyerMirror: BuyerMirror,
+    firebaseService: FirebaseService,
+  ) {
     const database = firebaseService.getDefaultApp().database();
 
     this.buyerTableRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
   }
 
   async getAllBuyers(): Promise<BuyerProfileDto[]> {
-    const buyersSnapshot = await this.buyerTableRef.get();
-    const buyers = buyersSnapshot.val() || {};
-
-    return Object.entries(buyers).map(([id, buyerProfile]) =>
-      BuyerProfileDto.adapter.toExternal({ id, ...buyerProfile }),
-    );
+    return this.buyerMirror
+      .getAll()
+      .map(([id, buyerProfile]) =>
+        BuyerProfileDto.adapter.toExternal({ id, ...buyerProfile }),
+      );
   }
 
   async getBuyerById(buyerId: string): Promise<BuyerProfileDto | null> {

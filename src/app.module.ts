@@ -20,6 +20,7 @@ import { FirebaseModule } from './modules/firebase/firebase.module';
 import { GraphQlContextManagerModule } from './modules/graphql-context-manager/graphql-context-manager.module';
 import { GraphQlContextManagerService } from './modules/graphql-context-manager/graphql-context-manager.service';
 import { GraphQlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
+import { HeroPortfolioModule } from './modules/hero-portfolio';
 import { ImageModule } from './modules/image/image.module';
 import { NewsModule } from './modules/news/news.module';
 import { OfferModule } from './modules/offer/offer.module';
@@ -81,6 +82,7 @@ import { Xml2JsModule } from '$modules/xml2js/module';
     UserMergeModule,
     FeeModule,
     ImageModule,
+    HeroPortfolioModule,
     NetvisorModule,
     CryptoModule,
     Xml2JsModule,

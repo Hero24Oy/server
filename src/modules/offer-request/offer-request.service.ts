@@ -33,6 +33,7 @@ import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-
 import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
 import { OfferRequestFilterColumn } from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
+import { OfferRequestMirror } from './offer-request.mirror';
 import {
   OfferRequestFiltererContext,
   OfferRequestSorterContext,
@@ -61,6 +62,7 @@ export class OfferRequestService {
       OfferRequestFiltererConfigs
     >,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+    private readonly offerRequestMirror: OfferRequestMirror,
   ) {}
 
   get offerRequestTableRef(): FirebaseTableReference<OfferRequestDB> {
@@ -70,12 +72,11 @@ export class OfferRequestService {
   }
 
   private async getAllOfferRequests(): Promise<OfferRequestDto[]> {
-    const offerRequestsSnapshot = await this.offerRequestTableRef.get();
-    const offerRequests = offerRequestsSnapshot.val() || {};
-
-    return Object.entries(offerRequests)
-      .map(([id, offerRequest]) => ({ id, ...offerRequest }))
-      .map(OfferRequestDto.adapter.toExternal);
+    return this.offerRequestMirror
+      .getAll()
+      .map(([id, offerRequest]) =>
+        OfferRequestDto.adapter.toExternal({ id, ...offerRequest }),
+      );
   }
 
   async getOfferRequestById(id: string): Promise<OfferRequestDto | null> {
