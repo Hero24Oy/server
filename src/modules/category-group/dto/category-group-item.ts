@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { CategoryGroupItem } from 'hero24-types';
 
+import { TypeSafeRequired } from '$modules/common/common.types';
 import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
@@ -19,13 +20,12 @@ export class CategoryGroupItemDto {
 }
 
 CategoryGroupItemDto.adapter = new FirebaseAdapter({
-  toExternal: (internal): CategoryGroupItemDto =>
-    ({
-      categoryId: internal.categoryId,
-      imageName: internal.imageName,
-      name: internal.name,
-    } as CategoryGroupItemDto),
-  toInternal: (external): CategoryGroupItem => ({
+  toExternal: (internal): TypeSafeRequired<CategoryGroupItemDto> => ({
+    categoryId: internal.categoryId,
+    imageName: internal.imageName,
+    name: internal.name,
+  }),
+  toInternal: (external): TypeSafeRequired<CategoryGroupItem> => ({
     categoryId: external.categoryId,
     imageName: external.imageName,
     name: external.name,

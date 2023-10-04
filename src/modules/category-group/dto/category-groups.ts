@@ -6,6 +6,7 @@ import {
   categoryGroupsDtoToInternal,
 } from './dto-utils';
 
+import { TypeSafeRequired } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 export class CategoryGroupsDto extends Array<CategoryGroupDto> {
@@ -13,8 +14,8 @@ export class CategoryGroupsDto extends Array<CategoryGroupDto> {
 }
 
 CategoryGroupsDto.adapter = new FirebaseAdapter({
-  toExternal: (internal): CategoryGroupsDto =>
+  toExternal: (internal): TypeSafeRequired<CategoryGroupsDto> =>
     Object.entries(internal).map(categoryGroupsDtoToExternal),
-  toInternal: (external): CategoryGroups =>
+  toInternal: (external): TypeSafeRequired<CategoryGroups> =>
     external.reduce(categoryGroupsDtoToInternal, {}),
 });

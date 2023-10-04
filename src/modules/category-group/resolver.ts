@@ -1,7 +1,7 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 
-import { CategoryGroupDto } from './dto';
+import { CategoryGroupDto, CategoryGroupsDto } from './dto';
 import { CategoryGroupService } from './service';
 
 import { AuthGuard } from '$modules/auth/guards/auth.guard';
@@ -14,7 +14,7 @@ export class CategoryGroupResolver {
   @Query(() => [CategoryGroupDto])
   @UseGuards(AuthGuard)
   @UseFilters(FirebaseExceptionFilter)
-  async categoryGroups(): Promise<CategoryGroupDto[]> {
+  async categoryGroups(): Promise<CategoryGroupsDto> {
     return this.categoryGroupService.getCategoryList();
   }
 }

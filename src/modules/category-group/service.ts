@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryGroup } from 'hero24-types';
 
-import { CategoryGroupDto, CategoryGroupsDto } from './dto';
+import { CategoryGroupsDto } from './dto';
 
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
@@ -17,7 +17,7 @@ export class CategoryGroupService {
     this.categoryGroupsRef = database.ref(FirebaseDatabasePath.CATEGORY_GROUP);
   }
 
-  async getCategoryList(): Promise<CategoryGroupDto[]> {
+  async getCategoryList(): Promise<CategoryGroupsDto> {
     const feedsSnapshot = await this.categoryGroupsRef.get();
     const feeds = feedsSnapshot.val();
 
