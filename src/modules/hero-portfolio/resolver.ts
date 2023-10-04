@@ -1,5 +1,5 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -8,6 +8,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
   HeroPortfolioDto,
+  HeroPortfolioInput,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
 } from './dto';
@@ -33,6 +34,21 @@ export class HeroPortfolioResolver {
     @AuthIdentity() identity: Identity,
   ): Promise<HeroPortfolioListDto> {
     return this.heroPortfolioService.getPortfolios(args, identity);
+  }
+
+  @Mutation(() => HeroPortfolioDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async createHeroPortfolio(
+    @Args('input') input: HeroPortfolioInput,
+  ): Promise<HeroPortfolioDto> {
+    const heroPortfolio = await this.heroPortfolioService.createHeroPortfolio(
+      input,
+    );
+
+    this.heroPortfolioService.emitHeroPortfolioCreation({ heroPortfolio });
+
+    return heroPortfolio;
   }
 
   @Subscription(() => HeroPortfolioDto, {

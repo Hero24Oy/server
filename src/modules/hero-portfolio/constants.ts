@@ -11,3 +11,5 @@ export const defaultSorting = [
     order: SortOrder.DESC,
   },
 ];
+
+export const ID_FRAGMENTS_AMOUNT = 8;

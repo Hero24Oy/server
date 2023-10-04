@@ -1,25 +1,34 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
-import { HeroPortfolioDB } from 'hero24-types';
+import { HeroPortfolioDataDB, HeroPortfolioDB } from 'hero24-types';
+import omit from 'lodash/omit';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
-import { defaultSorting } from './constants';
+import { defaultSorting, ID_FRAGMENTS_AMOUNT } from './constants';
 import {
   HeroPortfolioCreatedDto,
   HeroPortfolioDto,
+  HeroPortfolioInput,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
   HeroPortfolioOrderColumn,
   HeroPortfolioRemovedDto,
 } from './dto';
-import { HeroPortfolioListSorterContext } from './types';
+import {
+  GetHeroPortfolioByIdArgs,
+  HeroPortfolioListSorterContext,
+} from './types';
 import { emitHeroPortfolioCreated, emitHeroPortfolioRemoved } from './utils';
 
 import { Identity } from '$modules/auth/auth.types';
-import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
+import {
+  generateId,
+  paginate,
+  preparePaginatedResult,
+} from '$modules/common/common.utils';
 import { PUBSUB_PROVIDER } from '$modules/graphql-pubsub/graphql-pubsub.constants';
 import { SorterService } from '$modules/sorter/sorter.service';
 
@@ -43,6 +52,41 @@ export class HeroPortfolioService {
     this.heroPortfolioTableRef = database.ref(
       FirebaseDatabasePath.HERO_PORTFOLIOS,
     );
+  }
+
+  async getHeroPortfolioById(
+    args: GetHeroPortfolioByIdArgs,
+  ): Promise<HeroPortfolioDto | null> {
+    const { sellerId, portfolioId } = args;
+
+    const snapshot = await this.heroPortfolioTableRef
+      .child(sellerId)
+      .child(portfolioId)
+      .get();
+
+    const heroPortfolio = snapshot.val();
+
+    return (
+      heroPortfolio &&
+      HeroPortfolioDto.adapter.toExternal({
+        id: portfolioId,
+        sellerId,
+        ...heroPortfolio.data,
+      })
+    );
+  }
+
+  async strictGetHeroPortfolioById(
+    args: GetHeroPortfolioByIdArgs,
+  ): Promise<HeroPortfolioDto> {
+    const { portfolioId } = args;
+    const heroPortfolio = await this.getHeroPortfolioById(args);
+
+    if (!heroPortfolio) {
+      throw new Error(`Hero portfolio with id ${portfolioId} was not found`);
+    }
+
+    return heroPortfolio;
   }
 
   async getPortfolios(
@@ -79,6 +123,31 @@ export class HeroPortfolioService {
       offset,
       limit,
     });
+  }
+
+  async createHeroPortfolio(
+    input: HeroPortfolioInput,
+  ): Promise<HeroPortfolioDto> {
+    const dateNow = new Date();
+    const { sellerId } = input;
+    const id = generateId({ fragmentsAmount: ID_FRAGMENTS_AMOUNT });
+
+    const heroPortfolio: HeroPortfolioDataDB = omit(
+      HeroPortfolioDto.adapter.toInternal({
+        ...input,
+        id,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }),
+      ['id', 'sellerId'],
+    );
+
+    await this.heroPortfolioTableRef
+      .child(sellerId)
+      .child(id)
+      .set({ data: heroPortfolio });
+
+    return this.strictGetHeroPortfolioById({ sellerId, portfolioId: id });
   }
 
   emitHeroPortfolioCreation(args: HeroPortfolioCreatedDto): void {
