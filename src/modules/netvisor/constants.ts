@@ -1,10 +1,15 @@
-import { ScheduleFetchDay } from './types';
+import {
+  PaymentStatus,
+  PurchaseInvoiceListKeys,
+  PurchaseInvoiceListParameters,
+  ScheduleFetchDay,
+} from './types';
 
 export const UPDATE_PAID_STATUS_CRON_TIME = '0 0 12 * * 2,5'; // Tuesday and Friday at 12:00
 
 export const purchaseInvoiceListParameters = {
-  paymentstatus: 'paid',
-};
+  [PurchaseInvoiceListKeys.PAYMENT_STATUS]: PaymentStatus.PAID,
+} satisfies PurchaseInvoiceListParameters;
 
 export const TUESDAY = 2;
 export const FRIDAY = 5;

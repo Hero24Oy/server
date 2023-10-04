@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
-import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
+import { AddressesAnswered, OfferRequestDB, PaidStatus } from 'hero24-types';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 import map from 'lodash/map';
@@ -43,7 +43,6 @@ import { OfferRequestQuestionType } from './offer-request-question/dto/offer-req
 import {} from './offer-request-question/offer-request-question.constants';
 import { PlainOfferRequestQuestion } from './offer-request-question/offer-request-question.types';
 import { offerRequestQuestionsToTree } from './offer-request-question/offer-request-question.utils/offer-request-questions-to-tree.util';
-import { PaidStatus } from './open-offer-request/dto/offer-request-paid-status.enum';
 import { OfferRequestStatus } from './open-offer-request/dto/offer-request-status.enum';
 
 @Injectable()

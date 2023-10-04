@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import { PaidStatus } from 'hero24-types';
 
 import { UPDATE_PAID_STATUS_CRON_TIME } from './constants';
 import { NetvisorFetcher } from './fetcher';
@@ -7,7 +8,6 @@ import { getScheduleFetchDate } from './utils';
 
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
-import { PaidStatus } from '$modules/offer-request/open-offer-request/dto/offer-request-paid-status.enum';
 
 @Injectable()
 export class NetvisorSchedule {
