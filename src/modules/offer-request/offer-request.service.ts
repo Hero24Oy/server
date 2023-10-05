@@ -152,13 +152,13 @@ export class OfferRequestService {
       data,
       serviceProviderVAT,
       hero24Cut,
-      customerVAT,
+      customerVat,
       minimumDuration,
     } = input;
 
     const offerRequest: OfferRequestDB = omitUndefined({
       data: OfferRequestDataInput.adapter.toInternal(data),
-      customerVAT: customerVAT ?? undefined,
+      customerVAT: customerVat ?? undefined,
       hero24Cut: hero24Cut ?? undefined,
       serviceProviderVAT: serviceProviderVAT ?? undefined,
       minimumDuration: minimumDuration ?? undefined,
