@@ -12,6 +12,7 @@ import {
   HeroPortfolioDto,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
+  RemoveHeroPortfolioInput,
 } from './dto';
 import { HeroPortfolioService } from './service';
 import { HeroPortfolioSubscriptionFilter } from './utils';
@@ -59,6 +60,21 @@ export class HeroPortfolioResolver {
     @Args('input') input: EditHeroPortfolioInput,
   ): Promise<HeroPortfolioDto> {
     return this.heroPortfolioService.editHeroPortfolio(input);
+  }
+
+  @Mutation(() => String)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async removeHeroPortfolio(
+    @Args('input') input: RemoveHeroPortfolioInput,
+  ): Promise<string> {
+    const portfolioId = await this.heroPortfolioService.removeHeroPortfolio(
+      input,
+    );
+
+    this.heroPortfolioService.emitHeroPortfolioRemoval({ portfolioId });
+
+    return portfolioId;
   }
 
   @Subscription(() => HeroPortfolioDto, {

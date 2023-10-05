@@ -17,6 +17,7 @@ import {
   HeroPortfolioListInput,
   HeroPortfolioOrderColumn,
   HeroPortfolioRemovedDto,
+  RemoveHeroPortfolioInput,
 } from './dto';
 import {
   GetHeroPortfolioByIdArgs,
@@ -178,6 +179,17 @@ export class HeroPortfolioService {
       .update({ data });
 
     return this.strictGetHeroPortfolioById({ sellerId, portfolioId });
+  }
+
+  async removeHeroPortfolio(input: RemoveHeroPortfolioInput): Promise<string> {
+    const { id: portfolioId, sellerId } = input;
+
+    await this.heroPortfolioTableRef
+      .child(sellerId)
+      .child(portfolioId)
+      .remove();
+
+    return portfolioId;
   }
 
   emitHeroPortfolioCreation(args: HeroPortfolioCreatedDto): void {

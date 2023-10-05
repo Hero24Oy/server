@@ -1,6 +1,7 @@
-import { ObjectType } from '@nestjs/graphql';
-
-import { HeroPortfolioCreatedDto } from './created';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class HeroPortfolioRemovedDto extends HeroPortfolioCreatedDto {}
+export class HeroPortfolioRemovedDto {
+  @Field(() => String)
+  portfolioId: string;
+}

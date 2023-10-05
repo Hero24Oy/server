@@ -3,3 +3,4 @@ export * from './hero-portfolio-list';
 export * from './subscriptions';
 export * from './create-hero-portfolio';
 export * from './edit-hero-portfolio';
+export * from './remove-hero-portfolio';
