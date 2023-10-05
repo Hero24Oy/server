@@ -2,6 +2,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
@@ -20,7 +21,6 @@ import { FirebaseModule } from './modules/firebase/firebase.module';
 import { GraphQlContextManagerModule } from './modules/graphql-context-manager/graphql-context-manager.module';
 import { GraphQlContextManagerService } from './modules/graphql-context-manager/graphql-context-manager.service';
 import { GraphQlPubsubModule } from './modules/graphql-pubsub/graphql-pubsub.module';
-import { HeroPortfolioModule } from './modules/hero-portfolio';
 import { ImageModule } from './modules/image/image.module';
 import { NewsModule } from './modules/news/news.module';
 import { OfferModule } from './modules/offer/offer.module';
@@ -31,6 +31,11 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
+
+import { CryptoModule } from '$modules/crypto/module';
+import { HeroPortfolioModule } from '$modules/hero-portfolio/module';
+import { NetvisorModule } from '$modules/netvisor/module';
+import { Xml2JsModule } from '$modules/xml2js/module';
 
 @Module({
   imports: [
@@ -60,6 +65,7 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
           graphQLManagerService.createContext(ctx),
       }),
     }),
+    ScheduleModule.forRoot(),
     GraphQlPubsubModule,
     FirebaseModule,
     UserModule,
@@ -79,6 +85,9 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     ImageModule,
     CategoryGroupModule,
     HeroPortfolioModule,
+    NetvisorModule,
+    CryptoModule,
+    Xml2JsModule,
   ],
   providers: [AppResolver],
 })

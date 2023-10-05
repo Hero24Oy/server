@@ -40,6 +40,9 @@ export class OfferRequestDto {
   customerVAT?: MaybeType<number>;
 
   @Field(() => Float, { nullable: true })
+  hero24Cut?: MaybeType<number>;
+
+  @Field(() => Float, { nullable: true })
   serviceProviderVAT?: MaybeType<number>;
 
   @Field(() => String, { nullable: true })
@@ -118,6 +121,7 @@ OfferRequestDto.adapter = new FirebaseAdapter({
     stripeSubscriptionId: external.stripeSubscriptionId ?? undefined,
     stripePaymentIntentId: external.stripePaymentIntentId ?? undefined,
     customerVAT: external.customerVAT ?? undefined,
+    hero24Cut: external.hero24Cut ?? undefined,
     serviceProviderVAT: external.serviceProviderVAT ?? undefined,
     netvisorSalesOrderId: external.netvisorSalesOrderId ?? undefined,
     netvisorSalesInvoiceNumber:
@@ -137,6 +141,7 @@ OfferRequestDto.adapter = new FirebaseAdapter({
     stripeSubscriptionId: internal.stripeSubscriptionId,
     stripePaymentIntentId: internal.stripePaymentIntentId,
     customerVAT: internal.customerVAT,
+    hero24Cut: internal.hero24Cut,
     serviceProviderVAT: internal.serviceProviderVAT,
     netvisorSalesOrderId: internal.netvisorSalesOrderId,
     netvisorSalesInvoiceNumber: internal.netvisorSalesInvoiceNumber,
