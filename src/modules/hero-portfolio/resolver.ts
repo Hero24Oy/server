@@ -8,6 +8,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
   CreateHeroPortfolioInput,
+  EditHeroPortfolioInput,
   HeroPortfolioDto,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
@@ -49,6 +50,15 @@ export class HeroPortfolioResolver {
     this.heroPortfolioService.emitHeroPortfolioCreation({ heroPortfolio });
 
     return heroPortfolio;
+  }
+
+  @Mutation(() => HeroPortfolioDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async editHeroPortfolio(
+    @Args('input') input: EditHeroPortfolioInput,
+  ): Promise<HeroPortfolioDto> {
+    return this.heroPortfolioService.editHeroPortfolio(input);
   }
 
   @Subscription(() => HeroPortfolioDto, {

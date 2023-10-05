@@ -10,6 +10,7 @@ import { FirebaseTableReference } from '../firebase/firebase.types';
 import { defaultSorting, ID_FRAGMENTS_AMOUNT } from './constants';
 import {
   CreateHeroPortfolioInput,
+  EditHeroPortfolioInput,
   HeroPortfolioCreatedDto,
   HeroPortfolioDto,
   HeroPortfolioListDto,
@@ -130,12 +131,12 @@ export class HeroPortfolioService {
   ): Promise<HeroPortfolioDto> {
     const dateNow = new Date();
     const { sellerId } = input;
-    const id = generateId({ fragmentsAmount: ID_FRAGMENTS_AMOUNT });
+    const portfolioId = generateId({ fragmentsAmount: ID_FRAGMENTS_AMOUNT });
 
     const heroPortfolio: HeroPortfolioDataDB = omit(
       HeroPortfolioDto.adapter.toInternal({
         ...input,
-        id,
+        id: portfolioId,
         createdAt: dateNow,
         updatedAt: dateNow,
       }),
@@ -144,10 +145,39 @@ export class HeroPortfolioService {
 
     await this.heroPortfolioTableRef
       .child(sellerId)
-      .child(id)
+      .child(portfolioId)
       .set({ data: heroPortfolio });
 
-    return this.strictGetHeroPortfolioById({ sellerId, portfolioId: id });
+    return this.strictGetHeroPortfolioById({ sellerId, portfolioId });
+  }
+
+  async editHeroPortfolio(
+    input: EditHeroPortfolioInput,
+  ): Promise<HeroPortfolioDto> {
+    const { id: portfolioId, sellerId } = input;
+
+    const heroPortfolio = await this.strictGetHeroPortfolioById({
+      sellerId,
+      portfolioId,
+    });
+
+    const data = {
+      ...omit(
+        HeroPortfolioDto.adapter.toInternal({
+          ...heroPortfolio,
+          ...input,
+          updatedAt: new Date(),
+        }),
+        ['id', 'sellerId'],
+      ),
+    };
+
+    await this.heroPortfolioTableRef
+      .child(sellerId)
+      .child(portfolioId)
+      .update({ data });
+
+    return this.strictGetHeroPortfolioById({ sellerId, portfolioId });
   }
 
   emitHeroPortfolioCreation(args: HeroPortfolioCreatedDto): void {
