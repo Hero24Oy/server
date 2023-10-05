@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
-import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
+import { AddressesAnswered, OfferRequestDB, PaidStatus } from 'hero24-types';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 import map from 'lodash/map';
@@ -372,6 +372,20 @@ export class OfferRequestService {
       .child('data')
       .child('changesAccepted')
       .update({ timeChangeAccepted, detailsChangeAccepted });
+
+    return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  async updatePaidStatus(
+    offerRequestId: string,
+    status: PaidStatus,
+  ): Promise<OfferRequestDto> {
+    await this.offerRequestTableRef
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('prepaid')
+      .set(status);
 
     return this.strictGetOfferRequestById(offerRequestId);
   }

@@ -1,6 +1,5 @@
 export * from './constants';
 export * from './dto';
-export * from './module';
 export * from './resolver';
 export * from './service';
 export * from './sorters';
