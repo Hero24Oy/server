@@ -11,6 +11,7 @@
       "$configs/*": ["src/config/*"],
       "$config": ["src/config/index"],
       "$decorator": ["src/common/decorators/index"],
+      "$utils": ["src/common/utils/index"],
       "$/*": ["src/*"]
     },
     "module": "commonjs",
@@ -19,7 +20,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "ESNext",
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
@@ -32,5 +33,5 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["node_modules/hero24-types", "src", "env.d.ts"]
+  "include": ["src", "env.d.ts"]
 }
