@@ -11,12 +11,12 @@ import { defaultSorting } from './constants';
 import {
   CreateHeroPortfolioInput,
   EditHeroPortfolioInput,
-  HeroPortfolioCreatedDto,
+  HeroPortfolioCreatedSubscription,
   HeroPortfolioDto,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
   HeroPortfolioOrderColumn,
-  HeroPortfolioRemovedDto,
+  HeroPortfolioRemovedSubscription,
   RemoveHeroPortfolioInput,
 } from './dto';
 import {
@@ -188,11 +188,17 @@ export class HeroPortfolioService {
     return { id, sellerId };
   }
 
-  emitHeroPortfolioCreation(args: HeroPortfolioCreatedDto): void {
-    emitHeroPortfolioCreated<HeroPortfolioCreatedDto>(this.pubSub, args);
+  emitHeroPortfolioCreation(args: HeroPortfolioCreatedSubscription): void {
+    emitHeroPortfolioCreated<HeroPortfolioCreatedSubscription>(
+      this.pubSub,
+      args,
+    );
   }
 
-  emitHeroPortfolioRemoval(args: HeroPortfolioRemovedDto): void {
-    emitHeroPortfolioRemoved<HeroPortfolioRemovedDto>(this.pubSub, args);
+  emitHeroPortfolioRemoval(args: HeroPortfolioRemovedSubscription): void {
+    emitHeroPortfolioRemoved<HeroPortfolioRemovedSubscription>(
+      this.pubSub,
+      args,
+    );
   }
 }

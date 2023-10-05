@@ -82,7 +82,7 @@ export class HeroPortfolioResolver {
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
   @UseGuards(AuthGuard)
-  subscribeOnHeroPortFoliosCreate(@Args('sellerId') _sellerId: string) {
+  subscribeOnHeroPortfoliosCreate(@Args('sellerId') _sellerId: string) {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
@@ -91,7 +91,7 @@ export class HeroPortfolioResolver {
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })
   @UseGuards(AuthGuard)
-  subscribeOnHeroPortFoliosRemove(@Args('sellerId') _sellerId: string) {
+  subscribeOnHeroPortfoliosRemove(@Args('sellerId') _sellerId: string) {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_REMOVED);
   }
 }
