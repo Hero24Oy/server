@@ -117,6 +117,10 @@ const importRules = {
           group: ['lodash', '!lodash/'], // disallow imports from 'lodash' directly
           message: "Please use 'lodash/*' instead.",
         },
+        {
+          group: ['./module'],
+          message: 'Please import modules directly.',
+        },
       ],
     },
   ],
@@ -358,11 +362,11 @@ const override = {
     },
   },
   importExtensions: {
-    files: ['src/*.ts', "src/**/*.ts"],
+    files: ['src/*.ts', 'src/**/*.ts'],
     rules: {
-      "import/extensions": "off",
+      'import/extensions': 'off',
     },
-  }
+  },
 };
 
 module.exports = {
