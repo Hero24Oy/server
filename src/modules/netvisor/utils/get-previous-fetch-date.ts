@@ -1,5 +1,5 @@
-export const getPreviousFetchDate = (days: number): Date => {
-  const today = new Date();
+import moment from 'moment';
 
-  return new Date(today.getDate() - days);
+export const getPreviousFetchDate = (days: number): Date => {
+  return moment().subtract(days, 'days').toDate();
 };
