@@ -13,6 +13,7 @@ import config, {
 } from './config';
 import { AuthModule } from './modules/auth/auth.module';
 import { BuyerModule } from './modules/buyer/buyer.module';
+import { CategoryGroupModule } from './modules/category-group/module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommonModule } from './modules/common/common.module';
 import { FeeModule } from './modules/fee/fee.module';
@@ -82,6 +83,7 @@ import { Xml2JsModule } from '$modules/xml2js/module';
     UserMergeModule,
     FeeModule,
     ImageModule,
+    CategoryGroupModule,
     HeroPortfolioModule,
     NetvisorModule,
     CryptoModule,
