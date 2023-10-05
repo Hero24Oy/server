@@ -148,11 +148,18 @@ export class OfferRequestService {
   async createOfferRequest(
     input: OfferRequestCreationInput,
   ): Promise<OfferRequestDto> {
-    const { data, serviceProviderVAT, customerVat, minimumDuration } = input;
+    const {
+      data,
+      serviceProviderVAT,
+      hero24Cut,
+      customerVat,
+      minimumDuration,
+    } = input;
 
     const offerRequest: OfferRequestDB = omitUndefined({
       data: OfferRequestDataInput.adapter.toInternal(data),
       customerVAT: customerVat ?? undefined,
+      hero24Cut: hero24Cut ?? undefined,
       serviceProviderVAT: serviceProviderVAT ?? undefined,
       minimumDuration: minimumDuration ?? undefined,
     });
