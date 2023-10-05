@@ -59,7 +59,7 @@ export class HeroPortfolioService {
   async getHeroPortfolioById(
     args: GetHeroPortfolioByIdArgs,
   ): Promise<HeroPortfolioDto | null> {
-    const { sellerId, portfolioId } = args;
+    const { sellerId, id: portfolioId } = args;
 
     const snapshot = await this.heroPortfolioTableRef
       .child(sellerId)
@@ -81,11 +81,11 @@ export class HeroPortfolioService {
   async strictGetHeroPortfolioById(
     args: GetHeroPortfolioByIdArgs,
   ): Promise<HeroPortfolioDto> {
-    const { portfolioId } = args;
+    const { id } = args;
     const heroPortfolio = await this.getHeroPortfolioById(args);
 
     if (!heroPortfolio) {
-      throw new Error(`Hero portfolio with id ${portfolioId} was not found`);
+      throw new Error(`Hero portfolio with id ${id} was not found`);
     }
 
     return heroPortfolio;
@@ -149,7 +149,7 @@ export class HeroPortfolioService {
       .child(portfolioId)
       .set({ data: heroPortfolio });
 
-    return this.strictGetHeroPortfolioById({ sellerId, portfolioId });
+    return this.strictGetHeroPortfolioById({ sellerId, id: portfolioId });
   }
 
   async editHeroPortfolio(
@@ -159,7 +159,7 @@ export class HeroPortfolioService {
 
     const heroPortfolio = await this.strictGetHeroPortfolioById({
       sellerId,
-      portfolioId,
+      id: portfolioId,
     });
 
     const data = {
@@ -178,10 +178,12 @@ export class HeroPortfolioService {
       .child(portfolioId)
       .update({ data });
 
-    return this.strictGetHeroPortfolioById({ sellerId, portfolioId });
+    return this.strictGetHeroPortfolioById({ sellerId, id: portfolioId });
   }
 
-  async removeHeroPortfolio(input: RemoveHeroPortfolioInput): Promise<string> {
+  async removeHeroPortfolio(
+    input: RemoveHeroPortfolioInput,
+  ): Promise<GetHeroPortfolioByIdArgs> {
     const { id: portfolioId, sellerId } = input;
 
     await this.heroPortfolioTableRef
@@ -189,7 +191,7 @@ export class HeroPortfolioService {
       .child(portfolioId)
       .remove();
 
-    return portfolioId;
+    return { id: portfolioId, sellerId };
   }
 
   emitHeroPortfolioCreation(args: HeroPortfolioCreatedDto): void {

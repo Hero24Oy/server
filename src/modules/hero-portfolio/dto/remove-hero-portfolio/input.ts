@@ -1,8 +1,10 @@
-import { PickType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 
-import { HeroPortfolioDto } from '../hero-portfolio';
+@InputType()
+export class RemoveHeroPortfolioInput {
+  @Field(() => String)
+  id: string;
 
-export class RemoveHeroPortfolioInput extends PickType(HeroPortfolioDto, [
-  'id',
-  'sellerId',
-]) {}
+  @Field(() => String)
+  sellerId: string;
+}

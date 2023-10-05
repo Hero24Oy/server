@@ -19,6 +19,6 @@ export interface HeroPortfolioDataWithIds extends HeroPortfolioDataDB {
 }
 
 export type GetHeroPortfolioByIdArgs = {
-  portfolioId: string;
+  id: string;
   sellerId: string;
 };

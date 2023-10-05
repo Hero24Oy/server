@@ -68,13 +68,13 @@ export class HeroPortfolioResolver {
   async removeHeroPortfolio(
     @Args('input') input: RemoveHeroPortfolioInput,
   ): Promise<string> {
-    const portfolioId = await this.heroPortfolioService.removeHeroPortfolio(
+    const heroPortfolio = await this.heroPortfolioService.removeHeroPortfolio(
       input,
     );
 
-    this.heroPortfolioService.emitHeroPortfolioRemoval({ portfolioId });
+    this.heroPortfolioService.emitHeroPortfolioRemoval({ heroPortfolio });
 
-    return portfolioId;
+    return heroPortfolio.id;
   }
 
   @Subscription(() => HeroPortfolioDto, {

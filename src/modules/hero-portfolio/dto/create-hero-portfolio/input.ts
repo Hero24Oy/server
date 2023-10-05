@@ -1,10 +1,18 @@
-import { InputType, OmitType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 
-import { HeroPortfolioDto } from '../hero-portfolio/dto';
+import { MaybeType } from '$modules/common/common.types';
 
 @InputType()
-export class CreateHeroPortfolioInput extends OmitType(HeroPortfolioDto, [
-  'id',
-  'createdAt',
-  'updatedAt',
-]) {}
+export class CreateHeroPortfolioInput {
+  @Field(() => String)
+  sellerId: string;
+
+  @Field(() => String)
+  categoryId: string;
+
+  @Field(() => String)
+  description: string;
+
+  @Field(() => [String], { nullable: true })
+  imageIds?: MaybeType<string[]>;
+}
