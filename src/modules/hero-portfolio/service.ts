@@ -9,9 +9,9 @@ import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { defaultSorting, ID_FRAGMENTS_AMOUNT } from './constants';
 import {
+  CreateHeroPortfolioInput,
   HeroPortfolioCreatedDto,
   HeroPortfolioDto,
-  HeroPortfolioInput,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
   HeroPortfolioOrderColumn,
@@ -126,7 +126,7 @@ export class HeroPortfolioService {
   }
 
   async createHeroPortfolio(
-    input: HeroPortfolioInput,
+    input: CreateHeroPortfolioInput,
   ): Promise<HeroPortfolioDto> {
     const dateNow = new Date();
     const { sellerId } = input;

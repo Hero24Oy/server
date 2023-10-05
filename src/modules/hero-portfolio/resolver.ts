@@ -7,8 +7,8 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
 import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
+  CreateHeroPortfolioInput,
   HeroPortfolioDto,
-  HeroPortfolioInput,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
 } from './dto';
@@ -40,7 +40,7 @@ export class HeroPortfolioResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createHeroPortfolio(
-    @Args('input') input: HeroPortfolioInput,
+    @Args('input') input: CreateHeroPortfolioInput,
   ): Promise<HeroPortfolioDto> {
     const heroPortfolio = await this.heroPortfolioService.createHeroPortfolio(
       input,
