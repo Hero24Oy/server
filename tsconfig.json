@@ -33,5 +33,5 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["node_modules/hero24-types", "src", "env.d.ts"]
+  "include": ["src", "env.d.ts"]
 }
