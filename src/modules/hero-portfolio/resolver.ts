@@ -9,10 +9,11 @@ import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
   CreateHeroPortfolioInput,
   EditHeroPortfolioInput,
+  HeroPortfolioCreatedSubscription,
   HeroPortfolioDto,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
-  HeroPortfolioRemovedDto,
+  HeroPortfolioRemovedSubscription,
   RemoveHeroPortfolioInput,
 } from './dto';
 import { HeroPortfolioService } from './service';
@@ -63,22 +64,26 @@ export class HeroPortfolioResolver {
     return this.heroPortfolioService.editHeroPortfolio(input);
   }
 
-  @Mutation(() => String)
+  @Mutation(() => HeroPortfolioDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async removeHeroPortfolio(
     @Args('input') input: RemoveHeroPortfolioInput,
-  ): Promise<string> {
+  ): Promise<HeroPortfolioDto> {
     const heroPortfolio = await this.heroPortfolioService.removeHeroPortfolio(
       input,
     );
 
-    this.heroPortfolioService.emitHeroPortfolioRemoval({ heroPortfolio });
+    const { sellerId, id } = heroPortfolio;
 
-    return heroPortfolio.id;
+    this.heroPortfolioService.emitHeroPortfolioRemoval({
+      heroPortfolio: { sellerId, id },
+    });
+
+    return heroPortfolio;
   }
 
-  @Subscription(() => HeroPortfolioDto, {
+  @Subscription(() => HeroPortfolioCreatedSubscription, {
     name: HERO_PORTFOLIO_CREATED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
@@ -87,7 +92,7 @@ export class HeroPortfolioResolver {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
-  @Subscription(() => HeroPortfolioRemovedDto, {
+  @Subscription(() => HeroPortfolioRemovedSubscription, {
     name: HERO_PORTFOLIO_REMOVED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })

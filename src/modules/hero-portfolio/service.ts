@@ -180,12 +180,14 @@ export class HeroPortfolioService {
 
   async removeHeroPortfolio(
     input: RemoveHeroPortfolioInput,
-  ): Promise<GetHeroPortfolioByIdArgs> {
+  ): Promise<HeroPortfolioDto> {
     const { id, sellerId } = input;
+
+    const heroPortfolio = this.strictGetHeroPortfolioById({ sellerId, id });
 
     await this.heroPortfolioTableRef.child(sellerId).child(id).remove();
 
-    return { id, sellerId };
+    return heroPortfolio;
   }
 
   emitHeroPortfolioCreation(args: HeroPortfolioCreatedSubscription): void {
