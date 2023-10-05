@@ -132,12 +132,12 @@ export class HeroPortfolioService {
   ): Promise<HeroPortfolioDto> {
     const dateNow = new Date();
     const { sellerId } = input;
-    const portfolioId = generateId();
+    const id = generateId();
 
     const heroPortfolio: HeroPortfolioDataDB = omit(
       HeroPortfolioDto.adapter.toInternal({
         ...input,
-        id: portfolioId,
+        id,
         createdAt: dateNow,
         updatedAt: dateNow,
       }),
@@ -146,20 +146,20 @@ export class HeroPortfolioService {
 
     await this.heroPortfolioTableRef
       .child(sellerId)
-      .child(portfolioId)
+      .child(id)
       .set({ data: heroPortfolio });
 
-    return this.strictGetHeroPortfolioById({ sellerId, id: portfolioId });
+    return this.strictGetHeroPortfolioById({ sellerId, id });
   }
 
   async editHeroPortfolio(
     input: EditHeroPortfolioInput,
   ): Promise<HeroPortfolioDto> {
-    const { id: portfolioId, sellerId } = input;
+    const { id, sellerId } = input;
 
     const heroPortfolio = await this.strictGetHeroPortfolioById({
       sellerId,
-      id: portfolioId,
+      id,
     });
 
     const data = {
@@ -173,25 +173,19 @@ export class HeroPortfolioService {
       ),
     };
 
-    await this.heroPortfolioTableRef
-      .child(sellerId)
-      .child(portfolioId)
-      .update({ data });
+    await this.heroPortfolioTableRef.child(sellerId).child(id).update({ data });
 
-    return this.strictGetHeroPortfolioById({ sellerId, id: portfolioId });
+    return this.strictGetHeroPortfolioById({ sellerId, id });
   }
 
   async removeHeroPortfolio(
     input: RemoveHeroPortfolioInput,
   ): Promise<GetHeroPortfolioByIdArgs> {
-    const { id: portfolioId, sellerId } = input;
+    const { id, sellerId } = input;
 
-    await this.heroPortfolioTableRef
-      .child(sellerId)
-      .child(portfolioId)
-      .remove();
+    await this.heroPortfolioTableRef.child(sellerId).child(id).remove();
 
-    return { id: portfolioId, sellerId };
+    return { id, sellerId };
   }
 
   emitHeroPortfolioCreation(args: HeroPortfolioCreatedDto): void {
