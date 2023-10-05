@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class HeroPortfolioRemoved {
+export class HeroPortfolioRemovedDto {
   @Field(() => String)
   id: string;
 

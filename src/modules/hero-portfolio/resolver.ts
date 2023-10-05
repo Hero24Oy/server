@@ -12,6 +12,7 @@ import {
   HeroPortfolioDto,
   HeroPortfolioListDto,
   HeroPortfolioListInput,
+  HeroPortfolioRemovedDto,
   RemoveHeroPortfolioInput,
 } from './dto';
 import { HeroPortfolioService } from './service';
@@ -86,7 +87,7 @@ export class HeroPortfolioResolver {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
-  @Subscription(() => HeroPortfolioDto, {
+  @Subscription(() => HeroPortfolioRemovedDto, {
     name: HERO_PORTFOLIO_REMOVED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })

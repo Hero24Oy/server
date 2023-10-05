@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { HeroPortfolioRemoved } from './dto';
+import { HeroPortfolioRemovedDto } from './dto';
 
 @ObjectType()
 export class HeroPortfolioRemovedSubscription {
-  @Field(() => HeroPortfolioRemoved)
-  heroPortfolio: HeroPortfolioRemoved;
+  @Field(() => HeroPortfolioRemovedDto)
+  heroPortfolio: HeroPortfolioRemovedDto;
 }
