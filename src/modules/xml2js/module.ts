@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { Xml2JsService } from './service';
 
 @Module({
-  imports: [],
   providers: [Xml2JsService],
   exports: [Xml2JsService],
 })
