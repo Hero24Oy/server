@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryGroup } from 'hero24-types';
 
-import { CategoryGroupsDto } from './dto';
+import { CategoryGroupDto } from './dto';
 
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
@@ -17,16 +17,15 @@ export class CategoryGroupService {
     this.categoryGroupsRef = database.ref(FirebaseDatabasePath.CATEGORY_GROUP);
   }
 
-  async getCategoryList(): Promise<CategoryGroupsDto> {
+  async getCategoryList(): Promise<CategoryGroupDto[]> {
     const feedsSnapshot = await this.categoryGroupsRef.get();
-    const feeds = feedsSnapshot.val();
+    const feeds = feedsSnapshot.val() ?? {};
 
-    if (!feeds) {
-      return [];
-    }
-
-    return CategoryGroupsDto.adapter
-      .toExternal(feeds)
-      .sort((groupA, groupB) => groupA.order - groupB.order);
+    return Object.entries(feeds).map(([id, feed]) => {
+      return CategoryGroupDto.adapter.toExternal({
+        id,
+        ...feed,
+      });
+    });
   }
 }
