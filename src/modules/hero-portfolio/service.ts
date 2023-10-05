@@ -7,7 +7,7 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
-import { defaultSorting, ID_FRAGMENTS_AMOUNT } from './constants';
+import { defaultSorting } from './constants';
 import {
   CreateHeroPortfolioInput,
   EditHeroPortfolioInput,
@@ -132,7 +132,7 @@ export class HeroPortfolioService {
   ): Promise<HeroPortfolioDto> {
     const dateNow = new Date();
     const { sellerId } = input;
-    const portfolioId = generateId({ fragmentsAmount: ID_FRAGMENTS_AMOUNT });
+    const portfolioId = generateId();
 
     const heroPortfolio: HeroPortfolioDataDB = omit(
       HeroPortfolioDto.adapter.toInternal({
