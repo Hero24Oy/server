@@ -7,6 +7,7 @@ import { SorterModule } from '../sorter/sorter.module';
 import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
 
 import { OFFER_REQUEST_FILTERS } from './offer-request.filers';
+import { OfferRequestMirror } from './offer-request.mirror';
 import { OfferRequestResolver } from './offer-request.resolver';
 import { OfferRequestService } from './offer-request.service';
 import { OFFER_REQUEST_SORTERS } from './offer-request.sorters';
@@ -19,8 +20,8 @@ import { OpenOfferRequestModule } from './open-offer-request/open-offer-request.
     GraphQlPubsubModule,
     OpenOfferRequestModule,
     SubscriptionManagerModule.forFeature({
-      imports: [OfferRequestModule],
-      subscriptions: [OfferRequestSubscription],
+      imports: [FirebaseModule, OfferRequestModule],
+      subscriptions: [OfferRequestSubscription, OfferRequestMirror],
     }),
     SorterModule.create(OFFER_REQUEST_SORTERS),
     FiltererModule.create(OFFER_REQUEST_FILTERS),

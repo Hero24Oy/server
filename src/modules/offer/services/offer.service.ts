@@ -7,6 +7,7 @@ import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
+import { OfferMirror } from '../offer.mirror';
 import { emitOfferUpdatedEvent } from '../offer.utils/emit-offer-updated-event.util';
 import { filterOffers } from '../offer.utils/filter-offers.util';
 import { hasMatchingRole } from '../offer.utils/has-matching-role.util';
@@ -29,6 +30,7 @@ export class OfferService {
   constructor(
     private offerSorter: SorterService<OfferOrderColumn, OfferDto, null>,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    private readonly offerMirror: OfferMirror,
     firebaseService: FirebaseService,
   ) {
     const database = firebaseService.getDefaultApp().database();
@@ -46,6 +48,14 @@ export class OfferService {
     const offer = snapshot.val();
 
     return offer && OfferDto.adapter.toExternal({ id: offerId, ...offer });
+  }
+
+  async getOffersByInvoiceIds(paidInvoices: string[]): Promise<OfferDto[]> {
+    const offers = await this.getAllOffers();
+
+    return offers.filter((offer) =>
+      paidInvoices.includes(offer.netvisorPurchaseInvoiceId ?? ''),
+    );
   }
 
   async strictGetOfferById(offerId: string): Promise<OfferDto> {
@@ -79,11 +89,8 @@ export class OfferService {
   }
 
   async getAllOffers(): Promise<OfferDto[]> {
-    const offersSnapshot = await this.offerTableRef.get();
-
-    const offers = offersSnapshot.val() || {};
-
-    return Object.entries(offers)
+    return this.offerMirror
+      .getAll()
       .map(([id, offer]) => ({ id, ...offer }))
       .reduce((resultOffers: OfferDto[], offer) => {
         try {

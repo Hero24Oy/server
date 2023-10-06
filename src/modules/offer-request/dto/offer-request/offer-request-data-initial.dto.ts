@@ -1,5 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { AddressesAnswered, OfferRequestDB } from 'hero24-types';
+import { AddressesAnswered, OfferRequestDB, PaidStatus } from 'hero24-types';
 
 import {
   OfferRequestQuestionAdapter,
@@ -41,7 +41,7 @@ export class OfferRequestDataInitialDto {
   sendInvoiceWith?: MaybeType<'sms' | 'email'>;
 
   @Field(() => String, { nullable: true })
-  prepaid?: MaybeType<'waiting' | 'paid'>;
+  prepaid?: MaybeType<PaidStatus>;
 
   @Field(() => String, { nullable: true })
   postpaid?: MaybeType<'no' | 'yes'>;

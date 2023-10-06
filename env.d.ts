@@ -34,6 +34,15 @@ declare global {
       HUB_SPOT_ACCESS_TOKEN: string;
       HUB_SPOT_DEAL_OWNER_ID: string;
       HUB_SPOT_DISABLED: 'true' | 'false';
+
+      // Netvisor
+      NETVISOR_BASE_URL: string;
+      NETVISOR_ORG_ID: string;
+      NETVISOR_CUSTOMER_ID: string;
+      NETVISOR_CUSTOMER_KEY: string;
+      NETVISOR_PARTNER_ID: string;
+      NETVISOR_PARTNER_KEY: string;
+      NETVISOR_SENDER: string;
     }
   }
 }

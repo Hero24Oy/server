@@ -20,6 +20,7 @@ const initialRules = {
     'warn',
     { ignore: ['eslint-enable'] },
   ], // we don't need to comment why we used "eslint-enable"
+  'eslint-comments/disable-enable-pair': 'off',
   'prefer-arrow-callback': 'error',
   'arrow-parens': ['error', 'always'],
   'quote-props': ['error', 'consistent-as-needed'],
@@ -106,6 +107,7 @@ const importSortOrderRule = {
 };
 
 const importRules = {
+  'import/extensions': 'off', // if error then throws error on $module/???/module
   'no-duplicate-imports': 'error', // imports from the same source must be in one record
   'no-restricted-imports': [
     'error',
@@ -114,6 +116,10 @@ const importRules = {
         {
           group: ['lodash', '!lodash/'], // disallow imports from 'lodash' directly
           message: "Please use 'lodash/*' instead.",
+        },
+        {
+          group: ['./module'],
+          message: 'Please import modules directly.',
         },
       ],
     },
@@ -355,6 +361,12 @@ const override = {
       '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
+  importExtensions: {
+    files: ['src/*.ts', 'src/**/*.ts'],
+    rules: {
+      'import/extensions': 'off',
+    },
+  },
 };
 
 module.exports = {
@@ -404,5 +416,6 @@ module.exports = {
     override.enableAsyncMethodsWithoutAwait,
     override.env,
     override.disableReturnType,
+    override.importExtensions,
   ],
 };
