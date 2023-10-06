@@ -1,4 +1,4 @@
-import { HeroPortfolioOrderColumn } from '../resolvers/hero-portfolio-list/order-column';
+import { HeroPortfolioOrderColumn } from '../resolvers';
 import { HeroPortfolioListComparePicker } from '../types';
 
 import { categoryIdComparePicker } from './category-id';

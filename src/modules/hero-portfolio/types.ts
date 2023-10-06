@@ -3,7 +3,7 @@ import { HeroPortfolioDataDB } from 'hero24-types';
 import { Identity } from '../auth/auth.types';
 import { ComparePicker, SortablePrimitives } from '../sorter/sorter.types';
 
-import { HeroPortfolioOutput } from './resolvers/hero-portfolio/output';
+import { HeroPortfolioOutput } from './resolvers';
 
 export type HeroPortfolioListSorterContext = {
   identity: Identity;
