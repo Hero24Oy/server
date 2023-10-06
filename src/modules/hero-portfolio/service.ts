@@ -11,12 +11,15 @@ import { FirebaseTableReference } from '../firebase/firebase.types';
 import { defaultSorting } from './constants';
 import {
   CreateHeroPortfolioInput,
+  CreateHeroPortfolioOutput,
   EditHeroPortfolioInput,
+  EditHeroPortfolioOutput,
+  HeroPortfolio,
   HeroPortfolioListInput,
   HeroPortfolioListOutput,
   HeroPortfolioOrderColumn,
-  HeroPortfolioOutput,
   RemoveHeroPortfolioInput,
+  RemoveHeroPortfolioOutput,
   SubscribeOnHeroPortfolioRemoveOutput,
   SubscribeOnHeroPortfoliosCreateOutput,
 } from './graphql';
@@ -42,7 +45,7 @@ export class HeroPortfolioService {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
     private readonly heroPortfolioSorter: SorterService<
       HeroPortfolioOrderColumn,
-      HeroPortfolioOutput,
+      HeroPortfolio,
       HeroPortfolioListSorterContext
     >,
   ) {
@@ -55,7 +58,7 @@ export class HeroPortfolioService {
 
   async getHeroPortfolioById(
     args: GetHeroPortfolioByIdArgs,
-  ): Promise<HeroPortfolioOutput | null> {
+  ): Promise<HeroPortfolio | null> {
     const { sellerId, id: portfolioId } = args;
 
     const snapshot = await this.heroPortfolioTableRef
@@ -67,7 +70,7 @@ export class HeroPortfolioService {
 
     return (
       heroPortfolio &&
-      HeroPortfolioOutput.adapter.toExternal({
+      HeroPortfolio.adapter.toExternal({
         id: portfolioId,
         sellerId,
         ...heroPortfolio.data,
@@ -77,7 +80,7 @@ export class HeroPortfolioService {
 
   async strictGetHeroPortfolioById(
     args: GetHeroPortfolioByIdArgs,
-  ): Promise<HeroPortfolioOutput> {
+  ): Promise<HeroPortfolio> {
     const { id } = args;
     const heroPortfolio = await this.getHeroPortfolioById(args);
 
@@ -99,7 +102,7 @@ export class HeroPortfolioService {
 
     const heroPortfoliosExternal = Object.entries(heroPortfolios).map(
       ([id, item]) =>
-        HeroPortfolioOutput.adapter.toExternal({ id, sellerId, ...item.data }),
+        HeroPortfolio.adapter.toExternal({ id, sellerId, ...item.data }),
     );
 
     const sortedHeroPortfoliosExternal = this.heroPortfolioSorter.sort(
@@ -127,13 +130,13 @@ export class HeroPortfolioService {
   async createHeroPortfolio(
     input: CreateHeroPortfolioInput,
     identity: Identity,
-  ): Promise<HeroPortfolioOutput> {
+  ): Promise<CreateHeroPortfolioOutput> {
     const dateNow = new Date();
     const { id: sellerId } = identity;
     const id = uuidV4();
 
     const heroPortfolio: HeroPortfolioDataDB = omit(
-      HeroPortfolioOutput.adapter.toInternal({
+      HeroPortfolio.adapter.toInternal({
         ...input,
         id,
         sellerId,
@@ -154,7 +157,7 @@ export class HeroPortfolioService {
   async editHeroPortfolio(
     input: EditHeroPortfolioInput,
     identity: Identity,
-  ): Promise<HeroPortfolioOutput> {
+  ): Promise<EditHeroPortfolioOutput> {
     const { id } = input;
     const { id: sellerId } = identity;
 
@@ -165,7 +168,7 @@ export class HeroPortfolioService {
 
     const data = {
       ...omit(
-        HeroPortfolioOutput.adapter.toInternal({
+        HeroPortfolio.adapter.toInternal({
           ...heroPortfolio,
           ...input,
           updatedAt: new Date(),
@@ -182,7 +185,7 @@ export class HeroPortfolioService {
   async removeHeroPortfolio(
     input: RemoveHeroPortfolioInput,
     identity: Identity,
-  ): Promise<HeroPortfolioOutput> {
+  ): Promise<RemoveHeroPortfolioOutput> {
     const { id } = input;
     const { id: sellerId } = identity;
 

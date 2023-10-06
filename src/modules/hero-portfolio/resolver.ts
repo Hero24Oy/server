@@ -8,17 +8,16 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
   CreateHeroPortfolioInput,
+  CreateHeroPortfolioOutput,
   EditHeroPortfolioInput,
+  EditHeroPortfolioOutput,
   HeroPortfolioListInput,
   HeroPortfolioListOutput,
-  HeroPortfolioOutput,
   RemoveHeroPortfolioInput,
+  RemoveHeroPortfolioOutput,
   SubscribeOnHeroPortfolioRemoveOutput,
   SubscribeOnHeroPortfoliosCreateOutput,
 } from './graphql';
-import { CreateHeroPortfolioOutput } from './graphql/resolvers/create-hero-portfolio/output';
-import { EditHeroPortfolioOutput } from './graphql/resolvers/edit-hero-portfolio/output';
-import { RemoveHeroPortfolioOutput } from './graphql/resolvers/remove-hero-portfolio/output';
 import { HeroPortfolioService } from './service';
 import { HeroPortfolioSubscriptionFilter } from './utils';
 
@@ -49,7 +48,7 @@ export class HeroPortfolioResolver {
   async createHeroPortfolio(
     @Args('input') input: CreateHeroPortfolioInput,
     @AuthIdentity() identity: Identity,
-  ): Promise<HeroPortfolioOutput> {
+  ): Promise<CreateHeroPortfolioOutput> {
     const heroPortfolio = await this.heroPortfolioService.createHeroPortfolio(
       input,
       identity,
@@ -66,7 +65,7 @@ export class HeroPortfolioResolver {
   async editHeroPortfolio(
     @Args('input') input: EditHeroPortfolioInput,
     @AuthIdentity() identity: Identity,
-  ): Promise<HeroPortfolioOutput> {
+  ): Promise<EditHeroPortfolioOutput> {
     return this.heroPortfolioService.editHeroPortfolio(input, identity);
   }
 
@@ -76,7 +75,7 @@ export class HeroPortfolioResolver {
   async removeHeroPortfolio(
     @Args('input') input: RemoveHeroPortfolioInput,
     @AuthIdentity() identity: Identity,
-  ): Promise<HeroPortfolioOutput> {
+  ): Promise<RemoveHeroPortfolioOutput> {
     const heroPortfolio = await this.heroPortfolioService.removeHeroPortfolio(
       input,
       identity,
