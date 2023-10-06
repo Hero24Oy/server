@@ -12,7 +12,6 @@ import { defaultSorting } from './constants';
 import {
   CreateHeroPortfolioInput,
   EditHeroPortfolioInput,
-  HeroPortfolioCreatedOutput,
   HeroPortfolioListInput,
   HeroPortfolioListOutput,
   HeroPortfolioOrderColumn,
@@ -196,8 +195,8 @@ export class HeroPortfolioService {
     return heroPortfolio;
   }
 
-  emitHeroPortfolioCreation(args: HeroPortfolioCreatedOutput): void {
-    emitHeroPortfolioCreated<HeroPortfolioCreatedOutput>(this.pubSub, args);
+  emitHeroPortfolioCreation(args: HeroPortfolioOutput): void {
+    emitHeroPortfolioCreated<HeroPortfolioOutput>(this.pubSub, args);
   }
 
   emitHeroPortfolioRemoval(args: HeroPortfolioRemovedOutput): void {

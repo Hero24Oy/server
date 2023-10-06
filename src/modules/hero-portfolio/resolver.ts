@@ -9,7 +9,6 @@ import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
   CreateHeroPortfolioInput,
   EditHeroPortfolioInput,
-  HeroPortfolioCreatedOutput,
   HeroPortfolioListInput,
   HeroPortfolioListOutput,
   HeroPortfolioOutput,
@@ -89,7 +88,7 @@ export class HeroPortfolioResolver {
     return heroPortfolio;
   }
 
-  @Subscription(() => HeroPortfolioCreatedOutput, {
+  @Subscription(() => HeroPortfolioOutput, {
     name: HERO_PORTFOLIO_CREATED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
