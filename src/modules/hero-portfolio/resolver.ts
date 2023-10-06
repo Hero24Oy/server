@@ -52,7 +52,7 @@ export class HeroPortfolioResolver {
       identity,
     );
 
-    this.heroPortfolioService.emitHeroPortfolioCreation({ heroPortfolio });
+    this.heroPortfolioService.emitHeroPortfolioCreation(heroPortfolio);
 
     return heroPortfolio;
   }
@@ -82,7 +82,8 @@ export class HeroPortfolioResolver {
     const { sellerId, id } = heroPortfolio;
 
     this.heroPortfolioService.emitHeroPortfolioRemoval({
-      heroPortfolio: { sellerId, id },
+      sellerId,
+      id,
     });
 
     return heroPortfolio;
