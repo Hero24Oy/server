@@ -186,7 +186,10 @@ export class HeroPortfolioService {
     const { id } = input;
     const { id: sellerId } = identity;
 
-    const heroPortfolio = this.strictGetHeroPortfolioById({ sellerId, id });
+    const heroPortfolio = await this.strictGetHeroPortfolioById({
+      sellerId,
+      id,
+    });
 
     await this.heroPortfolioTableRef.child(sellerId).child(id).remove();
 
