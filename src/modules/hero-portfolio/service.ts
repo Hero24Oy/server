@@ -16,9 +16,10 @@ import {
   HeroPortfolioListOutput,
   HeroPortfolioOrderColumn,
   HeroPortfolioOutput,
-  HeroPortfolioRemovedOutput,
   RemoveHeroPortfolioInput,
-} from './resolvers';
+  SubscribeOnHeroPortfolioRemoveOutput,
+  SubscribeOnHeroPortfoliosCreateOutput,
+} from './graphql';
 import {
   GetHeroPortfolioByIdArgs,
   HeroPortfolioListSorterContext,
@@ -195,11 +196,17 @@ export class HeroPortfolioService {
     return heroPortfolio;
   }
 
-  emitHeroPortfolioCreation(args: HeroPortfolioOutput): void {
-    emitHeroPortfolioCreated<HeroPortfolioOutput>(this.pubSub, args);
+  emitHeroPortfolioCreation(args: SubscribeOnHeroPortfoliosCreateOutput): void {
+    emitHeroPortfolioCreated<SubscribeOnHeroPortfoliosCreateOutput>(
+      this.pubSub,
+      args,
+    );
   }
 
-  emitHeroPortfolioRemoval(args: HeroPortfolioRemovedOutput): void {
-    emitHeroPortfolioRemoved<HeroPortfolioRemovedOutput>(this.pubSub, args);
+  emitHeroPortfolioRemoval(args: SubscribeOnHeroPortfolioRemoveOutput): void {
+    emitHeroPortfolioRemoved<SubscribeOnHeroPortfolioRemoveOutput>(
+      this.pubSub,
+      args,
+    );
   }
 }

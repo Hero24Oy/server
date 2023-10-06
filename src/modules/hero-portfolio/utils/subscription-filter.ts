@@ -1,13 +1,16 @@
 import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from '../constants';
-import { HeroPortfolioOutput, HeroPortfolioRemovedOutput } from '../resolvers';
+import {
+  SubscribeOnHeroPortfolioRemoveOutput,
+  SubscribeOnHeroPortfoliosCreateOutput,
+} from '../graphql';
 
 type HeroPortfolioSubscriptionType =
   | typeof HERO_PORTFOLIO_CREATED
   | typeof HERO_PORTFOLIO_REMOVED;
 
 interface Payload {
-  [HERO_PORTFOLIO_CREATED]: HeroPortfolioOutput;
-  [HERO_PORTFOLIO_REMOVED]: HeroPortfolioRemovedOutput;
+  [HERO_PORTFOLIO_CREATED]: SubscribeOnHeroPortfoliosCreateOutput;
+  [HERO_PORTFOLIO_REMOVED]: SubscribeOnHeroPortfolioRemoveOutput;
 }
 
 export const HeroPortfolioSubscriptionFilter =

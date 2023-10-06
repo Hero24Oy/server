@@ -12,9 +12,13 @@ import {
   HeroPortfolioListInput,
   HeroPortfolioListOutput,
   HeroPortfolioOutput,
-  HeroPortfolioRemovedOutput,
   RemoveHeroPortfolioInput,
-} from './resolvers';
+  SubscribeOnHeroPortfolioRemoveOutput,
+  SubscribeOnHeroPortfoliosCreateOutput,
+} from './graphql';
+import { CreateHeroPortfolioOutput } from './graphql/resolvers/create-hero-portfolio/output';
+import { EditHeroPortfolioOutput } from './graphql/resolvers/edit-hero-portfolio/output';
+import { RemoveHeroPortfolioOutput } from './graphql/resolvers/remove-hero-portfolio/output';
 import { HeroPortfolioService } from './service';
 import { HeroPortfolioSubscriptionFilter } from './utils';
 
@@ -39,7 +43,7 @@ export class HeroPortfolioResolver {
     return this.heroPortfolioService.getPortfolios(args, identity);
   }
 
-  @Mutation(() => HeroPortfolioOutput)
+  @Mutation(() => CreateHeroPortfolioOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createHeroPortfolio(
@@ -56,7 +60,7 @@ export class HeroPortfolioResolver {
     return heroPortfolio;
   }
 
-  @Mutation(() => HeroPortfolioOutput)
+  @Mutation(() => EditHeroPortfolioOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async editHeroPortfolio(
@@ -66,7 +70,7 @@ export class HeroPortfolioResolver {
     return this.heroPortfolioService.editHeroPortfolio(input, identity);
   }
 
-  @Mutation(() => HeroPortfolioOutput)
+  @Mutation(() => RemoveHeroPortfolioOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async removeHeroPortfolio(
@@ -88,7 +92,7 @@ export class HeroPortfolioResolver {
     return heroPortfolio;
   }
 
-  @Subscription(() => HeroPortfolioOutput, {
+  @Subscription(() => SubscribeOnHeroPortfoliosCreateOutput, {
     name: HERO_PORTFOLIO_CREATED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
@@ -97,7 +101,7 @@ export class HeroPortfolioResolver {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
-  @Subscription(() => HeroPortfolioRemovedOutput, {
+  @Subscription(() => SubscribeOnHeroPortfolioRemoveOutput, {
     name: HERO_PORTFOLIO_REMOVED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })

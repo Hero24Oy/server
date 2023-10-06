@@ -1,5 +1,5 @@
 export * from './constants';
-export * from './resolvers';
+export * from './graphql';
 export * from './resolver';
 export * from './service';
 export * from './sorters';

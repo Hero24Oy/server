@@ -1,4 +1,4 @@
-import { HeroPortfolioOrderColumn } from './resolvers';
+import { HeroPortfolioOrderColumn } from './graphql';
 
 import { SortOrder } from '$modules/common/sort-order/sort-order.enum';
 
