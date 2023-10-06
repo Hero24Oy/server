@@ -1,4 +1,4 @@
-import { HeroPortfolioOrderColumn } from './dto/hero-portfolio-list/order-column';
+import { HeroPortfolioOrderColumn } from './resolvers/hero-portfolio-list/order-column';
 
 import { SortOrder } from '$modules/common/sort-order/sort-order.enum';
 

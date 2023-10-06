@@ -9,13 +9,13 @@ import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
   CreateHeroPortfolioInput,
   EditHeroPortfolioInput,
-  HeroPortfolioCreatedSubscription,
-  HeroPortfolioDto,
-  HeroPortfolioListDto,
+  HeroPortfolioCreatedOutput,
   HeroPortfolioListInput,
-  HeroPortfolioRemovedSubscription,
+  HeroPortfolioListOutput,
+  HeroPortfolioOutput,
+  HeroPortfolioRemovedOutput,
   RemoveHeroPortfolioInput,
-} from './dto';
+} from './resolvers';
 import { HeroPortfolioService } from './service';
 import { HeroPortfolioSubscriptionFilter } from './utils';
 
@@ -30,24 +30,26 @@ export class HeroPortfolioResolver {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  @Query(() => HeroPortfolioListDto, { nullable: true })
+  @Query(() => HeroPortfolioListOutput, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async heroPortfolios(
     @Args('input') args: HeroPortfolioListInput,
     @AuthIdentity() identity: Identity,
-  ): Promise<HeroPortfolioListDto> {
+  ): Promise<HeroPortfolioListOutput> {
     return this.heroPortfolioService.getPortfolios(args, identity);
   }
 
-  @Mutation(() => HeroPortfolioDto)
+  @Mutation(() => HeroPortfolioOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createHeroPortfolio(
     @Args('input') input: CreateHeroPortfolioInput,
-  ): Promise<HeroPortfolioDto> {
+    @AuthIdentity() identity: Identity,
+  ): Promise<HeroPortfolioOutput> {
     const heroPortfolio = await this.heroPortfolioService.createHeroPortfolio(
       input,
+      identity,
     );
 
     this.heroPortfolioService.emitHeroPortfolioCreation({ heroPortfolio });
@@ -55,23 +57,26 @@ export class HeroPortfolioResolver {
     return heroPortfolio;
   }
 
-  @Mutation(() => HeroPortfolioDto)
+  @Mutation(() => HeroPortfolioOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async editHeroPortfolio(
     @Args('input') input: EditHeroPortfolioInput,
-  ): Promise<HeroPortfolioDto> {
-    return this.heroPortfolioService.editHeroPortfolio(input);
+    @AuthIdentity() identity: Identity,
+  ): Promise<HeroPortfolioOutput> {
+    return this.heroPortfolioService.editHeroPortfolio(input, identity);
   }
 
-  @Mutation(() => HeroPortfolioDto)
+  @Mutation(() => HeroPortfolioOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async removeHeroPortfolio(
     @Args('input') input: RemoveHeroPortfolioInput,
-  ): Promise<HeroPortfolioDto> {
+    @AuthIdentity() identity: Identity,
+  ): Promise<HeroPortfolioOutput> {
     const heroPortfolio = await this.heroPortfolioService.removeHeroPortfolio(
       input,
+      identity,
     );
 
     const { sellerId, id } = heroPortfolio;
@@ -83,7 +88,7 @@ export class HeroPortfolioResolver {
     return heroPortfolio;
   }
 
-  @Subscription(() => HeroPortfolioCreatedSubscription, {
+  @Subscription(() => HeroPortfolioCreatedOutput, {
     name: HERO_PORTFOLIO_CREATED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
@@ -92,7 +97,7 @@ export class HeroPortfolioResolver {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
-  @Subscription(() => HeroPortfolioRemovedSubscription, {
+  @Subscription(() => HeroPortfolioRemovedOutput, {
     name: HERO_PORTFOLIO_REMOVED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })

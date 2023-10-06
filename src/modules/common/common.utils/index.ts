@@ -10,4 +10,3 @@ export * from './prepare-paginated-result.util';
 export * from './skip-first.util';
 export * from './timestamp-to-date.util';
 export * from './assert-never.util';
-export * from './generate-id.util';

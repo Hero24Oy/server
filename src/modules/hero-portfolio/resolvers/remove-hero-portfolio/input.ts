@@ -4,7 +4,4 @@ import { Field, InputType } from '@nestjs/graphql';
 export class RemoveHeroPortfolioInput {
   @Field(() => String)
   id: string;
-
-  @Field(() => String)
-  sellerId: string;
 }

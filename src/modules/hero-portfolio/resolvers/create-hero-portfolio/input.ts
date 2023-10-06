@@ -3,18 +3,12 @@ import { Field, InputType } from '@nestjs/graphql';
 import { MaybeType } from '$modules/common/common.types';
 
 @InputType()
-export class EditHeroPortfolioInput {
+export class CreateHeroPortfolioInput {
   @Field(() => String)
-  id: string;
+  categoryId: string;
 
   @Field(() => String)
-  sellerId: string;
-
-  @Field(() => String, { nullable: true })
-  categoryId?: string;
-
-  @Field(() => String, { nullable: true })
-  description?: string;
+  description: string;
 
   @Field(() => [String], { nullable: true })
   imageIds?: MaybeType<string[]>;
