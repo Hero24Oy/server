@@ -81,12 +81,7 @@ export class HeroPortfolioResolver {
       identity,
     );
 
-    const { sellerId, id } = heroPortfolio;
-
-    this.heroPortfolioService.emitHeroPortfolioRemoval({
-      sellerId,
-      id,
-    });
+    this.heroPortfolioService.emitHeroPortfolioRemoval(heroPortfolio);
 
     return heroPortfolio;
   }
