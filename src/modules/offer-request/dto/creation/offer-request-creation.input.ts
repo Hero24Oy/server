@@ -1,4 +1,6 @@
-import { Field, Float, InputType } from '@nestjs/graphql';
+import { Field, Float, InputType, PickType } from '@nestjs/graphql';
+
+import { OfferRequestDto } from '../offer-request/offer-request.dto';
 
 import { OfferRequestDataInput } from './offer-request-data.input';
 import { OfferRequestSubscriptionInput } from './offer-request-subscription.input';
@@ -6,7 +8,11 @@ import { OfferRequestSubscriptionInput } from './offer-request-subscription.inpu
 import { MaybeType } from '$modules/common/common.types';
 
 @InputType()
-export class OfferRequestCreationInput {
+export class OfferRequestCreationInput extends PickType(
+  OfferRequestDto,
+  ['serviceProviderVAT', 'hero24Cut', 'minimumDuration'],
+  InputType,
+) {
   @Field(() => OfferRequestDataInput)
   data: OfferRequestDataInput;
 
@@ -14,11 +20,5 @@ export class OfferRequestCreationInput {
   subscription?: MaybeType<OfferRequestSubscriptionInput>;
 
   @Field(() => Float, { nullable: true })
-  customerVat?: MaybeType<number>;
-
-  @Field(() => Float, { nullable: true })
-  minimumDuration?: MaybeType<number>;
-
-  @Field(() => Float, { nullable: true })
-  serviceProviderVAT?: MaybeType<number>;
+  customerVat: MaybeType<number>;
 }

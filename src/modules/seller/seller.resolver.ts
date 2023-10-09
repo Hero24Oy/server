@@ -27,11 +27,8 @@ export class SellerResolver {
   @Query(() => SellerProfileListDto)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async sellers(
-    @Args() args: SellersArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<SellerProfileListDto> {
-    return this.sellerService.getSellers(args, app);
+  async sellers(@Args() args: SellersArgs): Promise<SellerProfileListDto> {
+    return this.sellerService.getSellers(args);
   }
 
   @Query(() => Boolean)
