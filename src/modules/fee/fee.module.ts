@@ -6,6 +6,7 @@ import { OfferRequestModule } from '../offer-request/offer-request.module';
 import { SorterModule } from '../sorter/sorter.module';
 import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
 
+import { FeeMirror } from './fee.mirror';
 import { FeeResolver } from './fee.resolver';
 import { FeeService } from './fee.service';
 import { FEE_SORTERS } from './fee.sorters';
@@ -20,8 +21,8 @@ import { FeePriceCalculatorModule } from './fee-price-calculator/fee-price-calcu
     GraphQlPubsubModule,
     SorterModule.create(FEE_SORTERS),
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQlPubsubModule, FirebaseModule],
-      subscriptions: [FeeSubscription],
+      imports: [FirebaseModule, GraphQlPubsubModule, FeeModule],
+      subscriptions: [FeeSubscription, FeeMirror],
     }),
   ],
   providers: [FeeService, FeeResolver],

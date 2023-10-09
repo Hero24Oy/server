@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 import { OfferDto } from '../dto/offer/offer.dto';
 import { OfferPriceCalculatorService } from '../offer-price-calculator/offer-price-calculator.service';
@@ -7,6 +6,8 @@ import { OfferService } from '../services/offer.service';
 
 import { HUB_SPOT_DEAL_STAGE_BY_OFFER_STATUS } from './offer-hub-spot.constants';
 
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { FeeService } from '$modules/fee/fee.service';
 import { FeePriceCalculatorService } from '$modules/fee/fee-price-calculator/fee-price-calculator.service';
 import { HubSpotDealProperty } from '$modules/hub-spot/hub-spot-deal/hub-spot-deal.constants/hub-spot-deal-property.constant';
@@ -18,26 +19,24 @@ import {
 } from '$modules/hub-spot/hub-spot-deal/hub-spot-deal.types';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 import { RoundedNumber } from '$modules/price-calculator/price-calculator.monad';
-import { UserDto } from '$modules/user/dto/user/user.dto';
 import { UserService } from '$modules/user/user.service';
-import { UserHubSpotService } from '$modules/user/user-hub-spot/user-hub-spot.service';
 
 @Injectable()
 export class OfferHubSpotService {
   private readonly dealOwner: string;
 
   constructor(
-    private hubSpotDealService: HubSpotDealService,
-    private userHubSpotService: UserHubSpotService,
-    private userService: UserService,
-    private configService: ConfigService,
-    private offerRequestService: OfferRequestService,
-    private offerService: OfferService,
-    private offerPriceCalculator: OfferPriceCalculatorService,
-    private feePriceCalculator: FeePriceCalculatorService,
-    private feeService: FeeService,
+    private readonly hubSpotDealService: HubSpotDealService,
+    private readonly userService: UserService,
+    @Config()
+    private readonly config: ConfigType,
+    private readonly offerRequestService: OfferRequestService,
+    private readonly offerService: OfferService,
+    private readonly offerPriceCalculator: OfferPriceCalculatorService,
+    private readonly feePriceCalculator: FeePriceCalculatorService,
+    private readonly feeService: FeeService,
   ) {
-    this.dealOwner = this.configService.getOrThrow('hubSpot.dealOwner');
+    this.dealOwner = this.config.hubSpot.dealOwner;
   }
 
   async createDeal(offer: OfferDto): Promise<HubSpotDealObject> {
@@ -137,17 +136,5 @@ export class OfferHubSpotService {
     };
 
     return properties;
-  }
-
-  private async getHubSpotContactId(user: UserDto): Promise<string> {
-    const { hubSpotContactId } = user;
-
-    if (!hubSpotContactId) {
-      const contact = await this.userHubSpotService.strictUpsertContact(user);
-
-      return contact.id;
-    }
-
-    return hubSpotContactId;
   }
 }

@@ -1,16 +1,13 @@
-import {
-  DataSnapshot,
-  EventType,
-  Query,
-  Reference,
-} from 'firebase-admin/database';
+import { EventType } from 'firebase-admin/database';
 
-export const subscribeOnFirebaseEvent = (
-  ref: Reference | Query,
-  eventType: EventType,
-  eventHandler: (snapshot: DataSnapshot) => void,
-) => {
+import { FirebaseEventCallback, FirebaseQuery } from './firebase.types';
+
+export const subscribeOnFirebaseEvent = <Entity, Event extends EventType>(
+  ref: FirebaseQuery<Entity>,
+  eventType: Event,
+  eventHandler: FirebaseEventCallback<Event, Entity>,
+): (() => void) => {
   ref.on(eventType, eventHandler);
 
-  return () => ref.off(eventType);
+  return () => ref.off(eventType, eventHandler);
 };

@@ -9,6 +9,7 @@ const EXCLUDE_NAMES_NAMING_CONVENTION = [
   'generalPauseDurationMS',
   'downloadURL',
   'databaseURL',
+  'refFromURL',
 ];
 const excludeNamesNamingConventionRegex =
   EXCLUDE_NAMES_NAMING_CONVENTION.join('|');
@@ -19,6 +20,7 @@ const initialRules = {
     'warn',
     { ignore: ['eslint-enable'] },
   ], // we don't need to comment why we used "eslint-enable"
+  'eslint-comments/disable-enable-pair': 'off',
   'prefer-arrow-callback': 'error',
   'arrow-parens': ['error', 'always'],
   'quote-props': ['error', 'consistent-as-needed'],
@@ -108,16 +110,21 @@ const importSortOrderRule = {
 };
 
 const importRules = {
+  'import/extensions': 'off', // if error then throws error on $module/???/module
   'no-duplicate-imports': 'error', // imports from the same source must be in one record
   'no-restricted-imports': [
     'error',
     {
       patterns: [
         {
-          group: ["lodash", "!lodash/",], // disallow imports from 'lodash' directly
-          message: "Please use 'lodash/*' instead."
-        }
-      ]
+          group: ['lodash', '!lodash/'], // disallow imports from 'lodash' directly
+          message: "Please use 'lodash/*' instead.",
+        },
+        {
+          group: ['./module'],
+          message: 'Please import modules directly.',
+        },
+      ],
     },
   ],
   'import/no-cycle': ['error', { maxDepth: '∞' }],
@@ -341,6 +348,28 @@ const override = {
       '@typescript-eslint/no-misused-promises': 'off',
     },
   },
+  env: {
+    files: ['env.d.ts'],
+    rules: {
+      'typescript-sort-keys/interface': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+    },
+  },
+  disableReturnType: {
+    files: [
+      'src/common/decorators/**/*.ts', // we don't need set return type for decorators
+      'src/config/*.ts', // we don't need duplicate type
+    ],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+    },
+  },
+  importExtensions: {
+    files: ['src/*.ts', 'src/**/*.ts'],
+    rules: {
+      'import/extensions': 'off',
+    },
+  },
 };
 
 module.exports = {
@@ -388,5 +417,8 @@ module.exports = {
     override.modules,
     override.namingConventionExceptions,
     override.enableAsyncMethodsWithoutAwait,
+    override.env,
+    override.disableReturnType,
+    override.importExtensions,
   ],
 };

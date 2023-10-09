@@ -2,10 +2,7 @@ import { Inject, Module } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 
 import { skipFirst } from '../common/common.utils';
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseModule } from '../firebase/firebase.module';
-import { FirebaseService } from '../firebase/firebase.service';
-import { FirebaseAdminAppInstance } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { GraphQlContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
@@ -19,12 +16,16 @@ import {
   createChatUpdatedEventHandler,
 } from './chat.event-handlers';
 import { CHAT_SORTERS } from './chat.sorters';
+import { ChatMirror } from './mirrors/chat.mirror';
+import { ChatMessageMirror } from './mirrors/chat-message.mirror';
 import { ChatResolver } from './resolvers/chat.resolver';
 import { ChatFieldsResolver } from './resolvers/chat-fields.resolver';
 import { ChatMemberFieldsResolver } from './resolvers/chat-member-fields.resolver';
 import { ChatMessageResolver } from './resolvers/chat-message.resolver';
 import { ChatService } from './services/chat.service';
 import { ChatMessageService } from './services/chat-message.service';
+
+import { SubscriptionManagerModule } from '$modules/subscription-manager/subscription-manager.module';
 
 @Module({
   imports: [
@@ -35,6 +36,10 @@ import { ChatMessageService } from './services/chat-message.service';
     GraphQlContextManagerModule.forFeature({
       imports: [ChatModule],
       contexts: [ChatContext],
+    }),
+    SubscriptionManagerModule.forFeature({
+      imports: [FirebaseModule],
+      subscriptions: [ChatMirror, ChatMessageMirror],
     }),
   ],
   providers: [
@@ -51,31 +56,27 @@ export class ChatModule {
   static unsubscribes: Array<() => Promise<void> | void> = [];
 
   constructor(
-    private firebaseService: FirebaseService,
-    @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
+    private readonly chatService: ChatService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  onApplicationBootstrap() {
-    this.subscribeOnChatUpdates(
-      this.firebaseService.getDefaultApp(),
-      this.pubSub,
-    );
+  onApplicationBootstrap(): void {
+    this.subscribeOnChatUpdates(this.pubSub);
   }
 
-  subscribeOnChatUpdates(app: FirebaseAdminAppInstance, pubsub: PubSub) {
-    const database = app.database();
-    const chatsRef = database.ref(FirebaseDatabasePath.CHATS);
+  subscribeOnChatUpdates(pubsub: PubSub): void {
+    const { chatTableRef } = this.chatService;
 
     const unsubscribes = [
       subscribeOnFirebaseEvent(
-        chatsRef,
+        chatTableRef,
         'child_changed',
         createChatUpdatedEventHandler(pubsub),
       ),
       subscribeOnFirebaseEvent(
         // Firebase child added event calls on every exist item first, than on every creation event.
         // So we should skip every exists items using limit to last 1 so as not to retrieve all items
-        chatsRef.limitToLast(1),
+        chatTableRef.limitToLast(1),
         'child_added',
         skipFirst(createChatAddedEventHandler(pubsub)),
       ),
@@ -84,7 +85,7 @@ export class ChatModule {
     ChatModule.unsubscribes.push(...unsubscribes);
   }
 
-  async beforeApplicationShutdown() {
+  async beforeApplicationShutdown(): Promise<void> {
     await Promise.all(
       ChatModule.unsubscribes.map((unsubscribe) => unsubscribe()),
     );

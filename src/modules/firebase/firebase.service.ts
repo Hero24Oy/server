@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { deleteApp, getApps, initializeApp } from 'firebase/app';
 import { AuthError, getAuth, signInWithCustomToken } from 'firebase/auth';
 import * as admin from 'firebase-admin';
@@ -14,76 +13,52 @@ import {
   FirebaseAdminAppInstance,
   FirebaseAdminStorage,
   FirebaseAppInstance,
+  FirebaseConfig,
+  FirebaseTable,
 } from './firebase.types';
+
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 
 @Injectable()
 export class FirebaseService {
-  private app: FirebaseAdminAppInstance;
+  private readonly app: FirebaseAdminAppInstance;
 
-  private storage: FirebaseAdminStorage;
+  private readonly storage: FirebaseAdminStorage;
 
-  private logger = new Logger(FirebaseService.name);
+  private readonly logger = new Logger(FirebaseService.name);
 
   constructor(
-    private configService: ConfigService,
-    private firebaseAppService: FirebaseAppService,
+    @Config()
+    private readonly config: ConfigType,
+    private readonly firebaseAppService: FirebaseAppService,
   ) {
     this.app = admin.initializeApp({
       credential: admin.credential.cert({
-        projectId: configService.getOrThrow<string>(
-          'firebase.serviceAccount.projectId',
-        ),
-        clientEmail: configService.getOrThrow<string>(
-          'firebase.serviceAccount.clientEmail',
-        ),
-        privateKey: configService.getOrThrow<string>(
-          'firebase.serviceAccount.privateKey',
-        ),
+        projectId: this.config.firebase.serviceAccount.projectId,
+        clientEmail: this.config.firebase.serviceAccount.clientEmail,
+        privateKey: this.config.firebase.serviceAccount.privateKey,
       }),
-      databaseURL: configService.getOrThrow<string>('firebase.databaseURL'),
-      storageBucket: `${configService.getOrThrow<string>(
-        'firebase.serviceAccount.projectId',
-      )}.appspot.com`,
+      databaseURL: this.config.firebase.databaseURL,
+      storageBucket: `${this.config.firebase.serviceAccount.projectId}.appspot.com`,
     });
 
     this.storage = this.app.storage();
   }
 
-  private getClientFirebaseConfig() {
-    return {
-      apiKey: this.configService.getOrThrow<string>(
-        'firebase.clientSdk.apiKey',
-      ),
-      authDomain: this.configService.getOrThrow<string>(
-        'firebase.clientSdk.authDomain',
-      ),
-      databaseURL: this.configService.getOrThrow<string>(
-        'firebase.clientSdk.databaseURL',
-      ),
-      projectId: this.configService.getOrThrow<string>(
-        'firebase.clientSdk.projectId',
-      ),
-      storageBucket: this.configService.getOrThrow<string>(
-        'firebase.clientSdk.storageBucket',
-      ),
-      messagingSenderId: this.configService.getOrThrow<string>(
-        'firebase.clientSdk.messagingSenderId',
-      ),
-      functionsUrl: this.configService.getOrThrow<string>(
-        'firebase.clientSdk.functionsUrl',
-      ),
-    };
+  private getClientFirebaseConfig(): FirebaseConfig {
+    return this.config.firebase.clientSdk;
   }
 
-  getDefaultApp() {
+  getDefaultApp(): FirebaseAdminAppInstance {
     return this.app;
   }
 
-  getStorage() {
+  getStorage(): FirebaseAdminStorage {
     return this.storage;
   }
 
-  async authorizeUser(uid: string, app: FirebaseAppInstance) {
+  async authorizeUser(uid: string, app: FirebaseAppInstance): Promise<void> {
     const customToken = await this.app.auth().createCustomToken(uid);
 
     const auth = getAuth(app);
@@ -91,7 +66,7 @@ export class FirebaseService {
     await signInWithCustomToken(auth, customToken);
   }
 
-  async destroyApp(app: FirebaseAppInstance) {
+  async destroyApp(app: FirebaseAppInstance): Promise<void> {
     const appName = app.name;
 
     try {
@@ -174,12 +149,12 @@ export class FirebaseService {
     ) as Promise<FirebaseAppInstance>;
   }
 
-  async getIsAdmin(userId: string) {
+  async getIsAdmin(userId: string): Promise<boolean> {
     const isAdminSnapshot = await this.app
       .database()
-      .ref(FirebaseDatabasePath.ADMIN_USERS)
+      .ref<FirebaseTable<boolean>>(FirebaseDatabasePath.ADMIN_USERS)
       .child(userId)
-      .once('value');
+      .get();
 
     return Boolean(isAdminSnapshot.val());
   }

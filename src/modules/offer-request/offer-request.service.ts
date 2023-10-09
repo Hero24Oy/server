@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
-import { OfferRequestDB, OfferRequestSubscription } from 'hero24-types';
+import { AddressesAnswered, OfferRequestDB, PaidStatus } from 'hero24-types';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 import map from 'lodash/map';
@@ -15,6 +15,7 @@ import {
 import { FiltererService } from '../filterer/filterer.service';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseTableReference } from '../firebase/firebase.types';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { OfferRole } from '../offer/dto/offer/offer-role.enum';
 import { SorterService } from '../sorter/sorter.service';
@@ -32,6 +33,7 @@ import { OfferRequestOrderColumn } from './dto/offer-request-list/offer-request-
 import { OfferRequestPurchaseInput } from './dto/offer-request-purchase/offer-request-purchase.input';
 import { OfferRequestFilterColumn } from './offer-request.constants';
 import { OfferRequestFiltererConfigs } from './offer-request.filers';
+import { OfferRequestMirror } from './offer-request.mirror';
 import {
   OfferRequestFiltererContext,
   OfferRequestSorterContext,
@@ -60,41 +62,29 @@ export class OfferRequestService {
       OfferRequestFiltererConfigs
     >,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+    private readonly offerRequestMirror: OfferRequestMirror,
   ) {}
 
-  getOfferRequestsRef() {
+  get offerRequestTableRef(): FirebaseTableReference<OfferRequestDB> {
     const database = this.firebaseService.getDefaultApp().database();
 
     return database.ref(FirebaseDatabasePath.OFFER_REQUESTS);
   }
 
-  private async getAllOfferRequests() {
-    const offerRequests: OfferRequestDto[] = [];
-
-    const offerRequestsSnapshot = await this.getOfferRequestsRef().get();
-
-    offerRequestsSnapshot.forEach((snapshot) => {
-      if (snapshot.key) {
-        const offerRequest: OfferRequestDB = snapshot.val();
-
-        offerRequests.push(
-          OfferRequestDto.adapter.toExternal({
-            ...offerRequest,
-            id: snapshot.key,
-          }),
-        );
-      }
-    });
-
-    return offerRequests;
+  private async getAllOfferRequests(): Promise<OfferRequestDto[]> {
+    return this.offerRequestMirror
+      .getAll()
+      .map(([id, offerRequest]) =>
+        OfferRequestDto.adapter.toExternal({ id, ...offerRequest }),
+      );
   }
 
   async getOfferRequestById(id: string): Promise<OfferRequestDto | null> {
-    const offerRequestRef = this.getOfferRequestsRef().child(id);
+    const offerRequestRef = this.offerRequestTableRef.child(id);
 
     const snapshot = await offerRequestRef.get();
 
-    const offerRequest: OfferRequestDB | null = snapshot.val();
+    const offerRequest = snapshot.val();
 
     if (!offerRequest) {
       return null;
@@ -160,18 +150,16 @@ export class OfferRequestService {
   ): Promise<OfferRequestDto> {
     const {
       data,
-      subscription,
       serviceProviderVAT,
+      hero24Cut,
       customerVat,
       minimumDuration,
     } = input;
 
-    const offerRequest: Omit<OfferRequestDB, 'subscription'> & {
-      subscription?: Pick<OfferRequestSubscription, 'subscriptionType'>;
-    } = omitUndefined({
+    const offerRequest: OfferRequestDB = omitUndefined({
       data: OfferRequestDataInput.adapter.toInternal(data),
       customerVAT: customerVat ?? undefined,
-      subscription: subscription ?? undefined,
+      hero24Cut: hero24Cut ?? undefined,
       serviceProviderVAT: serviceProviderVAT ?? undefined,
       minimumDuration: minimumDuration ?? undefined,
     });
@@ -180,7 +168,7 @@ export class OfferRequestService {
       throw new Error('OfferRequest questions can not be empty array');
     }
 
-    const createdRef = await this.getOfferRequestsRef().push(offerRequest);
+    const createdRef = await this.offerRequestTableRef.push(offerRequest);
 
     if (!createdRef.key) {
       throw new Error("Offer request could't be created");
@@ -192,16 +180,14 @@ export class OfferRequestService {
   async getCategoryIdByOfferRequestId(
     offerRequestId: string,
   ): Promise<string | null> {
-    const categorySnapshot = await this.getOfferRequestsRef()
+    const categorySnapshot = await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('initial')
       .child('category')
       .get();
 
-    const category: string | null = categorySnapshot.val();
-
-    return category;
+    return categorySnapshot.val();
   }
 
   async strictGetCategoryIdByOfferRequestId(
@@ -221,16 +207,14 @@ export class OfferRequestService {
   async getBuyerIdByOfferRequestId(
     offerRequestId: string,
   ): Promise<string | null> {
-    const buyerIdSnapshot = await this.getOfferRequestsRef()
+    const buyerIdSnapshot = await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('initial')
       .child('buyerProfile')
       .get();
 
-    const buyerId: string | null = buyerIdSnapshot.val();
-
-    return buyerId;
+    return buyerIdSnapshot.val();
   }
 
   async strictGetBuyerIdByOfferRequestId(
@@ -248,25 +232,28 @@ export class OfferRequestService {
   }
 
   async getFeeIdsByOfferRequestId(offerRequestId: string): Promise<string[]> {
-    const feesSnapshot = await this.getOfferRequestsRef()
+    const feesSnapshot = await this.offerRequestTableRef
       .child(offerRequestId)
       .child('fees')
       .get();
 
-    const fees: Record<string, true> | null = feesSnapshot.val();
+    const fees = feesSnapshot.val() || {};
 
-    return Object.keys(fees || {});
+    return Object.keys(fees);
   }
 
   async updatePurchase(purchase: OfferRequestPurchaseInput): Promise<true> {
-    const { id, fixedPrice, fixedDuration } = purchase;
+    const { id } = purchase;
+
+    const updatedInitial =
+      OfferRequestPurchaseInput.adapter.toInternal(purchase);
 
     try {
-      await this.getOfferRequestsRef()
+      await this.offerRequestTableRef
         .child(id)
         .child('data')
         .child('initial')
-        .update({ fixedPrice, fixedDuration });
+        .update(updatedInitial);
     } catch {
       throw new Error('Purchase update failed');
     }
@@ -275,7 +262,7 @@ export class OfferRequestService {
   }
 
   async markOfferRequestReviewed(offerRequestId: string): Promise<boolean> {
-    await this.getOfferRequestsRef()
+    await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('reviewed')
@@ -285,7 +272,7 @@ export class OfferRequestService {
   }
 
   async cancelOfferRequest(offerRequestId: string): Promise<boolean> {
-    await this.getOfferRequestsRef()
+    await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('status')
@@ -299,9 +286,11 @@ export class OfferRequestService {
   ): Promise<OfferRequestDto> {
     const { offerRequestId, addresses: inputAddresses } = input;
 
-    const addresses = AddressesAnsweredInput.adapter.toInternal(inputAddresses);
+    const addresses = AddressesAnsweredInput.adapter.toInternal(
+      inputAddresses,
+    ) as AddressesAnswered;
 
-    await this.getOfferRequestsRef()
+    await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('initial')
@@ -333,7 +322,7 @@ export class OfferRequestService {
       'questions',
     ]);
 
-    await this.getOfferRequestsRef()
+    await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('requestedChanges')
@@ -351,7 +340,7 @@ export class OfferRequestService {
   async updateDateQuestionWithAgreedStartTime(
     offerRequestId: string,
     agreedStartTime: Date,
-  ) {
+  ): Promise<void> {
     const offerRequest = await this.strictGetOfferRequestById(offerRequestId);
 
     const initialQuestions = get(
@@ -372,7 +361,7 @@ export class OfferRequestService {
       return question;
     });
 
-    await this.getOfferRequestsRef()
+    await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('initial')
@@ -380,10 +369,12 @@ export class OfferRequestService {
       .set(questions);
   }
 
-  async updateAcceptedChanges(input: UpdateAcceptedChangesInput) {
+  async updateAcceptedChanges(
+    input: UpdateAcceptedChangesInput,
+  ): Promise<OfferRequestDto> {
     const { offerRequestId, timeChangeAccepted, detailsChangeAccepted } = input;
 
-    await this.getOfferRequestsRef()
+    await this.offerRequestTableRef
       .child(offerRequestId)
       .child('data')
       .child('changesAccepted')
@@ -392,7 +383,21 @@ export class OfferRequestService {
     return this.strictGetOfferRequestById(offerRequestId);
   }
 
-  emitOfferRequestUpdated(offerRequest: OfferRequestDto) {
+  async updatePaidStatus(
+    offerRequestId: string,
+    status: PaidStatus,
+  ): Promise<OfferRequestDto> {
+    await this.offerRequestTableRef
+      .child(offerRequestId)
+      .child('data')
+      .child('initial')
+      .child('prepaid')
+      .set(status);
+
+    return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  emitOfferRequestUpdated(offerRequest: OfferRequestDto): void {
     emitOfferRequestUpdated(this.pubSub, offerRequest);
   }
 }

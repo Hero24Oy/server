@@ -7,10 +7,12 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "$/*": ["src/*"],
       "$modules/*": ["src/modules/*"],
       "$configs/*": ["src/config/*"],
-      "$config": ["src/config/index.ts"]
+      "$config": ["src/config/index"],
+      "$decorator": ["src/common/decorators/index"],
+      "$utils": ["src/common/utils/index"],
+      "$/*": ["src/*"]
     },
     "module": "commonjs",
     "declaration": true,
@@ -18,7 +20,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "ESNext",
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
@@ -31,5 +33,5 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "env.d.ts"]
 }

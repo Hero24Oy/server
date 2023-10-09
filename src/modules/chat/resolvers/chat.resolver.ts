@@ -64,7 +64,7 @@ export class ChatResolver {
     @Args('id') chatId: string,
     @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<ChatDto | null> {
-    return this.chatService.getChat(chatId, app);
+    return this.chatService.getChatById(chatId, app);
   }
 
   @Query(() => Int)
@@ -138,10 +138,10 @@ export class ChatResolver {
     @FirebaseApp() app: FirebaseAppInstance,
     @AuthIdentity() identity: Identity,
   ) {
-    const chatSnapshot = await this.chatService.getChatById(chatId, app);
+    const chat = await this.chatService.strictGetChatById(chatId, app);
 
-    const isLastMessageExist = Boolean(chatSnapshot.lastMessageDate);
-    const isSeenChat = hasMemberSeenChat(identity.id, chatSnapshot);
+    const isLastMessageExist = Boolean(chat.lastMessageDate);
+    const isSeenChat = hasMemberSeenChat(identity.id, chat);
 
     await this.chatService.updateLastOpenedTime(chatId, identity);
 

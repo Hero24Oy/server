@@ -19,9 +19,9 @@ export class OfferRequestSubscription implements SubscriptionService {
     return this.subscribeToOfferRequestUpdates();
   }
 
-  private async subscribeToOfferRequestUpdates() {
+  private async subscribeToOfferRequestUpdates(): Promise<Unsubscribe> {
     return subscribeOnFirebaseEvent(
-      this.offerRequestService.getOfferRequestsRef(),
+      this.offerRequestService.offerRequestTableRef,
       'child_changed',
       this.childChangedHandler,
     );

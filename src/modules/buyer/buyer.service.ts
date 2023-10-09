@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Database } from 'firebase-admin/database';
 import { BuyerProfileDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseTableReference } from '../firebase/firebase.types';
 
+import { BuyerMirror } from './buyer.mirror';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileDataDto } from './dto/buyer/buyer-profile-data.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
@@ -13,32 +14,29 @@ import { PartialBuyerProfileDataInput } from './dto/editing/partial-buyer-profil
 
 @Injectable()
 export class BuyerService {
-  database: Database;
+  private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
-  constructor(private readonly firebaseService: FirebaseService) {
-    this.database = this.firebaseService.getDefaultApp().database();
+  constructor(
+    private readonly buyerMirror: BuyerMirror,
+    firebaseService: FirebaseService,
+  ) {
+    const database = firebaseService.getDefaultApp().database();
+
+    this.buyerTableRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
   }
 
   async getAllBuyers(): Promise<BuyerProfileDto[]> {
-    const buyersRef = this.database.ref(FirebaseDatabasePath.BUYER_PROFILES);
-
-    const buyersSnapshot = await buyersRef.get();
-    const buyers: Record<string, BuyerProfileDB> = buyersSnapshot.val() || {};
-
-    return Object.entries(buyers).map(([id, buyerProfile]) =>
-      BuyerProfileDto.adapter.toExternal({ id, ...buyerProfile }),
-    );
+    return this.buyerMirror
+      .getAll()
+      .map(([id, buyerProfile]) =>
+        BuyerProfileDto.adapter.toExternal({ id, ...buyerProfile }),
+      );
   }
 
   async getBuyerById(buyerId: string): Promise<BuyerProfileDto | null> {
-    const database = this.firebaseService.getDefaultApp().database();
+    const snapshot = await this.buyerTableRef.child(buyerId).get();
 
-    const snapshot = await database
-      .ref(FirebaseDatabasePath.BUYER_PROFILES)
-      .child(buyerId)
-      .get();
-
-    const candidate: BuyerProfileDB | null = snapshot.val();
+    const candidate = snapshot.val();
 
     return (
       candidate &&
@@ -61,11 +59,7 @@ export class BuyerService {
 
     const convertedData = BuyerProfileDataDto.adapter.toInternal(data);
 
-    await this.database
-      .ref(FirebaseDatabasePath.BUYER_PROFILES)
-      .child(id)
-      .child('data')
-      .set(convertedData);
+    await this.buyerTableRef.child(id).child('data').set(convertedData);
 
     return this.strictGetBuyerProfileById(id);
   }
@@ -75,11 +69,7 @@ export class BuyerService {
 
     const convertedData = PartialBuyerProfileDataInput.adapter.toInternal(data);
 
-    await this.database
-      .ref(FirebaseDatabasePath.BUYER_PROFILES)
-      .child(id)
-      .child('data')
-      .update(convertedData);
+    await this.buyerTableRef.child(id).child('data').update(convertedData);
 
     return this.strictGetBuyerProfileById(id);
   }

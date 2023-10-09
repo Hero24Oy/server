@@ -37,7 +37,7 @@ export class ChatMessageResolver {
     @FirebaseApp() app: FirebaseAppInstance,
     @AuthIdentity() identity: Identity,
   ): Promise<ChatMessageDto> {
-    const chatSnapshot = await this.chatService.getChatById(args.chatId, app);
+    const chat = await this.chatService.strictGetChatById(args.chatId, app);
 
     const chatMessage = await this.chatMessageService.createChatMessage(
       args,
@@ -52,9 +52,9 @@ export class ChatMessageResolver {
 
     await this.chatService.updateLastOpenedTime(args.chatId, identity);
 
-    const seenMembers = chatSnapshot.members.filter(
+    const seenMembers = chat.members.filter(
       (member) =>
-        member.id !== identity.id && hasMemberSeenChat(member.id, chatSnapshot),
+        member.id !== identity.id && hasMemberSeenChat(member.id, chat),
     );
 
     const payload: UnseenChatsChangedDto = {

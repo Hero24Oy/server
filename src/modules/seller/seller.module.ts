@@ -3,12 +3,13 @@ import { Module } from '@nestjs/common';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { GraphQlContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
 import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
-import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
 
 import { SellerContext } from './seller.context';
+import { SellerMirror } from './seller.mirror';
 import { SellerResolver } from './seller.resolver';
 import { SellerService } from './seller.service';
-import { SellerProfileSubscription } from './seller.subscription';
+
+import { SubscriptionManagerModule } from '$modules/subscription-manager/subscription-manager.module';
 
 @Module({
   imports: [
@@ -19,8 +20,8 @@ import { SellerProfileSubscription } from './seller.subscription';
       contexts: [SellerContext],
     }),
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQlPubsubModule, FirebaseModule],
-      subscriptions: [SellerProfileSubscription],
+      imports: [FirebaseModule],
+      subscriptions: [SellerMirror],
     }),
   ],
   providers: [SellerResolver, SellerService],

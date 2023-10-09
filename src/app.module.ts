@@ -1,13 +1,19 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppResolver } from './app.resolver';
 import { GraphQlBaseContext, GraphQlConnectionParams } from './app.types';
-import config, { configValidationSchema } from './config';
+import config, {
+  CONFIG_PROVIDER,
+  ConfigType,
+  configValidationSchema,
+} from './config';
 import { AuthModule } from './modules/auth/auth.module';
 import { BuyerModule } from './modules/buyer/buyer.module';
+import { CategoryGroupModule } from './modules/category-group/module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommonModule } from './modules/common/common.module';
 import { FeeModule } from './modules/fee/fee.module';
@@ -27,6 +33,11 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
+import { CryptoModule } from '$modules/crypto/module';
+import { HeroPortfolioModule } from '$modules/hero-portfolio/module';
+import { NetvisorModule } from '$modules/netvisor/module';
+import { Xml2JsModule } from '$modules/xml2js/module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,9 +48,9 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     GraphQLModule.forRootAsync({
       driver: ApolloDriver,
       imports: [GraphQlContextManagerModule.forRoot()],
-      inject: [ConfigService, GraphQlContextManagerService],
+      inject: [CONFIG_PROVIDER, GraphQlContextManagerService],
       useFactory: (
-        configService: ConfigService,
+        serverConfig: ConfigType,
         graphQLManagerService: GraphQlContextManagerService,
       ): ApolloDriverConfig => ({
         autoSchemaFile: true,
@@ -50,11 +61,12 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
               graphQLManagerService.createContext({ connectionParams }),
           },
         },
-        playground: configService.get<boolean>('app.isDevelopment'),
+        playground: serverConfig.app.isDevelopment,
         context: async (ctx: GraphQlBaseContext) =>
           graphQLManagerService.createContext(ctx),
       }),
     }),
+    ScheduleModule.forRoot(),
     GraphQlPubsubModule,
     FirebaseModule,
     UserModule,
@@ -73,6 +85,11 @@ import { UserMergeModule } from './modules/user-merge/user-merge.module';
     FeeModule,
     ImageModule,
     ReviewModule,
+    CategoryGroupModule,
+    HeroPortfolioModule,
+    NetvisorModule,
+    CryptoModule,
+    Xml2JsModule,
   ],
   providers: [AppResolver],
 })

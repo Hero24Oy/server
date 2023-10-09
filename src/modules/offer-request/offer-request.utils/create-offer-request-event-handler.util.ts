@@ -1,21 +1,22 @@
-import { DataSnapshot } from 'firebase-admin/database';
 import { OfferRequestDB } from 'hero24-types';
 
 import { OfferRequestDto } from '../dto/offer-request/offer-request.dto';
 
+import { FirebaseSnapshot } from '$/modules/firebase/firebase.types';
+
 export const createOfferRequestEventHandler =
-  (eventEmitter: (offer: OfferRequestDto) => void) =>
-  (snapshot: DataSnapshot) => {
+  (eventEmitter: (offerRequest: OfferRequestDto) => void) =>
+  (snapshot: FirebaseSnapshot<OfferRequestDB>) => {
     try {
-      if (!snapshot.key) {
+      const offerRequest = snapshot.val();
+
+      if (!snapshot.key || !offerRequest) {
         return;
       }
 
-      const firebaseOffer: OfferRequestDB = snapshot.val();
-
       eventEmitter(
         OfferRequestDto.adapter.toExternal({
-          ...firebaseOffer,
+          ...offerRequest,
           id: snapshot.key,
         }),
       );

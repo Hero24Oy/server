@@ -5,9 +5,9 @@ import { PubSub } from 'graphql-subscriptions';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
-import { createSubscriptionEventEmitter } from '../graphql-pubsub/graphql-pubsub.utils';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
 import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
@@ -20,6 +20,8 @@ import {
 } from './user.constants';
 import { UserService } from './user.service';
 import { UserSubscriptionFilter } from './user.utils/user-subscription-filter.util';
+
+import { AdminGuard } from '$modules/auth/guards/admin.guard';
 
 @Resolver()
 export class UserResolver {
@@ -53,13 +55,9 @@ export class UserResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createUser(@Args() args: UserCreationArgs): Promise<UserDto> {
-    const emitUserCreated = createSubscriptionEventEmitter(
-      USER_CREATED_SUBSCRIPTION,
-    );
-
     const user = await this.userService.createUser(args);
 
-    emitUserCreated<UserCreatedDto>(this.pubSub, { user });
+    this.userService.emitUserCreated({ user });
 
     return user;
   }
@@ -68,10 +66,6 @@ export class UserResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async editUserData(@Args() args: UserDataEditingArgs): Promise<UserDto> {
-    const emitUserUpdated = createSubscriptionEventEmitter(
-      USER_UPDATED_SUBSCRIPTION,
-    );
-
     const beforeUpdateUser = await this.userService.getUserById(args.userId);
 
     if (!beforeUpdateUser) {
@@ -80,9 +74,23 @@ export class UserResolver {
 
     const user = await this.userService.editUserData(args);
 
-    emitUserUpdated<UserUpdatedDto>(this.pubSub, { user, beforeUpdateUser });
+    this.userService.emitUserUpdated({ user, beforeUpdateUser });
 
     return user;
+  }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async editUserAdminStatus(
+    @Args('input') input: UserAdminStatusEditInput,
+  ): Promise<boolean> {
+    const beforeUpdateUser = await this.userService.strictGetUserById(input.id);
+    const user = await this.userService.editUserAdminStatus(input);
+
+    this.userService.emitUserUpdated({ beforeUpdateUser, user });
+
+    return Boolean(user);
   }
 
   @Mutation(() => Boolean)
