@@ -14,9 +14,9 @@ import {
   CreateHeroPortfolioOutput,
   EditHeroPortfolioInput,
   EditHeroPortfolioOutput,
-  HeroPortfolio,
   HeroPortfolioListInput,
   HeroPortfolioListOutput,
+  HeroPortfolioObject,
   HeroPortfolioOrderColumn,
   RemoveHeroPortfolioInput,
   RemoveHeroPortfolioOutput,
@@ -45,7 +45,7 @@ export class HeroPortfolioService {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
     private readonly heroPortfolioSorter: SorterService<
       HeroPortfolioOrderColumn,
-      HeroPortfolio,
+      HeroPortfolioObject,
       HeroPortfolioListSorterContext
     >,
   ) {
@@ -58,7 +58,7 @@ export class HeroPortfolioService {
 
   async getHeroPortfolioById(
     args: GetHeroPortfolioByIdArgs,
-  ): Promise<HeroPortfolio | null> {
+  ): Promise<HeroPortfolioObject | null> {
     const { sellerId, id: portfolioId } = args;
 
     const snapshot = await this.heroPortfolioTableRef
@@ -70,7 +70,7 @@ export class HeroPortfolioService {
 
     return (
       heroPortfolio &&
-      HeroPortfolio.adapter.toExternal({
+      HeroPortfolioObject.adapter.toExternal({
         id: portfolioId,
         sellerId,
         ...heroPortfolio.data,
@@ -80,7 +80,7 @@ export class HeroPortfolioService {
 
   async strictGetHeroPortfolioById(
     args: GetHeroPortfolioByIdArgs,
-  ): Promise<HeroPortfolio> {
+  ): Promise<HeroPortfolioObject> {
     const { id } = args;
     const heroPortfolio = await this.getHeroPortfolioById(args);
 
@@ -102,7 +102,7 @@ export class HeroPortfolioService {
 
     const heroPortfoliosExternal = Object.entries(heroPortfolios).map(
       ([id, item]) =>
-        HeroPortfolio.adapter.toExternal({ id, sellerId, ...item.data }),
+        HeroPortfolioObject.adapter.toExternal({ id, sellerId, ...item.data }),
     );
 
     const sortedHeroPortfoliosExternal = this.heroPortfolioSorter.sort(
@@ -135,21 +135,17 @@ export class HeroPortfolioService {
     const { id: sellerId } = identity;
     const id = uuidV4();
 
-    const heroPortfolio: HeroPortfolioDataDB = omit(
-      HeroPortfolio.adapter.toInternal({
-        ...input,
-        id,
-        sellerId,
-        createdAt: dateNow,
-        updatedAt: dateNow,
-      }),
-      ['id', 'sellerId'],
-    );
+    const heroPortfolio = HeroPortfolioObject.adapter.toInternal({
+      ...input,
+      id,
+      sellerId,
+      createdAt: dateNow,
+      updatedAt: dateNow,
+    });
 
-    await this.heroPortfolioTableRef
-      .child(sellerId)
-      .child(id)
-      .set({ data: heroPortfolio });
+    const data: HeroPortfolioDataDB = omit(heroPortfolio, ['id', 'sellerId']);
+
+    await this.heroPortfolioTableRef.child(sellerId).child(id).set({ data });
 
     return this.strictGetHeroPortfolioById({ sellerId, id });
   }
@@ -166,16 +162,13 @@ export class HeroPortfolioService {
       id,
     });
 
-    const data = {
-      ...omit(
-        HeroPortfolio.adapter.toInternal({
-          ...heroPortfolio,
-          ...input,
-          updatedAt: new Date(),
-        }),
-        ['id', 'sellerId'],
-      ),
-    };
+    const heroPortfolioInternal = HeroPortfolioObject.adapter.toInternal({
+      ...heroPortfolio,
+      ...input,
+      updatedAt: new Date(),
+    });
+
+    const data = omit(heroPortfolioInternal, ['id', 'sellerId']);
 
     await this.heroPortfolioTableRef.child(sellerId).child(id).update({ data });
 

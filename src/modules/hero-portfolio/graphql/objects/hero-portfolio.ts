@@ -6,7 +6,7 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 import { HeroPortfolioDataWithIds } from '$modules/hero-portfolio/types';
 
 @ObjectType()
-export class HeroPortfolio {
+export class HeroPortfolioObject {
   @Field(() => String)
   id: string;
 
@@ -28,10 +28,13 @@ export class HeroPortfolio {
   @Field(() => Date)
   updatedAt: Date;
 
-  static adapter: FirebaseAdapter<HeroPortfolioDataWithIds, HeroPortfolio>;
+  static adapter: FirebaseAdapter<
+    HeroPortfolioDataWithIds,
+    HeroPortfolioObject
+  >;
 }
 
-HeroPortfolio.adapter = new FirebaseAdapter({
+HeroPortfolioObject.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     id: internal.id,
     sellerId: internal.sellerId,

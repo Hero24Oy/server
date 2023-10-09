@@ -1,6 +1,6 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { HeroPortfolio } from '../../types';
+import { HeroPortfolioObject } from '../../objects';
 
 @ObjectType()
-export class CreateHeroPortfolioOutput extends HeroPortfolio {}
+export class CreateHeroPortfolioOutput extends HeroPortfolioObject {}
