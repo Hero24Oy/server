@@ -16,8 +16,8 @@ export class HeroPortfolioObject {
   @Field(() => String)
   categoryId: string;
 
-  @Field(() => String)
-  description: string;
+  @Field(() => String, { nullable: true })
+  description: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
   imageIds?: MaybeType<string[]>;
@@ -48,7 +48,7 @@ HeroPortfolioObject.adapter = new FirebaseAdapter({
     id: external.id,
     category: external.categoryId,
     sellerId: external.sellerId,
-    description: external.description,
+    description: external.description ?? '',
     images: external.imageIds
       ? convertListToFirebaseMap(external.imageIds)
       : undefined,

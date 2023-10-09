@@ -7,8 +7,8 @@ export class CreateHeroPortfolioInput {
   @Field(() => String)
   categoryId: string;
 
-  @Field(() => String)
-  description: string;
+  @Field(() => String, { nullable: true })
+  description: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
   imageIds?: MaybeType<string[]>;
