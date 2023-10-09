@@ -135,7 +135,7 @@ export class HeroPortfolioService {
     const { id: sellerId } = identity;
     const id = uuidV4();
 
-    const heroPortfolio = HeroPortfolioObject.adapter.toInternal({
+    const candidate = HeroPortfolioObject.adapter.toInternal({
       ...input,
       id,
       sellerId,
@@ -143,11 +143,16 @@ export class HeroPortfolioService {
       updatedAt: dateNow,
     });
 
-    const data: HeroPortfolioDataDB = omit(heroPortfolio, ['id', 'sellerId']);
+    const data: HeroPortfolioDataDB = omit(candidate, ['id', 'sellerId']);
 
     await this.heroPortfolioTableRef.child(sellerId).child(id).set({ data });
 
-    return this.strictGetHeroPortfolioById({ sellerId, id });
+    const heroPortfolio = await this.strictGetHeroPortfolioById({
+      sellerId,
+      id,
+    });
+
+    return { heroPortfolio };
   }
 
   async editHeroPortfolio(
@@ -172,7 +177,12 @@ export class HeroPortfolioService {
 
     await this.heroPortfolioTableRef.child(sellerId).child(id).update({ data });
 
-    return this.strictGetHeroPortfolioById({ sellerId, id });
+    const editedHeroPortfolio = await this.strictGetHeroPortfolioById({
+      sellerId,
+      id,
+    });
+
+    return { heroPortfolio: editedHeroPortfolio };
   }
 
   async removeHeroPortfolio(
@@ -189,7 +199,7 @@ export class HeroPortfolioService {
 
     await this.heroPortfolioTableRef.child(sellerId).child(id).remove();
 
-    return heroPortfolio;
+    return { heroPortfolio };
   }
 
   emitHeroPortfolioCreation(args: SubscribeOnHeroPortfoliosCreateOutput): void {

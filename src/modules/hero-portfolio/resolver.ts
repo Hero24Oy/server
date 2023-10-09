@@ -76,14 +76,14 @@ export class HeroPortfolioResolver {
     @Args('input') input: RemoveHeroPortfolioInput,
     @AuthIdentity() identity: Identity,
   ): Promise<RemoveHeroPortfolioOutput> {
-    const heroPortfolio = await this.heroPortfolioService.removeHeroPortfolio(
+    const response = await this.heroPortfolioService.removeHeroPortfolio(
       input,
       identity,
     );
 
-    this.heroPortfolioService.emitHeroPortfolioRemoval(heroPortfolio);
+    this.heroPortfolioService.emitHeroPortfolioRemoval(response.heroPortfolio);
 
-    return heroPortfolio;
+    return response;
   }
 
   @Subscription(() => SubscribeOnHeroPortfoliosCreateOutput, {
