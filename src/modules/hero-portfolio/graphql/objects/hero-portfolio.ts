@@ -17,7 +17,7 @@ export class HeroPortfolioObject {
   categoryId: string;
 
   @Field(() => String, { nullable: true })
-  description: MaybeType<string>;
+  description?: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
   imageIds?: MaybeType<string[]>;
