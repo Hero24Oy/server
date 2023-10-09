@@ -48,7 +48,7 @@ HeroPortfolioObject.adapter = new FirebaseAdapter({
     id: external.id,
     category: external.categoryId,
     sellerId: external.sellerId,
-    description: external.description ?? '',
+    description: external.description ?? undefined,
     images: external.imageIds
       ? convertListToFirebaseMap(external.imageIds)
       : undefined,
