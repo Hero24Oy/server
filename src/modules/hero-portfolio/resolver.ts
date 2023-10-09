@@ -5,7 +5,11 @@ import { PubSub } from 'graphql-subscriptions';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
-import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
+import {
+  HERO_PORTFOLIO_CREATED,
+  HERO_PORTFOLIO_REMOVED,
+  HERO_PORTFOLIO_UPDATED,
+} from './constants';
 import {
   CreateHeroPortfolioInput,
   CreateHeroPortfolioOutput,
@@ -17,6 +21,7 @@ import {
   RemoveHeroPortfolioOutput,
   SubscribeOnHeroPortfolioRemoveOutput,
   SubscribeOnHeroPortfoliosCreateOutput,
+  SubscribeOnHeroPortfolioUpdateOutput,
 } from './graphql';
 import { HeroPortfolioService } from './service';
 import { HeroPortfolioSubscriptionFilter } from './utils';
@@ -76,14 +81,14 @@ export class HeroPortfolioResolver {
     @Args('input') input: RemoveHeroPortfolioInput,
     @AuthIdentity() identity: Identity,
   ): Promise<RemoveHeroPortfolioOutput> {
-    const response = await this.heroPortfolioService.removeHeroPortfolio(
+    const heroPortfolio = await this.heroPortfolioService.removeHeroPortfolio(
       input,
       identity,
     );
 
-    this.heroPortfolioService.emitHeroPortfolioRemoval(response.heroPortfolio);
+    this.heroPortfolioService.emitHeroPortfolioRemoval(heroPortfolio);
 
-    return response;
+    return heroPortfolio;
   }
 
   @Subscription(() => SubscribeOnHeroPortfoliosCreateOutput, {
@@ -101,6 +106,15 @@ export class HeroPortfolioResolver {
   })
   @UseGuards(AuthGuard)
   subscribeOnHeroPortfoliosRemove(@Args('sellerId') _sellerId: string) {
+    return this.pubSub.asyncIterator(HERO_PORTFOLIO_REMOVED);
+  }
+
+  @Subscription(() => SubscribeOnHeroPortfolioUpdateOutput, {
+    name: HERO_PORTFOLIO_UPDATED,
+    filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_UPDATED),
+  })
+  @UseGuards(AuthGuard)
+  subscribeOnHeroPortfoliosUpdate(@Args('sellerId') _sellerId: string) {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_REMOVED);
   }
 }

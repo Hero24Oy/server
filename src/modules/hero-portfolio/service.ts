@@ -22,12 +22,17 @@ import {
   RemoveHeroPortfolioOutput,
   SubscribeOnHeroPortfolioRemoveOutput,
   SubscribeOnHeroPortfoliosCreateOutput,
+  SubscribeOnHeroPortfolioUpdateOutput,
 } from './graphql';
 import {
   GetHeroPortfolioByIdArgs,
   HeroPortfolioListSorterContext,
 } from './types';
-import { emitHeroPortfolioCreated, emitHeroPortfolioRemoved } from './utils';
+import {
+  emitHeroPortfolioCreated,
+  emitHeroPortfolioRemoved,
+  emitHeroPortfolioUpdated,
+} from './utils';
 
 import { Identity } from '$modules/auth/auth.types';
 import { paginate, preparePaginatedResult } from '$modules/common/common.utils';
@@ -211,6 +216,13 @@ export class HeroPortfolioService {
 
   emitHeroPortfolioRemoval(args: SubscribeOnHeroPortfolioRemoveOutput): void {
     emitHeroPortfolioRemoved<SubscribeOnHeroPortfolioRemoveOutput>(
+      this.pubSub,
+      args,
+    );
+  }
+
+  emitHeroPortfolioUpdating(args: SubscribeOnHeroPortfolioUpdateOutput): void {
+    emitHeroPortfolioUpdated<SubscribeOnHeroPortfolioUpdateOutput>(
       this.pubSub,
       args,
     );

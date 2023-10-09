@@ -1,10 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
+import { HeroPortfolioRemoveObject } from './objects';
+
 @ObjectType()
 export class SubscribeOnHeroPortfolioRemoveOutput {
-  @Field(() => String)
-  id: string;
-
-  @Field(() => String)
-  sellerId: string;
+  @Field(() => HeroPortfolioRemoveObject)
+  heroPortfolio: HeroPortfolioRemoveObject;
 }
