@@ -22,6 +22,7 @@ import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserMirror } from './user.mirror';
+import { SetHasProfileValue } from './user.types';
 import { emitUserCreated } from './user.utils/emit-user-created.util';
 import { emitUserUpdated } from './user.utils/emit-user-updated.util';
 
@@ -235,7 +236,7 @@ export class UserService {
 
   async setHasProfile(
     userId: string,
-    value: keyof Pick<UserDto, 'hasBuyerProfile' | 'hasSellerProfile'>,
+    value: SetHasProfileValue,
     hasProfile: boolean,
   ): Promise<void> {
     await this.userTableRef.child(userId).child(value).set(hasProfile);
