@@ -58,6 +58,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "uuid": "^9.0.0",
+    "xml-escape": "^1.1.0",
+    "xml-js": "^1.6.11",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
@@ -71,6 +73,7 @@
     "@types/node": "18.11.18",
     "@types/supertest": "^2.0.11",
     "@types/uuid": "^9.0.2",
+    "@types/xml-escape": "^1.1.1",
     "@types/xml2js": "^0.4.12",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",

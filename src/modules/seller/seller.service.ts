@@ -19,6 +19,7 @@ import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { SellerMirror } from './seller.mirror';
 
+import { NetvisorFetcher } from '$modules/netvisor';
 import { UserService } from '$modules/user/user.service';
 
 @Injectable()
@@ -29,6 +30,7 @@ export class SellerService {
     private readonly sellerMirror: SellerMirror,
     private readonly firebaseService: FirebaseService,
     private readonly userService: UserService,
+    private readonly netvisorFetcher: NetvisorFetcher,
   ) {
     const database = this.firebaseService.getDefaultApp().database();
 
@@ -92,7 +94,11 @@ export class SellerService {
 
     await this.userService.setHasProfile(id, 'hasSellerProfile', true);
 
-    return this.getSellerById(id);
+    const seller = await this.strictGetSellerById(id);
+
+    await this.createNetvisorInfo(seller);
+
+    return this.strictGetSellerById(id);
   }
 
   async editSellerData(args: SellerProfileDataEditingArgs) {
@@ -103,7 +109,11 @@ export class SellerService {
       .child('data')
       .update(PartialSellerProfileDataInput.adapter.toInternal(data));
 
-    return this.getSellerById(id);
+    const updatedSeller = await this.strictGetSellerById(id);
+
+    await this.updateNetvisorInfo(updatedSeller);
+
+    return updatedSeller;
   }
 
   async attachCategoryToSeller(
@@ -211,5 +221,33 @@ export class SellerService {
     await this.userService.setHasProfile(id, 'hasSellerProfile', false);
 
     return true;
+  }
+
+  private async updateNetvisorInfo(seller: SellerProfileDto): Promise<void> {
+    const user = await this.userService.strictGetUserById(seller.id);
+
+    if (user.netvisorSellerId) {
+      await this.netvisorFetcher.editNetvisorAccount({
+        user,
+        seller,
+        netvisorKey: String(user.netvisorSellerId),
+      });
+    }
+  }
+
+  private async createNetvisorInfo(seller: SellerProfileDto): Promise<void> {
+    const user = await this.userService.strictGetUserById(seller.id);
+
+    const netvisorSellerId = await this.netvisorFetcher.createNetvisorAccount({
+      seller,
+      user,
+    });
+
+    if (netvisorSellerId) {
+      await this.userService.setNetvisorSellerId(
+        user.id,
+        Number(netvisorSellerId),
+      );
+    }
   }
 }

@@ -242,6 +242,16 @@ export class UserService {
     await this.userTableRef.child(userId).child(value).set(hasProfile);
   }
 
+  async setNetvisorSellerId(
+    userId: string,
+    netvisorKey: number,
+  ): Promise<void> {
+    await this.userTableRef
+      .child(userId)
+      .child('netvisorSellerId')
+      .set(netvisorKey);
+  }
+
   emitUserUpdated(userChanges: UserUpdatedDto): void {
     emitUserUpdated<UserUpdatedDto>(this.pubSub, userChanges);
   }

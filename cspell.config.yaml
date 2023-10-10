@@ -19,5 +19,14 @@ words:
   # Netvisor query parameters
   - 'paymentstatus'
   - 'lastmodifiedstart'
+  - 'netvisorkey'
   # Netvisor return object field
   - 'purchaseinvoicelist'
+  # Netvisor XML properties
+  - 'vendorbaseinformation'
+  - 'vendorcontactdetails'
+  - 'organizationid'
+  - 'phonenumber'
+  - 'contactpersonname'
+  - 'contactpersonphonenumber'
+  - 'contactpersonemail'

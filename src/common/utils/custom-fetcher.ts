@@ -24,4 +24,12 @@ export class CustomFetcher {
       method: 'GET',
     });
   }
+
+  async post(headers: HeadersInit, body: BodyInit): Promise<Response> {
+    return fetch(this.getUrl(), {
+      headers,
+      method: 'POST',
+      body,
+    });
+  }
 }

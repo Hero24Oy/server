@@ -2,14 +2,22 @@ import { Injectable } from '@nestjs/common';
 
 import { Xml2JsService } from '../xml2js/service';
 
-import { purchaseInvoiceListParameters } from './constants';
 import {
+  createNetvisorAccountParameters,
+  editNetvisorAccountParameters,
+  purchaseInvoiceListParameters,
+} from './constants';
+import {
+  CreateNetvisorAccountArguments,
+  CreateNetvisorAccountResponse,
+  EditNetvisorAccountArguments,
   NetvisorBaseHeaders,
   NetvisorEndpoint,
   NetvisorHeaders,
   NetvisorHeadersName,
   NetvisorPurchaseInvoiceListResponse,
 } from './types';
+import { generateSellerXml } from './utils';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
@@ -110,6 +118,55 @@ export class NetvisorFetcher {
       }
 
       return [];
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async createNetvisorAccount(
+    props: CreateNetvisorAccountArguments,
+  ): Promise<string | void> {
+    const xml = generateSellerXml(props);
+
+    const fetcher = new CustomFetcher(
+      this.baseUrl,
+      NetvisorEndpoint.VENDOR,
+      createNetvisorAccountParameters,
+    );
+
+    const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
+
+    try {
+      const response = await fetcher.post(headers, xml);
+
+      const xmlString = await response.text();
+
+      const data =
+        await this.xml2JsService.createObjectFromXml<CreateNetvisorAccountResponse>(
+          xmlString,
+        );
+
+      return data.Root.Replies[0].InsertedDataIdentifier[0];
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async editNetvisorAccount(
+    props: EditNetvisorAccountArguments,
+  ): Promise<void> {
+    const { netvisorKey } = props;
+    const xml = generateSellerXml(props);
+
+    const fetcher = new CustomFetcher(this.baseUrl, NetvisorEndpoint.VENDOR, {
+      ...editNetvisorAccountParameters,
+      netvisorkey: netvisorKey,
+    });
+
+    const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
+
+    try {
+      await fetcher.post(headers, xml);
     } catch (error) {
       console.error(error);
     }
