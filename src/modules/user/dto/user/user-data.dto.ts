@@ -65,8 +65,8 @@ export class UserDataDto {
   @Field(() => String, { nullable: true })
   ssn?: MaybeType<string>;
 
-  @Field(() => Date, { nullable: true })
-  createdAt: MaybeType<Date>;
+  @Field(() => Date)
+  createdAt: Date;
 
   @Field(() => Date, { nullable: true })
   updatedAt?: MaybeType<Date>;

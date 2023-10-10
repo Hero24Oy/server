@@ -17,7 +17,7 @@ import { SellerMirror } from './seller.mirror';
 
 @Injectable()
 export class SellerService {
-  sellerTableRef: FirebaseTableReference<SellerProfileDB>;
+  readonly sellerTableRef: FirebaseTableReference<SellerProfileDB>;
 
   private readonly approvedSellerTableRef: FirebaseTableReference<boolean>;
 

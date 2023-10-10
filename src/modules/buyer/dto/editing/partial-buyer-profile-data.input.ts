@@ -1,20 +1,15 @@
-import { Field, InputType, OmitType } from '@nestjs/graphql';
+import { InputType, PartialType } from '@nestjs/graphql';
 import { BuyerProfileDB } from 'hero24-types';
 
 import { BuyerProfileDataDto } from '../buyer/buyer-profile-data.dto';
 
-import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @InputType()
-export class PartialBuyerProfileDataInput extends OmitType(
+export class PartialBuyerProfileDataInput extends PartialType(
   BuyerProfileDataDto,
-  ['displayName'],
   InputType,
 ) {
-  @Field(() => String, { nullable: true })
-  displayName?: MaybeType<string>;
-
   static adapter: FirebaseAdapter<
     Partial<BuyerProfileDB['data']>,
     PartialBuyerProfileDataInput

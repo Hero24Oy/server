@@ -2,28 +2,26 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Reference } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 
-import { FirebaseDatabasePath } from '../firebase/firebase.constants';
-import { FirebaseService } from '../firebase/firebase.service';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 import { SubscriptionService } from '../subscription-manager/subscription-manager.types';
 
 import { createBuyerProfileUpdatedEventHandler } from './review.event-handler';
+import { SellerService } from './seller.service';
 
 @Injectable()
 export class SellerProfileSubscription implements SubscriptionService {
   constructor(
-    private readonly firebaseService: FirebaseService,
+    private readonly sellerService: SellerService,
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
   public async subscribe(): Promise<() => Promise<void>> {
-    const app = this.firebaseService.getDefaultApp();
-    const database = app.database();
-    const rootFeesRef = database.ref(FirebaseDatabasePath.SELLER_PROFILES);
-
     const subscriptions = await Promise.all([
-      this.subscribeOnSellerProfileUpdates(rootFeesRef, this.pubSub),
+      this.subscribeOnSellerProfileUpdates(
+        this.sellerService.sellerTableRef,
+        this.pubSub,
+      ),
     ]);
 
     return async () => {

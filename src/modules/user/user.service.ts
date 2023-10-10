@@ -167,14 +167,13 @@ export class UserService {
     userId: string,
     offerRequestIds: string[],
   ): Promise<boolean> {
-    const offerRequestsData = Object.fromEntries(
-      offerRequestIds.map((id) => [id, undefined]),
-    );
-
-    await this.userTableRef
-      .child(userId)
-      .child('offerRequests')
-      .update(offerRequestsData);
+    offerRequestIds.forEach(async (id) => {
+      await this.userTableRef
+        .child(userId)
+        .child('offerRequests')
+        .child(id)
+        .remove();
+    });
 
     return true;
   }

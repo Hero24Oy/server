@@ -7,6 +7,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
+import { UserDataInput } from './dto/creation/user-data.input';
 import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
 import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
@@ -102,6 +103,17 @@ export class UserResolver {
     offerRequestIds: string[],
   ): Promise<boolean> {
     return this.userService.unbindUserOfferRequests(userId, offerRequestIds);
+  }
+
+  @Mutation(() => UserDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async createAdmin(@Args('data') data: UserDataInput): Promise<UserDto> {
+    const user = await this.userService.createAdmin(data);
+
+    this.userService.emitUserCreated({ user });
+
+    return user;
   }
 
   @Subscription(() => UserUpdatedDto, {

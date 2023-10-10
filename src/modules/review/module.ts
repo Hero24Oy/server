@@ -5,21 +5,21 @@ import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 import { SellerModule } from '../seller/seller.module';
 import { SubscriptionManagerModule } from '../subscription-manager/subscription-manager.module';
 
-import { ReviewResolver } from './review.resolver';
-import { ReviewService } from './review.service';
-import { ReviewSubscription } from './review.subscription';
+import { ReviewResolver } from './resolver';
+import { ReviewService } from './service';
+import { ReviewSubscription } from './subscription';
 
 @Module({
   imports: [
-    FirebaseModule,
     GraphQlPubsubModule,
+    FirebaseModule,
     SellerModule,
     SubscriptionManagerModule.forFeature({
-      imports: [GraphQlPubsubModule, FirebaseModule],
+      imports: [GraphQlPubsubModule, ReviewModule],
       subscriptions: [ReviewSubscription],
     }),
   ],
-  providers: [ReviewResolver, ReviewService],
+  providers: [ReviewSubscription, ReviewResolver, ReviewService],
   exports: [ReviewService],
 })
 export class ReviewModule {}

@@ -336,12 +336,20 @@ const override = {
   },
   enableAsyncMethodsWithoutAwait: {
     files: [
+      // TODO: Delete this after rewrite all modules
       '**/*.context.ts',
       '**/*.subscription.ts',
       '**/*.module.ts',
       '**/*.service.ts',
       '**/*.resolver.ts',
       '**/*.interceptor.ts',
+
+      '**/context.ts',
+      '**/subscription.ts',
+      '**/module.ts',
+      '**/service.ts',
+      '**/resolver.ts',
+      '**/interceptor.ts',
     ],
     rules: {
       '@typescript-eslint/require-await': 'off',

@@ -1,11 +1,11 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { ReviewDB } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
+import { Review } from '$modules/review/types';
 
 @ObjectType()
-export class ReviewDto {
+export class ReviewObject {
   @Field(() => String)
   id: string;
 
@@ -33,10 +33,10 @@ export class ReviewDto {
   @Field(() => String, { nullable: true })
   categoryId?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<ReviewDB & { id: string }, ReviewDto>;
+  static adapter: FirebaseAdapter<Review, ReviewObject>;
 }
 
-ReviewDto.adapter = new FirebaseAdapter({
+ReviewObject.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     id: internal.id,
     createdAt: new Date(internal.data.initial.createdAt),

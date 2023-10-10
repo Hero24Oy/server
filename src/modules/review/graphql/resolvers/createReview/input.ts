@@ -1,10 +1,10 @@
 import { InputType, OmitType } from '@nestjs/graphql';
 
-import { ReviewDto } from '../review/review.dto';
+import { ReviewObject } from '../../objects';
 
 @InputType()
-export class ReviewDataInput extends OmitType(
-  ReviewDto,
+export class CreateReviewInput extends OmitType(
+  ReviewObject,
   ['createdAt', 'id'],
   InputType,
 ) {}
