@@ -1,4 +1,4 @@
-import { HeroPortfolioOrderColumn } from '../dto/hero-portfolio-list/order-column';
+import { HeroPortfolioOrderColumn } from '../graphql';
 import { HeroPortfolioListComparePicker } from '../types';
 
 import { categoryIdComparePicker } from './category-id';
