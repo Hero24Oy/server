@@ -27,6 +27,7 @@ export class NetvisorSchedule {
       this.updatePaidStatus.bind(this),
     );
 
+    // Fetch all unpaid purchases
     void this.updatePaidStatus();
   }
 

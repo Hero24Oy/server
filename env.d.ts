@@ -45,8 +45,6 @@ declare global {
       NETVISOR_SENDER: string;
       NETVISOR_FETCH_DAY: string;
       NETVISOR_FETCH_HOURS: string;
-      NETVISOR_FETCH_HOURS: string;
-      NETVISOR_FETCH_HOURS: string;
     }
   }
 }
