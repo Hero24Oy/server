@@ -17,7 +17,7 @@ export const netvisorValidationSchema = Joi.object({
   NETVISOR_PARTNER_KEY: Joi.string().required(),
   NETVISOR_SENDER: Joi.string().required(),
   NETVISOR_FETCH_DAY: Joi.string()
-    .pattern(/^([1-7]|[1-7]-[1-6])|([1-6],|[1-6]){1,6}|\*$/)
+    .pattern(/^[1-7]$|^[1-7]-[1-6]$|^([1-6],|[1-6]){1,6}$|^\*$/)
     .required()
     .messages({
       'string.pattern.base': FETCH_DAY_MESSAGE,
