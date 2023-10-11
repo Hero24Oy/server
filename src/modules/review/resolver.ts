@@ -12,6 +12,7 @@ import {
   CreateReviewOutput,
   ReviewListInput,
   ReviewListOutput,
+  ReviewObject,
   SubscribeToReviewCreateInput,
   SubscribeToReviewCreateOutput,
 } from './graphql';
@@ -46,6 +47,11 @@ export class ReviewResolver {
   @Subscription(() => SubscribeToReviewCreateOutput, {
     name: REVIEW_CREATED_SUBSCRIPTION,
     filter: ReviewCreateSubscriptionFilter(REVIEW_CREATED_SUBSCRIPTION),
+    resolve: (payload: {
+      reviewCreated: ReviewObject;
+    }): SubscribeToReviewCreateOutput => ({
+      review: payload.reviewCreated,
+    }),
   })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
