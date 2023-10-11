@@ -1,12 +1,15 @@
 import xmlEscape from 'xml-escape';
-import { js2xml } from 'xml-js';
 
-import { COUNTRY_ISO, jsToXmlOptions } from '../constants';
-import { Countries, CreateNetvisorAccountArguments } from '../types';
+import { COUNTRY_ISO } from '../constants';
+import {
+  Countries,
+  CreateNetvisorAccountArguments,
+  SellerXmlObject,
+} from '../types';
 
 export const generateSellerXml = (
   props: CreateNetvisorAccountArguments,
-): string => {
+): SellerXmlObject => {
   const {
     seller: { data: sellerData },
     user: { id: userId, data: userData },
@@ -14,7 +17,7 @@ export const generateSellerXml = (
 
   const phonenumber = xmlEscape(userData.phone ?? '');
 
-  const object = {
+  return {
     root: {
       vendor: {
         vendorbaseinformation: {
@@ -40,6 +43,4 @@ export const generateSellerXml = (
       },
     },
   };
-
-  return js2xml(object, jsToXmlOptions);
 };

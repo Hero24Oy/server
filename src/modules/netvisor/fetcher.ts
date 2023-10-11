@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { Xml2JsService } from '../xml2js/service';
+import { XmlJsService } from '../xml-js/service';
 
 import {
   createNetvisorAccountParameters,
@@ -16,6 +16,7 @@ import {
   NetvisorHeaders,
   NetvisorHeadersName,
   NetvisorPurchaseInvoiceListResponse,
+  SellerXmlObject,
 } from './types';
 import { generateSellerXml } from './utils';
 
@@ -35,7 +36,7 @@ export class NetvisorFetcher {
   constructor(
     @Config() config: ConfigType,
     private readonly cryptoService: CryptoService,
-    private readonly xml2JsService: Xml2JsService,
+    private readonly xmlJsService: XmlJsService,
   ) {
     this.config = config.netvisor;
 
@@ -105,7 +106,7 @@ export class NetvisorFetcher {
       const xmlString = await response.text();
 
       const data =
-        await this.xml2JsService.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
+        await this.xmlJsService.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
           xmlString,
         );
 
@@ -126,7 +127,10 @@ export class NetvisorFetcher {
   async createNetvisorAccount(
     props: CreateNetvisorAccountArguments,
   ): Promise<string | void> {
-    const xml = generateSellerXml(props);
+    const xmlObject = generateSellerXml(props);
+
+    const xml =
+      this.xmlJsService.createXmlFromObject<SellerXmlObject>(xmlObject);
 
     const fetcher = new CustomFetcher(
       this.baseUrl,
@@ -142,7 +146,7 @@ export class NetvisorFetcher {
       const xmlString = await response.text();
 
       const data =
-        await this.xml2JsService.createObjectFromXml<CreateNetvisorAccountResponse>(
+        await this.xmlJsService.createObjectFromXml<CreateNetvisorAccountResponse>(
           xmlString,
         );
 
@@ -156,7 +160,10 @@ export class NetvisorFetcher {
     props: EditNetvisorAccountArguments,
   ): Promise<void> {
     const { netvisorKey } = props;
-    const xml = generateSellerXml(props);
+    const xmlObject = generateSellerXml(props);
+
+    const xml =
+      this.xmlJsService.createXmlFromObject<SellerXmlObject>(xmlObject);
 
     const fetcher = new CustomFetcher(this.baseUrl, NetvisorEndpoint.VENDOR, {
       ...editNetvisorAccountParameters,

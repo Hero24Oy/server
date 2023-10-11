@@ -14,3 +14,4 @@ export * from './netvisor-account-keys';
 export * from './netvisor-account-parameters';
 export * from './create-netvisor-account-response';
 export * from './edit-netvisor-account-arguments';
+export * from './seller-xml-object';
