@@ -5,6 +5,7 @@ import { XmlJsService } from '../xml-js/service';
 import {
   createNetvisorAccountParameters,
   editNetvisorAccountParameters,
+  jsToXmlOptions,
   purchaseInvoiceListParameters,
 } from './constants';
 import {
@@ -129,8 +130,10 @@ export class NetvisorFetcher {
   ): Promise<string | void> {
     const xmlObject = generateSellerXml(props);
 
-    const xml =
-      this.xmlJsService.createXmlFromObject<SellerXmlObject>(xmlObject);
+    const xml = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
+      xmlObject,
+      jsToXmlOptions,
+    );
 
     const fetcher = new CustomFetcher(
       this.baseUrl,
@@ -162,8 +165,10 @@ export class NetvisorFetcher {
     const { netvisorKey } = props;
     const xmlObject = generateSellerXml(props);
 
-    const xml =
-      this.xmlJsService.createXmlFromObject<SellerXmlObject>(xmlObject);
+    const xml = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
+      xmlObject,
+      jsToXmlOptions,
+    );
 
     const fetcher = new CustomFetcher(this.baseUrl, NetvisorEndpoint.VENDOR, {
       ...editNetvisorAccountParameters,

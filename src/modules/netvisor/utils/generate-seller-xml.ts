@@ -23,6 +23,7 @@ export const generateSellerXml = (
         vendorbaseinformation: {
           code: userId,
           name: xmlEscape(sellerData.companyName),
+          address: xmlEscape(sellerData.streetAddress),
           postcode: sellerData.postalCode,
           city: xmlEscape(sellerData.city),
           country: {

@@ -70,11 +70,9 @@ export class BuyerService {
 
     await set(ref(database, path.join('/')), data);
 
-    const buyerProfile = await this.strictGetBuyerProfileById(id);
-
     await this.userService.setHasProfile(id, 'hasBuyerProfile', true);
 
-    return buyerProfile;
+    return this.strictGetBuyerProfileById(id);
   }
 
   async editBuyer(

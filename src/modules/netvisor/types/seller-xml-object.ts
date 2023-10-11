@@ -10,6 +10,7 @@ interface Country {
 }
 
 interface VendorBaseInformation {
+  address: string;
   city: string;
   code: string;
   country: Country;

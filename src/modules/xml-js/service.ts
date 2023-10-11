@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import converter from 'xml-js';
+import converter, { Options } from 'xml-js';
 import { Parser } from 'xml2js';
 
 import { Elements } from './types';
@@ -19,7 +19,10 @@ export class XmlJsService {
     return this.parser.parseStringPromise(xml) as Promise<Type>;
   }
 
-  createXmlFromObject<Type extends Elements>(object: Type): string {
-    return this.converter.js2xml(object);
+  createXmlFromObject<Type extends Elements>(
+    object: Type,
+    options: Options.JS2XML,
+  ): string {
+    return this.converter.js2xml(object, options);
   }
 }
