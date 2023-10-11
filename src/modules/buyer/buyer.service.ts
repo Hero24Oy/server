@@ -15,17 +15,18 @@ import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
 import { UserService } from '$modules/user/user.service';
+import { SetHasProfileValues } from '$modules/user/user.types';
 
 @Injectable()
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
   constructor(
+    firebaseService: FirebaseService,
     private readonly buyerMirror: BuyerMirror,
-    private readonly firebaseService: FirebaseService,
     private readonly userService: UserService,
   ) {
-    const database = this.firebaseService.getDefaultApp().database();
+    const database = firebaseService.getDefaultApp().database();
 
     this.buyerTableRef = database.ref(FirebaseDatabasePath.BUYER_PROFILES);
   }
@@ -70,7 +71,11 @@ export class BuyerService {
 
     await set(ref(database, path.join('/')), data);
 
-    await this.userService.setHasProfile(id, 'hasBuyerProfile', true);
+    await this.userService.setHasProfile({
+      id,
+      value: SetHasProfileValues.HAS_BUYER_PROFILE,
+      hasProfile: true,
+    });
 
     return this.strictGetBuyerProfileById(id);
   }
@@ -102,7 +107,11 @@ export class BuyerService {
   async deleteBuyer(id: string): Promise<boolean> {
     await this.buyerTableRef.child(id).remove();
 
-    await this.userService.setHasProfile(id, 'hasBuyerProfile', false);
+    await this.userService.setHasProfile({
+      id,
+      value: SetHasProfileValues.HAS_BUYER_PROFILE,
+      hasProfile: false,
+    });
 
     return true;
   }

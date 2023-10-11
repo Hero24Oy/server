@@ -21,18 +21,19 @@ import { SellerMirror } from './seller.mirror';
 
 import { NetvisorFetcher } from '$modules/netvisor';
 import { UserService } from '$modules/user/user.service';
+import { SetHasProfileValues } from '$modules/user/user.types';
 
 @Injectable()
 export class SellerService {
   sellerTableRef: FirebaseTableReference<SellerProfileDB>;
 
   constructor(
+    firebaseService: FirebaseService,
     private readonly sellerMirror: SellerMirror,
-    private readonly firebaseService: FirebaseService,
     private readonly userService: UserService,
     private readonly netvisorFetcher: NetvisorFetcher,
   ) {
-    const database = this.firebaseService.getDefaultApp().database();
+    const database = firebaseService.getDefaultApp().database();
 
     this.sellerTableRef = database.ref(FirebaseDatabasePath.SELLER_PROFILES);
   }
@@ -92,7 +93,11 @@ export class SellerService {
       .child('data')
       .set(SellerProfileDataDto.adapter.toInternal(data));
 
-    await this.userService.setHasProfile(id, 'hasSellerProfile', true);
+    await this.userService.setHasProfile({
+      id,
+      value: SetHasProfileValues.HAS_SELLER_PROFILE,
+      hasProfile: true,
+    });
 
     const seller = await this.strictGetSellerById(id);
 
@@ -218,7 +223,11 @@ export class SellerService {
   async deleteSeller(id: string): Promise<boolean> {
     await this.sellerTableRef.child(id).remove();
 
-    await this.userService.setHasProfile(id, 'hasSellerProfile', false);
+    await this.userService.setHasProfile({
+      id,
+      value: SetHasProfileValues.HAS_SELLER_PROFILE,
+      hasProfile: false,
+    });
 
     return true;
   }
