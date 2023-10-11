@@ -1,0 +1,38 @@
+name: Deploy to Cloud Run from Source
+
+on:
+  push:
+    branches:
+      - staging
+
+env:
+  PROJECT_ID: '${{ secrets.STAGING_PROJECT_ID }}'
+
+jobs:
+  deploy:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: '${{ secrets.STAGING_WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ secrets.STAGING_SERVICE_ACCOUNT }}'
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: ${{ secrets.STAGING_CLOUD_RUN_SERVICE_NAME }}
+          region: ${{ secrets.STAGING_REGION }}
+          source: ./
+
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
