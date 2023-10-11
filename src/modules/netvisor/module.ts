@@ -11,6 +11,6 @@ import { XmlJsModule } from '$modules/xml-js/module';
 @Module({
   imports: [OfferModule, OfferRequestModule, CryptoModule, XmlJsModule],
   providers: [NetvisorSchedule, NetvisorFetcher],
-  exports: [],
+  exports: [NetvisorFetcher],
 })
 export class NetvisorModule {}
