@@ -13,7 +13,7 @@ export const netvisorValidationSchema = Joi.object({
     .required()
     .messages({
       'string.pattern.base':
-        'Fetch day must be a number in the range 1-6 or range x-y',
+        'Fetch day must be a number in the range 1-6 or range x-y (x = 1...7, y = 1...7, x < y) or * for all days',
     }),
   NETVISOR_FETCH_HOURS: Joi.string()
     .pattern(/^([1-9]|1[0-9]|2[0-4])$/)
