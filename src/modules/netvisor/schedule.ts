@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { PaidStatus } from 'hero24-types';
 
-import { UPDATE_PAID_STATUS_CRON_TIME } from './constants';
+import { CustomScheduleService } from '../custom-schedule/service';
+
+import { NETVISOR_FETCH_JOB } from './constants';
 import { NetvisorFetcher } from './fetcher';
 import { getScheduleFetchDate } from './utils';
 
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 
@@ -15,15 +18,22 @@ export class NetvisorSchedule {
     private readonly netvisorFetcher: NetvisorFetcher,
     private readonly offerService: OfferService,
     private readonly offerRequestService: OfferRequestService,
-  ) {}
+    private readonly customScheduleService: CustomScheduleService,
+    @Config() config: ConfigType,
+  ) {
+    customScheduleService.createCronJob(
+      NETVISOR_FETCH_JOB,
+      config.netvisor.cron,
+      this.updatePaidStatus.bind(this),
+    );
 
-  @Cron(UPDATE_PAID_STATUS_CRON_TIME)
+    void this.updatePaidStatus();
+  }
+
   async updatePaidStatus(): Promise<void> {
-    const startDate = getScheduleFetchDate();
-
-    if (!startDate) {
-      return;
-    }
+    const startDate = getScheduleFetchDate(
+      this.customScheduleService.getLastJobDate(NETVISOR_FETCH_JOB),
+    );
 
     const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
       startDate,

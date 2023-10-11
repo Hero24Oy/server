@@ -33,6 +33,7 @@ import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
 import { CryptoModule } from '$modules/crypto/module';
+import { CustomScheduleModule } from '$modules/custom-schedule/module';
 import { HeroPortfolioModule } from '$modules/hero-portfolio/module';
 import { NetvisorModule } from '$modules/netvisor/module';
 import { Xml2JsModule } from '$modules/xml2js/module';
@@ -88,6 +89,7 @@ import { Xml2JsModule } from '$modules/xml2js/module';
     NetvisorModule,
     CryptoModule,
     Xml2JsModule,
+    CustomScheduleModule,
   ],
   providers: [AppResolver],
 })
