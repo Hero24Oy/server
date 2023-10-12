@@ -400,7 +400,7 @@ export class OfferRequestService {
 
   async setIsApprovedByBuyer(
     input: OfferRequestSetIsApprovedByBuyerInput,
-  ): Promise<OfferRequestDto> {
+  ): Promise<boolean> {
     const { id, isApprovedByBuyer } = input;
 
     await this.offerRequestTableRef
@@ -408,7 +408,7 @@ export class OfferRequestService {
       .child('isApprovedByBuyer')
       .set(isApprovedByBuyer);
 
-    return this.strictGetOfferRequestById(id);
+    return true;
   }
 
   emitOfferRequestUpdated(offerRequest: OfferRequestDto): void {

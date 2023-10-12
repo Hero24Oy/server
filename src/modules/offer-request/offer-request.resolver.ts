@@ -128,10 +128,6 @@ export class OfferRequestResolver {
   async setIsApprovedByBuyer(
     @Args('input') input: OfferRequestSetIsApprovedByBuyerInput,
   ): Promise<boolean> {
-    const offerRequest = await this.offerRequestService.setIsApprovedByBuyer(
-      input,
-    );
-
-    return Boolean(offerRequest);
+    return this.offerRequestService.setIsApprovedByBuyer(input);
   }
 }
