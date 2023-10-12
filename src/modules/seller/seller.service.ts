@@ -11,7 +11,6 @@ import {
 } from '../firebase/firebase.types';
 
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
-import { SellerProfileDeletionArgs } from './dto/deletion/seller-profile-deletion.args';
 import { PartialSellerProfileDataInput } from './dto/editing/partial-seller-profile-data.input';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
@@ -217,18 +216,5 @@ export class SellerService {
     const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
 
     return sellerIds.map((sellerId) => sellerById.get(sellerId) || null);
-  }
-
-  async deleteSeller(args: SellerProfileDeletionArgs): Promise<boolean> {
-    const { id } = args;
-
-    await this.sellerTableRef.child(id).remove();
-
-    await this.userService.setHasSellerProfile({
-      id,
-      hasProfile: false,
-    });
-
-    return true;
   }
 }

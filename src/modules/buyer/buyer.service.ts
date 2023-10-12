@@ -12,7 +12,6 @@ import {
 import { BuyerMirror } from './buyer.mirror';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
-import { BuyerProfileDeletionArgs } from './dto/deletion/buyer-profile-deletion.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
 import { UserService } from '$modules/user/user.service';
@@ -101,18 +100,5 @@ export class BuyerService {
     const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
     return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
-  }
-
-  async deleteBuyer(args: BuyerProfileDeletionArgs): Promise<boolean> {
-    const { id } = args;
-
-    await this.buyerTableRef.child(id).remove();
-
-    await this.userService.setHasBuyerProfile({
-      id,
-      hasProfile: false,
-    });
-
-    return true;
   }
 }
