@@ -8,11 +8,8 @@ import { Elements } from './types';
 export class XmlJsService {
   private readonly parser: Parser;
 
-  private readonly converter: typeof converter;
-
   constructor() {
     this.parser = new Parser();
-    this.converter = converter;
   }
 
   async createObjectFromXml<Type>(xml: string): Promise<Type> {
@@ -23,6 +20,6 @@ export class XmlJsService {
     object: Type,
     options: Options.JS2XML,
   ): string {
-    return this.converter.js2xml(object, options);
+    return converter.js2xml(object, options);
   }
 }
