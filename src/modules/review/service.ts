@@ -64,14 +64,12 @@ export class ReviewService {
 
     nodes = paginate({ nodes, offset, limit });
 
-    return {
-      reviews: preparePaginatedResult({
-        nodes,
-        total,
-        offset,
-        limit,
-      }),
-    };
+    return preparePaginatedResult({
+      nodes,
+      total,
+      offset,
+      limit,
+    });
   }
 
   async createReview(input: CreateReviewInput): Promise<CreateReviewOutput> {

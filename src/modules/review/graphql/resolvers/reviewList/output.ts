@@ -1,9 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 
-import { ReviewListObject } from '../../objects';
+import { ReviewObject } from '../../objects';
+
+import { Paginated } from '$modules/common/dto/pagination.dto';
 
 @ObjectType()
-export class ReviewListOutput {
-  @Field()
-  reviews: ReviewListObject;
-}
+export class ReviewListOutput extends Paginated(ReviewObject) {}
