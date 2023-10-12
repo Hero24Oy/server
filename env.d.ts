@@ -43,8 +43,7 @@ declare global {
       NETVISOR_PARTNER_ID: string;
       NETVISOR_PARTNER_KEY: string;
       NETVISOR_SENDER: string;
-      NETVISOR_FETCH_DAY: string;
-      NETVISOR_FETCH_HOURS: string;
+      NETVISOR_FETCH_CRON: string;
     }
   }
 }
