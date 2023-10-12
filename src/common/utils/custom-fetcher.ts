@@ -1,3 +1,5 @@
+import { CustomFetcherPostArguments } from '../types';
+
 export class CustomFetcher {
   private readonly url: URL;
 
@@ -18,14 +20,16 @@ export class CustomFetcher {
     return new URL(this.getStringifiedUrl());
   }
 
-  async get(headers: HeadersInit): Promise<Response> {
+  async get(headers?: HeadersInit): Promise<Response> {
     return fetch(this.getUrl(), {
       headers,
       method: 'GET',
     });
   }
 
-  async post(headers: HeadersInit, body: BodyInit): Promise<Response> {
+  async post(args: CustomFetcherPostArguments): Promise<Response> {
+    const { body, headers } = args;
+
     return fetch(this.getUrl(), {
       headers,
       method: 'POST',

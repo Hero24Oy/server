@@ -130,7 +130,7 @@ export class NetvisorFetcher {
   ): Promise<string | void> {
     const xmlObject = generateSellerXml(props);
 
-    const xml = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
+    const body = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
       xmlObject,
       jsToXmlOptions,
     );
@@ -144,7 +144,7 @@ export class NetvisorFetcher {
     const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
 
     try {
-      const response = await fetcher.post(headers, xml);
+      const response = await fetcher.post({ headers, body });
 
       const xmlString = await response.text();
 
@@ -165,7 +165,7 @@ export class NetvisorFetcher {
     const { netvisorKey } = props;
     const xmlObject = generateSellerXml(props);
 
-    const xml = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
+    const body = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
       xmlObject,
       jsToXmlOptions,
     );
@@ -178,7 +178,7 @@ export class NetvisorFetcher {
     const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
 
     try {
-      await fetcher.post(headers, xml);
+      await fetcher.post({ headers, body });
     } catch (error) {
       console.error(error);
     }
