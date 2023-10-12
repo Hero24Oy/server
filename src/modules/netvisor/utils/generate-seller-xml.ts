@@ -4,7 +4,7 @@ import { COUNTRY_ISO } from '../constants';
 import { Countries } from '../enums';
 import { CreateNetvisorAccountArguments, SellerXmlObject } from '../types';
 
-export const generateSellerXml = (
+export const generateSellerXmlObject = (
   props: CreateNetvisorAccountArguments,
 ): SellerXmlObject => {
   const {

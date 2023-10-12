@@ -18,7 +18,7 @@ import {
   NetvisorPurchaseInvoiceListResponse,
   SellerXmlObject,
 } from './types';
-import { generateSellerXml } from './utils';
+import { generateSellerXmlObject } from './utils';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
@@ -127,7 +127,7 @@ export class NetvisorFetcher {
   async createNetvisorAccount(
     props: CreateNetvisorAccountArguments,
   ): Promise<string | void> {
-    const xmlObject = generateSellerXml(props);
+    const xmlObject = generateSellerXmlObject(props);
 
     const body = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
       xmlObject,
@@ -162,7 +162,7 @@ export class NetvisorFetcher {
     props: EditNetvisorAccountArguments,
   ): Promise<void> {
     const { netvisorKey } = props;
-    const xmlObject = generateSellerXml(props);
+    const xmlObject = generateSellerXmlObject(props);
 
     const body = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
       xmlObject,
