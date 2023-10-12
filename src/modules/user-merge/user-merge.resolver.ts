@@ -1,5 +1,5 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
 import { AuthIdentity } from '../auth/auth.decorator';
@@ -18,6 +18,15 @@ export class UserMergeResolver {
     private userMergeService: UserMergeService,
     @Inject(PUBSUB_PROVIDER) private pubSub: PubSub,
   ) {}
+
+  @Query(() => UserMergeDto, { nullable: true })
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async userMerge(
+    @AuthIdentity() identity: Identity,
+  ): Promise<UserMergeDto | null> {
+    return this.userMergeService.getUserMergeByIdentity(identity);
+  }
 
   @Mutation(() => UserMergeDto)
   @UseFilters(FirebaseExceptionFilter)
