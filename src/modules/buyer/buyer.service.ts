@@ -15,7 +15,7 @@ import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
 import { UserService } from '$modules/user/user.service';
-import { SetHasProfileValues } from '$modules/user/user.types';
+import { ProfileStatus } from '$modules/user/user.types';
 
 @Injectable()
 export class BuyerService {
@@ -73,7 +73,7 @@ export class BuyerService {
 
     await this.userService.setHasProfile({
       id,
-      value: SetHasProfileValues.HAS_BUYER_PROFILE,
+      value: ProfileStatus.HAS_BUYER_PROFILE,
       hasProfile: true,
     });
 
@@ -109,7 +109,7 @@ export class BuyerService {
 
     await this.userService.setHasProfile({
       id,
-      value: SetHasProfileValues.HAS_BUYER_PROFILE,
+      value: ProfileStatus.HAS_BUYER_PROFILE,
       hasProfile: false,
     });
 

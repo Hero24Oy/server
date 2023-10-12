@@ -21,7 +21,7 @@ import { SellerMirror } from './seller.mirror';
 
 import { NetvisorService } from '$modules/netvisor';
 import { UserService } from '$modules/user/user.service';
-import { SetHasProfileValues } from '$modules/user/user.types';
+import { ProfileStatus } from '$modules/user/user.types';
 
 @Injectable()
 export class SellerService {
@@ -95,7 +95,7 @@ export class SellerService {
 
     await this.userService.setHasProfile({
       id,
-      value: SetHasProfileValues.HAS_SELLER_PROFILE,
+      value: ProfileStatus.HAS_SELLER_PROFILE,
       hasProfile: true,
     });
 
@@ -225,7 +225,7 @@ export class SellerService {
 
     await this.userService.setHasProfile({
       id,
-      value: SetHasProfileValues.HAS_SELLER_PROFILE,
+      value: ProfileStatus.HAS_SELLER_PROFILE,
       hasProfile: false,
     });
 
