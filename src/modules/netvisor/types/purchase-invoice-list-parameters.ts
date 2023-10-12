@@ -1,5 +1,4 @@
-import { PaymentStatus } from './payment-status';
-import { PurchaseInvoiceListKeys } from './purchase-invoice-list-keys';
+import { PaymentStatus, PurchaseInvoiceListKeys } from '../enums';
 
 export interface PurchaseInvoiceListParameters {
   [PurchaseInvoiceListKeys.PAYMENT_STATUS]: PaymentStatus;

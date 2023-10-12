@@ -1,5 +1,4 @@
-import { Methods } from './methods';
-import { NetvisorAccountKeys } from './netvisor-account-keys';
+import { Methods, NetvisorAccountKeys } from '../enums';
 
 export interface NetvisorAccountParameters {
   [NetvisorAccountKeys.METHOD]: Methods;

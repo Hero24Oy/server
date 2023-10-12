@@ -8,14 +8,13 @@ import {
   jsToXmlOptions,
   purchaseInvoiceListParameters,
 } from './constants';
+import { NetvisorEndpoint, NetvisorHeadersName } from './enums';
 import {
   CreateNetvisorAccountArguments,
   CreateNetvisorAccountResponse,
   EditNetvisorAccountArguments,
   NetvisorBaseHeaders,
-  NetvisorEndpoint,
   NetvisorHeaders,
-  NetvisorHeadersName,
   NetvisorPurchaseInvoiceListResponse,
   SellerXmlObject,
 } from './types';

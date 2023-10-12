@@ -1,12 +1,14 @@
 import {
+  Methods,
   NetvisorAccountKeys,
-  NetvisorAccountParameters,
   PaymentStatus,
   PurchaseInvoiceListKeys,
+} from './enums';
+import {
+  NetvisorAccountParameters,
   PurchaseInvoiceListParameters,
   ScheduleFetchDay,
 } from './types';
-import { Methods } from './types/methods';
 
 export const UPDATE_PAID_STATUS_CRON_TIME = '0 0 12 * * 2,5'; // Tuesday and Friday at 12:00
 

@@ -1,11 +1,8 @@
 import xmlEscape from 'xml-escape';
 
 import { COUNTRY_ISO } from '../constants';
-import {
-  Countries,
-  CreateNetvisorAccountArguments,
-  SellerXmlObject,
-} from '../types';
+import { Countries } from '../enums';
+import { CreateNetvisorAccountArguments, SellerXmlObject } from '../types';
 
 export const generateSellerXml = (
   props: CreateNetvisorAccountArguments,
