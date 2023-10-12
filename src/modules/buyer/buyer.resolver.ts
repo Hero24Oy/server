@@ -9,6 +9,7 @@ import { FirebaseAppInstance } from '../firebase/firebase.types';
 import { BuyerService } from './buyer.service';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
+import { BuyerProfileDeletionArgs } from './dto/deletion/buyer-profile-deletion.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
 @Resolver()
@@ -45,7 +46,7 @@ export class BuyerResolver {
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async deleteBuyer(@Args('id') buyerId: string): Promise<boolean> {
-    return this.buyerService.deleteBuyer(buyerId);
+  async deleteBuyer(@Args() args: BuyerProfileDeletionArgs): Promise<boolean> {
+    return this.buyerService.deleteBuyer(args);
   }
 }
