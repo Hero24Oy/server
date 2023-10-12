@@ -16,7 +16,6 @@ import { BuyerProfileDeletionArgs } from './dto/deletion/buyer-profile-deletion.
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
 import { UserService } from '$modules/user/user.service';
-import { ProfileStatus } from '$modules/user/user.types';
 
 @Injectable()
 export class BuyerService {
@@ -72,9 +71,8 @@ export class BuyerService {
 
     await set(ref(database, path.join('/')), data);
 
-    await this.userService.setHasProfile({
+    await this.userService.setHasBuyerProfile({
       id,
-      value: ProfileStatus.HAS_BUYER_PROFILE,
       hasProfile: true,
     });
 
@@ -110,9 +108,8 @@ export class BuyerService {
 
     await this.buyerTableRef.child(id).remove();
 
-    await this.userService.setHasProfile({
+    await this.userService.setHasBuyerProfile({
       id,
-      value: ProfileStatus.HAS_BUYER_PROFILE,
       hasProfile: false,
     });
 

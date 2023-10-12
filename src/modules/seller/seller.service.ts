@@ -22,7 +22,6 @@ import { SellerMirror } from './seller.mirror';
 
 import { NetvisorService } from '$modules/netvisor';
 import { UserService } from '$modules/user/user.service';
-import { ProfileStatus } from '$modules/user/user.types';
 
 @Injectable()
 export class SellerService {
@@ -94,9 +93,8 @@ export class SellerService {
       .child('data')
       .set(SellerProfileDataDto.adapter.toInternal(data));
 
-    await this.userService.setHasProfile({
+    await this.userService.setHasSellerProfile({
       id,
-      value: ProfileStatus.HAS_SELLER_PROFILE,
       hasProfile: true,
     });
 
@@ -226,9 +224,8 @@ export class SellerService {
 
     await this.sellerTableRef.child(id).remove();
 
-    await this.userService.setHasProfile({
+    await this.userService.setHasSellerProfile({
       id,
-      value: ProfileStatus.HAS_SELLER_PROFILE,
       hasProfile: false,
     });
 

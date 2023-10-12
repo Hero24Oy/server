@@ -237,10 +237,16 @@ export class UserService {
     return newUser;
   }
 
-  async setHasProfile(args: SetHasProfileArguments): Promise<void> {
-    const { id, value, hasProfile } = args;
+  async setHasBuyerProfile(args: SetHasProfileArguments): Promise<void> {
+    const { id, hasProfile } = args;
 
-    await this.userTableRef.child(id).child(value).set(hasProfile);
+    await this.userTableRef.child(id).child('hasBuyerProfile').set(hasProfile);
+  }
+
+  async setHasSellerProfile(args: SetHasProfileArguments): Promise<void> {
+    const { id, hasProfile } = args;
+
+    await this.userTableRef.child(id).child('hasSellerProfile').set(hasProfile);
   }
 
   async setNetvisorSellerId(args: SetNetvisorSellerIdArguments): Promise<void> {
