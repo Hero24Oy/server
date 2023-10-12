@@ -14,26 +14,22 @@ import { SellersArgs } from './dto/sellers/sellers.args';
 import { SellerService } from './seller.service';
 
 @Resolver()
+@UseFilters(FirebaseExceptionFilter)
+@UseGuards(AuthGuard)
 export class SellerResolver {
   constructor(private sellerService: SellerService) {}
 
   @Query(() => SellerProfileDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async seller(@Args('id') sellerId: string): Promise<SellerProfileDto | null> {
     return this.sellerService.getSellerById(sellerId);
   }
 
   @Query(() => SellerProfileListDto)
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async sellers(@Args() args: SellersArgs): Promise<SellerProfileListDto> {
     return this.sellerService.getSellers(args);
   }
 
   @Query(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async isSellerApproved(
     @Args('id') id: string,
     @FirebaseApp() app: FirebaseAppInstance,
@@ -42,22 +38,16 @@ export class SellerResolver {
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async createSeller(@Args() args: SellerProfileCreationArgs) {
     return this.sellerService.createSeller(args);
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async editSellerData(@Args() args: SellerProfileDataEditingArgs) {
     return this.sellerService.editSellerData(args);
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async attachCategoryToSeller(
     @Args('sellerId') sellerId: string,
     @Args('categoryId') categoryId: string,
@@ -67,8 +57,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async unattachCategoryFromSeller(
     @Args('sellerId') sellerId: string,
     @Args('categoryId') categoryId: string,
@@ -82,8 +70,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async removeReviewFromSeller(
     @Args('sellerId') sellerId: string,
     @Args('reviewId') reviewId: string,
@@ -93,8 +79,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async setIsSellerApproved(
     @Args('sellerId') sellerId: string,
     @Args('isApproved') isApproved: boolean,
@@ -104,8 +88,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
   async deleteSeller(@Args('id') sellerId: string): Promise<boolean> {
     return this.sellerService.deleteSeller(sellerId);
   }
