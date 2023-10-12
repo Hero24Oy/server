@@ -19,7 +19,7 @@ import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { SellerMirror } from './seller.mirror';
 
-import { NetvisorFetcher } from '$modules/netvisor';
+import { NetvisorService } from '$modules/netvisor';
 import { UserService } from '$modules/user/user.service';
 import { SetHasProfileValues } from '$modules/user/user.types';
 
@@ -31,7 +31,7 @@ export class SellerService {
     firebaseService: FirebaseService,
     private readonly sellerMirror: SellerMirror,
     private readonly userService: UserService,
-    private readonly netvisorFetcher: NetvisorFetcher,
+    private readonly netvisorService: NetvisorService,
   ) {
     const database = firebaseService.getDefaultApp().database();
 
@@ -101,7 +101,7 @@ export class SellerService {
 
     const seller = await this.strictGetSellerById(id);
 
-    await this.createNetvisorInfo(seller);
+    await this.netvisorService.createNetvisorSellerInfo(seller);
 
     return this.strictGetSellerById(id);
   }
@@ -116,7 +116,7 @@ export class SellerService {
 
     const updatedSeller = await this.strictGetSellerById(id);
 
-    await this.updateNetvisorInfo(updatedSeller);
+    await this.netvisorService.updateNetvisorSellerInfo(updatedSeller);
 
     return updatedSeller;
   }
@@ -230,33 +230,5 @@ export class SellerService {
     });
 
     return true;
-  }
-
-  private async updateNetvisorInfo(seller: SellerProfileDto): Promise<void> {
-    const user = await this.userService.strictGetUserById(seller.id);
-
-    if (user.netvisorSellerId) {
-      await this.netvisorFetcher.editNetvisorAccount({
-        user,
-        seller,
-        netvisorKey: String(user.netvisorSellerId),
-      });
-    }
-  }
-
-  private async createNetvisorInfo(seller: SellerProfileDto): Promise<void> {
-    const user = await this.userService.strictGetUserById(seller.id);
-
-    const netvisorSellerId = await this.netvisorFetcher.createNetvisorAccount({
-      seller,
-      user,
-    });
-
-    if (netvisorSellerId) {
-      await this.userService.setNetvisorSellerId(
-        user.id,
-        Number(netvisorSellerId),
-      );
-    }
   }
 }
