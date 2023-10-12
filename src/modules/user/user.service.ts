@@ -22,7 +22,10 @@ import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserMirror } from './user.mirror';
-import { SetHasProfileArguments } from './user.types';
+import {
+  SetHasProfileArguments,
+  SetNetvisorSellerIdArguments,
+} from './user.types';
 import { emitUserCreated } from './user.utils/emit-user-created.util';
 import { emitUserUpdated } from './user.utils/emit-user-updated.util';
 
@@ -240,14 +243,13 @@ export class UserService {
     await this.userTableRef.child(id).child(value).set(hasProfile);
   }
 
-  async setNetvisorSellerId(
-    userId: string,
-    netvisorKey: number,
-  ): Promise<void> {
+  async setNetvisorSellerId(args: SetNetvisorSellerIdArguments): Promise<void> {
+    const { userId, netvisorSellerId } = args;
+
     await this.userTableRef
       .child(userId)
       .child('netvisorSellerId')
-      .set(netvisorKey);
+      .set(netvisorSellerId);
   }
 
   emitUserUpdated(userChanges: UserUpdatedDto): void {

@@ -21,10 +21,10 @@ export class NetvisorService {
     });
 
     if (netvisorSellerId) {
-      await this.userService.setNetvisorSellerId(
-        user.id,
-        Number(netvisorSellerId),
-      );
+      await this.userService.setNetvisorSellerId({
+        userId: user.id,
+        netvisorSellerId: Number(netvisorSellerId),
+      });
     }
   }
 
