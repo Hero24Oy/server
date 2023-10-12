@@ -2,8 +2,8 @@ import * as Joi from 'joi';
 
 let FETCH_DAY_MESSAGE = '';
 FETCH_DAY_MESSAGE += 'Fetch day must be: \n';
-FETCH_DAY_MESSAGE += '1. A number in the range 1-6 \n';
-FETCH_DAY_MESSAGE += '2. Range x-y (x = 1...7, y = 1...7, x < y) \n';
+FETCH_DAY_MESSAGE += '1. A number in the range 1-7 \n';
+FETCH_DAY_MESSAGE += '2. Range x-y (x = 1...6, y = 1...6, x < y) \n';
 FETCH_DAY_MESSAGE +=
   '3. Numbers in the range from 1 to 6 separated by commas(1,3,5)\n';
 FETCH_DAY_MESSAGE += '4. * for all days';
