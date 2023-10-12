@@ -1,15 +1,15 @@
 import { Countries } from '../enums';
 
-interface Attributes {
+export interface Attributes {
   type: string;
 }
 
-interface Country {
+export interface Country {
   _attributes: Attributes;
   _text: Countries;
 }
 
-interface VendorBaseInformation {
+export interface VendorBaseInformation {
   address: string;
   city: string;
   code: string;
@@ -19,7 +19,7 @@ interface VendorBaseInformation {
   postcode: string;
 }
 
-interface VendorContactDetails {
+export interface VendorContactDetails {
   contactpersonemail: string;
   contactpersonname: string;
   contactpersonphonenumber: string;
@@ -27,12 +27,12 @@ interface VendorContactDetails {
   phonenumber: string;
 }
 
-interface Vendor {
+export interface Vendor {
   vendorbaseinformation: VendorBaseInformation;
   vendorcontactdetails: VendorContactDetails;
 }
 
-interface Root {
+export interface Root {
   vendor: Vendor;
 }
 
