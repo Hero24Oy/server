@@ -7,6 +7,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { FirebaseAppInstance } from '../firebase/firebase.types';
 
 import { SellerProfileCreationArgs } from './dto/creation/seller-profile-creation.args';
+import { SellerProfileDeletionArgs } from './dto/deletion/seller-profile-deletion.args';
 import { SellerProfileDataEditingArgs } from './dto/editing/seller-profile-data-editing.args';
 import { SellerProfileDto } from './dto/seller/seller-profile.dto';
 import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
@@ -88,7 +89,9 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteSeller(@Args('id') sellerId: string): Promise<boolean> {
-    return this.sellerService.deleteSeller(sellerId);
+  async deleteSeller(
+    @Args() args: SellerProfileDeletionArgs,
+  ): Promise<boolean> {
+    return this.sellerService.deleteSeller(args);
   }
 }
