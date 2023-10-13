@@ -1,3 +1,2 @@
-import { Element, ElementCompact } from 'xml-js';
-
-export type Elements = Element | ElementCompact;
+// We cannot do this with Record<string, Entity> because of circular dependency error.
+export type Entity = { [key: string]: Entity | string };

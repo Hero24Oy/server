@@ -2,8 +2,6 @@ import { COUNTRY_ISO } from '../constants';
 import { Countries } from '../enums';
 import { CreateNetvisorAccountArguments, SellerXmlObject } from '../types';
 
-import { performXmlEscape } from '$modules/common/common.utils/perform-xml-escape';
-
 export const generateSellerXmlObject = (
   props: CreateNetvisorAccountArguments,
 ): SellerXmlObject => {
@@ -12,7 +10,7 @@ export const generateSellerXmlObject = (
     user: { id: userId, data: userData },
   } = props;
 
-  const xmlObject = {
+  return {
     root: {
       vendor: {
         vendorbaseinformation: {
@@ -39,6 +37,4 @@ export const generateSellerXmlObject = (
       },
     },
   };
-
-  return performXmlEscape<SellerXmlObject>(xmlObject);
 };

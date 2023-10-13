@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import xmlEscape from 'xml-escape';
 import converter, { Options } from 'xml-js';
 import { Parser } from 'xml2js';
 
-import { Elements } from './types';
+import { Entity } from './types';
 
 @Injectable()
 export class XmlJsService {
@@ -16,10 +17,24 @@ export class XmlJsService {
     return this.parser.parseStringPromise(xml) as Promise<Type>;
   }
 
-  createXmlFromObject<Type extends Elements>(
+  createXmlFromObject<Type extends Entity>(
     object: Type,
     options: Options.JS2XML,
   ): string {
-    return converter.js2xml(object, options);
+    const xmlEscapedObject = this.performXmlEscape<Type>(object);
+
+    return converter.js2xml(xmlEscapedObject, options);
+  }
+
+  performXmlEscape<Type extends Entity>(object: Type): Type {
+    return Object.fromEntries(
+      Object.entries(object).map(([key, value]) => {
+        if (value && typeof value === 'object') {
+          return [key, this.performXmlEscape(value)];
+        }
+
+        return [key, xmlEscape(String(value))];
+      }),
+    ) as Type;
   }
 }

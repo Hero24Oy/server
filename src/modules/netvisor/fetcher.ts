@@ -9,6 +9,7 @@ import {
   purchaseInvoiceListParameters,
 } from './constants';
 import { NetvisorEndpoint, NetvisorHeadersName } from './enums';
+import { generateSellerXmlObject } from './helpers';
 import {
   CreateNetvisorAccountArguments,
   CreateNetvisorAccountResponse,
@@ -18,7 +19,6 @@ import {
   NetvisorPurchaseInvoiceListResponse,
   SellerXmlObject,
 } from './types';
-import { generateSellerXmlObject } from './utils';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';

@@ -1,15 +1,15 @@
 import { Countries } from '../enums';
 
-export interface Attributes {
+export type Attributes = {
   type: string;
-}
+};
 
-export interface Country {
+export type Country = {
   _attributes: Attributes;
   _text: Countries;
-}
+};
 
-export interface VendorBaseInformation {
+export type VendorBaseInformation = {
   address: string;
   city: string;
   code: string;
@@ -17,25 +17,25 @@ export interface VendorBaseInformation {
   name: string;
   organizationid: string;
   postcode: string;
-}
+};
 
-export interface VendorContactDetails {
+export type VendorContactDetails = {
   contactpersonemail: string;
   contactpersonname: string;
   contactpersonphonenumber: string;
   email: string;
   phonenumber: string;
-}
+};
 
-export interface Vendor {
+export type Vendor = {
   vendorbaseinformation: VendorBaseInformation;
   vendorcontactdetails: VendorContactDetails;
-}
+};
 
-export interface Root {
+export type Root = {
   vendor: Vendor;
-}
+};
 
-export interface SellerXmlObject extends Record<string, unknown> {
+export type SellerXmlObject = {
   root: Root;
-}
+};
