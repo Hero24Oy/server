@@ -32,6 +32,6 @@ export class UserMergeResolver {
   @Subscription(() => UserMergeDto)
   @UseGuards(AuthGuard)
   subscribeToUserMerge(@Args('userId') _userId: string) {
-    return this.pubSub.asyncIterator('userMerge');
+    return this.pubSub.asyncIterator('userMerge'); // TODO there is no such event, look user-merge.constants.ts
   }
 }
