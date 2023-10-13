@@ -22,6 +22,10 @@ import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserMirror } from './user.mirror';
+import {
+  SetHasProfileArguments,
+  SetNetvisorSellerIdArguments,
+} from './user.types';
 import { emitUserCreated } from './user.utils/emit-user-created.util';
 import { emitUserUpdated } from './user.utils/emit-user-updated.util';
 
@@ -231,6 +235,27 @@ export class UserService {
     await this.editUserAdminStatus({ id: userId, isAdmin: true });
 
     return newUser;
+  }
+
+  async setHasBuyerProfile(args: SetHasProfileArguments): Promise<void> {
+    const { id, hasProfile } = args;
+
+    await this.userTableRef.child(id).child('hasBuyerProfile').set(hasProfile);
+  }
+
+  async setHasSellerProfile(args: SetHasProfileArguments): Promise<void> {
+    const { id, hasProfile } = args;
+
+    await this.userTableRef.child(id).child('hasSellerProfile').set(hasProfile);
+  }
+
+  async setNetvisorSellerId(args: SetNetvisorSellerIdArguments): Promise<void> {
+    const { userId, netvisorSellerId } = args;
+
+    await this.userTableRef
+      .child(userId)
+      .child('netvisorSellerId')
+      .set(netvisorSellerId);
   }
 
   emitUserUpdated(userChanges: UserUpdatedDto): void {

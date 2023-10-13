@@ -1,14 +1,23 @@
 import { Injectable } from '@nestjs/common';
 
-import { Xml2JsService } from '../xml2js/service';
+import { XmlJsService } from '../xml-js/service';
 
-import { purchaseInvoiceListParameters } from './constants';
 import {
+  createNetvisorAccountParameters,
+  editNetvisorAccountParameters,
+  jsToXmlOptions,
+  purchaseInvoiceListParameters,
+} from './constants';
+import { NetvisorEndpoint, NetvisorHeadersName } from './enums';
+import { generateSellerXmlObject } from './helpers';
+import {
+  CreateNetvisorAccountArguments,
+  CreateNetvisorAccountResponse,
+  EditNetvisorAccountArguments,
   NetvisorBaseHeaders,
-  NetvisorEndpoint,
   NetvisorHeaders,
-  NetvisorHeadersName,
   NetvisorPurchaseInvoiceListResponse,
+  SellerXmlObject,
 } from './types';
 
 import { ConfigType } from '$config';
@@ -27,7 +36,7 @@ export class NetvisorFetcher {
   constructor(
     @Config() config: ConfigType,
     private readonly cryptoService: CryptoService,
-    private readonly xml2JsService: Xml2JsService,
+    private readonly xmlJsService: XmlJsService,
   ) {
     this.config = config.netvisor;
 
@@ -91,27 +100,76 @@ export class NetvisorFetcher {
 
     const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
 
-    try {
-      const response = await fetcher.get(headers);
+    const response = await fetcher.get(headers);
 
-      const xmlString = await response.text();
+    const xmlString = await response.text();
 
-      const data =
-        await this.xml2JsService.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
-          xmlString,
-        );
+    const data =
+      await this.xmlJsService.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
+        xmlString,
+      );
 
-      if (Array.isArray(data.Root.PurchaseInvoiceList[0].PurchaseInvoice)) {
-        return data.Root.PurchaseInvoiceList[0].PurchaseInvoice.map(
-          (invoice) => {
-            return invoice.NetvisorKey[0];
-          },
-        );
-      }
-
-      return [];
-    } catch (error) {
-      console.error(error);
+    if (Array.isArray(data.Root.PurchaseInvoiceList[0].PurchaseInvoice)) {
+      return data.Root.PurchaseInvoiceList[0].PurchaseInvoice.map((invoice) => {
+        return invoice.NetvisorKey[0];
+      });
     }
+
+    return [];
+  }
+
+  async createNetvisorAccount(
+    props: CreateNetvisorAccountArguments,
+  ): Promise<string | null> {
+    const xmlObject = generateSellerXmlObject(props);
+
+    const body = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
+      xmlObject,
+      jsToXmlOptions,
+    );
+
+    const fetcher = new CustomFetcher(
+      this.baseUrl,
+      NetvisorEndpoint.VENDOR,
+      createNetvisorAccountParameters,
+    );
+
+    const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
+
+    const response = await fetcher.post({ headers, body });
+
+    const xmlString = await response.text();
+
+    const data =
+      await this.xmlJsService.createObjectFromXml<CreateNetvisorAccountResponse>(
+        xmlString,
+      );
+
+    if (Array.isArray(data.Root.Replies)) {
+      return data.Root.Replies[0].InsertedDataIdentifier[0];
+    }
+
+    return null;
+  }
+
+  async editNetvisorAccount(
+    props: EditNetvisorAccountArguments,
+  ): Promise<void> {
+    const { netvisorKey } = props;
+    const xmlObject = generateSellerXmlObject(props);
+
+    const body = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
+      xmlObject,
+      jsToXmlOptions,
+    );
+
+    const fetcher = new CustomFetcher(this.baseUrl, NetvisorEndpoint.VENDOR, {
+      ...editNetvisorAccountParameters,
+      netvisorkey: netvisorKey,
+    });
+
+    const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
+
+    await fetcher.post({ headers, body });
   }
 }

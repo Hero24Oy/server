@@ -1,6 +1,11 @@
 import {
+  Methods,
+  NetvisorAccountKeys,
   PaymentStatus,
   PurchaseInvoiceListKeys,
+} from './enums';
+import {
+  NetvisorAccountParameters,
   PurchaseInvoiceListParameters,
   ScheduleFetchDay,
 } from './types';
@@ -20,3 +25,15 @@ export const scheduleFetchDays: ScheduleFetchDay[] = [
 ];
 
 export const NETVISOR_FETCH_JOB = 'Regular paid receipt of Netvisor status';
+
+export const jsToXmlOptions = { compact: true, spaces: 2 };
+
+export const COUNTRY_ISO = 'ISO-3166';
+
+export const createNetvisorAccountParameters = {
+  [NetvisorAccountKeys.METHOD]: Methods.ADD,
+} satisfies NetvisorAccountParameters;
+
+export const editNetvisorAccountParameters = {
+  [NetvisorAccountKeys.METHOD]: Methods.EDIT,
+} satisfies NetvisorAccountParameters;
