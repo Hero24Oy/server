@@ -1,4 +1,4 @@
-import { Injectable, UseFilters } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { XmlJsService } from '../xml-js/service';
 
@@ -9,7 +9,6 @@ import {
   purchaseInvoiceListParameters,
 } from './constants';
 import { NetvisorEndpoint, NetvisorHeadersName } from './enums';
-import { NetvisorExceptionFilter } from './exception-filter';
 import {
   CreateNetvisorAccountArguments,
   CreateNetvisorAccountResponse,
@@ -27,7 +26,6 @@ import { CryptoService } from '$modules/crypto/service';
 import { CustomFetcher } from '$utils';
 
 @Injectable()
-@UseFilters(NetvisorExceptionFilter)
 export class NetvisorFetcher {
   private readonly baseHeaders: NetvisorBaseHeaders;
 
@@ -122,7 +120,7 @@ export class NetvisorFetcher {
 
   async createNetvisorAccount(
     props: CreateNetvisorAccountArguments,
-  ): Promise<string | void> {
+  ): Promise<string | null> {
     const xmlObject = generateSellerXmlObject(props);
 
     const body = this.xmlJsService.createXmlFromObject<SellerXmlObject>(
@@ -138,20 +136,20 @@ export class NetvisorFetcher {
 
     const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
 
-    try {
-      const response = await fetcher.post({ headers, body });
+    const response = await fetcher.post({ headers, body });
 
-      const xmlString = await response.text();
+    const xmlString = await response.text();
 
-      const data =
-        await this.xmlJsService.createObjectFromXml<CreateNetvisorAccountResponse>(
-          xmlString,
-        );
+    const data =
+      await this.xmlJsService.createObjectFromXml<CreateNetvisorAccountResponse>(
+        xmlString,
+      );
 
+    if (Array.isArray(data.Root.Replies)) {
       return data.Root.Replies[0].InsertedDataIdentifier[0];
-    } catch (error) {
-      console.error(error);
     }
+
+    return null;
   }
 
   async editNetvisorAccount(
