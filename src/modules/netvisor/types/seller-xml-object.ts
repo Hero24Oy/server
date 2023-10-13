@@ -36,6 +36,6 @@ export interface Root {
   vendor: Vendor;
 }
 
-export interface SellerXmlObject {
+export interface SellerXmlObject extends Record<string, unknown> {
   root: Root;
 }

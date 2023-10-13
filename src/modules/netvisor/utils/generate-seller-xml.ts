@@ -1,8 +1,8 @@
-import xmlEscape from 'xml-escape';
-
 import { COUNTRY_ISO } from '../constants';
 import { Countries } from '../enums';
 import { CreateNetvisorAccountArguments, SellerXmlObject } from '../types';
+
+import { performXmlEscape } from '$modules/common/common.utils/perform-xml-escape';
 
 export const generateSellerXmlObject = (
   props: CreateNetvisorAccountArguments,
@@ -12,33 +12,33 @@ export const generateSellerXmlObject = (
     user: { id: userId, data: userData },
   } = props;
 
-  const phonenumber = xmlEscape(userData.phone ?? '');
-
-  return {
+  const xmlObject = {
     root: {
       vendor: {
         vendorbaseinformation: {
           code: userId,
-          name: xmlEscape(sellerData.companyName),
-          address: xmlEscape(sellerData.streetAddress),
+          name: sellerData.companyName,
+          address: sellerData.streetAddress,
           postcode: sellerData.postalCode,
-          city: xmlEscape(sellerData.city),
+          city: sellerData.city,
           country: {
             _attributes: {
               type: COUNTRY_ISO,
             },
             _text: Countries.FINLAND,
           },
-          organizationid: xmlEscape(sellerData.companyVAT),
+          organizationid: sellerData.companyVAT,
         },
         vendorcontactdetails: {
-          phonenumber,
-          email: xmlEscape(sellerData.companyEmail),
-          contactpersonname: xmlEscape(userData.name),
-          contactpersonphonenumber: phonenumber,
-          contactpersonemail: xmlEscape(userData.email),
+          phonenumber: userData.phone ?? '',
+          email: sellerData.companyEmail,
+          contactpersonname: userData.name,
+          contactpersonphonenumber: userData.phone ?? '',
+          contactpersonemail: userData.email,
         },
       },
     },
   };
+
+  return performXmlEscape<SellerXmlObject>(xmlObject);
 };
