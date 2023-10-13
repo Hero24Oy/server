@@ -19,5 +19,6 @@ import { SubscriptionManagerModule } from '$modules/subscription-manager/subscri
     }),
   ],
   providers: [UserMergeResolver, UserMergeService],
+  exports: [UserMergeService],
 })
 export class UserMergeModule {}
