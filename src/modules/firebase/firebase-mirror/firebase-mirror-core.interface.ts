@@ -1,4 +1,3 @@
-import { skipFirst } from '../../common/common.utils';
 import {
   SubscriptionService,
   Unsubscribe,
@@ -29,7 +28,7 @@ export abstract class FirebaseMirrorCoreService<Entity>
     const childAddedUnsubscribe = subscribeOnFirebaseEvent(
       this.reference,
       'child_added',
-      skipFirst(this.entityAddedOrUpdatedHandler),
+      this.entityAddedOrUpdatedHandler,
     );
 
     await this.loadTableData();
