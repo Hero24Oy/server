@@ -20,19 +20,25 @@ export class NetvisorService {
       user,
     });
 
-    // TODO: We need to inform that netvisor seller info was not created.
-    if (netvisorSellerId) {
-      await this.userService.setNetvisorSellerId({
-        userId: user.id,
-        netvisorSellerId: Number(netvisorSellerId),
-      });
+    if (!netvisorSellerId) {
+      throw new Error(`Could not create netvisor seller id for ${seller.id}`);
     }
+
+    await this.userService.setNetvisorSellerId({
+      userId: user.id,
+      netvisorSellerId: Number(netvisorSellerId),
+    });
   }
 
   async updateNetvisorSellerInfo(seller: SellerProfileDto): Promise<void> {
     const user = await this.userService.strictGetUserById(seller.id);
 
-    // TODO: We need to tell user that netvisorSellerId is undefined.
+    if (!user.netvisorSellerId) {
+      throw new Error(
+        `Could not update seller ${seller.id} without netvisor seller id!`,
+      );
+    }
+
     if (user.netvisorSellerId) {
       await this.netvisorFetcher.editNetvisorAccount({
         user,
