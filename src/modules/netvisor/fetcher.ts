@@ -109,7 +109,7 @@ export class NetvisorFetcher {
         xmlString,
       );
 
-    if (Array.isArray(data.Root.PurchaseInvoiceList)) {
+    if (Array.isArray(data.Root.PurchaseInvoiceList[0].PurchaseInvoice)) {
       return data.Root.PurchaseInvoiceList[0].PurchaseInvoice.map((invoice) => {
         return invoice.NetvisorKey[0];
       });

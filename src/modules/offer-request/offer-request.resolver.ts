@@ -10,6 +10,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
+import { OfferRequestSetIsApprovedByBuyerInput } from './dto/editing/offer-request-set-is-approved-by-buyer-input';
 import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
 import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
 import { OfferRequestDto } from './dto/offer-request/offer-request.dto';
@@ -119,5 +120,14 @@ export class OfferRequestResolver {
     @Args() _args: OfferRequestUpdatedSubscriptionArgs,
   ) {
     return this.pubSub.asyncIterator(OFFER_REQUEST_UPDATED_SUBSCRIPTION);
+  }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async setIsApprovedByBuyer(
+    @Args('input') input: OfferRequestSetIsApprovedByBuyerInput,
+  ): Promise<boolean> {
+    return this.offerRequestService.setIsApprovedByBuyer(input);
   }
 }

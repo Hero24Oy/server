@@ -23,6 +23,7 @@ import { SorterService } from '../sorter/sorter.service';
 import { AddressesAnsweredInput } from './dto/address-answered/addresses-answered.input';
 import { OfferRequestCreationInput } from './dto/creation/offer-request-creation.input';
 import { OfferRequestDataInput } from './dto/creation/offer-request-data.input';
+import { OfferRequestSetIsApprovedByBuyerInput } from './dto/editing/offer-request-set-is-approved-by-buyer-input';
 import { OfferRequestUpdateAddressesInput } from './dto/editing/offer-request-update-addresses.input';
 import { OfferRequestUpdateQuestionsInput } from './dto/editing/offer-request-update-questions.input';
 import { UpdateAcceptedChangesInput } from './dto/editing/update-accepted-changes.input';
@@ -395,6 +396,19 @@ export class OfferRequestService {
       .set(status);
 
     return this.strictGetOfferRequestById(offerRequestId);
+  }
+
+  async setIsApprovedByBuyer(
+    input: OfferRequestSetIsApprovedByBuyerInput,
+  ): Promise<boolean> {
+    const { id, isApprovedByBuyer } = input;
+
+    await this.offerRequestTableRef
+      .child(id)
+      .child('isApprovedByBuyer')
+      .set(isApprovedByBuyer);
+
+    return true;
   }
 
   emitOfferRequestUpdated(offerRequest: OfferRequestDto): void {

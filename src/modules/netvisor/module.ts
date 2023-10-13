@@ -5,6 +5,7 @@ import { NetvisorSchedule } from './schedule';
 import { NetvisorService } from './service';
 
 import { CryptoModule } from '$modules/crypto/module';
+import { CustomScheduleModule } from '$modules/custom-schedule/module';
 import { OfferModule } from '$modules/offer/offer.module';
 import { OfferRequestModule } from '$modules/offer-request/offer-request.module';
 import { UserModule } from '$modules/user/user.module';
@@ -17,6 +18,7 @@ import { XmlJsModule } from '$modules/xml-js/module';
     CryptoModule,
     XmlJsModule,
     UserModule,
+    CustomScheduleModule,
   ],
   providers: [NetvisorSchedule, NetvisorFetcher, NetvisorService],
   exports: [NetvisorService],
