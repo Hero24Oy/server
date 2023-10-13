@@ -1,8 +1,8 @@
 import xmlEscape from 'xml-escape';
 
-export const performXmlEscape = <T extends Record<string, unknown>>(
-  object: T,
-): T => {
+export const performXmlEscape = <Type extends Record<string, unknown>>(
+  object: Type,
+): Type => {
   const xmlEscapedObject = {};
 
   Object.entries(object).forEach(([key, value]) => {
@@ -15,5 +15,5 @@ export const performXmlEscape = <T extends Record<string, unknown>>(
     }
   });
 
-  return xmlEscapedObject as T;
+  return xmlEscapedObject as Type;
 };
