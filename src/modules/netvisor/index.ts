@@ -4,3 +4,4 @@ export * from './fetcher';
 export * from './schedule';
 export * from './constants';
 export * from './service';
+export * from './exception-filter';

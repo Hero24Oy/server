@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseFilters } from '@nestjs/common';
 
 import { XmlJsService } from '../xml-js/service';
 
@@ -9,6 +9,7 @@ import {
   purchaseInvoiceListParameters,
 } from './constants';
 import { NetvisorEndpoint, NetvisorHeadersName } from './enums';
+import { NetvisorExceptionFilter } from './exception-filter';
 import {
   CreateNetvisorAccountArguments,
   CreateNetvisorAccountResponse,
@@ -26,6 +27,7 @@ import { CryptoService } from '$modules/crypto/service';
 import { CustomFetcher } from '$utils';
 
 @Injectable()
+@UseFilters(NetvisorExceptionFilter)
 export class NetvisorFetcher {
   private readonly baseHeaders: NetvisorBaseHeaders;
 
@@ -100,28 +102,22 @@ export class NetvisorFetcher {
 
     const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
 
-    try {
-      const response = await fetcher.get(headers);
+    const response = await fetcher.get(headers);
 
-      const xmlString = await response.text();
+    const xmlString = await response.text();
 
-      const data =
-        await this.xmlJsService.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
-          xmlString,
-        );
+    const data =
+      await this.xmlJsService.createObjectFromXml<NetvisorPurchaseInvoiceListResponse>(
+        xmlString,
+      );
 
-      if (Array.isArray(data.Root.PurchaseInvoiceList)) {
-        return data.Root.PurchaseInvoiceList[0].PurchaseInvoice.map(
-          (invoice) => {
-            return invoice.NetvisorKey[0];
-          },
-        );
-      }
-
-      return [];
-    } catch (error) {
-      console.error(error);
+    if (Array.isArray(data.Root.PurchaseInvoiceList)) {
+      return data.Root.PurchaseInvoiceList[0].PurchaseInvoice.map((invoice) => {
+        return invoice.NetvisorKey[0];
+      });
     }
+
+    return [];
   }
 
   async createNetvisorAccount(
@@ -176,10 +172,6 @@ export class NetvisorFetcher {
 
     const headers = this.createFullHeaders(fetcher.getStringifiedUrl());
 
-    try {
-      await fetcher.post({ headers, body });
-    } catch (error) {
-      console.error(error);
-    }
+    await fetcher.post({ headers, body });
   }
 }
