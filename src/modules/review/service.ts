@@ -12,6 +12,7 @@ import {
   ReviewListOutput,
   ReviewObject,
 } from './graphql';
+import { ReviewMirror } from './mirror';
 
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
@@ -24,6 +25,7 @@ export class ReviewService {
 
   constructor(
     private readonly sellerService: SellerService,
+    private readonly reviewMirror: ReviewMirror,
     firebaseService: FirebaseService,
   ) {
     const database = firebaseService.getDefaultApp().database();
@@ -40,11 +42,7 @@ export class ReviewService {
   }
 
   async getAllReviews(): Promise<Record<string, ReviewDB>> {
-    const allReviewsSnapshot = await this.reviewTableRef.get();
-
-    const allReviews: Record<string, ReviewDB> = allReviewsSnapshot.val() ?? {};
-
-    return allReviews;
+    return Object.fromEntries(this.reviewMirror.getAll());
   }
 
   async getReviewsList(input: ReviewListInput): Promise<ReviewListOutput> {
