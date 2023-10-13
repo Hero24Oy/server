@@ -4,6 +4,6 @@ import { ReviewObject } from '../../objects';
 
 @ObjectType()
 export class SubscribeToReviewCreateOutput {
-  @Field()
+  @Field(() => ReviewObject)
   review: ReviewObject;
 }

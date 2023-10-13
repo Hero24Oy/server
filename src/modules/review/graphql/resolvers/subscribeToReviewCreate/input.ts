@@ -4,6 +4,6 @@ import { ReviewFilterObject } from '../../objects';
 
 @InputType()
 export class SubscribeToReviewCreateInput {
-  @Field()
+  @Field(() => ReviewFilterObject)
   filter: ReviewFilterObject;
 }
