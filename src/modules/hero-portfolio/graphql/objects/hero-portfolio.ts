@@ -6,7 +6,7 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 import { HeroPortfolioDataWithIds } from '$modules/hero-portfolio/types';
 
 @ObjectType()
-export class HeroPortfolioDto {
+export class HeroPortfolioObject {
   @Field(() => String)
   id: string;
 
@@ -16,8 +16,8 @@ export class HeroPortfolioDto {
   @Field(() => String)
   categoryId: string;
 
-  @Field(() => String)
-  description: string;
+  @Field(() => String, { nullable: true })
+  description?: MaybeType<string>;
 
   @Field(() => [String], { nullable: true })
   imageIds?: MaybeType<string[]>;
@@ -28,10 +28,13 @@ export class HeroPortfolioDto {
   @Field(() => Date)
   updatedAt: Date;
 
-  static adapter: FirebaseAdapter<HeroPortfolioDataWithIds, HeroPortfolioDto>;
+  static adapter: FirebaseAdapter<
+    HeroPortfolioDataWithIds,
+    HeroPortfolioObject
+  >;
 }
 
-HeroPortfolioDto.adapter = new FirebaseAdapter({
+HeroPortfolioObject.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     id: internal.id,
     sellerId: internal.sellerId,
@@ -45,7 +48,7 @@ HeroPortfolioDto.adapter = new FirebaseAdapter({
     id: external.id,
     category: external.categoryId,
     sellerId: external.sellerId,
-    description: external.description,
+    description: external.description || undefined,
     images: external.imageIds
       ? convertListToFirebaseMap(external.imageIds)
       : undefined,
