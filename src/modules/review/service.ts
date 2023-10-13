@@ -53,7 +53,9 @@ export class ReviewService {
     const allReviews = await this.getAllReviews();
 
     let nodes = Object.entries(allReviews)
-      .filter(([id]) => seller.reviews?.includes(id))
+      .filter(
+        ([_id, review]) => review.data.initial.sellerProfile === seller.id,
+      )
       .map(([id, review]) =>
         ReviewObject.adapter.toExternal({ ...review, id }),
       );
