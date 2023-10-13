@@ -33,7 +33,7 @@ export class XmlJsService {
           return [key, this.performXmlEscape(value)];
         }
 
-        return [key, xmlEscape(String(value))];
+        return [key, xmlEscape(value)];
       }),
     ) as Type;
   }
