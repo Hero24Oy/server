@@ -5,3 +5,13 @@ export type CreateNetvisorAccountArguments = {
   seller: SellerProfileDto;
   user: UserDto;
 };
+
+export interface CreateNetvisorAccountResponse {
+  Root: {
+    Replies: [
+      {
+        InsertedDataIdentifier: [string];
+      },
+    ];
+  };
+}
