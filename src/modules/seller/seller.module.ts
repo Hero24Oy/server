@@ -8,11 +8,15 @@ import { SellerMirror } from './seller.mirror';
 import { SellerResolver } from './seller.resolver';
 import { SellerService } from './seller.service';
 
+import { NetvisorModule } from '$modules/netvisor/module';
 import { SubscriptionManagerModule } from '$modules/subscription-manager/subscription-manager.module';
+import { UserModule } from '$modules/user/user.module';
 
 @Module({
   imports: [
     FirebaseModule,
+    UserModule,
+    NetvisorModule,
     GraphQlContextManagerModule.forFeature({
       imports: [SellerModule],
       contexts: [SellerContext],

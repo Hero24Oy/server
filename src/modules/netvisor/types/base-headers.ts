@@ -1,5 +1,6 @@
+import { NetvisorHeadersName } from '../enums';
+
 import { NetvisorHeaders } from './headers';
-import { NetvisorHeadersName } from './headers-name';
 
 export type NetvisorBaseHeaders = Pick<
   NetvisorHeaders,
