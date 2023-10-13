@@ -1,16 +1,28 @@
 import { Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
-import { HERO_PORTFOLIO_CREATED, HERO_PORTFOLIO_REMOVED } from './constants';
 import {
-  HeroPortfolioDto,
-  HeroPortfolioListDto,
+  HERO_PORTFOLIO_CREATED,
+  HERO_PORTFOLIO_REMOVED,
+  HERO_PORTFOLIO_UPDATED,
+} from './constants';
+import {
+  CreateHeroPortfolioInput,
+  CreateHeroPortfolioOutput,
+  EditHeroPortfolioInput,
+  EditHeroPortfolioOutput,
   HeroPortfolioListInput,
-} from './dto';
+  HeroPortfolioListOutput,
+  RemoveHeroPortfolioInput,
+  RemoveHeroPortfolioOutput,
+  SubscribeOnHeroPortfolioRemoveOutput,
+  SubscribeOnHeroPortfoliosCreateOutput,
+  SubscribeOnHeroPortfolioUpdateOutput,
+} from './graphql';
 import { HeroPortfolioService } from './service';
 import { HeroPortfolioSubscriptionFilter } from './utils';
 
@@ -25,31 +37,84 @@ export class HeroPortfolioResolver {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  @Query(() => HeroPortfolioListDto, { nullable: true })
+  @Query(() => HeroPortfolioListOutput, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async heroPortfolios(
     @Args('input') args: HeroPortfolioListInput,
     @AuthIdentity() identity: Identity,
-  ): Promise<HeroPortfolioListDto> {
+  ): Promise<HeroPortfolioListOutput> {
     return this.heroPortfolioService.getPortfolios(args, identity);
   }
 
-  @Subscription(() => HeroPortfolioDto, {
+  @Mutation(() => CreateHeroPortfolioOutput)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async createHeroPortfolio(
+    @Args('input') input: CreateHeroPortfolioInput,
+    @AuthIdentity() identity: Identity,
+  ): Promise<CreateHeroPortfolioOutput> {
+    const heroPortfolio = await this.heroPortfolioService.createHeroPortfolio(
+      input,
+      identity,
+    );
+
+    this.heroPortfolioService.emitHeroPortfolioCreation(heroPortfolio);
+
+    return heroPortfolio;
+  }
+
+  @Mutation(() => EditHeroPortfolioOutput)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async editHeroPortfolio(
+    @Args('input') input: EditHeroPortfolioInput,
+    @AuthIdentity() identity: Identity,
+  ): Promise<EditHeroPortfolioOutput> {
+    return this.heroPortfolioService.editHeroPortfolio(input, identity);
+  }
+
+  @Mutation(() => RemoveHeroPortfolioOutput)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  async removeHeroPortfolio(
+    @Args('input') input: RemoveHeroPortfolioInput,
+    @AuthIdentity() identity: Identity,
+  ): Promise<RemoveHeroPortfolioOutput> {
+    const heroPortfolio = await this.heroPortfolioService.removeHeroPortfolio(
+      input,
+      identity,
+    );
+
+    this.heroPortfolioService.emitHeroPortfolioRemoval(heroPortfolio);
+
+    return heroPortfolio;
+  }
+
+  @Subscription(() => SubscribeOnHeroPortfoliosCreateOutput, {
     name: HERO_PORTFOLIO_CREATED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_CREATED),
   })
   @UseGuards(AuthGuard)
-  subscribeOnHeroPortFoliosCreate(@Args('sellerId') _sellerId: string) {
+  subscribeOnHeroPortfoliosCreate(@Args('sellerId') _sellerId: string) {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_CREATED);
   }
 
-  @Subscription(() => HeroPortfolioDto, {
+  @Subscription(() => SubscribeOnHeroPortfolioRemoveOutput, {
     name: HERO_PORTFOLIO_REMOVED,
     filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_REMOVED),
   })
   @UseGuards(AuthGuard)
-  subscribeOnHeroPortFoliosRemove(@Args('sellerId') _sellerId: string) {
+  subscribeOnHeroPortfoliosRemove(@Args('sellerId') _sellerId: string) {
+    return this.pubSub.asyncIterator(HERO_PORTFOLIO_REMOVED);
+  }
+
+  @Subscription(() => SubscribeOnHeroPortfolioUpdateOutput, {
+    name: HERO_PORTFOLIO_UPDATED,
+    filter: HeroPortfolioSubscriptionFilter(HERO_PORTFOLIO_UPDATED),
+  })
+  @UseGuards(AuthGuard)
+  subscribeOnHeroPortfoliosUpdate(@Args('sellerId') _sellerId: string) {
     return this.pubSub.asyncIterator(HERO_PORTFOLIO_REMOVED);
   }
 }
