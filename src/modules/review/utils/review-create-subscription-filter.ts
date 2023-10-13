@@ -10,9 +10,5 @@ export const ReviewCreateSubscriptionFilter =
   (payload: Payload, { input }: { input: SubscribeToReviewCreateInput }) => {
     const review = payload[type];
 
-    if (review.sellerProfileId === input.filter.sellerId) {
-      return true;
-    }
-
-    return false;
+    return review.sellerProfileId === input.filter.sellerId;
   };
