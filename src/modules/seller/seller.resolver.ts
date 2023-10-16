@@ -18,6 +18,7 @@ import { SellerService } from './seller.service';
 import { SellerProfileSubscriptionFilter } from './seller.utils/seller-subscription-filter.util';
 
 @Resolver()
+@UseFilters(FirebaseExceptionFilter)
 export class SellerResolver {
   constructor(
     private readonly sellerService: SellerService,
@@ -25,28 +26,24 @@ export class SellerResolver {
   ) {}
 
   @Query(() => SellerProfileDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async seller(@Args('id') id: string): Promise<SellerProfileDto | null> {
     return this.sellerService.getSellerById(id);
   }
 
   @Query(() => SellerProfileListDto)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async sellers(@Args() args: SellersArgs): Promise<SellerProfileListDto> {
     return this.sellerService.getSellers(args);
   }
 
   @Query(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async isSellerApproved(@Args('id') id: string): Promise<boolean> {
     return this.sellerService.isSellerApproved(id);
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createSeller(
     @Args() args: SellerProfileCreationArgs,
@@ -55,7 +52,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => SellerProfileDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async editSellerData(
     @Args() args: SellerProfileDataEditingArgs,
@@ -64,7 +60,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async attachCategoryToSeller(
     @Args('sellerId') sellerId: string,
@@ -74,7 +69,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async unattachCategoryFromSeller(
     @Args('sellerId') sellerId: string,
@@ -84,7 +78,6 @@ export class SellerResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async removeReviewFromSeller(
     @Args('sellerId') sellerId: string,

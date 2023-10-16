@@ -1,4 +1,3 @@
-import { skipFirst } from '../../common/common.utils';
 import {
   SubscriptionService,
   Unsubscribe,
@@ -23,6 +22,15 @@ export abstract class FirebaseMirrorCoreService<Entity>
   }
 
   public async subscribe(): Promise<Unsubscribe> {
+    // * Due to the way firebase child_added works, it emits child_added event for every single node in collection
+    // * then triggers for every new one
+    // * await this.loadTableData() ensures that all the children nodes are loaded so that we can continue with initializing the table
+    const childAddedUnsubscribe = subscribeOnFirebaseEvent(
+      this.reference,
+      'child_added',
+      this.entityAddedOrUpdatedHandler,
+    );
+
     await this.loadTableData();
 
     const unsubscribes = [
@@ -31,11 +39,7 @@ export abstract class FirebaseMirrorCoreService<Entity>
         'child_changed',
         this.entityAddedOrUpdatedHandler,
       ),
-      subscribeOnFirebaseEvent(
-        this.reference.limitToLast(1),
-        'child_added',
-        skipFirst(this.entityAddedOrUpdatedHandler),
-      ),
+      childAddedUnsubscribe,
       subscribeOnFirebaseEvent(
         this.reference,
         'child_removed',
@@ -90,16 +94,8 @@ export abstract class FirebaseMirrorCoreService<Entity>
   }
 
   private async loadTableData(): Promise<void> {
-    const snapshot = await this.reference.get();
-    const tableData = this.getTableData();
-
-    snapshot.forEach((childSnapshot) => {
-      const { key } = childSnapshot;
-      const data = childSnapshot.val();
-
-      if (key && data) {
-        tableData.set(key, data);
-      }
-    });
+    // * once('value') is triggered only after all child_added finished emitting
+    // * https://firebase.google.com/docs/database/admin/retrieve-data?hl=en#section-event-guarantees
+    await this.reference.once('value');
   }
 }

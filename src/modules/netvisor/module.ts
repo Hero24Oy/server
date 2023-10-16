@@ -2,15 +2,25 @@ import { Module } from '@nestjs/common';
 
 import { NetvisorFetcher } from './fetcher';
 import { NetvisorSchedule } from './schedule';
+import { NetvisorService } from './service';
 
 import { CryptoModule } from '$modules/crypto/module';
+import { CustomScheduleModule } from '$modules/custom-schedule/module';
 import { OfferModule } from '$modules/offer/offer.module';
 import { OfferRequestModule } from '$modules/offer-request/offer-request.module';
-import { Xml2JsModule } from '$modules/xml2js/module';
+import { UserModule } from '$modules/user/user.module';
+import { XmlJsModule } from '$modules/xml-js/module';
 
 @Module({
-  imports: [OfferModule, OfferRequestModule, CryptoModule, Xml2JsModule],
-  providers: [NetvisorSchedule, NetvisorFetcher],
-  exports: [],
+  imports: [
+    OfferModule,
+    OfferRequestModule,
+    CryptoModule,
+    XmlJsModule,
+    UserModule,
+    CustomScheduleModule,
+  ],
+  providers: [NetvisorSchedule, NetvisorFetcher, NetvisorService],
+  exports: [NetvisorService],
 })
 export class NetvisorModule {}

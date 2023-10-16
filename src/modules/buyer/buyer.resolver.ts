@@ -14,6 +14,7 @@ import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 
 @Resolver()
+@UseFilters(FirebaseExceptionFilter)
 export class BuyerResolver {
   constructor(
     private readonly buyerService: BuyerService,
@@ -21,14 +22,12 @@ export class BuyerResolver {
   ) {}
 
   @Query(() => BuyerProfileDto, { nullable: true })
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async buyer(@Args('id') buyerId: string): Promise<BuyerProfileDto | null> {
     return this.buyerService.getBuyerById(buyerId);
   }
 
   @Mutation(() => BuyerProfileDto)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async createBuyer(
     @Args() args: BuyerProfileCreationArgs,
@@ -37,7 +36,6 @@ export class BuyerResolver {
   }
 
   @Mutation(() => BuyerProfileDto)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async editBuyer(
     @Args() args: BuyerProfileDataEditingArgs,

@@ -28,7 +28,7 @@ export class ReviewResolver {
 
   @Query(() => ReviewListOutput)
   @UseFilters(FirebaseExceptionFilter)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   async reviewList(
     @Args('input') input: ReviewListInput,
   ): Promise<ReviewListOutput> {

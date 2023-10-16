@@ -10,11 +10,13 @@ import { BuyerResolver } from './buyer.resolver';
 import { BuyerService } from './buyer.service';
 
 import { SubscriptionManagerModule } from '$modules/subscription-manager/subscription-manager.module';
+import { UserModule } from '$modules/user/user.module';
 
 @Module({
   imports: [
     FirebaseModule,
     GraphQlPubsubModule,
+    UserModule,
     GraphQlContextManagerModule.forFeature({
       imports: [BuyerModule],
       contexts: [BuyerContext],
