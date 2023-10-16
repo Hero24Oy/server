@@ -21,7 +21,7 @@ export class BaseQuestionObject {
   @Field(() => Boolean, { nullable: true })
   optional?: MaybeType<boolean>;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Int)
   order: number;
 
   @Field(() => String)

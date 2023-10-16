@@ -52,13 +52,13 @@ export class CategoryObject {
   questions: QuestionObject[];
 
   @Field(() => [PackageDto], { nullable: true })
-  packages?: PackageDto[];
+  packages?: MaybeType<PackageDto[]>;
 
   @Field(() => [RecommendedObject], { nullable: true })
-  recommended?: RecommendedObject[];
+  recommended?: MaybeType<RecommendedObject[]>;
 
   @Field(() => [CategorySubscriptionObject], { nullable: true })
-  subscriptions?: CategorySubscriptionObject[];
+  subscriptions?: MaybeType<CategorySubscriptionObject[]>;
 
   static adapter: FirebaseAdapter<WithId<CategoryDB>, CategoryObject>;
 }
