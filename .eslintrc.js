@@ -1,19 +1,19 @@
-const DB_REGEXP = '*.DB';
-const EXCLUDE_NAMES_NAMING_CONVENTION = [
-  'photoURL',
-  'companyVAT',
-  'serviceProviderVAT',
-  'customerVAT',
-  'heroBIOText',
-  'pauseDurationMS',
-  'generalPauseDurationMS',
-  'downloadURL',
-  'databaseURL',
-  'refFromURL',
+const EXCLUDE_NAMES_NAMING_CONVENTION_WORDS = ['heroBIOText'];
+const EXCLUDE_NAMES_NAMING_CONVENTION_REGEXPS = [
+  '.*VAT.*',
+  '.*URL.*',
+  '.*DB.*',
+  '.*MS.*',
 ];
-const excludeNamesNamingConventionRegex =
-  EXCLUDE_NAMES_NAMING_CONVENTION.join('|');
-const underscoreAndExcludeNamingConventionRegex = `^(_|${excludeNamesNamingConventionRegex})`;
+
+const excludeNamesNamingConventionWordsRegex =
+  EXCLUDE_NAMES_NAMING_CONVENTION_WORDS.join('|');
+const excludeNamesNamingConventionRegexpsRegex =
+  EXCLUDE_NAMES_NAMING_CONVENTION_REGEXPS.join('|');
+
+const underscoreAndExcludeNamingConventionWordsRegex = `^(_|${excludeNamesNamingConventionWordsRegex})`;
+
+const finalExcludeRegex = `${excludeNamesNamingConventionRegexpsRegex}|${underscoreAndExcludeNamingConventionWordsRegex}`;
 
 const initialRules = {
   'eslint-comments/require-description': [
@@ -66,7 +66,10 @@ const tsRules = {
     { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
   ], // Ignore variables with "_" prefix
   '@typescript-eslint/no-unused-expressions': ['error'],
-  '@typescript-eslint/explicit-function-return-type': 'warn',
+  '@typescript-eslint/explicit-function-return-type': [
+    'warn',
+    { allowExpressions: true },
+  ],
   '@typescript-eslint/no-floating-promises': 'error',
   '@typescript-eslint/no-use-before-define': [
     'error',
@@ -181,7 +184,7 @@ const namingConventionRule = {
       format: ['strictCamelCase'],
       filter: {
         match: false,
-        regex: `(\b${DB_REGEXP}|^(_|${excludeNamesNamingConventionRegex}))`,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -191,7 +194,7 @@ const namingConventionRule = {
       format: ['UPPER_CASE'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -200,7 +203,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -209,7 +212,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase', 'UPPER_CASE'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -218,7 +221,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -226,7 +229,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -234,7 +237,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -242,7 +245,7 @@ const namingConventionRule = {
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -277,7 +280,7 @@ const namingConventionRule = {
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -285,7 +288,7 @@ const namingConventionRule = {
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: `\b${DB_REGEXP}`,
+        regex: finalExcludeRegex,
       },
     },
   ],
@@ -333,12 +336,20 @@ const override = {
   },
   enableAsyncMethodsWithoutAwait: {
     files: [
+      // TODO: Delete this after rewrite all modules
       '**/*.context.ts',
       '**/*.subscription.ts',
       '**/*.module.ts',
       '**/*.service.ts',
       '**/*.resolver.ts',
       '**/*.interceptor.ts',
+
+      '**/context.ts',
+      '**/subscription.ts',
+      '**/module.ts',
+      '**/service.ts',
+      '**/resolver.ts',
+      '**/interceptor.ts',
     ],
     rules: {
       '@typescript-eslint/require-await': 'off',
@@ -361,6 +372,17 @@ const override = {
       '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
+  allowRedeclare: {
+    files: [
+      // we need allow duplicate for union type
+      'src/modules/category/graphql/objects/questions/question.ts',
+      'src/modules/category/graphql/objects/category-address/index.ts',
+    ],
+    rules: {
+      '@typescript-eslint/no-redeclare': 'off',
+    },
+  },
+
   importExtensions: {
     files: ['src/*.ts', 'src/**/*.ts'],
     rules: {
@@ -378,8 +400,8 @@ module.exports = {
     ecmaVersion: 2023,
   },
   extends: [
-    'airbnb',
-    'airbnb-typescript',
+    'airbnb/base',
+    'airbnb-typescript/base',
     'prettier',
     'plugin:prettier/recommended',
     'plugin:@typescript-eslint/recommended',
@@ -417,5 +439,6 @@ module.exports = {
     override.env,
     override.disableReturnType,
     override.importExtensions,
+    override.allowRedeclare,
   ],
 };

@@ -20,6 +20,7 @@ export enum FirebaseDatabasePath {
   IMAGES = 'images',
   CATEGORY_GROUP = 'feed',
   HERO_PORTFOLIOS = 'heroPortfolios',
+  CATEGORIES = 'categories',
 }
 
 export const MAX_TRYING_COUNT = 3;
