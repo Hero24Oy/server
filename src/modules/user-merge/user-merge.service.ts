@@ -37,12 +37,6 @@ export class UserMergeService {
     return userMerge;
   }
 
-  async getUserMergeByIdentity(
-    identity: Identity,
-  ): Promise<UserMergeDto | null> {
-    return this.getUserMergeByUserId(identity.id);
-  }
-
   async startUserMerge(
     userMergeInput: UserMergeInput,
     identity: Identity,
