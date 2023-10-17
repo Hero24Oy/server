@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserMergeDB } from 'hero24-types';
 
-import { MergeStatus } from '../../user-merge.types';
+import { MergeStatus } from './merge-status.dto';
 
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
@@ -13,7 +13,7 @@ export class UserMergeDto {
   @Field(() => String)
   emailToSearch: string;
 
-  @Field(() => String)
+  @Field(() => MergeStatus)
   emailStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
@@ -22,7 +22,7 @@ export class UserMergeDto {
   @Field(() => String)
   phoneToSearch: string;
 
-  @Field(() => String)
+  @Field(() => MergeStatus)
   phoneStatus: MergeStatus;
 
   @Field(() => Boolean, { nullable: true })
