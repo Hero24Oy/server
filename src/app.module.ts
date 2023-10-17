@@ -26,6 +26,7 @@ import { NewsModule } from './modules/news/news.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { OfferRequestModule } from './modules/offer-request/offer-request.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
+import { ReviewModule } from './modules/review/module';
 import { SellerModule } from './modules/seller/seller.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { SubscriberModule } from './modules/subscriber/subscriber.module';
@@ -84,6 +85,7 @@ import { XmlJsModule } from '$modules/xml-js/module';
     UserMergeModule,
     FeeModule,
     ImageModule,
+    ReviewModule,
     CategoryGroupModule,
     HeroPortfolioModule,
     NetvisorModule,

@@ -17,6 +17,7 @@ import { SubscriptionManagerModule } from '$modules/subscription-manager/subscri
     FirebaseModule,
     GraphQlPubsubModule,
     UserHubSpotModule,
+    GraphQlPubsubModule,
     GraphQlContextManagerModule.forFeature({
       contexts: [UserContext],
       imports: [UserModule],
