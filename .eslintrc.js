@@ -66,7 +66,10 @@ const tsRules = {
     { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
   ], // Ignore variables with "_" prefix
   '@typescript-eslint/no-unused-expressions': ['error'],
-  '@typescript-eslint/explicit-function-return-type': 'warn',
+  '@typescript-eslint/explicit-function-return-type': [
+    'warn',
+    { allowExpressions: true },
+  ],
   '@typescript-eslint/no-floating-promises': 'error',
   '@typescript-eslint/no-use-before-define': [
     'error',
@@ -333,12 +336,20 @@ const override = {
   },
   enableAsyncMethodsWithoutAwait: {
     files: [
+      // TODO: Delete this after rewrite all modules
       '**/*.context.ts',
       '**/*.subscription.ts',
       '**/*.module.ts',
       '**/*.service.ts',
       '**/*.resolver.ts',
       '**/*.interceptor.ts',
+
+      '**/context.ts',
+      '**/subscription.ts',
+      '**/module.ts',
+      '**/service.ts',
+      '**/resolver.ts',
+      '**/interceptor.ts',
     ],
     rules: {
       '@typescript-eslint/require-await': 'off',

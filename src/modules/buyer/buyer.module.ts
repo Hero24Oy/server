@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { FirebaseModule } from '../firebase/firebase.module';
 import { GraphQlContextManagerModule } from '../graphql-context-manager/graphql-context-manager.module';
+import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 
 import { BuyerContext } from './buyer.context';
 import { BuyerMirror } from './buyer.mirror';
@@ -14,6 +15,7 @@ import { UserModule } from '$modules/user/user.module';
 @Module({
   imports: [
     FirebaseModule,
+    GraphQlPubsubModule,
     UserModule,
     GraphQlContextManagerModule.forFeature({
       imports: [BuyerModule],
