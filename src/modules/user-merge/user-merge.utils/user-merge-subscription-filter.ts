@@ -17,8 +17,9 @@ export const UserMergeSubscriptionFilter =
   (
     payload: Payload,
     _variables: null,
-    { identity }: { identity: Identity },
+    context: { identity: Identity },
   ): boolean => {
+    const { identity } = context;
     const { userId } = payload[type];
 
     return userId === identity.id;
