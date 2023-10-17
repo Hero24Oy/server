@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { UserMergeDB } from 'hero24-types';
 
-import { skipFirst } from '../common/common.utils';
 import { FirebaseReference } from '../firebase/firebase.types';
 import { subscribeOnFirebaseEvent } from '../firebase/firebase.utils';
 import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
@@ -24,12 +23,19 @@ export class UserMergeSubscription implements SubscriptionService {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  public subscribe(): Unsubscribe {
+  public async subscribe(): Promise<Unsubscribe> {
     const { userMergeTableRef } = this.userMergeService;
+
+    const unsubscribeFromUserMergeAdding = this.subscribeOnUserMergeAdding(
+      userMergeTableRef,
+      this.pubSub,
+    );
+
+    await userMergeTableRef.once('value');
 
     const unsubscribes = [
       this.subscribeOnUserMergeUpdates(userMergeTableRef, this.pubSub),
-      this.subscribeOnUserMergeAdding(userMergeTableRef, this.pubSub),
+      unsubscribeFromUserMergeAdding,
     ];
 
     return (): void => unsubscribes.forEach((unsubscribe) => unsubscribe());
@@ -57,9 +63,9 @@ export class UserMergeSubscription implements SubscriptionService {
       // * limitToLast(1) retrieves from database only the last item
       // * Items are ordered by key by default so if added node is not the last one, this event won't trigger
       // * Using firebase push() method to create node ensures that this item will be the last one
-      rootUserMergeRef.limitToLast(1),
+      rootUserMergeRef,
       'child_added',
-      skipFirst(createUserMergeAddedEventHandler(pubsub)),
+      createUserMergeAddedEventHandler(pubsub),
     );
   }
 }
