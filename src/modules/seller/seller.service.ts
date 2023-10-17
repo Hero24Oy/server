@@ -19,13 +19,18 @@ import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { SellerMirror } from './seller.mirror';
 
+import { NetvisorService } from '$modules/netvisor';
+import { UserService } from '$modules/user/user.service';
+
 @Injectable()
 export class SellerService {
   sellerTableRef: FirebaseTableReference<SellerProfileDB>;
 
   constructor(
-    private readonly sellerMirror: SellerMirror,
     firebaseService: FirebaseService,
+    private readonly sellerMirror: SellerMirror,
+    private readonly userService: UserService,
+    private readonly netvisorService: NetvisorService,
   ) {
     const database = firebaseService.getDefaultApp().database();
 
@@ -87,7 +92,16 @@ export class SellerService {
       .child('data')
       .set(SellerProfileDataDto.adapter.toInternal(data));
 
-    return this.getSellerById(id);
+    await this.userService.setHasSellerProfile({
+      id,
+      hasProfile: true,
+    });
+
+    const seller = await this.strictGetSellerById(id);
+
+    await this.netvisorService.createNetvisorSellerInfo(seller);
+
+    return this.strictGetSellerById(id);
   }
 
   async editSellerData(args: SellerProfileDataEditingArgs) {
@@ -98,7 +112,11 @@ export class SellerService {
       .child('data')
       .update(PartialSellerProfileDataInput.adapter.toInternal(data));
 
-    return this.getSellerById(id);
+    const updatedSeller = await this.strictGetSellerById(id);
+
+    await this.netvisorService.updateNetvisorSellerInfo(updatedSeller);
+
+    return updatedSeller;
   }
 
   async attachCategoryToSeller(

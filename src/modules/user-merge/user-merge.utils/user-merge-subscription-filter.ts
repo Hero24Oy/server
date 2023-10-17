@@ -14,7 +14,12 @@ type Payload = Record<UserMergeSubscriptionType, UserMergeDto>;
 
 export const UserMergeSubscriptionFilter =
   (type: UserMergeSubscriptionType) =>
-  (payload: Payload, { identity }: { identity: Identity }): boolean => {
+  (
+    payload: Payload,
+    _variables: null,
+    context: { identity: Identity },
+  ): boolean => {
+    const { identity } = context;
     const { userId } = payload[type];
 
     return userId === identity.id;

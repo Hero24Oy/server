@@ -4,12 +4,13 @@ import * as Joi from 'joi';
 import app, { appValidationSchema } from './app';
 import firebase, { firebaseValidationSchema } from './firebase';
 import hubSpot, { hubSpotValidationSchema } from './hubSpot';
-import netvisor from './netvisor';
+import netvisor, { netvisorValidationSchema } from './netvisor';
 
 export const configValidationSchema = Joi.object()
   .concat(appValidationSchema)
   .concat(firebaseValidationSchema)
-  .concat(hubSpotValidationSchema);
+  .concat(hubSpotValidationSchema)
+  .concat(netvisorValidationSchema);
 
 const getConfig = () => ({
   app: app(),

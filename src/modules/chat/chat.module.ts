@@ -76,6 +76,10 @@ export class ChatModule {
       subscribeOnFirebaseEvent(
         // Firebase child added event calls on every exist item first, than on every creation event.
         // So we should skip every exists items using limit to last 1 so as not to retrieve all items
+        // !IMPORTANT
+        // * limitToLast(1) retrieves from database only the last item
+        // * So if added node is not the last one, this event won't trigger
+        // * Using firebase push() method to create node ensures that this item will be the last one
         chatTableRef.limitToLast(1),
         'child_added',
         skipFirst(createChatAddedEventHandler(pubsub)),
