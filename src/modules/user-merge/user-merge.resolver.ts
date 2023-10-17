@@ -30,7 +30,7 @@ export class UserMergeResolver {
   async userMerge(
     @AuthIdentity() identity: Identity,
   ): Promise<UserMergeDto | null> {
-    return this.userMergeService.getUserMergeByIdentity(identity);
+    return this.userMergeService.getUserMergeByUserId(identity.id);
   }
 
   @Mutation(() => UserMergeDto)
