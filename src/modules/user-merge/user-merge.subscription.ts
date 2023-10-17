@@ -24,23 +24,21 @@ export class UserMergeSubscription implements SubscriptionService {
     @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
   ) {}
 
-  public async subscribe(): Promise<Unsubscribe> {
+  public subscribe(): Unsubscribe {
     const { userMergeTableRef } = this.userMergeService;
 
     const unsubscribes = [
-      await this.subscribeOnUserMergeUpdates(userMergeTableRef, this.pubSub),
-      await this.subscribeOnUserMergeAdding(userMergeTableRef, this.pubSub),
+      this.subscribeOnUserMergeUpdates(userMergeTableRef, this.pubSub),
+      this.subscribeOnUserMergeAdding(userMergeTableRef, this.pubSub),
     ];
 
-    return async () => {
-      await Promise.all(unsubscribes.map((unsubscribe) => unsubscribe()));
-    };
+    return (): void => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  private async subscribeOnUserMergeUpdates(
+  private subscribeOnUserMergeUpdates(
     rootUserMergeRef: FirebaseReference<Record<string, UserMergeDB>>,
     pubsub: PubSub,
-  ): Promise<() => void> {
+  ): () => void {
     return subscribeOnFirebaseEvent(
       rootUserMergeRef,
       'child_changed',
@@ -48,10 +46,10 @@ export class UserMergeSubscription implements SubscriptionService {
     );
   }
 
-  private async subscribeOnUserMergeAdding(
+  private subscribeOnUserMergeAdding(
     rootUserMergeRef: FirebaseReference<Record<string, UserMergeDB>>,
     pubsub: PubSub,
-  ): Promise<() => void> {
+  ): () => void {
     return subscribeOnFirebaseEvent(
       // Firebase child added event calls on every exist item first, than on every creation event.
       // So we should skip every exists items using limit to last 1 so as not to retrieve all items
