@@ -14,8 +14,8 @@ import {
   USER_MERGE_ADDED_SUBSCRIPTION,
   USER_MERGE_UPDATED_SUBSCRIPTION,
 } from './user-merge.constants';
-import { UserMergeSubscriptionFilter } from './user-merge.helpers';
 import { UserMergeService } from './user-merge.service';
+import { UserMergeAddAndUpdateSubscriptionFilter } from './user-merge.subscription-filters';
 
 @Resolver()
 export class UserMergeResolver {
@@ -45,7 +45,9 @@ export class UserMergeResolver {
 
   @Subscription(() => UserMergeDto, {
     name: USER_MERGE_ADDED_SUBSCRIPTION,
-    filter: UserMergeSubscriptionFilter(USER_MERGE_ADDED_SUBSCRIPTION),
+    filter: UserMergeAddAndUpdateSubscriptionFilter(
+      USER_MERGE_ADDED_SUBSCRIPTION,
+    ),
   })
   @UseGuards(AuthGuard)
   subscribeOnUserMergeAddition() {
@@ -54,7 +56,9 @@ export class UserMergeResolver {
 
   @Subscription(() => UserMergeDto, {
     name: USER_MERGE_UPDATED_SUBSCRIPTION,
-    filter: UserMergeSubscriptionFilter(USER_MERGE_UPDATED_SUBSCRIPTION),
+    filter: UserMergeAddAndUpdateSubscriptionFilter(
+      USER_MERGE_UPDATED_SUBSCRIPTION,
+    ),
   })
   @UseGuards(AuthGuard)
   subscribeOnUserMergeUpdate() {

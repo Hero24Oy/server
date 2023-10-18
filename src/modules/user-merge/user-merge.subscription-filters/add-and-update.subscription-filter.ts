@@ -22,11 +22,13 @@ export const SubscriptionFilterFabric = createSubscriptionFilterFabric<
   Context
 >();
 
-export const UserMergeSubscriptionFilter = SubscriptionFilterFabric((props) => {
-  const { payload, context, type } = props;
+export const UserMergeAddAndUpdateSubscriptionFilter = SubscriptionFilterFabric(
+  (props) => {
+    const { payload, context, type } = props;
 
-  const { identity } = context;
-  const { userId } = payload[type];
+    const { identity } = context;
+    const { userId } = payload[type];
 
-  return userId === identity.id;
-});
+    return userId === identity.id;
+  },
+);
