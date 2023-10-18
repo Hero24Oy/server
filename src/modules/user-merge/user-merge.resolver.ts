@@ -48,7 +48,7 @@ export class UserMergeResolver {
     filter: UserMergeSubscriptionFilter(USER_MERGE_ADDED_SUBSCRIPTION),
   })
   @UseGuards(AuthGuard)
-  subscribeOnUserMergeAddition(@AuthIdentity() _identity: Identity) {
+  subscribeOnUserMergeAddition() {
     return this.pubSub.asyncIterator(USER_MERGE_ADDED_SUBSCRIPTION);
   }
 
@@ -57,7 +57,7 @@ export class UserMergeResolver {
     filter: UserMergeSubscriptionFilter(USER_MERGE_UPDATED_SUBSCRIPTION),
   })
   @UseGuards(AuthGuard)
-  subscribeOnUserMergeUpdate(@AuthIdentity() _identity: Identity) {
+  subscribeOnUserMergeUpdate() {
     return this.pubSub.asyncIterator(USER_MERGE_UPDATED_SUBSCRIPTION);
   }
 }
