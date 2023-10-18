@@ -10,12 +10,12 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { UserMergeDto } from './dto/user-merge/user-merge.dto';
 import { UserMergeInput } from './dto/user-merge/user-merge.input';
+import { UserMergeAddAndUpdateSubscriptionFilter } from './subscription-filters';
 import {
   USER_MERGE_ADDED_SUBSCRIPTION,
   USER_MERGE_UPDATED_SUBSCRIPTION,
 } from './user-merge.constants';
 import { UserMergeService } from './user-merge.service';
-import { UserMergeAddAndUpdateSubscriptionFilter } from './user-merge.subscription-filters';
 
 @Resolver()
 export class UserMergeResolver {

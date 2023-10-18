@@ -1,2 +1,2 @@
 export * from './custom-fetcher';
-export * from './create-subscription-filter-fabric';
+export * from './create-subscription-filter';
