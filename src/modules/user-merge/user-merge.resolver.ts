@@ -10,12 +10,12 @@ import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { UserMergeDto } from './dto/user-merge/user-merge.dto';
 import { UserMergeInput } from './dto/user-merge/user-merge.input';
+import { UserMergeAddAndUpdateSubscriptionFilter } from './subscription-filters';
 import {
   USER_MERGE_ADDED_SUBSCRIPTION,
   USER_MERGE_UPDATED_SUBSCRIPTION,
 } from './user-merge.constants';
 import { UserMergeService } from './user-merge.service';
-import { UserMergeSubscriptionFilter } from './user-merge.utils/user-merge-subscription-filter';
 
 @Resolver()
 export class UserMergeResolver {
@@ -45,19 +45,23 @@ export class UserMergeResolver {
 
   @Subscription(() => UserMergeDto, {
     name: USER_MERGE_ADDED_SUBSCRIPTION,
-    filter: UserMergeSubscriptionFilter(USER_MERGE_ADDED_SUBSCRIPTION),
+    filter: UserMergeAddAndUpdateSubscriptionFilter(
+      USER_MERGE_ADDED_SUBSCRIPTION,
+    ),
   })
   @UseGuards(AuthGuard)
-  subscribeOnUserMergeAddition(@AuthIdentity() _identity: Identity) {
+  subscribeOnUserMergeAddition() {
     return this.pubSub.asyncIterator(USER_MERGE_ADDED_SUBSCRIPTION);
   }
 
   @Subscription(() => UserMergeDto, {
     name: USER_MERGE_UPDATED_SUBSCRIPTION,
-    filter: UserMergeSubscriptionFilter(USER_MERGE_UPDATED_SUBSCRIPTION),
+    filter: UserMergeAddAndUpdateSubscriptionFilter(
+      USER_MERGE_UPDATED_SUBSCRIPTION,
+    ),
   })
   @UseGuards(AuthGuard)
-  subscribeOnUserMergeUpdate(@AuthIdentity() _identity: Identity) {
+  subscribeOnUserMergeUpdate() {
     return this.pubSub.asyncIterator(USER_MERGE_UPDATED_SUBSCRIPTION);
   }
 }
