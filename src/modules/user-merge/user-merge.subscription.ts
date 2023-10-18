@@ -33,8 +33,13 @@ export class UserMergeSubscription implements SubscriptionService {
 
     await userMergeTableRef.once('value');
 
+    const unsubscribeFromUserMergeUpdates = this.subscribeOnUserMergeUpdates(
+      userMergeTableRef,
+      this.pubSub,
+    );
+
     const unsubscribes = [
-      this.subscribeOnUserMergeUpdates(userMergeTableRef, this.pubSub),
+      unsubscribeFromUserMergeUpdates,
       unsubscribeFromUserMergeAdding,
     ];
 
