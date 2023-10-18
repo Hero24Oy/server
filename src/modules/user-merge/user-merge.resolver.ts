@@ -14,8 +14,8 @@ import {
   USER_MERGE_ADDED_SUBSCRIPTION,
   USER_MERGE_UPDATED_SUBSCRIPTION,
 } from './user-merge.constants';
+import { UserMergeSubscriptionFilter } from './user-merge.helpers';
 import { UserMergeService } from './user-merge.service';
-import { UserMergeSubscriptionFilter } from './user-merge.subscription-filter';
 
 @Resolver()
 export class UserMergeResolver {

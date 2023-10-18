@@ -1,11 +1,11 @@
-import { UserMergeDto } from './dto/user-merge/user-merge.dto';
+import { UserMergeDto } from '../dto/user-merge/user-merge.dto';
 import {
   USER_MERGE_ADDED_SUBSCRIPTION,
   USER_MERGE_UPDATED_SUBSCRIPTION,
-} from './user-merge.constants';
+} from '../user-merge.constants';
 
 import { Identity } from '$modules/auth/auth.types';
-import { createSubscriptionFilter } from '$utils';
+import { createSubscriptionFilterFabric } from '$utils';
 
 type SubscriptionType =
   | typeof USER_MERGE_ADDED_SUBSCRIPTION
@@ -15,12 +15,14 @@ type Payload = Record<SubscriptionType, UserMergeDto>;
 
 type Context = { identity: Identity };
 
-export const UserMergeSubscriptionFilter = createSubscriptionFilter<
+export const SubscriptionFilterFabric = createSubscriptionFilterFabric<
   SubscriptionType,
   Payload,
   null,
   Context
->((props) => {
+>();
+
+export const UserMergeSubscriptionFilter = SubscriptionFilterFabric((props) => {
   const { payload, context, type } = props;
 
   const { identity } = context;
