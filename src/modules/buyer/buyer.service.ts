@@ -1,26 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { getDatabase, ref, set, update } from 'firebase/database';
 import { BuyerProfileDB } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
-import {
-  FirebaseAppInstance,
-  FirebaseTableReference,
-} from '../firebase/firebase.types';
+import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { BuyerMirror } from './buyer.mirror';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
+import { BuyerProfileDataDto } from './dto/buyer/buyer-profile-data.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
+import { PartialBuyerProfileDataInput } from './dto/editing/partial-buyer-profile-data.input';
+
+import { UserService } from '$modules/user/user.service';
 
 @Injectable()
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
 
   constructor(
-    private readonly buyerMirror: BuyerMirror,
     firebaseService: FirebaseService,
+    private readonly buyerMirror: BuyerMirror,
+    private readonly userService: UserService,
   ) {
     const database = firebaseService.getDefaultApp().database();
 
@@ -56,30 +57,27 @@ export class BuyerService {
     return buyer;
   }
 
-  async createBuyer(
-    args: BuyerProfileCreationArgs,
-    app: FirebaseAppInstance,
-  ): Promise<BuyerProfileDto> {
+  async createBuyer(args: BuyerProfileCreationArgs): Promise<BuyerProfileDto> {
     const { id, data } = args;
 
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
+    const convertedData = BuyerProfileDataDto.adapter.toInternal(data);
 
-    await set(ref(database, path.join('/')), data);
+    await this.buyerTableRef.child(id).child('data').set(convertedData);
+
+    await this.userService.setHasBuyerProfile({
+      id,
+      hasProfile: true,
+    });
 
     return this.strictGetBuyerProfileById(id);
   }
 
-  async editBuyer(
-    args: BuyerProfileDataEditingArgs,
-    app: FirebaseAppInstance,
-  ): Promise<BuyerProfileDto> {
+  async editBuyer(args: BuyerProfileDataEditingArgs): Promise<BuyerProfileDto> {
     const { id, data } = args;
 
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.BUYER_PROFILES, id, 'data'];
+    const convertedData = PartialBuyerProfileDataInput.adapter.toInternal(data);
 
-    await update(ref(database, path.join('/')), data);
+    await this.buyerTableRef.child(id).child('data').update(convertedData);
 
     return this.strictGetBuyerProfileById(id);
   }
@@ -91,6 +89,6 @@ export class BuyerService {
 
     const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
-    return buyerIds.map((buyerId) => buyerById.get(buyerId) || null);
+    return buyerIds.map((buyerId) => buyerById.get(buyerId) ?? null);
   }
 }

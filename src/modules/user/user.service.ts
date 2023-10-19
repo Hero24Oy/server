@@ -1,15 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { get, getDatabase, ref, update } from 'firebase/database';
 import { PubSub } from 'graphql-subscriptions';
 import { UserDB } from 'hero24-types';
 
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
-import {
-  FirebaseAppInstance,
-  FirebaseTableReference,
-} from '../firebase/firebase.types';
+import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataInput } from './dto/creation/user-data.input';
@@ -22,6 +18,10 @@ import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
 import { UserMirror } from './user.mirror';
+import {
+  SetHasProfileArguments,
+  SetNetvisorSellerIdArguments,
+} from './user.types';
 import { emitUserCreated } from './user.utils/emit-user-created.util';
 import { emitUserUpdated } from './user.utils/emit-user-updated.util';
 
@@ -84,7 +84,12 @@ export class UserService {
       nodes = nodes.filter((user) => {
         const { email, firstName, name, lastName } = user.data;
 
-        const target = [email, firstName || '', name || '', lastName || ''] // TODO: write name as "" in database for deleted records
+        const target = [
+          email ?? '',
+          firstName ?? '',
+          name ?? '',
+          lastName ?? '',
+        ] // TODO: write name as "" in database for deleted records
           .map((str) => str.toLowerCase())
           .join(' ');
 
@@ -140,22 +145,15 @@ export class UserService {
     return this.getUserById(updatedUserId) as Promise<UserDto>;
   }
 
-  async editUserData(
-    args: UserDataEditingArgs,
-    app: FirebaseAppInstance,
-  ): Promise<UserDto> {
+  async editUserData(args: UserDataEditingArgs): Promise<UserDto> {
     const { userId } = args;
-    const database = getDatabase(app);
 
     const updatedUserData: Omit<Partial<UserDB['data']>, 'createdAt'> = {
       ...PartialUserDataInput.adapter.toInternal(args.data),
       updatedAt: Date.now(),
     };
 
-    await update(
-      ref(database, `${FirebaseDatabasePath.USERS}/${userId}/data`),
-      updatedUserData,
-    );
+    await this.userTableRef.child(userId).child('data').update(updatedUserData);
 
     return this.getUserById(userId) as Promise<UserDto>;
   }
@@ -172,32 +170,28 @@ export class UserService {
   async unbindUserOfferRequests(
     userId: string,
     offerRequestIds: string[],
-    app: FirebaseAppInstance,
   ): Promise<boolean> {
-    const offerRequestsData = Object.fromEntries(
-      offerRequestIds.map((id) => [id, null]),
-    );
-
-    const database = getDatabase(app);
-
-    await update(
-      ref(database, `${FirebaseDatabasePath.USERS}/${userId}/offerRequests`),
-      offerRequestsData,
-    );
+    offerRequestIds.forEach(async (id) => {
+      await this.userTableRef
+        .child(userId)
+        .child('offerRequests')
+        .child(id)
+        .remove();
+    });
 
     return true;
   }
 
-  async getUserPhone(
-    userId: string,
-    app: FirebaseAppInstance,
-  ): Promise<string> {
-    const database = getDatabase(app);
-    const path = [FirebaseDatabasePath.USERS, userId, 'data', 'phone'];
+  async getUserPhone(userId: string): Promise<string> {
+    const phoneSnapshot = await this.userTableRef
+      .child(userId)
+      .child('data')
+      .child('phone')
+      .get();
 
-    const phoneSnapshot = await get(ref(database, path.join('/')));
+    const phoneNumber: string = phoneSnapshot.val() ?? '';
 
-    return phoneSnapshot.val() || '';
+    return phoneNumber;
   }
 
   async setHubSpotContactId(
@@ -215,7 +209,7 @@ export class UserService {
 
     const userById = new Map(users.map((user) => [user.id, user]));
 
-    return userIds.map((userId) => userById.get(userId) || null);
+    return userIds.map((userId) => userById.get(userId) ?? null);
   }
 
   async createAdmin(input: UserDataInput): Promise<UserDto> {
@@ -231,6 +225,27 @@ export class UserService {
     await this.editUserAdminStatus({ id: userId, isAdmin: true });
 
     return newUser;
+  }
+
+  async setHasBuyerProfile(args: SetHasProfileArguments): Promise<void> {
+    const { id, hasProfile } = args;
+
+    await this.userTableRef.child(id).child('hasBuyerProfile').set(hasProfile);
+  }
+
+  async setHasSellerProfile(args: SetHasProfileArguments): Promise<void> {
+    const { id, hasProfile } = args;
+
+    await this.userTableRef.child(id).child('hasSellerProfile').set(hasProfile);
+  }
+
+  async setNetvisorSellerId(args: SetNetvisorSellerIdArguments): Promise<void> {
+    const { userId, netvisorSellerId } = args;
+
+    await this.userTableRef
+      .child(userId)
+      .child('netvisorSellerId')
+      .set(netvisorSellerId);
   }
 
   emitUserUpdated(userChanges: UserUpdatedDto): void {

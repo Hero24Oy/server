@@ -59,16 +59,16 @@ UserDataInput.adapter = new FirebaseAdapter({
     selectedAppLanguage: internal.selectedAppLanguage,
   }),
   toInternal: (external) => ({
-    email: external.email,
+    email: external.email ?? undefined,
     emailVerified: external.emailVerified ?? false,
     pushToken: external.pushToken
       ? convertListToFirebaseMap(external.pushToken)
       : undefined,
-    name: external.name,
+    name: external.name ?? undefined,
     firstName: external.firstName ?? undefined,
     lastName: external.lastName ?? undefined,
-    photoURL: external.photoURL,
-    language: external.language ?? '',
+    photoURL: external.photoURL ?? undefined,
+    language: external.language ?? 'en',
     isActive: external.isActive ?? undefined,
     activeRoute: external.activeRoute
       ? UserDataActiveRouteDto.adapter.toInternal(external.activeRoute)

@@ -18,6 +18,7 @@ export enum FirebaseDatabasePath {
   USER_MERGES = 'userMerges',
   FEES = 'fees',
   IMAGES = 'images',
+  REVIEWS = 'reviews',
   CATEGORY_GROUP = 'feed',
   HERO_PORTFOLIOS = 'heroPortfolios',
 }

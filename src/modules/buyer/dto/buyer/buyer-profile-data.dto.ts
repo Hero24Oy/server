@@ -1,10 +1,11 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { BuyerProfileDB } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
+@InputType('BuyerProfileDataInput')
 export class BuyerProfileDataDto {
   @Field(() => String)
   displayName: string;

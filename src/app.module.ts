@@ -26,6 +26,7 @@ import { NewsModule } from './modules/news/news.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { OfferRequestModule } from './modules/offer-request/offer-request.module';
 import { PriceCalculatorModule } from './modules/price-calculator/price-calculator.module';
+import { ReviewModule } from './modules/review/module';
 import { SellerModule } from './modules/seller/seller.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { SubscriberModule } from './modules/subscriber/subscriber.module';
@@ -33,9 +34,10 @@ import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
 import { CryptoModule } from '$modules/crypto/module';
+import { CustomScheduleModule } from '$modules/custom-schedule/module';
 import { HeroPortfolioModule } from '$modules/hero-portfolio/module';
 import { NetvisorModule } from '$modules/netvisor/module';
-import { Xml2JsModule } from '$modules/xml2js/module';
+import { XmlJsModule } from '$modules/xml-js/module';
 
 @Module({
   imports: [
@@ -83,11 +85,13 @@ import { Xml2JsModule } from '$modules/xml2js/module';
     UserMergeModule,
     FeeModule,
     ImageModule,
+    ReviewModule,
     CategoryGroupModule,
     HeroPortfolioModule,
     NetvisorModule,
     CryptoModule,
-    Xml2JsModule,
+    XmlJsModule,
+    CustomScheduleModule,
   ],
   providers: [AppResolver],
 })

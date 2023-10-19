@@ -1,25 +1,35 @@
-import { UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { FirebaseApp } from '../firebase/firebase.decorator';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
-import { FirebaseAppInstance } from '../firebase/firebase.types';
+import { PUBSUB_PROVIDER } from '../graphql-pubsub/graphql-pubsub.constants';
 
 import { UserCreationArgs } from './dto/creation/user-creation.args';
 import { UserDataInput } from './dto/creation/user-data.input';
 import { UserAdminStatusEditInput } from './dto/editAdminStatus/user-admin-status-edit-input';
 import { UserDataEditingArgs } from './dto/editing/user-data-editing.args';
+import { UserCreatedDto } from './dto/subscriptions/user-created.dto';
+import { UserUpdatedDto } from './dto/subscriptions/user-updated.dto';
 import { UserDto } from './dto/user/user.dto';
 import { UserListDto } from './dto/users/user-list.dto';
 import { UsersArgs } from './dto/users/users.args';
+import {
+  USER_CREATED_SUBSCRIPTION,
+  USER_UPDATED_SUBSCRIPTION,
+} from './user.constants';
 import { UserService } from './user.service';
+import { UserSubscriptionFilter } from './user.utils/user-subscription-filter.util';
 
 import { AdminGuard } from '$modules/auth/guards/admin.guard';
 
 @Resolver()
 export class UserResolver {
-  constructor(private userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    @Inject(PUBSUB_PROVIDER) private readonly pubSub: PubSub,
+  ) {}
 
   @Query(() => UserDto, { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
@@ -38,11 +48,8 @@ export class UserResolver {
   @Query(() => String)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async phone(
-    @Args('userId') userId: string,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<string> {
-    return this.userService.getUserPhone(userId, app);
+  async phone(@Args('userId') userId: string): Promise<string> {
+    return this.userService.getUserPhone(userId);
   }
 
   @Mutation(() => UserDto)
@@ -58,29 +65,15 @@ export class UserResolver {
 
   @Mutation(() => UserDto)
   @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AdminGuard)
-  async createAdmin(@Args('data') data: UserDataInput): Promise<UserDto> {
-    const user = await this.userService.createAdmin(data);
-
-    this.userService.emitUserCreated({ user });
-
-    return user;
-  }
-
-  @Mutation(() => UserDto)
-  @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async editUserData(
-    @Args() args: UserDataEditingArgs,
-    @FirebaseApp() app: FirebaseAppInstance,
-  ): Promise<UserDto> {
+  async editUserData(@Args() args: UserDataEditingArgs): Promise<UserDto> {
     const beforeUpdateUser = await this.userService.getUserById(args.userId);
 
     if (!beforeUpdateUser) {
       throw new Error('User not found');
     }
 
-    const user = await this.userService.editUserData(args, app);
+    const user = await this.userService.editUserData(args);
 
     this.userService.emitUserUpdated({ user, beforeUpdateUser });
 
@@ -108,12 +101,38 @@ export class UserResolver {
     @Args('userId', { type: () => String }) userId: string,
     @Args('offerRequestIds', { type: () => [String] })
     offerRequestIds: string[],
-    @FirebaseApp() app: FirebaseAppInstance,
   ): Promise<boolean> {
-    return this.userService.unbindUserOfferRequests(
-      userId,
-      offerRequestIds,
-      app,
-    );
+    return this.userService.unbindUserOfferRequests(userId, offerRequestIds);
+  }
+
+  @Mutation(() => UserDto)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async createAdmin(@Args('data') data: UserDataInput): Promise<UserDto> {
+    const user = await this.userService.createAdmin(data);
+
+    this.userService.emitUserCreated({ user });
+
+    return user;
+  }
+
+  @Subscription(() => UserUpdatedDto, {
+    name: USER_UPDATED_SUBSCRIPTION,
+    filter: UserSubscriptionFilter(USER_UPDATED_SUBSCRIPTION),
+  })
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  subscribeOnUserUpdate(): AsyncIterator<unknown> {
+    return this.pubSub.asyncIterator(USER_UPDATED_SUBSCRIPTION);
+  }
+
+  @Subscription(() => UserCreatedDto, {
+    name: USER_CREATED_SUBSCRIPTION,
+    filter: UserSubscriptionFilter(USER_CREATED_SUBSCRIPTION),
+  })
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AuthGuard)
+  subscribeOnUserCreate(): AsyncIterator<unknown> {
+    return this.pubSub.asyncIterator(USER_CREATED_SUBSCRIPTION);
   }
 }
