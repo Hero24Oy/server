@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PaidStatus } from 'hero24-types';
 
 import { CustomScheduleService } from '../custom-schedule/service';
@@ -14,6 +14,8 @@ import { OfferRequestService } from '$modules/offer-request/offer-request.servic
 
 @Injectable()
 export class NetvisorSchedule {
+  private readonly logger = new Logger(NetvisorSchedule.name);
+
   constructor(
     private readonly netvisorFetcher: NetvisorFetcher,
     private readonly offerService: OfferService,
@@ -32,27 +34,40 @@ export class NetvisorSchedule {
   }
 
   async updatePaidStatus(): Promise<void> {
-    const startDate = getScheduleFetchDate(
-      this.customScheduleService.getLastJobDate(NETVISOR_FETCH_JOB),
-    );
-
-    const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
-      startDate,
-    );
-
-    if (!paidInvoices) {
-      return;
-    }
-
-    const offers = await this.offerService.getOffersByInvoiceIds(paidInvoices);
-
-    offers.forEach((offer) => {
-      const { offerRequestId } = offer.data.initial;
-
-      void this.offerRequestService.updatePaidStatus(
-        offerRequestId,
-        PaidStatus.PAID,
+    try {
+      const startDate = getScheduleFetchDate(
+        this.customScheduleService.getLastJobDate(NETVISOR_FETCH_JOB),
       );
-    });
+
+      const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
+        startDate,
+      );
+
+      if (!paidInvoices) {
+        return;
+      }
+
+      const offers = await this.offerService.getOffersByInvoiceIds(
+        paidInvoices,
+      );
+
+      const promises = offers.map(async (offer) => {
+        try {
+          const { offerRequestId } = offer.data.initial;
+
+          await this.offerRequestService.updatePaidStatus(
+            offerRequestId,
+            PaidStatus.PAID,
+          );
+        } catch (error) {
+          this.logger.error(error);
+          this.logger.debug(offer);
+        }
+      });
+
+      await Promise.all(promises);
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }

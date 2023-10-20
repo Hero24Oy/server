@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import get from 'lodash/get';
 
 import { XmlJsService } from '../xml-js/service';
 
@@ -109,8 +110,13 @@ export class NetvisorFetcher {
         xmlString,
       );
 
-    if (Array.isArray(data.Root.PurchaseInvoiceList[0].PurchaseInvoice)) {
-      return data.Root.PurchaseInvoiceList[0].PurchaseInvoice.map((invoice) => {
+    const purchaseInvoice = get(
+      data,
+      'Root.PurchaseInvoiceList[0].PurchaseInvoice',
+    );
+
+    if (Array.isArray(purchaseInvoice)) {
+      return purchaseInvoice.map((invoice) => {
         return invoice.NetvisorKey[0];
       });
     }
