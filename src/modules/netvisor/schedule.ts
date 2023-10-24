@@ -20,7 +20,7 @@ export class NetvisorSchedule {
     private readonly netvisorFetcher: NetvisorFetcher,
     private readonly offerService: OfferService,
     private readonly offerRequestService: OfferRequestService,
-    private readonly customScheduleService: CustomScheduleService,
+    customScheduleService: CustomScheduleService,
     @Config() config: ConfigType,
   ) {
     customScheduleService.createCronJob(
@@ -28,16 +28,11 @@ export class NetvisorSchedule {
       config.netvisor.cron,
       this.updatePaidStatus.bind(this),
     );
-
-    // Fetch all unpaid purchases
-    void this.updatePaidStatus();
   }
 
   async updatePaidStatus(): Promise<void> {
     try {
-      const startDate = getScheduleFetchDate(
-        this.customScheduleService.getLastJobDate(NETVISOR_FETCH_JOB),
-      );
+      const startDate = getScheduleFetchDate();
 
       const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
         startDate,

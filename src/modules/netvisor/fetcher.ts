@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import get from 'lodash/get';
 
 import { XmlJsService } from '../xml-js/service';
@@ -28,6 +28,8 @@ import { CustomFetcher } from '$utils';
 
 @Injectable()
 export class NetvisorFetcher {
+  private readonly logger = new Logger(NetvisorFetcher.name);
+
   private readonly baseHeaders: NetvisorBaseHeaders;
 
   private readonly baseUrl: string;
@@ -110,18 +112,24 @@ export class NetvisorFetcher {
         xmlString,
       );
 
+    this.logger.log(
+      `Netvisor purchase list fetch status: ${data.Root.ResponseStatus[0].Status[0]}`,
+    );
+
     const purchaseInvoice = get(
       data,
       'Root.PurchaseInvoiceList[0].PurchaseInvoice',
     );
 
-    if (Array.isArray(purchaseInvoice)) {
-      return purchaseInvoice.map((invoice) => {
-        return invoice.NetvisorKey[0];
-      });
+    if (!Array.isArray(purchaseInvoice)) {
+      return [];
     }
 
-    return [];
+    this.logger.log(`${purchaseInvoice.length} new payments received`);
+
+    return purchaseInvoice.map((invoice) => {
+      return invoice.NetvisorKey[0];
+    });
   }
 
   async createNetvisorAccount(
