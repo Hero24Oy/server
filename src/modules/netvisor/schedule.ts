@@ -9,6 +9,7 @@ import { getScheduleFetchDate } from './utils';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
+import { OfferDto } from '$modules/offer/dto/offer/offer.dto';
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 
@@ -26,13 +27,21 @@ export class NetvisorSchedule {
     customScheduleService.createCronJob(
       NETVISOR_FETCH_JOB,
       config.netvisor.cron,
-      this.updatePaidStatus.bind(this),
+      this.updatePaidStatus.bind(
+        this,
+        this.offerService.getOffersByInvoiceIdsFromMirror.bind(
+          this.offerService,
+        ),
+      ),
     );
   }
 
-  async updatePaidStatus(): Promise<void> {
+  async updatePaidStatus(
+    method: (paidInvoices: string[]) => Promise<OfferDto[]>,
+    fromDate?: string,
+  ): Promise<void> {
     try {
-      const startDate = getScheduleFetchDate();
+      const startDate = fromDate ?? getScheduleFetchDate();
 
       const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
         startDate,
@@ -42,9 +51,7 @@ export class NetvisorSchedule {
         return;
       }
 
-      const offers = await this.offerService.getOffersByInvoiceIds(
-        paidInvoices,
-      );
+      const offers = await method(paidInvoices);
 
       const promises = offers.map(async (offer) => {
         try {
