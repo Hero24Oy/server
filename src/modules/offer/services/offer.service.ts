@@ -51,7 +51,16 @@ export class OfferService {
   }
 
   async getOffersByInvoiceIds(paidInvoices: string[]): Promise<OfferDto[]> {
-    const offers = await this.getAllOffers();
+    const offersRef = await this.offerTableRef.get();
+    const offersList = offersRef.val();
+
+    if (!offersList) {
+      return [];
+    }
+
+    const offers = Object.entries(offersList).map(([id, offerDb]) =>
+      OfferDto.adapter.toExternal({ ...offerDb, id }),
+    );
 
     return offers.filter((offer) =>
       paidInvoices.includes(offer.netvisorPurchaseInvoiceId ?? ''),

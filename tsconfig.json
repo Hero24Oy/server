@@ -2,7 +2,9 @@
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
-    }
+    },
+    "require": ["tsconfig-paths/register"],
+    "files": ["env.d.ts"]
   },
   "compilerOptions": {
     "baseUrl": "./",
@@ -33,5 +35,5 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["src", "env.d.ts"]
+  "include": ["src", "env.d.ts", "scripts"]
 }
