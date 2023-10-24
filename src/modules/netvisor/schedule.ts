@@ -5,7 +5,7 @@ import { CustomScheduleService } from '../custom-schedule/service';
 
 import { NETVISOR_FETCH_JOB } from './constants';
 import { NetvisorFetcher } from './fetcher';
-import { getScheduleFetchDate } from './utils';
+import { getPreviousDay } from './utils';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
@@ -41,7 +41,7 @@ export class NetvisorSchedule {
     fromDate?: string,
   ): Promise<void> {
     try {
-      const startDate = fromDate ?? getScheduleFetchDate();
+      const startDate = fromDate ?? getPreviousDay();
 
       const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
         startDate,
