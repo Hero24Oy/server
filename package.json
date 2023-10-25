@@ -25,7 +25,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "checkNode": "ts-node ./scripts/checkNodeVersion.ts",
-    "postinstall": "node ./scripts/checkIsProd.js || husky install"
+    "postinstall": "node ./scripts/checkIsProd.js || husky install",
+    "netvisor:fetch-and-mark-paid": "ts-node ./scripts/markAllPurchasesAsPaid.ts"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -99,7 +100,7 @@
     "ts-jest": "29.0.3",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
-    "tsconfig-paths": "4.1.1",
+    "tsconfig-paths": "^4.1.1",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"

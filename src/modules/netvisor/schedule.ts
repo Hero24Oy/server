@@ -5,6 +5,7 @@ import { CustomScheduleService } from '../custom-schedule/service';
 
 import { NETVISOR_FETCH_JOB } from './constants';
 import { NetvisorFetcher } from './fetcher';
+import { GetOffersByInvoiceIdsFrom } from './types';
 import { getPreviousDay } from './utils';
 
 import { ConfigType } from '$config';
@@ -26,13 +27,20 @@ export class NetvisorSchedule {
     customScheduleService.createCronJob(
       NETVISOR_FETCH_JOB,
       config.netvisor.cron,
-      this.updatePaidStatus.bind(this),
+      () => {
+        void this.updatePaidStatus((ids) =>
+          this.offerService.getOffersByInvoiceIdsFromMirror(ids),
+        );
+      },
     );
   }
 
-  async updatePaidStatus(): Promise<void> {
+  async updatePaidStatus(
+    getOffersByInvoiceIds: GetOffersByInvoiceIdsFrom,
+    fromDate?: string,
+  ): Promise<void> {
     try {
-      const startDate = getPreviousDay();
+      const startDate = fromDate ?? getPreviousDay();
 
       const paidInvoices = await this.netvisorFetcher.fetchPurchaseInvoiceList(
         startDate,
@@ -42,9 +50,7 @@ export class NetvisorSchedule {
         return;
       }
 
-      const offers = await this.offerService.getOffersByInvoiceIds(
-        paidInvoices,
-      );
+      const offers = await getOffersByInvoiceIds(paidInvoices);
 
       const promises = offers.map(async (offer) => {
         try {
