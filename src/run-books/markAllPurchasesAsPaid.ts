@@ -1,17 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from '$/app.module';
-import { NetvisorSchedule } from '$modules/netvisor';
+import { NetvisorService } from '$modules/netvisor/service';
 import { OfferService } from '$modules/offer/services/offer.service';
 
 const START_DATE = '2023-01-01';
 
 const markAllPurchasesAsPaid = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule);
-  const netvisorSchedule = app.get<NetvisorSchedule>(NetvisorSchedule);
+  const netvisorService = app.get<NetvisorService>(NetvisorService);
   const offerService = app.get<OfferService>(OfferService);
 
-  await netvisorSchedule.updatePaidStatus(
+  await netvisorService.updateOfferRequestPaidStatus(
     offerService.getOffersByInvoiceIdsFromFetch,
     START_DATE,
   );
