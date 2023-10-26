@@ -26,7 +26,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "checkNode": "ts-node ./scripts/checkNodeVersion.ts",
     "postinstall": "node ./scripts/checkIsProd.js || husky install",
-    "netvisor:fetch-and-mark-paid": "ts-node ./src/run-books/markAllPurchasesAsPaid.ts"
+    "netvisor:fetch-and-mark-paid": "ts-node ./src/runbooks/markAllPurchasesAsPaid.ts"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
