@@ -1,1 +1,1 @@
-export * from './get-schedule-fetch-date';
+export * from './get-previous-day';

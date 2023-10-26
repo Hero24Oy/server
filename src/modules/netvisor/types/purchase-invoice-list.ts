@@ -13,5 +13,11 @@ export interface NetvisorPurchaseInvoiceListResponse {
         PurchaseInvoice: NetvisorPurchaseInvoice[];
       },
     ];
+    ResponseStatus: [
+      {
+        Status: [string];
+        TimeStamp: [string];
+      },
+    ];
   };
 }

@@ -50,13 +50,34 @@ export class OfferService {
     return offer && OfferDto.adapter.toExternal({ id: offerId, ...offer });
   }
 
-  async getOffersByInvoiceIds(paidInvoices: string[]): Promise<OfferDto[]> {
+  async getOffersByInvoiceIdsFromMirror(
+    paidInvoices: string[],
+  ): Promise<OfferDto[]> {
     const offers = await this.getAllOffers();
 
     return offers.filter((offer) =>
       paidInvoices.includes(offer.netvisorPurchaseInvoiceId ?? ''),
     );
   }
+
+  getOffersByInvoiceIdsFromFetch = async (
+    paidInvoices: string[],
+  ): Promise<OfferDto[]> => {
+    const offersRef = await this.offerTableRef.get();
+    const offersList = offersRef.val();
+
+    if (!offersList) {
+      return [];
+    }
+
+    const offers = Object.entries(offersList).map(([id, offerDb]) =>
+      OfferDto.adapter.toExternal({ ...offerDb, id }),
+    );
+
+    return offers.filter((offer) =>
+      paidInvoices.includes(offer.netvisorPurchaseInvoiceId ?? ''),
+    );
+  };
 
   async strictGetOfferById(offerId: string): Promise<OfferDto> {
     const offer = await this.getOfferById(offerId);

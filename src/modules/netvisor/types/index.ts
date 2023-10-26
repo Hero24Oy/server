@@ -7,3 +7,4 @@ export * from './create-netvisor-account';
 export * from './netvisor-account-parameters';
 export * from './edit-netvisor-account';
 export * from './seller-xml-object';
+export * from './get-offers-by-invoice-ids';
