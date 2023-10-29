@@ -37,7 +37,7 @@ CheckBoxQuestionObject.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     ...BaseQuestionObject.adapter.toExternal(internal),
     type: QuestionType.CHECKBOX as QuestionType.CHECKBOX,
-    options: internal.options.map((option) =>
+    options: Object.values(internal.options).map((option) =>
       QuestionOptionObject.adapter.toExternal(option),
     ),
   }),

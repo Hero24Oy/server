@@ -32,6 +32,7 @@ import { SubscriberModule } from './modules/subscriber/subscriber.module';
 import { UserModule } from './modules/user/user.module';
 import { UserMergeModule } from './modules/user-merge/user-merge.module';
 
+import { CategoryModule } from '$modules/category/module';
 import { CryptoModule } from '$modules/crypto/module';
 import { CustomScheduleModule } from '$modules/custom-schedule/module';
 import { HeroPortfolioModule } from '$modules/hero-portfolio/module';
@@ -90,6 +91,7 @@ import { XmlJsModule } from '$modules/xml-js/module';
     CryptoModule,
     XmlJsModule,
     CustomScheduleModule,
+    CategoryModule,
   ],
   providers: [AppResolver],
 })

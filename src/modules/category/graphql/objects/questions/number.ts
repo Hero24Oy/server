@@ -21,7 +21,7 @@ export class NumberQuestionObject extends BaseQuestionObject {
   placeholder?: MaybeType<TranslationFieldDto>;
 
   @Field(() => String, { nullable: true })
-  value?: MaybeType<string>;
+  value?: MaybeType<number>;
 
   declare static adapter: FirebaseAdapter<
     LocalPlainQuestion,
@@ -35,12 +35,12 @@ NumberQuestionObject.adapter = new FirebaseAdapter({
     ...BaseQuestionObject.adapter.toInternal(external),
     type: QuestionType.NUMBER as QuestionType.NUMBER,
     placeholder: external.placeholder ?? undefined,
-    defaultValue: external.value ? Number(external.value) : undefined,
+    defaultValue: external.value ? external.value : undefined,
   }),
   toExternal: (internal) => ({
     ...BaseQuestionObject.adapter.toExternal(internal),
     type: QuestionType.NUMBER as QuestionType.NUMBER,
     placeholder: internal.placeholder,
-    value: internal.defaultValue ? String(internal.defaultValue) : undefined,
+    value: internal.defaultValue ? internal.defaultValue : undefined,
   }),
 });

@@ -43,7 +43,7 @@ RadioQuestionObject.adapter = new FirebaseAdapter({
     ...BaseQuestionObject.adapter.toExternal(internal),
     type: QuestionType.RADIO as QuestionType.RADIO,
     selectedOption: internal.selectedOption,
-    options: internal.options.map((option) =>
+    options: Object.values(internal.options).map((option) =>
       QuestionOptionObject.adapter.toExternal(option),
     ),
   }),

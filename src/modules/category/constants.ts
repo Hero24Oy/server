@@ -32,5 +32,5 @@ export const QUESTION_UNION_MAPPER: Record<
   [QuestionType.TEXT_AREA]: TextAreaQuestionObject,
 };
 
-export const CATEGORIES_UPDATED_SUBSCRIPTION = 'categoriesUpdated';
-export const CATEGORIES_CREATED_SUBSCRIPTION = 'categoriesCreated';
+export const CATEGORY_UPDATED_SUBSCRIPTION = 'categoryUpdated';
+export const CATEGORY_CREATED_SUBSCRIPTION = 'categoryCreated';

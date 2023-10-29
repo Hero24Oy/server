@@ -8,12 +8,12 @@ import { TranslationFieldDto } from '$modules/common/dto/translation-field.dto';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @InterfaceType()
-export class BaseQuestionObject {
+export abstract class BaseQuestionObject {
   @Field(() => String)
   id: string;
 
   @Field(() => String, { nullable: true })
-  [QUESTION_FLAT_ID_NAME]?: MaybeType<string>; // undefined for the root question
+  depsId?: MaybeType<string>; // we don't use [QUESTION_FLAT_ID_NAME] here, nest throw type error
 
   @Field(() => TranslationFieldDto, { nullable: true })
   name?: MaybeType<TranslationFieldDto>;

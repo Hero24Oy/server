@@ -6,8 +6,8 @@ import { FirebaseExceptionFilter } from 'src/modules/firebase/firebase.exception
 import { PUBSUB_PROVIDER } from 'src/modules/graphql-pubsub/graphql-pubsub.constants';
 
 import {
-  CATEGORIES_CREATED_SUBSCRIPTION,
-  CATEGORIES_UPDATED_SUBSCRIPTION,
+  CATEGORY_CREATED_SUBSCRIPTION,
+  CATEGORY_UPDATED_SUBSCRIPTION,
 } from './constants';
 import {
   CategoryObject,
@@ -25,36 +25,36 @@ export class CategoryResolver {
 
   @Query(() => [GetCategoriesOutput], { nullable: true })
   @UseFilters(FirebaseExceptionFilter)
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async getCategories(): Promise<GetCategoriesOutput[] | null> {
     return this.categoryService.getAllCategories();
   }
 
   @Subscription(() => GetCategoriesOutput, {
-    name: CATEGORIES_CREATED_SUBSCRIPTION,
+    name: CATEGORY_CREATED_SUBSCRIPTION,
     resolve: (payload: {
-      [CATEGORIES_CREATED_SUBSCRIPTION]: CategoryObject;
+      [CATEGORY_CREATED_SUBSCRIPTION]: CategoryObject;
     }): GetCategoriesOutput => ({
-      category: payload[CATEGORIES_CREATED_SUBSCRIPTION],
+      category: payload[CATEGORY_CREATED_SUBSCRIPTION],
     }),
   })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   subscribeToCategoriesCreated(): AsyncIterator<unknown> {
-    return this.pubSub.asyncIterator(CATEGORIES_CREATED_SUBSCRIPTION);
+    return this.pubSub.asyncIterator(CATEGORY_CREATED_SUBSCRIPTION);
   }
 
   @Subscription(() => SubscribeToCategoriesUpdatedOutput, {
-    name: CATEGORIES_UPDATED_SUBSCRIPTION,
+    name: CATEGORY_UPDATED_SUBSCRIPTION,
     resolve: (payload: {
-      [CATEGORIES_UPDATED_SUBSCRIPTION]: CategoryObject;
+      [CATEGORY_UPDATED_SUBSCRIPTION]: CategoryObject;
     }): SubscribeToCategoriesUpdatedOutput => ({
-      category: payload[CATEGORIES_UPDATED_SUBSCRIPTION],
+      category: payload[CATEGORY_UPDATED_SUBSCRIPTION],
     }),
   })
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   subscribeToCategoriesUpdated(): AsyncIterator<unknown> {
-    return this.pubSub.asyncIterator(CATEGORIES_UPDATED_SUBSCRIPTION);
+    return this.pubSub.asyncIterator(CATEGORY_UPDATED_SUBSCRIPTION);
   }
 }
