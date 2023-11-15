@@ -1,33 +1,35 @@
 words:
   # Common
-  - 'iban'
-  - 'signin'
-  - 'signup'
-  - 'workareas'
-  - 'unattach'
+  - iban
+  - signin
+  - signup
+  - workareas
+  - unattach
   # Uuid lib
-  - 'uuidv'
-  - 'uuidv4'
+  - uuidv
+  - uuidv4
   # Hubspot
-  - 'appspot'
-  - 'hubspot'
+  - appspot
+  - hubspot
   # Netvisor
-  - 'netvisor'
+  - netvisor
   # Netvisor headers
-  - 'Organisation'
-  - 'TRANSID'
+  - Organisation
+  - TRANSID
   # Netvisor query parameters
-  - 'paymentstatus'
-  - 'lastmodifiedstart'
-  - 'netvisorkey'
+  - paymentstatus
+  - lastmodifiedstart
+  - netvisorkey
   # Netvisor return object field
-  - 'purchaseinvoicelist'
+  - purchaseinvoicelist
   # Netvisor XML properties
-  - 'vendorbaseinformation'
-  - 'vendorcontactdetails'
-  - 'organizationid'
-  - 'phonenumber'
-  - 'contactpersonname'
-  - 'contactpersonphonenumber'
-  - 'contactpersonemail'
-  - 'runbooks'
+  - vendorbaseinformation
+  - vendorcontactdetails
+  - organizationid
+  - phonenumber
+  - contactpersonname
+  - contactpersonphonenumber
+  - contactpersonemail
+  - runbooks
+  # Mangopay
+  - Mangopay
