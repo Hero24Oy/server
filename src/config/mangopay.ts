@@ -9,5 +9,5 @@ export const mangopayValidationSchema = Joi.object({
 export default () => ({
   baseUrl: process.env.MANGOPAY_BASE_URL,
   clientId: process.env.MANGOPAY_CLIENT_ID,
-  apiKey: process.env.MANGOPAY_API_KEY,
+  clientApiKey: process.env.MANGOPAY_API_KEY,
 });
