@@ -19,3 +19,7 @@ export enum MangopayLegalPersonType {
   ORGANIZATION = 'ORGANIZATION',
   SOLETRADER = 'SOLETRADER',
 }
+
+export enum MangopayCurrency {
+  EUR = 'EUR',
+}

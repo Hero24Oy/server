@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { wallet as MangoPayWallet } from 'mangopay2-nodejs-sdk';
 
+import { MangopayCurrency } from '../enums';
+
 import { MangopayInstanceService } from './instance';
 
 @Injectable()
@@ -10,7 +12,7 @@ export class MangopayWalletService {
   async createWallet(
     data: MangoPayWallet.CreateWallet,
   ): Promise<MangoPayWallet.WalletData> {
-    return this.api.Wallets.create(data);
+    return this.api.Wallets.create({ ...data, Currency: MangopayCurrency.EUR });
   }
 
   async updateWallet(
