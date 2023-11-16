@@ -1,38 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { user as MangoPayUser } from 'mangopay2-nodejs-sdk';
 
-import { MangopayInstanceService } from '../instance';
+import { PersonType } from '../enums';
 
-import { PersonType } from './enums';
-import {
-  MangopayLegalUserCreationData,
-  MangopayNaturalUserCreationData,
-} from './types';
+import { MangopayInstanceService } from './instance';
 
-import { ConfigType } from '$config';
-import { Config } from '$decorator';
 import { MangopayParameters } from '$modules/mangopay/types';
 
 @Injectable()
-export class MangopayUserService extends MangopayInstanceService {
-  constructor(@Config() config: ConfigType) {
-    super(config);
-  }
+export class MangopayUserService {
+  constructor(private readonly api: MangopayInstanceService) {}
 
   async createNaturalUser(
-    user: MangopayNaturalUserCreationData,
+    user: MangoPayUser.CreateUserNaturalData,
   ): Promise<MangoPayUser.UserNaturalData> {
     return this.api.Users.create({
       ...user,
+      TermsAndConditionsAccepted: true,
       PersonType: PersonType.NATURAL,
     });
   }
 
   async createLegalUser(
-    user: MangopayLegalUserCreationData,
+    user: MangoPayUser.CreateUserLegalData,
   ): Promise<MangoPayUser.UserLegalData> {
     return this.api.Users.create({
       ...user,
+      TermsAndConditionsAccepted: true,
       PersonType: PersonType.LEGAL,
     });
   }
