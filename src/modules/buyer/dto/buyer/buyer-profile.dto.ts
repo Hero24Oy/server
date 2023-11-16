@@ -6,6 +6,12 @@ import { BuyerProfileDataDto } from './buyer-profile-data.dto';
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
+// TODO will be removed when types package is updated
+enum CustomerType {
+  SELF_EMPLOYED = 'selfEmployed',
+  BUSINESS_CUSTOMER = 'businessCustomer',
+}
+
 @ObjectType()
 export class BuyerProfileDto {
   @Field(() => String)
@@ -17,8 +23,11 @@ export class BuyerProfileDto {
   @Field(() => Boolean, { nullable: true })
   hasMadeApprovedRequest?: MaybeType<boolean>;
 
+  @Field(() => CustomerType)
+  type: CustomerType;
+
   static adapter: FirebaseAdapter<
-    BuyerProfileDB & { id: string },
+    BuyerProfileDB & { id: string; type: CustomerType },
     BuyerProfileDto
   >;
 }
@@ -28,10 +37,12 @@ BuyerProfileDto.adapter = new FirebaseAdapter({
     id: internal.id,
     hasMadeApprovedRequest: internal.hasMadeApprovedRequest,
     data: BuyerProfileDataDto.adapter.toExternal(internal.data),
+    type: internal.type ?? CustomerType.SELF_EMPLOYED,
   }),
   toInternal: (external) => ({
     id: external.id,
     hasMadeApprovedRequest: external.hasMadeApprovedRequest ?? undefined,
     data: BuyerProfileDataDto.adapter.toInternal(external.data),
+    type: external.type,
   }),
 });
