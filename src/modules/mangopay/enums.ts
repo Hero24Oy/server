@@ -3,17 +3,17 @@ export enum MangopaySortOrder {
   DESC = 'DESC',
 }
 
-export enum UserCategory {
-  PAYER = 'PAYER',
-  OWNER = 'OWNER',
+export enum MangopayUserCategory {
+  CUSTOMER = 'PAYER',
+  HERO = 'OWNER',
 }
 
-export enum PersonType {
-  LEGAL = 'LEGAL',
-  NATURAL = 'NATURAL',
+export enum MangopayPersonType {
+  COMPANY = 'LEGAL',
+  SELF_EMPLOYED = 'NATURAL',
 }
 
-export enum LegalPersonType {
+export enum MangopayLegalPersonType {
   BUSINESS = 'BUSINESS',
   PARTNERSHIP = 'PARTNERSHIP',
   ORGANIZATION = 'ORGANIZATION',
