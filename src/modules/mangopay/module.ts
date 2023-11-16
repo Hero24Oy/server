@@ -5,6 +5,7 @@ import {
   MangopayUserService,
   MangopayWalletService,
 } from './services';
+import { MangopayTransactionService } from './services/transaction';
 
 @Module({
   imports: [],
@@ -12,11 +13,13 @@ import {
     MangopayInstanceService,
     MangopayUserService,
     MangopayWalletService,
+    MangopayTransactionService,
   ],
   exports: [
     MangopayInstanceService,
     MangopayUserService,
     MangopayWalletService,
+    MangopayTransactionService,
   ],
 })
 export class MangopayModule {}
