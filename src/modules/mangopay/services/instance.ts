@@ -5,8 +5,8 @@ import { ConfigType } from '$config';
 import { Config } from '$decorator';
 
 @Injectable()
-export class MangopayService {
-  private readonly api: MangopayApi;
+export class MangopayInstanceService {
+  protected readonly api: MangopayApi;
 
   constructor(@Config() config: ConfigType) {
     this.api = new MangopayApi(config.mangopay);
