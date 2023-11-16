@@ -1,19 +1,21 @@
-const DB_REGEXP = '*.DB';
-const EXCLUDE_NAMES_NAMING_CONVENTION = [
-  'photoURL',
-  'companyVAT',
-  'serviceProviderVAT',
-  'customerVAT',
-  'heroBIOText',
-  'pauseDurationMS',
-  'generalPauseDurationMS',
-  'downloadURL',
-  'databaseURL',
-  'refFromURL',
+const EXCLUDE_NAMES_NAMING_CONVENTION_WORDS = ['Per_Page'];
+const EXCLUDE_NAMES_NAMING_CONVENTION_REGEXPS = [
+  '.*VAT.*',
+  '.*URL.*',
+  '.*DB.*',
+  '.*MS.*',
+  '.*graphQL.*',
+  '.*BIO.*',
 ];
-const excludeNamesNamingConventionRegex =
-  EXCLUDE_NAMES_NAMING_CONVENTION.join('|');
-const underscoreAndExcludeNamingConventionRegex = `^(_|${excludeNamesNamingConventionRegex})`;
+
+const excludeNamesNamingConventionWordsRegex =
+  EXCLUDE_NAMES_NAMING_CONVENTION_WORDS.join('|');
+const excludeNamesNamingConventionRegexpsRegex =
+  EXCLUDE_NAMES_NAMING_CONVENTION_REGEXPS.join('|');
+
+const underscoreAndExcludeNamingConventionWordsRegex = `^(_|${excludeNamesNamingConventionWordsRegex})`;
+
+const finalExcludeRegex = `${excludeNamesNamingConventionRegexpsRegex}|${underscoreAndExcludeNamingConventionWordsRegex}`;
 
 const initialRules = {
   'eslint-comments/require-description': [
@@ -184,7 +186,7 @@ const namingConventionRule = {
       format: ['strictCamelCase'],
       filter: {
         match: false,
-        regex: `(\b${DB_REGEXP}|^(_|${excludeNamesNamingConventionRegex}))`,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -194,7 +196,7 @@ const namingConventionRule = {
       format: ['UPPER_CASE'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -203,7 +205,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -212,7 +214,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase', 'UPPER_CASE'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -221,7 +223,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -229,7 +231,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -237,7 +239,7 @@ const namingConventionRule = {
       format: ['strictCamelCase', 'StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -245,17 +247,25 @@ const namingConventionRule = {
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
       selector: 'enumMember',
       format: ['UPPER_CASE'],
+      filter: {
+        match: false,
+        regex: finalExcludeRegex,
+      },
     },
     {
       selector: 'parameter',
       format: ['strictCamelCase'],
       leadingUnderscore: 'allow',
+      filter: {
+        match: false,
+        regex: finalExcludeRegex,
+      },
     },
     {
       selector: 'variable',
@@ -274,13 +284,17 @@ const namingConventionRule = {
         'can',
         'should',
       ],
+      filter: {
+        match: false,
+        regex: finalExcludeRegex,
+      },
     },
     {
       selector: 'interface',
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: underscoreAndExcludeNamingConventionRegex,
+        regex: finalExcludeRegex,
       },
     },
     {
@@ -288,7 +302,7 @@ const namingConventionRule = {
       format: ['StrictPascalCase'],
       filter: {
         match: false,
-        regex: `\b${DB_REGEXP}`,
+        regex: finalExcludeRegex,
       },
     },
   ],

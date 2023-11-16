@@ -1,7 +1,4 @@
-import { MangopayFilter } from './filter';
-import { MangopayPagination } from './pagination';
+import { base as MangopayBase } from 'mangopay2-nodejs-sdk';
 
-export type MangopayParameters = {
-  filter?: MangopayFilter;
-  pagination?: MangopayPagination;
-};
+export type MangopayParameters = MangopayBase.PaginationOptions &
+  MangopayBase.FilterOptions;

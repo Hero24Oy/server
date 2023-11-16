@@ -3,20 +3,20 @@ import { CountryISO } from 'mangopay2-nodejs-sdk';
 import { UserCategory } from '../enums';
 
 export type MangopayNaturalBaseCreationData = {
-  email: string;
-  firstName: string;
-  lastName: string;
+  Email: string;
+  FirstName: string;
+  LastName: string;
 };
 
 export type MangopayNaturalPayerCreationData = {
-  userCategory: `${UserCategory.PAYER}`;
+  UserCategory: `${UserCategory.PAYER}`;
 } & MangopayNaturalBaseCreationData;
 
 export type MangopayNaturalOwnerCreationData = {
-  birthday: number;
-  countryOfResidence: CountryISO;
-  nationality: CountryISO;
-  userCategory: `${UserCategory.OWNER}`;
+  Birthday: number;
+  CountryOfResidence: CountryISO;
+  Nationality: CountryISO;
+  UserCategory: `${UserCategory.OWNER}`;
 } & MangopayNaturalBaseCreationData;
 
 export type MangopayNaturalUserCreationData =

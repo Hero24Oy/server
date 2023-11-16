@@ -12,10 +12,6 @@ import {
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
 import { MangopayParameters } from '$modules/mangopay/types';
-import {
-  convertInputToMangopayFormat,
-  convertParametersToMangopayFormat,
-} from '$modules/mangopay/utils';
 
 @Injectable()
 export class MangopayUserService extends MangopayInstanceService {
@@ -26,10 +22,8 @@ export class MangopayUserService extends MangopayInstanceService {
   async createNaturalUser(
     user: MangopayNaturalUserCreationData,
   ): Promise<MangoPayUser.UserNaturalData> {
-    const formattedData = convertInputToMangopayFormat(user);
-
     return this.api.Users.create({
-      ...formattedData,
+      ...user,
       PersonType: PersonType.NATURAL,
     });
   }
@@ -37,10 +31,8 @@ export class MangopayUserService extends MangopayInstanceService {
   async createLegalUser(
     user: MangopayLegalUserCreationData,
   ): Promise<MangoPayUser.UserLegalData> {
-    const formattedData = convertInputToMangopayFormat(user);
-
     return this.api.Users.create({
-      ...formattedData,
+      ...user,
       PersonType: PersonType.LEGAL,
     });
   }
@@ -54,12 +46,12 @@ export class MangopayUserService extends MangopayInstanceService {
   }
 
   async getListAllUsers(
-    parameters: MangopayParameters,
+    parameters?: MangopayParameters,
   ): Promise<
     (MangoPayUser.CreateUserLegalData | MangoPayUser.CreateUserNaturalData)[]
   > {
     return this.api.Users.getAll({
-      parameters: convertParametersToMangopayFormat(parameters),
+      parameters,
     });
   }
 }

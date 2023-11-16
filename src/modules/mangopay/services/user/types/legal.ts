@@ -1,16 +1,14 @@
-import { CountryISO } from 'mangopay2-nodejs-sdk';
+import { address as MangopayAddress, CountryISO } from 'mangopay2-nodejs-sdk';
 
 import { LegalPersonType, UserCategory } from '../enums';
 
-import { MangopayAddress } from '$modules/mangopay/types';
-
 export type MangopayLegalBaseCreationData = {
-  email: string;
-  legalPersonType: `${LegalPersonType}`;
-  legalRepresentativeAddress: MangopayAddress;
-  legalRepresentativeFirstName: string;
-  legalRepresentativeLastName: string;
-  name: string;
+  Email: string;
+  LegalPersonType: `${LegalPersonType}`;
+  LegalRepresentativeAddress: MangopayAddress.AddressType;
+  LegalRepresentativeFirstName: string;
+  LegalRepresentativeLastName: string;
+  Name: string;
 };
 
 export type MangopayLegalPayerCreationData = {
@@ -18,12 +16,12 @@ export type MangopayLegalPayerCreationData = {
 } & MangopayLegalBaseCreationData;
 
 export type MangopayLegalOwnerCreationData = {
-  companyNumber: string;
-  headquartersAddress: MangopayAddress;
-  legalRepresentativeBirthday: number;
-  legalRepresentativeCountryOfResidence: CountryISO;
-  legalRepresentativeNationality: CountryISO;
-  userCategory: `${UserCategory.OWNER}`;
+  CompanyNumber: string;
+  HeadquartersAddress: MangopayAddress.AddressType;
+  LegalRepresentativeBirthday: number;
+  LegalRepresentativeCountryOfResidence: CountryISO;
+  LegalRepresentativeNationality: CountryISO;
+  UserCategory: `${UserCategory.OWNER}`;
 } & MangopayLegalBaseCreationData;
 
 export type MangopayLegalUserCreationData =
