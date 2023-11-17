@@ -26,8 +26,8 @@ export class MangopayTransactionService {
         Currency: MangopayCurrency.EUR,
         Amount: params.fee,
       },
-      DebitedWalletId: params.wallets.from,
-      CreditedWalletId: params.wallets.to,
+      DebitedWalletId: params.transfer.from,
+      CreditedWalletId: params.transfer.to,
     });
   }
 

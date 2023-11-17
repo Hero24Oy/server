@@ -2,7 +2,7 @@ export type TransactionParams = {
   amount: number;
   author: string;
   fee: number;
-  wallets: {
+  transfer: {
     from: string;
     to: string;
   };
