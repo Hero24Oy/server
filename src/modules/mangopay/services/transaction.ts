@@ -31,11 +31,11 @@ export class MangopayTransactionService {
     });
   }
 
-  async getTransaction(id: string): Promise<MangopayTransfer.TransferData> {
+  async getTransactionById(id: string): Promise<MangopayTransfer.TransferData> {
     return this.api.Transfers.get(id);
   }
 
-  async getAllTransactionByUser(
+  async getAllTransactionByUserId(
     id: string,
     parameters?: MangopayParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
@@ -48,7 +48,7 @@ export class MangopayTransactionService {
     });
   }
 
-  async getAllTransactionByWallet(
+  async getAllTransactionByWalletId(
     id: string,
     parameters?: MangopayParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
