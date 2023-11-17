@@ -34,10 +34,10 @@ export class BuyerProfileDataDto {
   @Field(() => CustomerType)
   type: `${CustomerType}`;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   businessId?: MaybeType<string>;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   businessName?: MaybeType<string>;
 
   static adapter: FirebaseAdapter<CustomerProfileDataDB, BuyerProfileDataDto>;
@@ -48,7 +48,8 @@ BuyerProfileDataDto.adapter = new FirebaseAdapter({
     displayName: internal.displayName,
     isCreatedFromWeb: internal.isCreatedFromWeb,
     photoURL: internal.photoURL,
-    type: internal.type,
+    // * treat customer as individual if it' not defined (legacy)
+    type: internal.type ?? CustomerType.INDIVIDUAL,
     businessId: internal.businessId ?? null,
     businessName: internal.businessName ?? null,
   }),
