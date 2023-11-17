@@ -11,43 +11,43 @@ import { MangopayParameters } from '$modules/mangopay/types';
 export class MangopayUserService {
   constructor(private readonly api: MangopayInstanceService) {}
 
-  async createSelfEmployedUser(
+  async createIndividualUser(
     user: MangoPayUser.CreateUserNaturalData,
   ): Promise<MangoPayUser.UserNaturalData> {
     return this.api.Users.create({
       ...user,
       TermsAndConditionsAccepted: true,
-      PersonType: MangopayPersonType.SELF_EMPLOYED,
+      PersonType: MangopayPersonType.INDIVIDUAL,
     });
   }
 
-  async createCompanyUser(
+  async createProfessionalUser(
     user: MangoPayUser.CreateUserLegalData,
   ): Promise<MangoPayUser.UserLegalData> {
     return this.api.Users.create({
       ...user,
       TermsAndConditionsAccepted: true,
-      PersonType: MangopayPersonType.COMPANY,
+      PersonType: MangopayPersonType.PROFESSIONAL,
     });
   }
 
-  async updateSelfEmployedUser(
+  async updateIndividualUser(
     user: MangoPayUser.UpdateUserNaturalData,
   ): Promise<MangoPayUser.UserNaturalData> {
     return this.api.Users.update({
       ...user,
       TermsAndConditionsAccepted: true,
-      PersonType: MangopayPersonType.SELF_EMPLOYED,
+      PersonType: MangopayPersonType.INDIVIDUAL,
     });
   }
 
-  async updateCompanyUser(
+  async updateProfessionalUser(
     user: MangoPayUser.UpdateUserLegalData,
   ): Promise<MangoPayUser.UserLegalData> {
     return this.api.Users.update({
       ...user,
       TermsAndConditionsAccepted: true,
-      PersonType: MangopayPersonType.COMPANY,
+      PersonType: MangopayPersonType.PROFESSIONAL,
     });
   }
 
@@ -57,7 +57,7 @@ export class MangopayUserService {
     return this.api.Users.get(id);
   }
 
-  async getListAllUsers(
+  async getAllUsers(
     parameters?: MangopayParameters,
   ): Promise<(MangoPayUser.UserLegalData | MangoPayUser.UserNaturalData)[]> {
     return this.api.Users.getAll({
