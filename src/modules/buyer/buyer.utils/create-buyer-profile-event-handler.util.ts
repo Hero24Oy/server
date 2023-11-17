@@ -2,7 +2,7 @@ import { DataSnapshot } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
 import { BuyerProfileDB } from 'hero24-types';
 
-import { BuyerProfileDto } from '../dto/buyer/buyer-profile.dto';
+import { BuyerProfileDto, CustomerType } from '../dto/buyer/buyer-profile.dto';
 
 export const createBuyerProfileEventHandler =
   (eventEmitter: (pubsub: PubSub, user: BuyerProfileDto) => void) =>
@@ -12,7 +12,8 @@ export const createBuyerProfileEventHandler =
       return;
     }
 
-    const buyer: BuyerProfileDB = snapshot.val();
+    // TODO wait until types are updated
+    const buyer: BuyerProfileDB & { type: CustomerType } = snapshot.val(); // TODO remove when types are updated
 
     eventEmitter(
       pubsub,

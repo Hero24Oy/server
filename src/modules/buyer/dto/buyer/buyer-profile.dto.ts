@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { BuyerProfileDB } from 'hero24-types';
 
 import { BuyerProfileDataDto } from './buyer-profile-data.dto';
@@ -7,10 +7,15 @@ import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 // TODO will be removed when types package is updated
-enum CustomerType {
+
+export enum CustomerType {
   SELF_EMPLOYED = 'selfEmployed',
   BUSINESS_CUSTOMER = 'businessCustomer',
 }
+
+registerEnumType(CustomerType, {
+  name: 'CustomerType',
+});
 
 @ObjectType()
 export class BuyerProfileDto {

@@ -5,8 +5,12 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseMirrorService } from '../firebase/firebase-mirror/firebase-mirror.interface';
 
+import { CustomerType } from './dto/buyer/buyer-profile.dto';
+
 @Injectable()
-export class BuyerMirror extends FirebaseMirrorService<BuyerProfileDB> {
+export class BuyerMirror extends FirebaseMirrorService<
+  BuyerProfileDB & { type: CustomerType } // TODO remove when types are updated
+> {
   constructor(firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
 

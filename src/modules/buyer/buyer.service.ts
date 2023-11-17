@@ -6,7 +6,7 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { BuyerMirror } from './buyer.mirror';
-import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
+import { BuyerProfileDto, CustomerType } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileDataDto } from './dto/buyer/buyer-profile-data.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
@@ -16,7 +16,9 @@ import { UserService } from '$modules/user/user.service';
 
 @Injectable()
 export class BuyerService {
-  private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
+  private readonly buyerTableRef: FirebaseTableReference<
+    BuyerProfileDB & { type: CustomerType } // TODO remove when types are updated
+  >;
 
   constructor(
     firebaseService: FirebaseService,
