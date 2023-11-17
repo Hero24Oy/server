@@ -29,3 +29,11 @@ export enum MangopayTransactionType {
   PAYOUT = 'PAYOUT',
   TRANSFER = 'TRANSFER',
 }
+
+export enum MangopayPaymentType {
+  CARD = 'CARD',
+}
+
+export enum MangopayExecutionType {
+  DIRECT = 'DIRECT',
+}
