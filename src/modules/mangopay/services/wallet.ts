@@ -21,11 +21,11 @@ export class MangopayWalletService {
     return this.api.Wallets.update(data);
   }
 
-  async getWallet(id: string): Promise<MangoPayWallet.WalletData> {
+  async getWalletById(id: string): Promise<MangoPayWallet.WalletData> {
     return this.api.Wallets.get(id);
   }
 
-  async getWalletsByUser(id: string): Promise<MangoPayWallet.WalletData[]> {
+  async getWalletsByUserId(id: string): Promise<MangoPayWallet.WalletData[]> {
     return this.api.Users.getWallets(id);
   }
 }
