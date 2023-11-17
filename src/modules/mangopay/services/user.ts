@@ -5,7 +5,7 @@ import { MangopayPersonType } from '../enums';
 
 import { MangopayInstanceService } from './instance';
 
-import { MangopayParameters } from '$modules/mangopay/types';
+import { MangopaySearchParameters } from '$modules/mangopay/types';
 
 @Injectable()
 export class MangopayUserService {
@@ -60,7 +60,7 @@ export class MangopayUserService {
   }
 
   async getListAllUsers(
-    parameters?: MangopayParameters,
+    parameters?: MangopaySearchParameters,
   ): Promise<
     (MangoPayUser.CreateUserLegalData | MangoPayUser.CreateUserNaturalData)[]
   > {

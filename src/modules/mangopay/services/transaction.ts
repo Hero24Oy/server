@@ -5,7 +5,7 @@ import {
 } from 'mangopay2-nodejs-sdk';
 
 import { MangopayCurrency, MangopayTransactionType } from '../enums';
-import { MangopayParameters, TransactionParams } from '../types';
+import { MangopaySearchParameters, TransactionParameters } from '../types';
 
 import { MangopayInstanceService } from './instance';
 
@@ -14,7 +14,7 @@ export class MangopayTransactionService {
   constructor(private readonly api: MangopayInstanceService) {}
 
   async createTransaction(
-    params: TransactionParams,
+    params: TransactionParameters,
   ): Promise<MangopayTransfer.TransferData> {
     return this.api.Transfers.create({
       AuthorId: params.author,
@@ -37,7 +37,7 @@ export class MangopayTransactionService {
 
   async getAllTransactionByUserId(
     id: string,
-    parameters?: MangopayParameters,
+    parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
     const transactions = await this.api.Users.getTransactions(id, {
       parameters,
@@ -50,7 +50,7 @@ export class MangopayTransactionService {
 
   async getAllTransactionByWalletId(
     id: string,
-    parameters?: MangopayParameters,
+    parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
     const transactions = await this.api.Wallets.getTransactions(id, {
       parameters,
