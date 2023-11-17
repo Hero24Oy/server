@@ -51,11 +51,9 @@ export class MangopayUserService {
     });
   }
 
-  async getUser(
+  async getUserById(
     id: string,
-  ): Promise<
-    MangoPayUser.CreateUserLegalData | MangoPayUser.CreateUserNaturalData
-  > {
+  ): Promise<MangoPayUser.UserLegalData | MangoPayUser.UserNaturalData> {
     return this.api.Users.get(id);
   }
 
