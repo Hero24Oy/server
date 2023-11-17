@@ -6,8 +6,11 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { BuyerMirror } from './buyer.mirror';
-import { BuyerProfileDto, CustomerType } from './dto/buyer/buyer-profile.dto';
-import { BuyerProfileDataDto } from './dto/buyer/buyer-profile-data.dto';
+import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
+import {
+  BuyerProfileDataDto,
+  CustomerType,
+} from './dto/buyer/buyer-profile-data.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
 import { BuyerProfileDataEditingArgs } from './dto/editing/buyer-profile-data-editing.args';
 import { PartialBuyerProfileDataInput } from './dto/editing/partial-buyer-profile-data.input';
@@ -17,7 +20,7 @@ import { UserService } from '$modules/user/user.service';
 @Injectable()
 export class BuyerService {
   private readonly buyerTableRef: FirebaseTableReference<
-    BuyerProfileDB & { type: CustomerType } // TODO remove when types are updated
+    BuyerProfileDB & { data: { type: CustomerType } } // TODO remove after hero24-types updated
   >;
 
   constructor(
