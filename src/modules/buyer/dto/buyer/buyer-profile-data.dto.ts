@@ -9,16 +9,17 @@ import { CustomerProfileDataDB } from '$modules/buyer/customer.types';
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
-// TODO remove when types package is updated
 export enum CustomerType {
   INDIVIDUAL = 'individual',
   PROFESSIONAL = 'professional',
 }
 
+// TODO remove when types package is updated
 registerEnumType(CustomerType, {
   name: 'CustomerType',
 });
 
+// TODO add validation based on other fields for businessId and businessName
 @ObjectType()
 @InputType('BuyerProfileDataInput')
 export class BuyerProfileDataDto {
@@ -31,10 +32,13 @@ export class BuyerProfileDataDto {
   @Field(() => Boolean, { nullable: true })
   isCreatedFromWeb?: MaybeType<boolean>;
 
+  // TODO make nullable as well
   @Field(() => CustomerType)
   type: `${CustomerType}`;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String, {
+    nullable: true,
+  })
   businessId?: MaybeType<string>;
 
   @Field(() => String, { nullable: true })
