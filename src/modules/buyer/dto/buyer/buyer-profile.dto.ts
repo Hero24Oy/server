@@ -1,8 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { BuyerProfileDB } from 'hero24-types';
 
-import { BuyerProfileDataDto, CustomerType } from './buyer-profile-data.dto';
+import { BuyerProfileDataDto } from './buyer-profile-data.dto';
 
+import { CustomerProfileDB } from '$modules/buyer/customer.types';
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
@@ -18,11 +18,7 @@ export class BuyerProfileDto {
   hasMadeApprovedRequest?: MaybeType<boolean>;
 
   static adapter: FirebaseAdapter<
-    BuyerProfileDB & { id: string } & {
-      data: {
-        type: CustomerType;
-      };
-    }, // TODO remove after hero24-types updated
+    CustomerProfileDB & { id: string },
     BuyerProfileDto
   >;
 }

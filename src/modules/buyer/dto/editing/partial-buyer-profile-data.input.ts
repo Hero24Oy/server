@@ -1,11 +1,8 @@
 import { InputType, PartialType } from '@nestjs/graphql';
-import { BuyerProfileDB } from 'hero24-types';
 
-import {
-  BuyerProfileDataDto,
-  CustomerType,
-} from '../buyer/buyer-profile-data.dto';
+import { BuyerProfileDataDto } from '../buyer/buyer-profile-data.dto';
 
+import { CustomerProfileDataDB } from '$modules/buyer/customer.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @InputType()
@@ -14,7 +11,7 @@ export class PartialBuyerProfileDataInput extends PartialType(
   InputType,
 ) {
   static adapter: FirebaseAdapter<
-    Partial<BuyerProfileDB['data'] & { type: CustomerType }>, // TODO remove after hero24-types updated
+    Partial<CustomerProfileDataDB>,
     PartialBuyerProfileDataInput
   >;
 }
@@ -25,11 +22,15 @@ PartialBuyerProfileDataInput.adapter = new FirebaseAdapter({
     isCreatedFromWeb: internal.isCreatedFromWeb,
     photoURL: internal.photoURL,
     type: internal.type,
+    businessId: internal.businessId ?? null,
+    businessName: internal.businessName ?? null,
   }),
   toInternal: (external) => ({
     displayName: external.displayName ?? undefined,
     isCreatedFromWeb: external.isCreatedFromWeb ?? undefined,
     photoURL: external.photoURL ?? undefined,
     type: external.type ?? undefined,
+    businessId: external.businessId ?? undefined,
+    businessName: external.type ?? undefined,
   }),
 });

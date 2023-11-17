@@ -4,8 +4,8 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { BuyerProfileDB } from 'hero24-types';
 
+import { CustomerProfileDataDB } from '$modules/buyer/customer.types';
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
@@ -32,12 +32,15 @@ export class BuyerProfileDataDto {
   isCreatedFromWeb?: MaybeType<boolean>;
 
   @Field(() => CustomerType)
-  type: CustomerType;
+  type: `${CustomerType}`;
 
-  static adapter: FirebaseAdapter<
-    BuyerProfileDB['data'] & { type: CustomerType },
-    BuyerProfileDataDto
-  >;
+  @Field(() => String)
+  businessId?: MaybeType<string>;
+
+  @Field(() => String)
+  businessName?: MaybeType<string>;
+
+  static adapter: FirebaseAdapter<CustomerProfileDataDB, BuyerProfileDataDto>;
 }
 
 BuyerProfileDataDto.adapter = new FirebaseAdapter({
@@ -46,11 +49,15 @@ BuyerProfileDataDto.adapter = new FirebaseAdapter({
     isCreatedFromWeb: internal.isCreatedFromWeb,
     photoURL: internal.photoURL,
     type: internal.type,
+    businessId: internal.businessId ?? null,
+    businessName: internal.businessName ?? null,
   }),
   toInternal: (external) => ({
     displayName: external.displayName,
     isCreatedFromWeb: external.isCreatedFromWeb ?? undefined,
     photoURL: external.photoURL ?? undefined,
     type: external.type,
+    businessId: external.businessId ?? undefined,
+    businessName: external.businessName ?? undefined,
   }),
 });
