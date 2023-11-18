@@ -12,7 +12,7 @@ import { MangopayInstanceService } from './instance';
 export class MangopayCardService {
   constructor(private readonly api: MangopayInstanceService) {}
 
-  async registerCard(
+  async createCardRegistration(
     data: MangopayCardRegistration.CreateCardRegistration,
   ): Promise<MangopayCardRegistration.CardRegistrationData> {
     return this.api.CardRegistrations.create({
@@ -24,9 +24,7 @@ export class MangopayCardService {
   async updateCardRegistration(
     data: MangopayCardRegistration.UpdateCardRegistration,
   ): Promise<MangopayCardRegistration.CardRegistrationData> {
-    return this.api.CardRegistrations.update({
-      ...data,
-    });
+    return this.api.CardRegistrations.update(data);
   }
 
   async getCardRegistrationById(

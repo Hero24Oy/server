@@ -1,4 +1,4 @@
-export type TransactionParams = {
+export type TransactionParameters = {
   amount: number;
   author: string;
   fee: number;
