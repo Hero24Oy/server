@@ -43,7 +43,7 @@ export class MangopayPayInService {
     return this.api.PayIns.get(id);
   }
 
-  async getAllPayInsByUser(
+  async getAllPayInsByUserId(
     id: string,
     parameters?: MangopayParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
@@ -56,7 +56,7 @@ export class MangopayPayInService {
     });
   }
 
-  async getAllPayInsByWallet(
+  async getAllPayInsByWalletId(
     id: string,
     parameters?: MangopayParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
