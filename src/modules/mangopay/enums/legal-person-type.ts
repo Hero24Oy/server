@@ -1,0 +1,6 @@
+export enum MangopayLegalPersonType {
+  BUSINESS = 'BUSINESS',
+  PARTNERSHIP = 'PARTNERSHIP',
+  ORGANIZATION = 'ORGANIZATION',
+  SOLETRADER = 'SOLETRADER',
+}

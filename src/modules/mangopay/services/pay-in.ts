@@ -6,11 +6,11 @@ import {
 
 import {
   MangopayCurrency,
-  MangopayExecutionType,
-  MangopayPaymentType,
+  MangopayPayInExecutionType,
+  MangopayPayInPaymentType,
   MangopayTransactionType,
 } from '../enums';
-import { MangopayParameters, PayInParameters } from '../types';
+import { MangopaySearchParameters, PayInParameters } from '../types';
 
 import { MangopayInstanceService } from './instance';
 
@@ -34,8 +34,8 @@ export class MangopayPayInService {
       CreditedWalletId: params.wallet,
       CardId: params.card,
       SecureModeReturnURL: params.returnUrl,
-      PaymentType: MangopayPaymentType.CARD,
-      ExecutionType: MangopayExecutionType.DIRECT,
+      PaymentType: MangopayPayInPaymentType.CARD,
+      ExecutionType: MangopayPayInExecutionType.DIRECT,
     });
   }
 
@@ -45,7 +45,7 @@ export class MangopayPayInService {
 
   async getAllPayInsByUserId(
     id: string,
-    parameters?: MangopayParameters,
+    parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
     const transactions = await this.api.Users.getTransactions(id, {
       parameters,
@@ -58,7 +58,7 @@ export class MangopayPayInService {
 
   async getAllPayInsByWalletId(
     id: string,
-    parameters?: MangopayParameters,
+    parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
     const transactions = await this.api.Wallets.getTransactions(id, {
       parameters,
