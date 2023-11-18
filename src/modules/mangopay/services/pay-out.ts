@@ -65,4 +65,13 @@ export class MangopayPayOutService {
       return transaction.Type === MangopayTransactionType.PAYOUT;
     });
   }
+
+  async getAllPayOutsByBankId(
+    id: string,
+    parameters?: MangopaySearchParameters,
+  ): Promise<MangopayTransaction.TransactionData[]> {
+    return this.api.BankAccounts.getTransactions(id, {
+      parameters,
+    });
+  }
 }
