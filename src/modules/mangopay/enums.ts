@@ -9,8 +9,8 @@ export enum MangopayUserCategory {
 }
 
 export enum MangopayPersonType {
-  COMPANY = 'LEGAL',
-  SELF_EMPLOYED = 'NATURAL',
+  PROFESSIONAL = 'LEGAL',
+  INDIVIDUAL = 'NATURAL',
 }
 
 export enum MangopayLegalPersonType {
