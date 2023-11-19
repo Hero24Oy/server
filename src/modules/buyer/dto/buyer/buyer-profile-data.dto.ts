@@ -32,9 +32,8 @@ export class BuyerProfileDataDto {
   @Field(() => Boolean, { nullable: true })
   isCreatedFromWeb?: MaybeType<boolean>;
 
-  // TODO make nullable as well
-  @Field(() => CustomerType)
-  type: `${CustomerType}`;
+  @Field(() => CustomerType, { nullable: true })
+  type: MaybeType<`${CustomerType}`>;
 
   @Field(() => String, {
     nullable: true,
@@ -52,8 +51,7 @@ BuyerProfileDataDto.adapter = new FirebaseAdapter({
     displayName: internal.displayName,
     isCreatedFromWeb: internal.isCreatedFromWeb,
     photoURL: internal.photoURL,
-    // * treat customer as individual if it' not defined (legacy)
-    type: internal.type ?? CustomerType.INDIVIDUAL,
+    type: internal.type ?? null,
     businessId: internal.businessId ?? null,
     businessName: internal.businessName ?? null,
   }),
@@ -61,7 +59,7 @@ BuyerProfileDataDto.adapter = new FirebaseAdapter({
     displayName: external.displayName,
     isCreatedFromWeb: external.isCreatedFromWeb ?? undefined,
     photoURL: external.photoURL ?? undefined,
-    type: external.type,
+    type: external.type ?? undefined,
     businessId: external.businessId ?? undefined,
     businessName: external.businessName ?? undefined,
   }),
