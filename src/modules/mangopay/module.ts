@@ -1,10 +1,22 @@
 import { Module } from '@nestjs/common';
 
-import { MangopayInstanceService, MangopayUserService } from './services';
+import {
+  MangopayInstanceService,
+  MangopayUserService,
+  MangopayWalletService,
+} from './services';
 
 @Module({
   imports: [],
-  providers: [MangopayInstanceService, MangopayUserService],
-  exports: [MangopayInstanceService, MangopayUserService],
+  providers: [
+    MangopayInstanceService,
+    MangopayUserService,
+    MangopayWalletService,
+  ],
+  exports: [
+    MangopayInstanceService,
+    MangopayUserService,
+    MangopayWalletService,
+  ],
 })
 export class MangopayModule {}
