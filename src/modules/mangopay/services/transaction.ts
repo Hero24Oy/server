@@ -14,20 +14,20 @@ export class MangopayTransactionService {
   constructor(private readonly api: MangopayInstanceService) {}
 
   async createTransaction(
-    params: TransactionParameters,
+    parameters: TransactionParameters,
   ): Promise<MangopayTransfer.TransferData> {
     return this.api.Transfers.create({
-      AuthorId: params.authorId,
+      AuthorId: parameters.authorId,
       DebitedFunds: {
         Currency: MangopayCurrency.EUR,
-        Amount: params.amount,
+        Amount: parameters.amount,
       },
       Fees: {
         Currency: MangopayCurrency.EUR,
-        Amount: params.fee,
+        Amount: parameters.fee,
       },
-      DebitedWalletId: params.transfer.from,
-      CreditedWalletId: params.transfer.to,
+      DebitedWalletId: parameters.transfer.from,
+      CreditedWalletId: parameters.transfer.to,
     });
   }
 

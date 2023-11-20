@@ -1,8 +1,5 @@
 // Subtypes Professional(Legal) user
 // More: https://mangopay.com/docs/concepts/users/verification/requirements-legal
-export enum MangopayLegalPersonType {
+export enum MangopayProfessionalPersonType {
   BUSINESS = 'BUSINESS',
-  PARTNERSHIP = 'PARTNERSHIP',
-  ORGANIZATION = 'ORGANIZATION',
-  SOLETRADER = 'SOLETRADER',
 }

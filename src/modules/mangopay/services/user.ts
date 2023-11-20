@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { user as MangoPayUser } from 'mangopay2-nodejs-sdk';
 
-import { MangopayPersonType } from '../enums';
+import { MangopayPersonType, MangopayProfessionalPersonType } from '../enums';
 
 import { MangopayInstanceService } from './instance';
 
@@ -28,6 +28,7 @@ export class MangopayUserService {
       ...user,
       TermsAndConditionsAccepted: true,
       PersonType: MangopayPersonType.PROFESSIONAL,
+      LegalPersonType: MangopayProfessionalPersonType.BUSINESS,
     });
   }
 
