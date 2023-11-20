@@ -17,7 +17,7 @@ import { MangopayInstanceService } from './instance';
 export class MangopayPayOutService {
   constructor(private readonly api: MangopayInstanceService) {}
 
-  async createPayout(
+  async createPayOut(
     parameters: PayOutParameters,
   ): Promise<MangopayPayOut.PayOutData> {
     return this.api.PayOuts.create({
