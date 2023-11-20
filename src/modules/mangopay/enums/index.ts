@@ -1,5 +1,5 @@
 export * from './currency';
-export * from './legal-person-type';
+export * from './professional-person-type';
 export * from './payment-type';
 export * from './person-type';
 export * from './sort-order';
