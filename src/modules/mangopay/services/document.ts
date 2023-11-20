@@ -5,7 +5,12 @@ import {
 } from 'mangopay2-nodejs-sdk';
 
 import { MangopayDocumentStatus } from '../enums';
-import { MangopaySearchParameters } from '../types';
+import {
+  CreateKycPageParameters,
+  CreateUboParameters,
+  GetUboParameters,
+  MangopaySearchParameters,
+} from '../types';
 
 import { MangopayInstanceService } from './instance';
 
@@ -20,10 +25,10 @@ export class MangopayDocumentService {
   }
 
   async createUbo(
-    userId: string,
-    uboDeclarationId: string,
-    data: MangopayUboDeclaration.CreateUbo,
+    parameters: CreateUboParameters,
   ): Promise<MangopayUboDeclaration.UboData> {
+    const { userId, uboDeclarationId, data } = parameters;
+
     return this.api.UboDeclarations.createUbo(userId, uboDeclarationId, data);
   }
 
@@ -42,10 +47,10 @@ export class MangopayDocumentService {
   }
 
   async getUbo(
-    userId: string,
-    uboDeclarationId: string,
-    uboId: string,
+    parameters: GetUboParameters,
   ): Promise<MangopayUboDeclaration.UboData> {
+    const { userId, uboDeclarationId, uboId } = parameters;
+
     return this.api.UboDeclarations.getUbo(userId, uboDeclarationId, uboId);
   }
 
@@ -67,10 +72,10 @@ export class MangopayDocumentService {
   }
 
   async createKycPage(
-    userId: string,
-    kycDocumentId: string,
-    base64: string,
+    parameters: CreateKycPageParameters,
   ): Promise<MangopayKycDocument.KycDocumentData> {
+    const { userId, kycDocumentId, base64 } = parameters;
+
     return this.api.Users.createKycPage(userId, kycDocumentId, {
       File: base64,
     });
