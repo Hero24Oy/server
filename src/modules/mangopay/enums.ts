@@ -23,3 +23,9 @@ export enum MangopayLegalPersonType {
 export enum MangopayCurrency {
   EUR = 'EUR',
 }
+
+export enum MangopayTransactionType {
+  PAYIN = 'PAYIN',
+  PAYOUT = 'PAYOUT',
+  TRANSFER = 'TRANSFER',
+}

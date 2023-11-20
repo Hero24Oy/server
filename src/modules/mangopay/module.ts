@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import {
   MangopayInstanceService,
+  MangopayTransactionService,
   MangopayUserService,
   MangopayWalletService,
 } from './services';
@@ -12,11 +13,13 @@ import {
     MangopayInstanceService,
     MangopayUserService,
     MangopayWalletService,
+    MangopayTransactionService,
   ],
   exports: [
     MangopayInstanceService,
     MangopayUserService,
     MangopayWalletService,
+    MangopayTransactionService,
   ],
 })
 export class MangopayModule {}

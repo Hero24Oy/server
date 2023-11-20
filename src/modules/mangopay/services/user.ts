@@ -5,7 +5,7 @@ import { MangopayPersonType } from '../enums';
 
 import { MangopayInstanceService } from './instance';
 
-import { MangopayParameters } from '$modules/mangopay/types';
+import { MangopaySearchParameters } from '$modules/mangopay/types';
 
 @Injectable()
 export class MangopayUserService {
@@ -57,8 +57,8 @@ export class MangopayUserService {
     return this.api.Users.get(id);
   }
 
-  async getAllUsers(
-    parameters?: MangopayParameters,
+  async getListAllUsers(
+    parameters?: MangopaySearchParameters,
   ): Promise<(MangoPayUser.UserLegalData | MangoPayUser.UserNaturalData)[]> {
     return this.api.Users.getAll({
       parameters,
