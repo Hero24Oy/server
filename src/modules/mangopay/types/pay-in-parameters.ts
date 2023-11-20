@@ -4,9 +4,9 @@ export type PayInParameters = {
   amount: number;
   author: string;
   browserInfo: MangoPayBase.BrowserInfoData;
-  card: string;
+  cardId: string;
   fee: number;
   ip: string;
   returnUrl: string;
-  wallet: string;
+  walletId: string;
 };

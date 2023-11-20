@@ -4,3 +4,4 @@ export * from './wallet';
 export * from './transaction';
 export * from './card';
 export * from './pay-in';
+export * from './pay-out';

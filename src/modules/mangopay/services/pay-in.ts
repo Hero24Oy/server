@@ -6,8 +6,8 @@ import {
 
 import {
   MangopayCurrency,
-  MangopayExecutionType,
-  MangopayPaymentType,
+  MangopayPayInExecutionType,
+  MangopayPayInPaymentType,
   MangopayTransactionType,
 } from '../enums';
 import { MangopaySearchParameters, PayInParameters } from '../types';
@@ -31,11 +31,11 @@ export class MangopayPayInService {
         Currency: MangopayCurrency.EUR,
         Amount: params.fee,
       },
-      CreditedWalletId: params.wallet,
-      CardId: params.card,
+      CreditedWalletId: params.walletId,
+      CardId: params.cardId,
       SecureModeReturnURL: params.returnUrl,
-      PaymentType: MangopayPaymentType.CARD,
-      ExecutionType: MangopayExecutionType.DIRECT,
+      PaymentType: MangopayPayInPaymentType.CARD,
+      ExecutionType: MangopayPayInExecutionType.DIRECT,
     });
   }
 
