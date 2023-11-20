@@ -8,7 +8,6 @@ import { MaybeType } from '$modules/common/common.types';
 export type CustomerProfileDataDB = {
   type: MaybeType<`${CustomerType}`>;
   businessId?: string;
-  businessName?: string;
 } & BuyerProfileDB['data'];
 
 export type CustomerProfileDB = BuyerProfileDB & {

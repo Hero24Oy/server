@@ -40,9 +40,6 @@ export class BuyerProfileDataDto {
   })
   businessId?: MaybeType<string>;
 
-  @Field(() => String, { nullable: true })
-  businessName?: MaybeType<string>;
-
   static adapter: FirebaseAdapter<CustomerProfileDataDB, BuyerProfileDataDto>;
 }
 
@@ -53,7 +50,6 @@ BuyerProfileDataDto.adapter = new FirebaseAdapter({
     photoURL: internal.photoURL,
     type: internal.type ?? null,
     businessId: internal.businessId ?? null,
-    businessName: internal.businessName ?? null,
   }),
   toInternal: (external) => ({
     displayName: external.displayName,
@@ -61,6 +57,5 @@ BuyerProfileDataDto.adapter = new FirebaseAdapter({
     photoURL: external.photoURL ?? undefined,
     type: external.type ?? undefined,
     businessId: external.businessId ?? undefined,
-    businessName: external.businessName ?? undefined,
   }),
 });
