@@ -43,9 +43,10 @@ export class MangopayTransactionService {
       parameters,
     });
 
-    return transactions.filter((transaction) => {
-      return transaction.Type === MangopayTransactionType.TRANSFER;
-    });
+    return this.api.filterTransactions(
+      transactions,
+      MangopayTransactionType.TRANSFER,
+    );
   }
 
   async getAllTransactionByWalletId(
@@ -56,8 +57,9 @@ export class MangopayTransactionService {
       parameters,
     });
 
-    return transactions.filter((transaction) => {
-      return transaction.Type === MangopayTransactionType.TRANSFER;
-    });
+    return this.api.filterTransactions(
+      transactions,
+      MangopayTransactionType.TRANSFER,
+    );
   }
 }
