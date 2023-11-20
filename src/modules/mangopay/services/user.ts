@@ -59,9 +59,7 @@ export class MangopayUserService {
 
   async getListAllUsers(
     parameters?: MangopaySearchParameters,
-  ): Promise<
-    (MangoPayUser.CreateUserLegalData | MangoPayUser.CreateUserNaturalData)[]
-  > {
+  ): Promise<(MangoPayUser.UserLegalData | MangoPayUser.UserNaturalData)[]> {
     return this.api.Users.getAll({
       parameters,
     });
