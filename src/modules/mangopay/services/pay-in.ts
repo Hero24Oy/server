@@ -19,21 +19,21 @@ export class MangopayPayInService {
   constructor(private readonly api: MangopayInstanceService) {}
 
   async createDirectCardPayIn(
-    params: PayInParameters,
+    parameters: PayInParameters,
   ): Promise<MangopayPayIn.CardDirectPayInData> {
     return this.api.PayIns.create({
-      AuthorId: params.author,
+      AuthorId: parameters.author,
       DebitedFunds: {
         Currency: MangopayCurrency.EUR,
-        Amount: params.amount,
+        Amount: parameters.amount,
       },
       Fees: {
         Currency: MangopayCurrency.EUR,
-        Amount: params.fee,
+        Amount: parameters.fee,
       },
-      CreditedWalletId: params.walletId,
-      CardId: params.cardId,
-      SecureModeReturnURL: params.returnUrl,
+      CreditedWalletId: parameters.walletId,
+      CardId: parameters.cardId,
+      SecureModeReturnURL: parameters.returnUrl,
       PaymentType: MangopayPayInPaymentType.CARD,
       ExecutionType: MangopayPayInExecutionType.DIRECT,
     });
