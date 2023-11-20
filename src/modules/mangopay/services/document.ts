@@ -6,7 +6,6 @@ import {
 
 import { MangopayDocumentStatus } from '../enums';
 
-// import { MangopaySearchParameters } from '../types';
 import { MangopayInstanceService } from './instance';
 
 @Injectable()
