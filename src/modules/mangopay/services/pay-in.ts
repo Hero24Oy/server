@@ -10,7 +10,7 @@ import {
   MangopayPaymentType,
   MangopayTransactionType,
 } from '../enums';
-import { MangopayParameters, PayInParameters } from '../types';
+import { MangopaySearchParameters, PayInParameters } from '../types';
 
 import { MangopayInstanceService } from './instance';
 
@@ -45,27 +45,29 @@ export class MangopayPayInService {
 
   async getAllPayInsByUserId(
     id: string,
-    parameters?: MangopayParameters,
+    parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
     const transactions = await this.api.Users.getTransactions(id, {
       parameters,
     });
 
-    return transactions.filter((transaction) => {
-      return transaction.Type === MangopayTransactionType.PAYIN;
-    });
+    return this.api.filterTransactions(
+      transactions,
+      MangopayTransactionType.PAYIN,
+    );
   }
 
   async getAllPayInsByWalletId(
     id: string,
-    parameters?: MangopayParameters,
+    parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
     const transactions = await this.api.Wallets.getTransactions(id, {
       parameters,
     });
 
-    return transactions.filter((transaction) => {
-      return transaction.Type === MangopayTransactionType.PAYIN;
-    });
+    return this.api.filterTransactions(
+      transactions,
+      MangopayTransactionType.PAYIN,
+    );
   }
 }
