@@ -17,7 +17,7 @@ export class MangopayTransactionService {
     params: TransactionParameters,
   ): Promise<MangopayTransfer.TransferData> {
     return this.api.Transfers.create({
-      AuthorId: params.author,
+      AuthorId: params.authorId,
       DebitedFunds: {
         Currency: MangopayCurrency.EUR,
         Amount: params.amount,
@@ -43,9 +43,10 @@ export class MangopayTransactionService {
       parameters,
     });
 
-    return transactions.filter((transaction) => {
-      return transaction.Type === MangopayTransactionType.TRANSFER;
-    });
+    return this.api.filterTransactions(
+      transactions,
+      MangopayTransactionType.TRANSFER,
+    );
   }
 
   async getAllTransactionByWalletId(
@@ -56,8 +57,9 @@ export class MangopayTransactionService {
       parameters,
     });
 
-    return transactions.filter((transaction) => {
-      return transaction.Type === MangopayTransactionType.TRANSFER;
-    });
+    return this.api.filterTransactions(
+      transactions,
+      MangopayTransactionType.TRANSFER,
+    );
   }
 }

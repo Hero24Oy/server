@@ -1,6 +1,6 @@
 export type TransactionParameters = {
   amount: number;
-  author: string;
+  authorId: string;
   fee: number;
   transfer: {
     from: string;
