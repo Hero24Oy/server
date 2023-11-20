@@ -1,8 +1,8 @@
 export type PayOutParameters = {
   amount: number;
-  author: string;
-  bank: string;
-  card: string;
+  authorId: string;
+  bankId: string;
+  cardId: string;
   fee: number;
-  wallet: string;
+  walletId: string;
 };

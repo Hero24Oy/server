@@ -17,11 +17,11 @@ import { MangopayInstanceService } from './instance';
 export class MangopayPayOutService {
   constructor(private readonly api: MangopayInstanceService) {}
 
-  async createDirectCardPayIn(
+  async createPayout(
     params: PayOutParameters,
   ): Promise<MangopayPayOut.PayOutData> {
     return this.api.PayOuts.create({
-      AuthorId: params.author,
+      AuthorId: params.authorId,
       DebitedFunds: {
         Currency: MangopayCurrency.EUR,
         Amount: params.amount,
@@ -30,8 +30,8 @@ export class MangopayPayOutService {
         Currency: MangopayCurrency.EUR,
         Amount: params.fee,
       },
-      BankAccountId: params.bank,
-      DebitedWalletId: params.wallet,
+      BankAccountId: params.bankId,
+      DebitedWalletId: params.walletId,
       PaymentType: MangopayPayoutPaymentType.BANK_WIRE,
     });
   }
