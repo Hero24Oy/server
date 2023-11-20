@@ -1,22 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import {
+  payIn as MangopayPayIn,
   transaction as MangopayTransaction,
-  transfer as MangopayTransfer,
 } from 'mangopay2-nodejs-sdk';
 
-import { MangopayCurrency, MangopayTransactionType } from '../enums';
-import { MangopaySearchParameters, TransactionParameters } from '../types';
+import {
+  MangopayCurrency,
+  MangopayExecutionType,
+  MangopayPaymentType,
+  MangopayTransactionType,
+} from '../enums';
+import { MangopaySearchParameters, PayInParameters } from '../types';
 
 import { MangopayInstanceService } from './instance';
 
 @Injectable()
-export class MangopayTransactionService {
+export class MangopayPayInService {
   constructor(private readonly api: MangopayInstanceService) {}
 
-  async createTransaction(
-    params: TransactionParameters,
-  ): Promise<MangopayTransfer.TransferData> {
-    return this.api.Transfers.create({
+  async createDirectCardPayIn(
+    params: PayInParameters,
+  ): Promise<MangopayPayIn.CardDirectPayInData> {
+    return this.api.PayIns.create({
       AuthorId: params.author,
       DebitedFunds: {
         Currency: MangopayCurrency.EUR,
@@ -26,16 +31,19 @@ export class MangopayTransactionService {
         Currency: MangopayCurrency.EUR,
         Amount: params.fee,
       },
-      DebitedWalletId: params.transfer.from,
-      CreditedWalletId: params.transfer.to,
+      CreditedWalletId: params.wallet,
+      CardId: params.card,
+      SecureModeReturnURL: params.returnUrl,
+      PaymentType: MangopayPaymentType.CARD,
+      ExecutionType: MangopayExecutionType.DIRECT,
     });
   }
 
-  async getTransactionById(id: string): Promise<MangopayTransfer.TransferData> {
-    return this.api.Transfers.get(id);
+  async getPayInById(id: string): Promise<MangopayPayIn.PayInData> {
+    return this.api.PayIns.get(id);
   }
 
-  async getAllTransactionByUserId(
+  async getAllPayInsByUserId(
     id: string,
     parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
@@ -45,11 +53,11 @@ export class MangopayTransactionService {
 
     return this.api.filterTransactions(
       transactions,
-      MangopayTransactionType.TRANSFER,
+      MangopayTransactionType.PAYIN,
     );
   }
 
-  async getAllTransactionByWalletId(
+  async getAllPayInsByWalletId(
     id: string,
     parameters?: MangopaySearchParameters,
   ): Promise<MangopayTransaction.TransactionData[]> {
@@ -59,7 +67,7 @@ export class MangopayTransactionService {
 
     return this.api.filterTransactions(
       transactions,
-      MangopayTransactionType.TRANSFER,
+      MangopayTransactionType.PAYIN,
     );
   }
 }
