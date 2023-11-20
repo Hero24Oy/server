@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { CustomerProfile } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { BuyerMirror } from './buyer.mirror';
-import { CustomerProfileDB } from './customer.types';
 import { BuyerProfileDto } from './dto/buyer/buyer-profile.dto';
 import { BuyerProfileDataDto } from './dto/buyer/buyer-profile-data.dto';
 import { BuyerProfileCreationArgs } from './dto/creation/buyer-profile-creation.args';
@@ -16,7 +16,7 @@ import { UserService } from '$modules/user/user.service';
 
 @Injectable()
 export class BuyerService {
-  private readonly buyerTableRef: FirebaseTableReference<CustomerProfileDB>;
+  private readonly buyerTableRef: FirebaseTableReference<CustomerProfile>;
 
   constructor(
     firebaseService: FirebaseService,

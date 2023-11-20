@@ -1,7 +1,7 @@
 import { DataSnapshot } from 'firebase-admin/database';
 import { PubSub } from 'graphql-subscriptions';
+import { CustomerProfile } from 'hero24-types';
 
-import { CustomerProfileDB } from '../customer.types';
 import { BuyerProfileDto } from '../dto/buyer/buyer-profile.dto';
 
 export const createBuyerProfileEventHandler =
@@ -12,7 +12,7 @@ export const createBuyerProfileEventHandler =
       return;
     }
 
-    const buyer: CustomerProfileDB = snapshot.val();
+    const buyer: CustomerProfile = snapshot.val();
 
     eventEmitter(
       pubsub,

@@ -4,22 +4,15 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
+import { CustomerProfileData, CustomerType } from 'hero24-types';
 
-import { CustomerProfileDataDB } from '$modules/buyer/customer.types';
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
-export enum CustomerType {
-  INDIVIDUAL = 'individual',
-  PROFESSIONAL = 'professional',
-}
-
-// TODO remove when types package is updated
 registerEnumType(CustomerType, {
   name: 'CustomerType',
 });
 
-// TODO add validation based on other fields for businessId and businessName
 @ObjectType()
 @InputType('BuyerProfileDataInput')
 export class BuyerProfileDataDto {
@@ -40,7 +33,7 @@ export class BuyerProfileDataDto {
   })
   businessId?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<CustomerProfileDataDB, BuyerProfileDataDto>;
+  static adapter: FirebaseAdapter<CustomerProfileData, BuyerProfileDataDto>;
 }
 
 BuyerProfileDataDto.adapter = new FirebaseAdapter({
