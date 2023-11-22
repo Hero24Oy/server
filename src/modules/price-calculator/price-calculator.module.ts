@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
 
-@Module({})
+import { PriceCalculatorService } from './price-calculator.service';
+
+@Module({
+  providers: [PriceCalculatorService],
+})
 export class PriceCalculatorModule {}
