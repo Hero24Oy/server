@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BuyerProfileDB } from 'hero24-types';
+import { CustomerProfile } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -16,7 +16,7 @@ import { UserService } from '$modules/user/user.service';
 
 @Injectable()
 export class BuyerService {
-  private readonly buyerTableRef: FirebaseTableReference<BuyerProfileDB>;
+  private readonly buyerTableRef: FirebaseTableReference<CustomerProfile>;
 
   constructor(
     firebaseService: FirebaseService,
