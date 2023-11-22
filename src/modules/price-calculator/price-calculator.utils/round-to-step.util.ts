@@ -5,16 +5,18 @@ import precision from 'precision';
 
 import { RoundedNumber } from '../price-calculator.monad';
 
+import { Keys } from '$modules/common/common.types';
+
 const MAX_PRECISION = 12;
 const mathFunctions = { ceil, floor, round };
 
-type RoundDirection = 'ceil' | 'round' | 'floor';
+type RoundDirection = Keys<typeof mathFunctions>;
 
 export const roundToStep = (
   numberValue: number,
   numberStep: number,
   roundDirection: RoundDirection,
-) => {
+): number => {
   // TODO: Create more reliable mechanism of choosing round function.
   const roundFunction = mathFunctions[roundDirection];
   const value = new RoundedNumber(numberValue, MAX_PRECISION);

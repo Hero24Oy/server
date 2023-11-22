@@ -20,6 +20,7 @@ export enum FirebaseDatabasePath {
   IMAGES = 'images',
   REVIEWS = 'reviews',
   CATEGORY_GROUP = 'feed',
+  CATEGORIES = 'categories',
   HERO_PORTFOLIOS = 'heroPortfolios',
 }
 
