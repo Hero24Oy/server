@@ -9,6 +9,10 @@ import {
   PaymentTransactionType,
 } from 'hero24-types';
 
+import { CorruptedTransaction } from './types';
+import { isNewTransaction } from './utils';
+import { newTransactionSchema } from './validation';
+
 import { AppModule } from '$/app.module';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
@@ -16,6 +20,8 @@ import { FirebaseTableReference } from '$modules/firebase/firebase.types';
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 import { TransactionService } from '$modules/transaction';
+
+const corruptedTransactions: CorruptedTransaction[] = [];
 
 const transformTransactionDataToNewApproach = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule);
@@ -25,27 +31,49 @@ const transformTransactionDataToNewApproach = async (): Promise<void> => {
 
   const database = firebaseService.getDefaultApp().database();
 
-  const oldTransactionTableRef: FirebaseTableReference<OldPaymentTransaction> =
-    database.ref(FirebaseDatabasePath.PAYMENT_TRANSACTIONS);
+  const transactionTableRef: FirebaseTableReference<
+    OldPaymentTransaction | PaymentTransaction
+  > = database.ref(FirebaseDatabasePath.PAYMENT_TRANSACTIONS);
 
-  const newTransactionTableRef: FirebaseTableReference<PaymentTransaction> =
-    database.ref(FirebaseDatabasePath.PAYMENT_TRANSACTIONS);
-
-  const transactions = (await oldTransactionTableRef.get()).val();
+  const transactionsSnapshot = await transactionTableRef.get();
+  const transactions = transactionsSnapshot.val();
 
   if (!transactions) {
     return;
   }
 
-  await Promise.all(
+  const newTransactions = await Promise.all(
     Object.entries(transactions).map(async ([id, transaction]) => {
+      // if the migration is interrupted
+      if (isNewTransaction(transaction)) {
+        return;
+      }
+
+      const {
+        createdAt,
+        paidAt,
+        promotionId,
+        totalAmount,
+        offerRequestId,
+        stripePaymentIntentId,
+        netvisorReferenceNumber,
+        fees,
+        offerId,
+        duration,
+        pricePerHour,
+      } = transaction;
+
       const offerRequest = await offerRequestService.getOfferRequestById(
-        transaction.offerRequestId,
+        offerRequestId,
       );
 
       if (!offerRequest) {
-        // corrupted transaction, all transactions must have offer request
-        return newTransactionTableRef.child(id).remove();
+        corruptedTransactions.push({
+          id,
+          reason: 'Invalid offer request',
+        });
+
+        return;
       }
 
       let status: PaymentTransactionStatus;
@@ -63,58 +91,59 @@ const transformTransactionDataToNewApproach = async (): Promise<void> => {
         status = PaymentTransactionStatus.PENDING;
       }
 
-      if (
-        prePayWith === PaymentSystem.STRIPE &&
-        transaction.stripePaymentIntentId
-      ) {
+      if (prePayWith === PaymentSystem.STRIPE && stripePaymentIntentId) {
         service = PaymentSystem.STRIPE;
-        externalServiceId = transaction.stripePaymentIntentId;
+        externalServiceId = stripePaymentIntentId;
       } else if (
         prePayWith === PaymentSystem.NETVISOR &&
-        transaction.netvisorReferenceNumber
+        netvisorReferenceNumber
       ) {
         service = PaymentSystem.NETVISOR;
-        externalServiceId = transaction.netvisorReferenceNumber;
+        externalServiceId = netvisorReferenceNumber;
       } else {
         service = PaymentSystem.NETVISOR;
         externalServiceId = null;
       }
 
-      if (transaction.fees) {
+      if (fees) {
         subjectType = PaymentTransactionSubjectType.FEE;
         // eslint-disable-next-line prefer-destructuring -- we need only first key
-        subjectId = Object.keys(transaction.fees)[0];
-      } else if (transaction.duration && transaction.offerId) {
+        subjectId = Object.keys(fees)[0];
+      } else if (duration && offerId) {
         // extension time
-        const offer = await offerService.getOfferById(transaction.offerId);
+        const offer = await offerService.getOfferById(offerId);
 
         const extensionFromTransaction = offer?.data.extensions?.find(
           (extension) => {
             return (
-              extension.duration === transaction.duration &&
-              extension.pricePerHour === transaction.pricePerHour
+              extension.duration === duration &&
+              extension.pricePerHour === pricePerHour
             );
           },
         );
 
         if (!extensionFromTransaction) {
-          // corrupted transaction, transaction doesn't have reference to extension
-          return newTransactionTableRef.child(id).remove();
+          corruptedTransactions.push({
+            id,
+            reason: 'Transaction does not have a reference to extension',
+          });
+
+          return;
         }
 
         subjectType = PaymentTransactionSubjectType.TIME;
-        subjectId = `${transaction.offerId}//${extensionFromTransaction.id}`;
+        subjectId = `${offerId}//${extensionFromTransaction.id}`;
       } else {
         // task
         subjectType = PaymentTransactionSubjectType.TASK;
-        subjectId = transaction.offerRequestId;
+        subjectId = offerRequestId;
       }
 
       const newTransaction: PaymentTransaction = {
-        amount: transaction.totalAmount,
-        createdAt: transaction.createdAt,
-        paidAt: transaction.paidAt,
-        promotionId: transaction.promotionId,
+        amount: totalAmount,
+        createdAt,
+        paidAt,
+        promotionId,
         type: PaymentTransactionType.PAY_IN,
         status,
         service,
@@ -123,9 +152,45 @@ const transformTransactionDataToNewApproach = async (): Promise<void> => {
         subjectId,
       };
 
-      return newTransactionTableRef.child(id).set(newTransaction);
+      return [id, newTransaction] as [string, PaymentTransaction];
     }),
   );
+
+  await Promise.all(
+    newTransactions.map(async (transactionData) => {
+      if (!transactionData) {
+        return;
+      }
+
+      const [id, transaction] = transactionData;
+
+      try {
+        await newTransactionSchema.validate(transaction);
+      } catch {
+        corruptedTransactions.push({
+          id,
+          reason: "Transaction after transform doesn't pass validation",
+        });
+      }
+    }),
+  );
+
+  if (corruptedTransactions.length > 0) {
+    console.error('Corrupted transactions detected');
+    console.error(corruptedTransactions);
+  } else {
+    await Promise.all(
+      newTransactions.map(async (transactionData) => {
+        if (!transactionData) {
+          return;
+        }
+
+        const [id, transaction] = transactionData;
+
+        return transactionTableRef.child(id).set(transaction);
+      }),
+    );
+  }
 
   process.exit(0);
 };
