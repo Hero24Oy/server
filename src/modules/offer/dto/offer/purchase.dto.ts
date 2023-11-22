@@ -6,6 +6,9 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class PurchaseDto {
+  @Field(() => String)
+  id: string;
+
   @Field(() => Float)
   duration: number;
 
@@ -18,18 +21,20 @@ export class PurchaseDto {
   @Field(() => String, { nullable: true })
   reason?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<Purchase, PurchaseDto>;
+  static adapter: FirebaseAdapter<Purchase & { id: string }, PurchaseDto>;
 }
 
 PurchaseDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
+    id: internal.id,
     createdAt: new Date(internal.createdAt),
     duration: internal.duration,
     pricePerHour: internal.pricePerHour,
     reason: internal.reason,
   }),
   toInternal: (external) => ({
-    createdAt: +external.createdAt,
+    id: external.id,
+    createdAt: Number(external.createdAt),
     duration: external.duration,
     pricePerHour: external.pricePerHour,
     reason: external.reason ?? undefined,

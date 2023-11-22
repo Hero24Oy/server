@@ -1,6 +1,7 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { OfferDB } from 'hero24-types';
 import isNumber from 'lodash/isNumber';
+import omit from 'lodash/omit';
 
 import { OfferInitialDataDto } from './offer-initial-data.dto';
 import { PurchaseDto } from './purchase.dto';
@@ -44,8 +45,8 @@ export class OfferDataDto {
 OfferDataDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
     extensions: internal.extensions
-      ? internal.extensions.map((purchase) =>
-          PurchaseDto.adapter.toExternal(purchase),
+      ? Object.entries(internal.extensions).map(([id, purchase]) =>
+          PurchaseDto.adapter.toExternal({ ...purchase, id }),
         )
       : null,
     workTime: internal.workTime
@@ -67,9 +68,11 @@ OfferDataDto.adapter = new FirebaseAdapter({
   }),
   toInternal: (external) => ({
     extensions: external.extensions
-      ? external.extensions.map((purchase) =>
-          PurchaseDto.adapter.toInternal(purchase),
-        )
+      ? external.extensions.reduce((record, purchase) => {
+          const purchaseDb = PurchaseDto.adapter.toInternal(purchase);
+
+          return { ...record, [purchase.id]: omit(purchaseDb, 'id') };
+        }, {})
       : undefined,
     workTime: external.workTime
       ? external.workTime.map((workTime) =>
