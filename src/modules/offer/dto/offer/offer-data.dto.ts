@@ -71,6 +71,10 @@ OfferDataDto.adapter = new FirebaseAdapter({
       ? external.extensions.reduce((record, purchase) => {
           const purchaseDb = PurchaseDto.adapter.toInternal(purchase);
 
+          if (!purchase.id) {
+            return record;
+          }
+
           return { ...record, [purchase.id]: omit(purchaseDb, 'id') };
         }, {})
       : undefined,
