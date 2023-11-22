@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Purchase } from 'hero24-types';
+import { v4 as uuidv4 } from 'uuid';
 
 import { AppModule } from '$/app.module';
 import { OfferService } from '$modules/offer/services/offer.service';
@@ -8,7 +9,8 @@ const updateExtensionIds = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule);
   const offerService = app.get<OfferService>(OfferService);
 
-  const offers = (await offerService.offerTableRef.get()).val();
+  const offersSnapshot = await offerService.offerTableRef.get();
+  const offers = offersSnapshot.val();
 
   if (!offers) {
     return;
@@ -20,14 +22,13 @@ const updateExtensionIds = async (): Promise<void> => {
         return;
       }
 
-      const extensions = offer.data.extensions.reduce<Purchase[]>(
-        (updatedExtensions, extension) => {
-          // eslint-disable-next-line no-param-reassign -- we need to set array index
-          updatedExtensions[extension.createdAt] = extension;
+      const oldExtensions = offer.data.extensions as unknown as Purchase[];
 
-          return updatedExtensions;
+      const extensions = oldExtensions.reduce(
+        (updatedExtensions, extension) => {
+          return { ...updatedExtensions, [uuidv4()]: extension };
         },
-        [],
+        {} as Record<string, Purchase>,
       );
 
       await offerService.offerTableRef

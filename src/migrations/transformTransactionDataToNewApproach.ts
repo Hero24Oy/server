@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import {
   OldPaymentTransaction,
+  PaidStatus,
   PaymentSystem,
   PaymentTransaction,
   PaymentTransactionStatus,
@@ -12,11 +13,15 @@ import { AppModule } from '$/app.module';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { FirebaseTableReference } from '$modules/firebase/firebase.types';
+import { OfferService } from '$modules/offer/services/offer.service';
+import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 import { TransactionService } from '$modules/transaction';
 
 const transformTransactionDataToNewApproach = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule);
   const firebaseService = app.get<FirebaseService>(TransactionService);
+  const offerRequestService = app.get<OfferRequestService>(OfferRequestService);
+  const offerService = app.get<OfferService>(OfferService);
 
   const database = firebaseService.getDefaultApp().database();
 
@@ -34,29 +39,45 @@ const transformTransactionDataToNewApproach = async (): Promise<void> => {
 
   await Promise.all(
     Object.entries(transactions).map(async ([id, transaction]) => {
+      const offerRequest = await offerRequestService.getOfferRequestById(
+        transaction.offerRequestId,
+      );
+
+      if (!offerRequest) {
+        // corrupted transaction, all transactions must have offer request
+        return newTransactionTableRef.child(id).remove();
+      }
+
       let status: PaymentTransactionStatus;
       let service: PaymentSystem;
-      let externalServiceId: string | number;
+      let externalServiceId: string | number | null;
       let subjectType: PaymentTransactionSubjectType;
       let subjectId: string;
 
-      if (transaction.status === 'paid') {
+      const { prepaid, prePayWith } = offerRequest.data.initial;
+
+      // Paid status can be only paid or waiting
+      if (prepaid === PaidStatus.PAID) {
         status = PaymentTransactionStatus.PAID;
-      } else if (transaction.status === 'pending') {
-        status = PaymentTransactionStatus.PENDING;
       } else {
-        status = PaymentTransactionStatus.CANCELLED;
+        status = PaymentTransactionStatus.PENDING;
       }
 
-      if (transaction.stripePaymentIntentId) {
+      if (
+        prePayWith === PaymentSystem.STRIPE &&
+        transaction.stripePaymentIntentId
+      ) {
         service = PaymentSystem.STRIPE;
         externalServiceId = transaction.stripePaymentIntentId;
-      } else if (transaction.netvisorReferenceNumber) {
+      } else if (
+        prePayWith === PaymentSystem.NETVISOR &&
+        transaction.netvisorReferenceNumber
+      ) {
         service = PaymentSystem.NETVISOR;
         externalServiceId = transaction.netvisorReferenceNumber;
       } else {
         service = PaymentSystem.NETVISOR;
-        externalServiceId = 0;
+        externalServiceId = null;
       }
 
       if (transaction.fees) {
@@ -64,10 +85,29 @@ const transformTransactionDataToNewApproach = async (): Promise<void> => {
         // eslint-disable-next-line prefer-destructuring -- we need only first key
         subjectId = Object.keys(transaction.fees)[0];
       } else if (transaction.duration && transaction.offerId) {
-        subjectType = PaymentTransactionSubjectType.TASK;
-        subjectId = transaction.offerId;
+        // extension time
+        const offer = await offerService.getOfferById(transaction.offerId);
+
+        const extensionFromTransaction = offer?.data.extensions?.find(
+          (extension) => {
+            return (
+              extension.duration === transaction.duration &&
+              extension.pricePerHour === transaction.pricePerHour
+            );
+          },
+        );
+
+        if (!extensionFromTransaction) {
+          // corrupted transaction, transaction doesn't have reference to extension
+          return newTransactionTableRef.child(id).remove();
+        }
+
+        subjectType = PaymentTransactionSubjectType.TIME;
+        subjectId = `${transaction.offerId}//${extensionFromTransaction.id}`;
       } else {
-        return newTransactionTableRef.child(id).remove();
+        // task
+        subjectType = PaymentTransactionSubjectType.TASK;
+        subjectId = transaction.offerRequestId;
       }
 
       const newTransaction: PaymentTransaction = {
