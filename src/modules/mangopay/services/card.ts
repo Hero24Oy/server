@@ -13,7 +13,7 @@ export class MangopayCardService {
   constructor(private readonly api: MangopayInstanceService) {}
 
   async createCardRegistration(
-    data: MangopayCardRegistration.CreateCardRegistration,
+    data: Omit<MangopayCardRegistration.CreateCardRegistration, 'Currency'>,
   ): Promise<MangopayCardRegistration.CardRegistrationData> {
     return this.api.CardRegistrations.create({
       ...data,
