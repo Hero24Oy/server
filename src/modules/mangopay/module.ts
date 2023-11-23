@@ -5,6 +5,7 @@ import {
   MangopayPayInResolver,
   MangopayPayOutResolver,
 } from './resolvers';
+import { MangopayDocumentResolver } from './resolvers/document/index';
 import {
   MangopayBankService,
   MangopayCardService,
@@ -42,6 +43,7 @@ import { TransactionSubjectModule } from '$modules/transaction-subject/module';
     MangopayCardResolver,
     MangopayPayInResolver,
     MangopayPayOutResolver,
+    MangopayDocumentResolver,
   ],
   exports: [
     MangopayInstanceService,
