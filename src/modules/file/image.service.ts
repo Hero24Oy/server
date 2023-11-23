@@ -11,7 +11,7 @@ import { ImageCreationInput } from './dto/creation/image-creation.input';
 import { ImageDto } from './dto/image/image.dto';
 import { ImageDataDto } from './dto/image/image-data.dto';
 import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './image.constants';
-import { ImageCategoryType } from './image.types';
+import { ImageCategoryType } from './types';
 
 @Injectable()
 export class ImageService {

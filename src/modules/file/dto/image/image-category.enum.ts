@@ -1,6 +1,6 @@
 import { registerEnumType } from '@nestjs/graphql';
 
-import { ImageCategoryType } from '../../image.types';
+import { ImageCategoryType } from '../../types';
 
 export const ImageCategory = {
   CHATS: 'chats',
