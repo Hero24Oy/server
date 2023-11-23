@@ -1,5 +1,5 @@
 import { Field, Float, InputType } from '@nestjs/graphql';
-import { SellerProfileDB } from 'hero24-types';
+import { HeroProfileData, HeroType } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
@@ -7,6 +7,9 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @InputType()
 export class PartialSellerProfileDataInput {
+  @Field(() => HeroType, { nullable: true })
+  type?: MaybeType<HeroType>;
+
   @Field(() => String, { nullable: true })
   photoURL?: MaybeType<string>;
 
@@ -50,13 +53,14 @@ export class PartialSellerProfileDataInput {
   weeksOfSentPurchaseInvoices?: MaybeType<number>;
 
   static adapter: FirebaseAdapter<
-    Partial<SellerProfileDB['data']>,
+    Partial<HeroProfileData>,
     PartialSellerProfileDataInput
   >;
 }
 
 PartialSellerProfileDataInput.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
+    type: internal.type,
     photoURL: internal.photoURL,
     companyName: internal.companyName,
     companyEmail: internal.companyEmail,
@@ -73,6 +77,7 @@ PartialSellerProfileDataInput.adapter = new FirebaseAdapter({
     weeksOfSentPurchaseInvoices: internal.weeksOfSentPurchaseInvoices,
   }),
   toInternal: (external) => ({
+    type: external.type ?? undefined,
     photoURL: external.photoURL ?? undefined,
     companyName: external.companyName ?? undefined,
     companyEmail: external.companyEmail ?? undefined,
