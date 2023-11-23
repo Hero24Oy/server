@@ -5,13 +5,13 @@ import { duration as getDurationInH } from 'moment';
 import {
   getFeeTotalWithHero24Cut,
   getFeeTotalWithoutHero24Cut,
-  getValueWithServiceCut,
   getWorkedDuration,
 } from './price-calculator.utils';
 import { getCompletedOfferDuration } from './price-calculator.utils/get-completed-offer-duration';
 import getDiscountValue from './price-calculator.utils/get-discount-value';
+import { getPercents } from './price-calculator.utils/get-percents';
 import { getPurchasedOfferDuration } from './price-calculator.utils/get-purchased-offer-duration';
-import { getValueWithVatApplied } from './price-calculator.utils/get-value-with-vat-applied';
+import { SERVICE_PROVIDER_CUT } from './price-calculator.utils/get-value-with-service-cut-applied';
 
 import { Scope } from '$modules/auth/auth.constants';
 import { FeeService } from '$modules/fee/fee.service';
@@ -56,6 +56,7 @@ export class PriceCalculatorService {
       throw new Error('Category does not exist');
     }
 
+    // TODO extract to a function
     const minimumWorkDuration = getDurationInH(
       offerRequest.minimumDuration ?? category.minimumDuration,
       'h',
@@ -68,26 +69,32 @@ export class PriceCalculatorService {
     );
 
     const { pricePerHour } = offer.data.initial;
+    // * * PRICE COMPUTING
 
-    const serviceProviderVAT =
-      offerRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
-
+    // TODO better naming
     // * initially calculate the main part of the price based on worked hours and rate
-    const rawGrossWorkedPrice = workedDuration * pricePerHour;
-
-    // * calculate hero gross earning with
+    const priceForServiceWithoutDiscount = workedDuration * pricePerHour;
 
     // * is not implemented, just stub
     // ! important
     // * now discount is passed as null, because this functionality got stripped out
     // * in future, we should replace null with actual discount
-    const discountValue = getDiscountValue(null, rawGrossWorkedPrice);
-    const grossWorkedPrice = rawGrossWorkedPrice - discountValue;
+    const discountForService = getDiscountValue(
+      null,
+      priceForServiceWithoutDiscount,
+    );
 
-    const sellerGrossEarning = getValueWithServiceCut(grossWorkedPrice);
+    const priceForService = priceForServiceWithoutDiscount - discountForService;
 
-    const sellerNetEarning = getValueWithVatApplied(
-      sellerGrossEarning,
+    // * calculate hero gross earning with service provider cut
+    const hero24ServiceCut = getPercents(priceForService, SERVICE_PROVIDER_CUT);
+    const heroGrossEarnings = priceForService - hero24ServiceCut;
+
+    const serviceProviderVAT =
+      offerRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
+
+    const heroNetEarnings = getValueBeforeVatApplied(
+      heroGrossEarnings,
       serviceProviderVAT,
     );
 
@@ -128,24 +135,29 @@ export class PriceCalculatorService {
       pricePerHour,
       workedDuration,
       discount: null,
-      discountValue,
     };
 
     const workInvoice = {
-      rawGrossWorkedPrice,
-      grossWorkedPrice,
-      sellerGrossEarning,
-      sellerNetEarning,
+      priceForService,
+      heroGrossEarnings,
+      heroNetEarnings,
     };
 
     const totalInvoice = {
-      gross: workInvoice.sellerGrossEarning + feeInvoice.grossFeeCost,
-      net: workInvoice.sellerNetEarning + feeInvoice.netFeeCost,
+      gross: workInvoice.heroGrossEarnings + feeInvoice.grossFeeCost,
+      net: workInvoice.heroNetEarnings + feeInvoice.netFeeCost,
     };
 
+    console.debug('workInvoice', workInvoice);
     console.debug('totalInvoice', totalInvoice);
     console.debug('computingDetails', computingDetails);
 
     return workedDuration;
   }
 }
+
+export const getValueBeforeVatApplied = (
+  value: number,
+  percents: number,
+  // eslint-disable-next-line no-magic-numbers -- 100 represents percents
+): number => value / (1 + percents / 100);
