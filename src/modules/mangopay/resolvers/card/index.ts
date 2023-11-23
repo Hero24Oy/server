@@ -45,7 +45,7 @@ export class MangopayCardResolver {
     try {
       await this.cardService.updateCardRegistration({
         Id: input.cardId,
-        RegistrationData: input.cardData,
+        RegistrationData: input.registrationData,
       });
 
       return true;
