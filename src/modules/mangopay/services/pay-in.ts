@@ -22,7 +22,7 @@ export class MangopayPayInService {
     parameters: PayInParameters,
   ): Promise<MangopayPayIn.CardDirectPayInData> {
     return this.api.PayIns.create({
-      AuthorId: parameters.author,
+      AuthorId: parameters.authorId,
       DebitedFunds: {
         Currency: MangopayCurrency.EUR,
         Amount: parameters.amount,
@@ -36,6 +36,8 @@ export class MangopayPayInService {
       SecureModeReturnURL: parameters.returnUrl,
       PaymentType: MangopayPayInPaymentType.CARD,
       ExecutionType: MangopayPayInExecutionType.DIRECT,
+      IpAddress: parameters.ip,
+      BrowserInfo: parameters.browserInfo,
     });
   }
 

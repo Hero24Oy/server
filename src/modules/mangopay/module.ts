@@ -13,8 +13,12 @@ import {
   MangopayWalletService,
 } from './services';
 
+import { BuyerModule } from '$modules/buyer/buyer.module';
+import { TransactionModule } from '$modules/transaction/module';
+import { TransactionSubjectModule } from '$modules/transaction-subject/module';
+
 @Module({
-  imports: [],
+  imports: [TransactionModule, TransactionSubjectModule, BuyerModule],
   providers: [
     MangopayInstanceService,
     MangopayUserService,

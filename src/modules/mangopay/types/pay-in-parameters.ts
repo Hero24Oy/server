@@ -2,7 +2,7 @@ import { base as MangoPayBase } from 'mangopay2-nodejs-sdk';
 
 export type PayInParameters = {
   amount: number;
-  author: string;
+  authorId: string;
   browserInfo: MangoPayBase.BrowserInfoData;
   cardId: string;
   fee: number;

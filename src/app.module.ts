@@ -39,6 +39,7 @@ import { HeroPortfolioModule } from '$modules/hero-portfolio/module';
 import { MangopayModule } from '$modules/mangopay/module';
 import { NetvisorModule } from '$modules/netvisor/module';
 import { TransactionModule } from '$modules/transaction/module';
+import { TransactionSubjectModule } from '$modules/transaction-subject/module';
 import { XmlJsModule } from '$modules/xml-js/module';
 
 @Module({
@@ -96,6 +97,7 @@ import { XmlJsModule } from '$modules/xml-js/module';
     CustomScheduleModule,
     MangopayModule,
     TransactionModule,
+    TransactionSubjectModule,
   ],
   providers: [AppResolver],
 })
