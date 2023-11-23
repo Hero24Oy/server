@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { MangopayCardResolver } from './resolvers';
+import { MangopayCardResolver, MangopayPayInResolver } from './resolvers';
 import {
   MangopayBankService,
   MangopayCardService,
@@ -30,6 +30,7 @@ import { TransactionSubjectModule } from '$modules/transaction-subject/module';
     MangopayBankService,
     MangopayDocumentService,
     MangopayCardResolver,
+    MangopayPayInResolver,
   ],
   exports: [
     MangopayInstanceService,

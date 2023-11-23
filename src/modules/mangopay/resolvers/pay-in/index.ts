@@ -13,7 +13,7 @@ import { TransactionSubjectService } from '$modules/transaction-subject/service'
 @Resolver()
 @UseFilters(FirebaseExceptionFilter)
 @UseGuards(AuthGuard)
-export class MangopayCardResolver {
+export class MangopayPayInResolver {
   constructor(
     private readonly payInService: MangopayPayInService,
     private readonly transactionService: TransactionService,
