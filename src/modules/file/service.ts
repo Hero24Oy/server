@@ -7,10 +7,10 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
+import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import { ImageCreationInput } from './dto/creation/image-creation.input';
 import { ImageDto } from './dto/image/image.dto';
 import { ImageDataDto } from './dto/image/image-data.dto';
-import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './image.constants';
 import { ImageCategoryType } from './types';
 
 @Injectable()
