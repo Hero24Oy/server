@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { CardRegistration } from '../../objects';
+import { CardRegistrationObject } from '../../objects';
 
 @ObjectType()
 export class GetCardRegistrationOutput {
-  @Field()
-  cardRegistration: CardRegistration;
+  @Field(() => CardRegistrationObject)
+  cardRegistration: CardRegistrationObject;
 }
