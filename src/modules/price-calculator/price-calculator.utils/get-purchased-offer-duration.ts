@@ -14,7 +14,7 @@ export const getPurchasedOfferDuration = (offer: OfferDto): moment.Duration => {
   ]);
 
   const extensions: PurchaseDto[] | Purchase[] =
-    get(offer, ['data', 'extensions'], <Purchase[]>[]) || [];
+    get(offer, ['data', 'extensions']) || [];
 
   const extendedDuration = extensions.reduce(
     (total, extension) => total + extension.duration,

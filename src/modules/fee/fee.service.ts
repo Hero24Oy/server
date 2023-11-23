@@ -27,7 +27,7 @@ export class FeeService {
   readonly feeTableRef: FirebaseTableReference<FeeDB>;
 
   constructor(
-    private readonly chatsSorter: SorterService<
+    private readonly feesSorter: SorterService<
       FeeListOrderColumn,
       FeeDto,
       FeeListSorterContext
@@ -73,7 +73,7 @@ export class FeeService {
     nodes = filterFees({ filter, fees: nodes });
 
     if (ordersBy) {
-      nodes = this.chatsSorter.sort(nodes, ordersBy, {
+      nodes = this.feesSorter.sort(nodes, ordersBy, {
         identity,
       });
     }

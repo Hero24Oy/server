@@ -1,19 +1,21 @@
 import moment from 'moment';
 
-import { roundToStep } from './round-to-step.util';
+import { roundBy } from './round-by';
 
 // TODO tests
 export const getWorkedDuration = (
-  initialWorkedDuration: moment.Duration,
+  workedDuration: moment.Duration,
   minimumDuration: moment.Duration,
   purchasedDuration: moment.Duration,
 ): number => {
-  let resultDuration: moment.Duration = initialWorkedDuration.clone();
+  let resultDuration: moment.Duration = workedDuration.clone();
 
+  // * Invoice only for purchased duration, not for worked one
   if (resultDuration.asHours() > purchasedDuration.asHours()) {
     resultDuration = purchasedDuration.clone();
   }
 
+  // * charge minimum if not reached
   if (resultDuration.asHours() < minimumDuration.asHours()) {
     resultDuration = minimumDuration.clone();
   }
@@ -29,7 +31,7 @@ const timePrecision: TimePrecision = [0.5, 'hours'];
 export const roundOfferDuration = (
   duration: moment.Duration,
 ): moment.Duration => {
-  const roundedTime = roundToStep(
+  const roundedTime = roundBy(
     duration.asMilliseconds(),
     moment.duration(...timePrecision).asMilliseconds(),
     'ceil',
