@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 
-import { ImageResolver } from './image.resolver';
+import { ImageResolver } from './resolver';
 import { ImageService } from './service';
 
 @Module({
