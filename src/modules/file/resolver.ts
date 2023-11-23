@@ -4,8 +4,8 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
-import { ImageCreationArgs } from './dto/creation/image-creation.args';
-import { ImageDto } from './dto/image/image.dto';
+import { ImageCreationArgs } from './graphql/creation/image-creation.args';
+import { ImageDto } from './graphql/image/image.dto';
 import { ImageService } from './service';
 
 @Resolver()
