@@ -1,16 +1,16 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
 
 import { MangopayCardService } from '../../services/card';
 
 import {
+  CardObject,
   DeactivateCardInput,
-  GetCardInput,
-  GetCardOutput,
   GetCardRegistrationInput,
   GetCardRegistrationOutput,
+  GetCardsByUserIdOutput,
+  GetCardsByUserInput,
   UpdateCardRegistrationInput,
-  UpdateCardRegistrationOutput,
 } from './graphql';
 
 import { AuthGuard } from '$modules/auth/guards/auth.guard';
@@ -22,32 +22,56 @@ import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.fi
 export class MangopayCardResolver {
   constructor(private readonly cardService: MangopayCardService) {}
 
-  @Query(() => GetCardRegistrationOutput)
+  @Mutation(() => GetCardRegistrationOutput)
   async getCardRegistrationData(
     @Args('input') input: GetCardRegistrationInput,
   ): Promise<GetCardRegistrationOutput> {
-    return {
-      cardRegistration: await this.cardService.createCardRegistration({
-        UserId: input.userId,
-      }),
-    };
-  }
+    const cardRegistration = await this.cardService.createCardRegistration({
+      UserId: input.userId,
+    });
 
-  @Mutation(() => GetCardRegistrationOutput)
-  async updateCardRegistrationData(
-    @Args('input') input: UpdateCardRegistrationInput,
-  ): Promise<UpdateCardRegistrationOutput> {
     return {
-      cardRegistration: await this.cardService.updateCardRegistration({
-        Id: input.cardId,
-        RegistrationData: input.cardData,
-      }),
+      cardRegistration: {
+        accessKey: cardRegistration.AccessKey,
+        preregistrationData: cardRegistration.PreregistrationData,
+      },
     };
   }
 
   @Mutation(() => Boolean)
-  async getCard(@Args('input') input: GetCardInput): Promise<GetCardOutput> {
-    return { card: await this.cardService.getCardById(input.cardId) };
+  async updateCardRegistrationData(
+    @Args('input') input: UpdateCardRegistrationInput,
+  ): Promise<boolean> {
+    try {
+      await this.cardService.updateCardRegistration({
+        Id: input.cardId,
+        RegistrationData: input.registrationData,
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  @Mutation(() => GetCardsByUserIdOutput)
+  async getCard(
+    @Args('input') input: GetCardsByUserInput,
+  ): Promise<GetCardsByUserIdOutput> {
+    const cards = await this.cardService.getCardsByUserId(input.userId);
+    const formattedCards = cards.map<CardObject>((card) => {
+      return {
+        id: card.Id,
+        active: card.Active,
+        alias: card.Alias,
+        type: card.CardType,
+        expirationDate: card.ExpirationDate,
+      };
+    });
+
+    return {
+      cards: formattedCards,
+    };
   }
 
   @Mutation(() => Boolean)

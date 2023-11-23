@@ -1,38 +1,20 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { card as MangopayCard, CurrencyISO } from 'mangopay2-nodejs-sdk';
+import { card as MangopayCard } from 'mangopay2-nodejs-sdk';
 
 @ObjectType()
-export class Card {
+export class CardObject {
   @Field(() => String)
-  ExpirationDate: string;
+  id: string;
 
   @Field(() => String)
-  Alias: string;
+  expirationDate: string;
 
   @Field(() => String)
-  CardProvider: string;
+  alias: string;
 
   @Field(() => String)
-  CardType: MangopayCard.CardType;
-
-  @Field(() => String)
-  Country: string;
-
-  @Field(() => String)
-  Product: string;
-
-  @Field(() => String)
-  BankCode: string;
+  type: MangopayCard.CardType;
 
   @Field(() => Boolean)
-  Active: boolean;
-
-  @Field(() => String)
-  Currency: CurrencyISO;
-
-  @Field(() => String)
-  Validity: MangopayCard.CardValidity;
-
-  @Field(() => String)
-  Fingerprint: string;
+  active: boolean;
 }
