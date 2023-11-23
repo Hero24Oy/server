@@ -4,7 +4,7 @@ import { FirebaseModule } from '../firebase/firebase.module';
 import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 
 import { ImageResolver } from './image.resolver';
-import { ImageService } from './image.service';
+import { ImageService } from './service';
 
 @Module({
   imports: [FirebaseModule, GraphQlPubsubModule],

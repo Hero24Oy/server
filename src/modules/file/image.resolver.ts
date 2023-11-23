@@ -6,7 +6,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
 import { ImageCreationArgs } from './dto/creation/image-creation.args';
 import { ImageDto } from './dto/image/image.dto';
-import { ImageService } from './image.service';
+import { ImageService } from './service';
 
 @Resolver()
 export class ImageResolver {
