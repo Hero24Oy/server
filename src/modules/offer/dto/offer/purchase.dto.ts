@@ -1,4 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { Maybe } from 'graphql/jsutils/Maybe';
 import { Purchase } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
@@ -6,6 +7,9 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class PurchaseDto {
+  @Field(() => String, { nullable: true })
+  id?: Maybe<string>;
+
   @Field(() => Float)
   duration: number;
 
@@ -18,18 +22,20 @@ export class PurchaseDto {
   @Field(() => String, { nullable: true })
   reason?: MaybeType<string>;
 
-  static adapter: FirebaseAdapter<Purchase, PurchaseDto>;
+  static adapter: FirebaseAdapter<Purchase & { id?: string }, PurchaseDto>;
 }
 
 PurchaseDto.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
+    id: internal.id,
     createdAt: new Date(internal.createdAt),
     duration: internal.duration,
     pricePerHour: internal.pricePerHour,
     reason: internal.reason,
   }),
   toInternal: (external) => ({
-    createdAt: +external.createdAt,
+    id: external.id ?? undefined,
+    createdAt: Number(external.createdAt),
     duration: external.duration,
     pricePerHour: external.pricePerHour,
     reason: external.reason ?? undefined,

@@ -21,6 +21,7 @@ export enum FirebaseDatabasePath {
   REVIEWS = 'reviews',
   CATEGORY_GROUP = 'feed',
   HERO_PORTFOLIOS = 'heroPortfolios',
+  PAYMENT_TRANSACTIONS = 'paymentTransactions',
 }
 
 export const MAX_TRYING_COUNT = 3;
