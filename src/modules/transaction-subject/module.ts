@@ -4,10 +4,10 @@ import { TransactionSubjectService } from './service';
 
 import { FeeModule } from '$modules/fee/fee.module';
 import { OfferModule } from '$modules/offer/offer.module';
-import { OfferService } from '$modules/offer/services/offer.service';
+import { OfferRequestModule } from '$modules/offer-request/offer-request.module';
 
 @Module({
-  imports: [FeeModule, OfferModule, OfferService],
+  imports: [FeeModule, OfferModule, OfferRequestModule],
   providers: [TransactionSubjectService],
   exports: [TransactionSubjectService],
 })
