@@ -11,7 +11,7 @@ import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import { ImageObject } from './graphql';
 import { ImageCreationInput } from './graphql/creation/image-creation.input';
 import { FileObject } from './graphql/objects/file';
-import { ImageDataDto } from './graphql/objects/image/data';
+import { ImageDataObject } from './graphql/objects/image/data';
 import { FileCategoryType } from './types';
 
 @Injectable()
@@ -89,7 +89,7 @@ export class ImageService {
     const imageData = {
       ...data,
       storagePath,
-    } satisfies ImageDataDto;
+    } satisfies ImageDataObject;
 
     try {
       const downloadURL = await this.uploadImageToStorage(base64, storagePath);

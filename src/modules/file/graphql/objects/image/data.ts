@@ -3,7 +3,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { MaybeType } from '$modules/common/common.types';
 
 @ObjectType()
-export class ImageDataDto {
+export class ImageDataObject {
   @Field(() => Int)
   width: number;
 
