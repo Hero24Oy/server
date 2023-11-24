@@ -17,9 +17,9 @@ export class TransactionSubjectService {
   ) {}
 
   async getCustomerIdBySubject(
-    props: Pick<PaymentTransaction, 'subjectId' | 'subjectType'>,
+    params: Pick<PaymentTransaction, 'subjectId' | 'subjectType'>,
   ): Promise<string | null> {
-    const { subjectId, subjectType } = props;
+    const { subjectId, subjectType } = params;
 
     let buyerId: string;
 
