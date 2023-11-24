@@ -5,6 +5,7 @@ import { duration as getDurationInH } from 'moment';
 import {
   getFeeTotalWithHero24Cut,
   getFeeTotalWithoutHero24Cut,
+  getValueBeforeVatApplied,
   getWorkedDuration,
 } from './price-calculator.utils';
 import { getCompletedOfferDuration } from './price-calculator.utils/get-completed-offer-duration';
@@ -88,6 +89,7 @@ export class PriceCalculatorService {
 
     // * calculate hero gross earning with service provider cut
     const hero24ServiceCut = getPercents(priceForService, SERVICE_PROVIDER_CUT);
+
     const heroGrossEarnings = priceForService - hero24ServiceCut;
 
     const serviceProviderVAT =
@@ -98,6 +100,7 @@ export class PriceCalculatorService {
       serviceProviderVAT,
     );
 
+    // ! TODO remove this
     const fees = await this.feeService.getFeeList(
       {
         filter: {
@@ -105,7 +108,7 @@ export class PriceCalculatorService {
         },
       },
       {
-        id: 'test', // ! TODO remove this
+        id: 'test',
         scope: Scope.USER,
       },
     );
@@ -155,9 +158,3 @@ export class PriceCalculatorService {
     return workedDuration;
   }
 }
-
-export const getValueBeforeVatApplied = (
-  value: number,
-  percents: number,
-  // eslint-disable-next-line no-magic-numbers -- 100 represents percents
-): number => value / (1 + percents / 100);
