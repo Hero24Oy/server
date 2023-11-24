@@ -1,17 +1,17 @@
 import { registerEnumType } from '@nestjs/graphql';
 
-import { ImageCategoryType } from '../../types';
+import { FileCategoryType } from '../../types';
 
-export const ImageCategory = {
+export const FileCategory = {
   CHATS: 'chats',
   PORTFOLIOS: 'portfolios',
   QUESTION: 'question',
   FILES: 'files',
   NEWS: 'news',
-} satisfies Record<Uppercase<ImageCategoryType>, ImageCategoryType>;
+} satisfies Record<Uppercase<FileCategoryType>, FileCategoryType>;
 
-export type ImageCategory = ImageCategoryType;
+export type FileCategory = FileCategoryType;
 
-registerEnumType(ImageCategory, {
-  name: 'ImageCategory',
+registerEnumType(FileCategory, {
+  name: 'FileCategory',
 });

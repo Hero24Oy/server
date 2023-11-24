@@ -1,4 +1,4 @@
-export type ImageCategoryType =
+export type FileCategoryType =
   | 'chats'
   | 'question'
   | 'portfolios'

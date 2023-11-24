@@ -1,17 +1,17 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { ImageCategory } from '../image/image-category.enum';
+import { FileCategory } from '../image/image-category.enum';
 import { ImageDataDto } from '../image/image-data.dto';
 
 import { MaybeType } from '$modules/common/common.types';
 
 @ObjectType()
-export class ImageDto {
+export class FileObject {
   @Field(() => String)
   id: string;
 
-  @Field(() => ImageCategory)
-  category: ImageCategory;
+  @Field(() => FileCategory)
+  category: FileCategory;
 
   @Field(() => String)
   subcategory: string;

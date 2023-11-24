@@ -10,8 +10,8 @@ import { FirebaseTableReference } from '../firebase/firebase.types';
 import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import { ImageCreationInput } from './graphql/creation/image-creation.input';
 import { ImageDataDto } from './graphql/image/image-data.dto';
-import { ImageDto } from './graphql/objects/image.dto';
-import { ImageCategoryType } from './types';
+import { FileObject } from './graphql/objects/image.dto';
+import { FileCategoryType } from './types';
 
 @Injectable()
 export class ImageService {
@@ -80,7 +80,7 @@ export class ImageService {
     return storagePath !== undefined;
   }
 
-  async uploadImage(input: ImageCreationInput): Promise<ImageDto> {
+  async uploadImage(input: ImageCreationInput): Promise<FileObject> {
     const { id, base64, category, subcategory, data } = input;
 
     const storagePath = path.join(STORAGE_PATH, category, subcategory, id);
@@ -95,7 +95,7 @@ export class ImageService {
 
       await this.imageTableRef.child(id).child('data').set(imageData);
 
-      const image: ImageDto = {
+      const image: FileObject = {
         id,
         category,
         subcategory,
@@ -136,7 +136,7 @@ export class ImageService {
     return true;
   }
 
-  async getImage(id: string): Promise<ImageDto> {
+  async getImage(id: string): Promise<FileObject> {
     const imageData = await this.getImageData(id);
 
     const routeChunks = imageData?.data.storagePath?.split('/');
@@ -155,9 +155,9 @@ export class ImageService {
 
       const downloadURL = await this.getStorageFileUrl(storagePath);
 
-      const image: ImageDto = {
+      const image: FileObject = {
         id,
-        category: routeChunks[1] as ImageCategoryType,
+        category: routeChunks[1] as FileCategoryType,
         subcategory: routeChunks[2],
         downloadURL,
         data,

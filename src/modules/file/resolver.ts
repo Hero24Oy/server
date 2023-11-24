@@ -5,24 +5,24 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
 import { ImageCreationArgs } from './graphql/creation/image-creation.args';
-import { ImageDto } from './graphql/objects/image.dto';
+import { FileObject } from './graphql/objects/image.dto';
 import { ImageService } from './service';
 
 @Resolver()
 export class ImageResolver {
   constructor(private readonly imageService: ImageService) {}
 
-  @Query(() => ImageDto)
+  @Query(() => FileObject)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async image(@Args('id') id: string): Promise<ImageDto> {
+  async image(@Args('id') id: string): Promise<FileObject> {
     return this.imageService.getImage(id);
   }
 
-  @Mutation(() => ImageDto)
+  @Mutation(() => FileObject)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async uploadImage(@Args() { input }: ImageCreationArgs): Promise<ImageDto> {
+  async uploadImage(@Args() { input }: ImageCreationArgs): Promise<FileObject> {
     return this.imageService.uploadImage(input);
   }
 
