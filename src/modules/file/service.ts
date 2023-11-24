@@ -10,11 +10,14 @@ import { FirebaseTableReference } from '../firebase/firebase.types';
 import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import {
   FileCategory,
-  FileObject,
   ImageDataObject,
+  ImageInput,
   ImageObject,
+  ImageOutput,
+  RemoveImageInput,
+  UploadImageInput,
+  UploadImageOutput,
 } from './graphql';
-import { ImageCreationInput } from './graphql/creation/image-creation.input';
 
 @Injectable()
 export class ImageService {
@@ -83,7 +86,7 @@ export class ImageService {
     return storagePath !== undefined;
   }
 
-  async uploadImage(input: ImageCreationInput): Promise<FileObject> {
+  async uploadImage(input: UploadImageInput): Promise<UploadImageOutput> {
     const { id, base64, category, subcategory, data } = input;
 
     const storagePath = path.join(STORAGE_PATH, category, subcategory, id);
@@ -106,13 +109,17 @@ export class ImageService {
         data: imageData,
       };
 
-      return image;
+      return {
+        image,
+      };
     } catch {
       throw new Error('Uploading image failed');
     }
   }
 
-  async removeImage(id: string): Promise<true> {
+  async removeImage(input: RemoveImageInput): Promise<true> {
+    const { id } = input;
+
     const imageData = await this.getImageData(id);
 
     const routeChunks = imageData?.data.storagePath?.split('/');
@@ -139,7 +146,9 @@ export class ImageService {
     return true;
   }
 
-  async getImage(id: string): Promise<FileObject> {
+  async getImage(input: ImageInput): Promise<ImageOutput> {
+    const { id } = input;
+
     const imageData = await this.getImageData(id);
 
     const routeChunks = imageData?.data.storagePath?.split('/');
@@ -166,7 +175,9 @@ export class ImageService {
         data,
       };
 
-      return image;
+      return {
+        image,
+      };
     } catch {
       throw new Error('Loading image failed');
     }

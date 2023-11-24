@@ -4,32 +4,39 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
-import { ImageCreationArgs } from './graphql/creation/image-creation.args';
-import { FileObject } from './graphql/objects/file';
+import {
+  ImageInput,
+  ImageOutput,
+  RemoveImageInput,
+  UploadImageInput,
+  UploadImageOutput,
+} from './graphql';
 import { ImageService } from './service';
 
 @Resolver()
 export class ImageResolver {
   constructor(private readonly imageService: ImageService) {}
 
-  @Query(() => FileObject)
+  @Query(() => ImageOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async image(@Args('id') id: string): Promise<FileObject> {
-    return this.imageService.getImage(id);
+  async image(@Args('input') input: ImageInput): Promise<ImageOutput> {
+    return this.imageService.getImage(input);
   }
 
-  @Mutation(() => FileObject)
+  @Mutation(() => UploadImageOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async uploadImage(@Args() { input }: ImageCreationArgs): Promise<FileObject> {
+  async uploadImage(
+    @Args('input') input: UploadImageInput,
+  ): Promise<UploadImageOutput> {
     return this.imageService.uploadImage(input);
   }
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async removeImage(@Args('id') id: string): Promise<true> {
-    return this.imageService.removeImage(id);
+  async removeImage(@Args('input') input: RemoveImageInput): Promise<true> {
+    return this.imageService.removeImage(input);
   }
 }
