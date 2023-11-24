@@ -8,6 +8,7 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
+import { ImageObject } from './graphql';
 import { ImageCreationInput } from './graphql/creation/image-creation.input';
 import { ImageDataDto } from './graphql/image/image-data.dto';
 import { FileObject } from './graphql/objects/file';
@@ -95,7 +96,7 @@ export class ImageService {
 
       await this.imageTableRef.child(id).child('data').set(imageData);
 
-      const image: FileObject = {
+      const image: ImageObject = {
         id,
         category,
         subcategory,
@@ -155,7 +156,7 @@ export class ImageService {
 
       const downloadURL = await this.getStorageFileUrl(storagePath);
 
-      const image: FileObject = {
+      const image: ImageObject = {
         id,
         category: routeChunks[1] as FileCategoryType,
         subcategory: routeChunks[2],
