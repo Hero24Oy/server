@@ -1,2 +1,2 @@
-export * from './image-category';
+export * from './file-category';
 export * from './mime';
