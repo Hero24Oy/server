@@ -1,9 +1,19 @@
-import { Field, Float, InputType, ObjectType } from '@nestjs/graphql';
+import {
+  Field,
+  Float,
+  InputType,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { HeroProfileData, HeroType } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
+
+registerEnumType(HeroType, {
+  name: 'HeroType',
+});
 
 @ObjectType()
 @InputType('SellerProfileDataInput')
