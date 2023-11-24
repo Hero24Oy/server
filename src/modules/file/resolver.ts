@@ -5,7 +5,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
 import { ImageCreationArgs } from './graphql/creation/image-creation.args';
-import { ImageDto } from './graphql/image/image.dto';
+import { ImageDto } from './graphql/objects/image.dto';
 import { ImageService } from './service';
 
 @Resolver()

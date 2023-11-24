@@ -9,8 +9,8 @@ import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import { ImageCreationInput } from './graphql/creation/image-creation.input';
-import { ImageDto } from './graphql/image/image.dto';
 import { ImageDataDto } from './graphql/image/image-data.dto';
+import { ImageDto } from './graphql/objects/image.dto';
 import { ImageCategoryType } from './types';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 
-import { ImageDto } from '../image/image.dto';
+import { ImageDto } from '../objects/image.dto';
 
 import { ImageCreationDataInput } from './image-creation-data.input';
 
