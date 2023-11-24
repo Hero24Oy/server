@@ -18,5 +18,5 @@ export class CreateDirectCardPayInInput {
   cardId: string;
 
   @Field(() => String)
-  returnUrl: string;
+  redirectUrl: string;
 }

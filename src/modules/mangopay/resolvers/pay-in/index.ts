@@ -23,7 +23,7 @@ export class MangopayPayInResolver {
 
   // We need to confirm mangopay flow and then get author and wallet ids
   // @Query(() => Boolean)
-  // async getCardRegistrationData(
+  // async createPayIn(
   //   @Args('input') input: CreateDirectCardPayInInput,
   // ): Promise<boolean> {
   //   const { ip, browserInfo, transactionId, cardId, returnUrl } = input;
