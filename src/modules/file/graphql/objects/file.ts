@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { FileCategory } from '../image/image-category.enum';
+import { FileCategory } from '../enums/image-category';
 
 import { MaybeType } from '$modules/common/common.types';
 
