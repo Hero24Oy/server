@@ -11,7 +11,7 @@ import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import { ImageObject } from './graphql';
 import { ImageCreationInput } from './graphql/creation/image-creation.input';
 import { FileObject } from './graphql/objects/file';
-import { ImageDataDto } from './graphql/objects/image/image-data.dto';
+import { ImageDataDto } from './graphql/objects/image/data';
 import { FileCategoryType } from './types';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { InputType, OmitType } from '@nestjs/graphql';
 
-import { ImageDataDto } from '../objects/image/image-data.dto';
+import { ImageDataDto } from '../objects/image/data';
 
 @InputType()
 export class ImageCreationDataInput extends OmitType(
