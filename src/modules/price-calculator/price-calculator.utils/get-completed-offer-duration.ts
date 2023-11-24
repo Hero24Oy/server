@@ -8,6 +8,7 @@ import { OfferDto } from '$modules/offer/dto/offer/offer.dto';
 export const getCompletedOfferDuration = (offer: OfferDto): Duration => {
   const workedTimeDuration = moment.duration(0, 'milliseconds');
 
+  // TODO else statements is not needed
   if (offer.data.workTime) {
     offer.data.workTime.forEach(({ startTime, endTime }) => {
       if (!endTime) {
@@ -32,8 +33,6 @@ export const getCompletedOfferDuration = (offer: OfferDto): Duration => {
     );
 
     workedTimeDuration.add(duration);
-  } else {
-    throw new Error('Data required for calculation does not exist');
   }
 
   return workedTimeDuration;

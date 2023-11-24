@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CategoryDB } from 'hero24-types';
 import { duration as getDurationInH } from 'moment';
 
+import { InvoiceDto } from './dto';
 import {
   getFeeTotalWithHero24Cut,
   getFeeTotalWithoutHero24Cut,
@@ -38,7 +39,102 @@ export class PriceCalculatorService {
     this.categoryTableRef = database.ref(FirebaseDatabasePath.CATEGORIES);
   }
 
-  async computePurchaseOfferById(offerId: string) {
+  async computePurchaseOfferById(offerId: string): Promise<InvoiceDto> {
+    const offer = await this.offerService.strictGetOfferById(offerId);
+
+    // TODO extract time calculating to service
+    const offerRequest =
+      await this.offerRequestService.strictGetOfferRequestById(
+        offer.data.initial.offerRequestId,
+      );
+
+    const category = (
+      await this.categoryTableRef
+        .child(offerRequest.data.initial.category)
+        .get()
+    ).val();
+
+    // TODO extract to category service
+    if (!category) {
+      throw new Error('Category does not exist');
+    }
+
+    const { pricePerHour } = offer.data.initial;
+
+    // * PRICE COMPUTING
+    const workedDuration = await this.calculateWorkDuration(offerId);
+
+    // TODO better naming
+    // * initially calculate the main part of the price based on worked hours and rate
+    const priceForServiceWithoutDiscount = workedDuration * pricePerHour;
+
+    // * is not implemented, just stub
+    // ! important
+    // * now discount is passed as null, because this functionality got stripped out
+    // * in future, we should replace null with actual discount
+    const discountForService = getDiscountValue(
+      null,
+      priceForServiceWithoutDiscount,
+    );
+
+    const overallServicePrice =
+      priceForServiceWithoutDiscount - discountForService;
+
+    // * calculate hero gross earning with service provider cut
+    const hero24PlatformCut = getPercents(
+      overallServicePrice,
+      SERVICE_PROVIDER_CUT,
+    );
+
+    const heroGrossEarnings = overallServicePrice - hero24PlatformCut;
+
+    const serviceProviderVAT =
+      offerRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
+
+    const heroNetEarnings = getValueBeforeVatApplied(
+      heroGrossEarnings,
+      serviceProviderVAT,
+    );
+
+    // * Calculate fees
+    // ! TODO remove this
+    const fees = await this.feeService.getFeeList(
+      {
+        filter: {
+          offerRequestId: offerRequest.id,
+        },
+      },
+      {
+        id: 'test',
+        scope: Scope.USER,
+      },
+    );
+
+    const grossFeeCost = fees.edges.reduce(
+      (total, { node }) => total + getFeeTotalWithHero24Cut(node),
+      0,
+    );
+
+    const netFeeCost = fees.edges.reduce(
+      (total, { node }) => total + getFeeTotalWithoutHero24Cut(node),
+      0,
+    );
+
+    const totalInvoice = {
+      gross: heroGrossEarnings + grossFeeCost,
+      net: heroNetEarnings + netFeeCost,
+    };
+
+    return {
+      overallServicePrice,
+      hero24PlatformCut,
+      heroGrossEarnings: totalInvoice.gross,
+      heroNetEarnings: totalInvoice.net,
+      heroVatAmount: heroGrossEarnings - heroNetEarnings,
+    };
+  }
+
+  async calculateWorkDuration(offerId: string): Promise<number> {
     const offer = await this.offerService.strictGetOfferById(offerId);
 
     const offerRequest =
@@ -68,92 +164,6 @@ export class PriceCalculatorService {
       minimumWorkDuration,
       getPurchasedOfferDuration(offer),
     );
-
-    const { pricePerHour } = offer.data.initial;
-    // * * PRICE COMPUTING
-
-    // TODO better naming
-    // * initially calculate the main part of the price based on worked hours and rate
-    const priceForServiceWithoutDiscount = workedDuration * pricePerHour;
-
-    // * is not implemented, just stub
-    // ! important
-    // * now discount is passed as null, because this functionality got stripped out
-    // * in future, we should replace null with actual discount
-    const discountForService = getDiscountValue(
-      null,
-      priceForServiceWithoutDiscount,
-    );
-
-    const priceForService = priceForServiceWithoutDiscount - discountForService;
-
-    // * calculate hero gross earning with service provider cut
-    const hero24ServiceCut = getPercents(priceForService, SERVICE_PROVIDER_CUT);
-
-    const heroGrossEarnings = priceForService - hero24ServiceCut;
-
-    const serviceProviderVAT =
-      offerRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
-
-    const heroNetEarnings = getValueBeforeVatApplied(
-      heroGrossEarnings,
-      serviceProviderVAT,
-    );
-
-    // ! TODO remove this
-    const fees = await this.feeService.getFeeList(
-      {
-        filter: {
-          offerRequestId: offerRequest.id,
-        },
-      },
-      {
-        id: 'test',
-        scope: Scope.USER,
-      },
-    );
-
-    const grossFeeCost = fees.edges.reduce(
-      (total, { node }) => total + getFeeTotalWithHero24Cut(node),
-      0,
-    );
-
-    const netFeeCost = fees.edges.reduce(
-      (total, { node }) => total + getFeeTotalWithoutHero24Cut(node),
-      0,
-    );
-
-    type FeeInvoice = {
-      grossFeeCost: number;
-      netFeeCost: number;
-    };
-
-    const feeInvoice: FeeInvoice = {
-      grossFeeCost,
-      netFeeCost,
-    };
-
-    const computingDetails = {
-      serviceProviderVAT,
-      pricePerHour,
-      workedDuration,
-      discount: null,
-    };
-
-    const workInvoice = {
-      priceForService,
-      heroGrossEarnings,
-      heroNetEarnings,
-    };
-
-    const totalInvoice = {
-      gross: workInvoice.heroGrossEarnings + feeInvoice.grossFeeCost,
-      net: workInvoice.heroNetEarnings + feeInvoice.netFeeCost,
-    };
-
-    console.debug('workInvoice', workInvoice);
-    console.debug('totalInvoice', totalInvoice);
-    console.debug('computingDetails', computingDetails);
 
     return workedDuration;
   }
