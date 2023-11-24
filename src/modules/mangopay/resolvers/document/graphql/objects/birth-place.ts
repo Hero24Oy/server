@@ -1,8 +1,9 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CountryISO } from 'mangopay2-nodejs-sdk';
 
 @ObjectType()
-export class BirthPlaceObject {
+@InputType()
+export class MangopayBirthPlaceObject {
   @Field(() => String)
   city: string;
 
