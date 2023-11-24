@@ -8,11 +8,13 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
 import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
-import { ImageObject } from './graphql';
+import {
+  FileCategory,
+  FileObject,
+  ImageDataObject,
+  ImageObject,
+} from './graphql';
 import { ImageCreationInput } from './graphql/creation/image-creation.input';
-import { FileObject } from './graphql/objects/file';
-import { ImageDataObject } from './graphql/objects/image/data';
-import { FileCategoryType } from './types';
 
 @Injectable()
 export class ImageService {
@@ -158,7 +160,7 @@ export class ImageService {
 
       const image: ImageObject = {
         id,
-        category: routeChunks[1] as FileCategoryType,
+        category: routeChunks[1] as FileCategory,
         subcategory: routeChunks[2],
         downloadURL,
         data,
