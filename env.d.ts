@@ -44,6 +44,11 @@ declare global {
       NETVISOR_PARTNER_KEY: string;
       NETVISOR_SENDER: string;
       NETVISOR_FETCH_CRON: string;
+
+      // Mangopay
+      MANGOPAY_BASE_URL: string;
+      MANGOPAY_CLIENT_ID: string;
+      MANGOPAY_API_KEY: string;
     }
   }
 }
