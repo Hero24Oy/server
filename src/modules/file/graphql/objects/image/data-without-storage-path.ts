@@ -1,6 +1,6 @@
 import { InputType, ObjectType, OmitType } from '@nestjs/graphql';
 
-import { ImageDataObject } from './data';
+import { ImageDataObject } from '../file/data';
 
 @ObjectType()
 export class ImageDataWithoutStoragePathObject extends OmitType(

@@ -1,8 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
+import { ImageDataObject } from '../file/data';
 import { FileObject } from '../file/file';
-
-import { ImageDataObject } from './data';
 
 @ObjectType()
 export class ImageObject extends FileObject {
