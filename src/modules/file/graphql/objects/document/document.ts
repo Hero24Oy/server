@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { FileObject } from '../file';
+import { FileObject } from '../file/file';
 
 import { PdfDataObject } from './data';
 

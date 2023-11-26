@@ -1,3 +1,2 @@
-export * from './file';
+export * from './file/file';
 export * from './image';
-export * from './pdf';
