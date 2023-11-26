@@ -1,7 +1,5 @@
 import { MimeType } from './graphql';
 
-import { MaybeType } from '$modules/common/common.types';
-
 export type FileCategoryType =
   | 'chats'
   | 'question'
@@ -11,7 +9,7 @@ export type FileCategoryType =
 
 export type FileDB = {
   data: {
-    name?: MaybeType<string>;
+    name?: string;
     storagePath?: string;
   };
 };

@@ -111,7 +111,9 @@ export class FileService {
         mime,
       });
 
-      await this.fileTableRef.child(id).child('data').set(fileData);
+      const internalFileData = FileDataObject.adapter.toInternal(fileData);
+
+      await this.fileTableRef.child(id).child('data').set(internalFileData);
 
       const file: FileObject = {
         id,
@@ -125,7 +127,7 @@ export class FileService {
       return {
         file,
       };
-    } catch {
+    } catch (e) {
       throw new Error('Uploading file failed');
     }
   }
