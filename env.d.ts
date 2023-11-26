@@ -49,6 +49,8 @@ declare global {
       MANGOPAY_BASE_URL: string;
       MANGOPAY_CLIENT_ID: string;
       MANGOPAY_API_KEY: string;
+      MANGOPAY_PAYMENT_LINK_SECRET: string;
+      MANGOPAY_LINK_EXPIRE_TIME: string;
     }
   }
 }

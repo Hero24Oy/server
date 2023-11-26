@@ -7,3 +7,4 @@ export * from './pay-in';
 export * from './pay-out';
 export * from './bank';
 export * from './document';
+export * from './order';

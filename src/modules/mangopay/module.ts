@@ -19,6 +19,7 @@ import {
 } from './services';
 
 import { BuyerModule } from '$modules/buyer/buyer.module';
+import { JwtModule } from '$modules/jwt/module';
 import { SellerModule } from '$modules/seller/seller.module';
 import { TransactionModule } from '$modules/transaction/module';
 import { TransactionSubjectModule } from '$modules/transaction-subject/module';
@@ -29,6 +30,8 @@ import { TransactionSubjectModule } from '$modules/transaction-subject/module';
     TransactionSubjectModule,
     BuyerModule,
     SellerModule,
+    JwtModule,
+    TransactionModule,
   ],
   providers: [
     MangopayInstanceService,
