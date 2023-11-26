@@ -29,7 +29,7 @@ export class TransactionResolver {
     };
   }
 
-  @Query(() => GetTransactionsByIdsInput)
+  @Query(() => GetTransactionsByIdsOutput)
   async getTransactionsSubjectInfoByIds(
     @Args('input') input: GetTransactionsByIdsInput,
   ): Promise<GetTransactionsByIdsOutput> {
