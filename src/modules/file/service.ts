@@ -13,7 +13,6 @@ import {
   FileObject,
   FileOutput,
   MimeType,
-  RemoveFileInput,
   UploadFileInput,
   UploadFileOutput,
 } from './graphql';
@@ -131,9 +130,7 @@ export class FileService {
     }
   }
 
-  async removeFile(input: RemoveFileInput): Promise<true> {
-    const { id } = input;
-
+  async removeFile(id: string): Promise<true> {
     const fileData = await this.getFileData(id);
 
     const routeChunks = fileData?.data.storagePath?.split('/');

@@ -39,6 +39,8 @@ export class FileResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async removeFile(@Args('input') input: RemoveFileInput): Promise<true> {
-    return this.fileService.removeFile(input);
+    const { id } = input;
+
+    return this.fileService.removeFile(id);
   }
 }
