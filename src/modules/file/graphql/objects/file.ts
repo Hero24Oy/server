@@ -24,7 +24,7 @@ export class FileObject {
   downloadURL?: MaybeType<string>;
 
   @Field(() => MimeType, { nullable: true, defaultValue: MimeType.JPG })
-  mime?: MaybeType<MimeType>;
+  mime: MimeType;
 
   @Field(() => FileDataObject)
   data: FileDataObject;

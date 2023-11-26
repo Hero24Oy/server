@@ -17,7 +17,7 @@ import {
   UploadFileInput,
   UploadFileOutput,
 } from './graphql';
-import { FileDB, FirebaseMetadata } from './types';
+import { FileDB, FirebaseMetadata, UploadFileToStorageArgs } from './types';
 
 @Injectable()
 export class FileService {
@@ -30,18 +30,19 @@ export class FileService {
   }
 
   private async uploadFileToStorage(
-    base64Data: string,
-    storagePath: string,
+    args: UploadFileToStorageArgs,
   ): Promise<string> {
+    const { base64, mime, storagePath } = args;
+
     const bucket = this.firebaseService.getStorage().bucket();
 
-    const fileData = Buffer.from(base64Data, 'base64');
+    const fileData = Buffer.from(base64, 'base64');
 
     const file = bucket.file(storagePath);
 
     await file.save(fileData, {
       metadata: {
-        contentType: 'image/jpg',
+        contentType: mime,
       },
     });
 
@@ -95,7 +96,7 @@ export class FileService {
   }
 
   async uploadFile(input: UploadFileInput): Promise<UploadFileOutput> {
-    const { id, base64, category, subcategory, data } = input;
+    const { id, mime, base64, category, subcategory, data } = input;
 
     const storagePath = path.join(STORAGE_PATH, category, subcategory, id);
 
@@ -105,12 +106,17 @@ export class FileService {
     } satisfies FileDataObject;
 
     try {
-      const downloadURL = await this.uploadFileToStorage(base64, storagePath);
+      const downloadURL = await this.uploadFileToStorage({
+        base64,
+        storagePath,
+        mime,
+      });
 
       await this.fileTableRef.child(id).child('data').set(fileData);
 
       const file: FileObject = {
         id,
+        mime,
         category,
         subcategory,
         downloadURL,
@@ -179,7 +185,7 @@ export class FileService {
         category: routeChunks[1] as FileCategory,
         subcategory: routeChunks[2],
         downloadURL,
-        mime,
+        mime: mime ?? MimeType.JPG,
         data,
       };
 

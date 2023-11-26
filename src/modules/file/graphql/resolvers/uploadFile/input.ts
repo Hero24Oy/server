@@ -5,7 +5,7 @@ import { FileDataWithoutStoragePathObject, FileObject } from '../../objects';
 @InputType()
 export class UploadFileInput extends PickType(
   FileObject,
-  ['id', 'category', 'subcategory'],
+  ['id', 'category', 'subcategory', 'mime'],
   InputType,
 ) {
   @Field(() => String)

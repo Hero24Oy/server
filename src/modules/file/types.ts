@@ -19,3 +19,9 @@ export type FileDB = {
 export type FirebaseMetadata = {
   contentType: MimeType;
 };
+
+export type UploadFileToStorageArgs = {
+  base64: string;
+  mime: MimeType;
+  storagePath: string;
+};
