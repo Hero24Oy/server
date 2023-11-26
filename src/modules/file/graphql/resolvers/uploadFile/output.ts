@@ -3,7 +3,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { FileObject } from '../../objects';
 
 @ObjectType()
-export class UploadImageOutput {
+export class UploadFileOutput {
   @Field(() => FileObject)
   image: FileObject;
 }

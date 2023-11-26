@@ -8,8 +8,8 @@ import {
   FileInput,
   FileOutput,
   RemoveFileInput,
-  UploadImageInput,
-  UploadImageOutput,
+  UploadFileInput,
+  UploadFileOutput,
 } from './graphql';
 import { FileService } from './service';
 
@@ -24,12 +24,12 @@ export class FileResolver {
     return this.fileService.getFile(input);
   }
 
-  @Mutation(() => UploadImageOutput)
+  @Mutation(() => UploadFileOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async uploadFile(
-    @Args('input') input: UploadImageInput,
-  ): Promise<UploadImageOutput> {
+    @Args('input') input: UploadFileInput,
+  ): Promise<UploadFileOutput> {
     return this.fileService.uploadFile(input);
   }
 

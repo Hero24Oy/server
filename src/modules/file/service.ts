@@ -14,8 +14,8 @@ import {
   FileObject,
   FileOutput,
   RemoveFileInput,
-  UploadImageInput,
-  UploadImageOutput,
+  UploadFileInput,
+  UploadFileOutput,
 } from './graphql';
 import { FileDB } from './types';
 
@@ -86,7 +86,7 @@ export class FileService {
     return storagePath !== undefined;
   }
 
-  async uploadFile(input: UploadImageInput): Promise<UploadImageOutput> {
+  async uploadFile(input: UploadFileInput): Promise<UploadFileOutput> {
     const { id, base64, category, subcategory, data } = input;
 
     const storagePath = path.join(STORAGE_PATH, category, subcategory, id);
