@@ -5,8 +5,8 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 
 import {
-  ImageInput,
-  ImageOutput,
+  FileInput,
+  FileOutput,
   RemoveImageInput,
   UploadImageInput,
   UploadImageOutput,
@@ -17,10 +17,10 @@ import { FileService } from './service';
 export class FileResolver {
   constructor(private readonly fileService: FileService) {}
 
-  @Query(() => ImageOutput)
+  @Query(() => FileOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async file(@Args('input') input: ImageInput): Promise<ImageOutput> {
+  async file(@Args('input') input: FileInput): Promise<FileOutput> {
     return this.fileService.getFile(input);
   }
 

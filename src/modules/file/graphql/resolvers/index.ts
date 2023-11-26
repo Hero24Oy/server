@@ -1,3 +1,3 @@
-export * from './image';
+export * from './file';
 export * from './removeImage';
 export * from './uploadImage';

@@ -10,9 +10,9 @@ import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import {
   FileCategory,
   FileDataObject,
+  FileInput,
   FileObject,
-  ImageInput,
-  ImageOutput,
+  FileOutput,
   RemoveImageInput,
   UploadImageInput,
   UploadImageOutput,
@@ -146,7 +146,7 @@ export class FileService {
     return true;
   }
 
-  async getFile(input: ImageInput): Promise<ImageOutput> {
+  async getFile(input: FileInput): Promise<FileOutput> {
     const { id } = input;
 
     const fileData = await this.getFileData(id);
