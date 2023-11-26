@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { getDownloadURL } from 'firebase-admin/storage';
-import { ImageDB } from 'hero24-types';
 import path from 'path';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
@@ -11,17 +10,18 @@ import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import {
   FileCategory,
   FileDataObject,
+  FileObject,
   ImageInput,
-  ImageObject,
   ImageOutput,
   RemoveImageInput,
   UploadImageInput,
   UploadImageOutput,
 } from './graphql';
+import { FileDB } from './types';
 
 @Injectable()
-export class ImageService {
-  private readonly imageTableRef: FirebaseTableReference<ImageDB>;
+export class FileService {
+  private readonly imageTableRef: FirebaseTableReference<FileDB>;
 
   constructor(private readonly firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
@@ -62,7 +62,7 @@ export class ImageService {
     return getDownloadURL(storage.file(storagePath));
   }
 
-  private async getImageData(id: string): Promise<ImageDB | null> {
+  private async getImageData(id: string): Promise<FileDB | null> {
     const imageDataSnapshot = await this.imageTableRef.child(id).get();
 
     return imageDataSnapshot.val();
@@ -74,7 +74,7 @@ export class ImageService {
     return true;
   }
 
-  private isImageData(imageData: ImageDB | null): imageData is ImageDB {
+  private isImageData(imageData: FileDB | null): imageData is FileDB {
     return Boolean(imageData);
   }
 
@@ -101,7 +101,7 @@ export class ImageService {
 
       await this.imageTableRef.child(id).child('data').set(imageData);
 
-      const image: ImageObject = {
+      const image: FileObject = {
         id,
         category,
         subcategory,
@@ -167,7 +167,7 @@ export class ImageService {
 
       const downloadURL = await this.getStorageFileUrl(storagePath);
 
-      const image: ImageObject = {
+      const image: FileObject = {
         id,
         category: routeChunks[1] as FileCategory,
         subcategory: routeChunks[2],

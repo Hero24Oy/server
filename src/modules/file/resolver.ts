@@ -11,17 +11,17 @@ import {
   UploadImageInput,
   UploadImageOutput,
 } from './graphql';
-import { ImageService } from './service';
+import { FileService } from './service';
 
 @Resolver()
-export class ImageResolver {
-  constructor(private readonly imageService: ImageService) {}
+export class FileResolver {
+  constructor(private readonly fileService: FileService) {}
 
   @Query(() => ImageOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async image(@Args('input') input: ImageInput): Promise<ImageOutput> {
-    return this.imageService.getImage(input);
+    return this.fileService.getImage(input);
   }
 
   @Mutation(() => UploadImageOutput)
@@ -30,13 +30,13 @@ export class ImageResolver {
   async uploadImage(
     @Args('input') input: UploadImageInput,
   ): Promise<UploadImageOutput> {
-    return this.imageService.uploadImage(input);
+    return this.fileService.uploadImage(input);
   }
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async removeImage(@Args('input') input: RemoveImageInput): Promise<true> {
-    return this.imageService.removeImage(input);
+    return this.fileService.removeImage(input);
   }
 }
