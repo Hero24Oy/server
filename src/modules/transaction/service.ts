@@ -22,4 +22,16 @@ export class TransactionService {
 
     return transactionsSnapshot.val();
   }
+
+  async getStrictTransactionById(id: string): Promise<PaymentTransaction> {
+    const transactionsSnapshot = await this.transactionTableRef.child(id).get();
+
+    const transaction = transactionsSnapshot.val();
+
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    return transaction;
+  }
 }

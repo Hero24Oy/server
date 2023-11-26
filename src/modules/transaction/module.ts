@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 
+import { TransactionResolver } from './resolver';
 import { TransactionService } from './service';
 
 import { FirebaseModule } from '$modules/firebase/firebase.module';
-import { GraphQlPubsubModule } from '$modules/graphql-pubsub/graphql-pubsub.module';
 
 @Module({
-  imports: [FirebaseModule, GraphQlPubsubModule],
-  providers: [TransactionService],
+  imports: [FirebaseModule],
+  providers: [TransactionService, TransactionResolver],
   exports: [TransactionService],
 })
 export class TransactionModule {}
