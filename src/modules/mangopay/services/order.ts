@@ -16,7 +16,17 @@ export class MangopayOrderService {
     private readonly transactionService: TransactionService,
   ) {}
 
-  generatePaymentTokenByTransactionId(transactionId: string): string {
+  async generatePaymentTokenByTransactionId(
+    transactionId: string,
+  ): Promise<string> {
+    const transaction = await this.transactionService.getTransactionById(
+      transactionId,
+    );
+
+    if (!transaction) {
+      throw new Error('Invalid transaction id');
+    }
+
     return this.jwtService.sign({
       data: { transactionId },
       secret: this.config.mangopay.paymentLinkSecret,

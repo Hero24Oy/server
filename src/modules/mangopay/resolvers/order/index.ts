@@ -15,9 +15,9 @@ export class MangopayOrderResolver {
   constructor(private readonly orderService: MangopayOrderService) {}
 
   @Query(() => String)
-  generatePaymentToken(
+  async generatePaymentToken(
     @Args('input') input: GeneratePaymentTokenInput,
-  ): string {
+  ): Promise<string> {
     const { transactionId } = input;
 
     return this.orderService.generatePaymentTokenByTransactionId(transactionId);
