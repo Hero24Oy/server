@@ -2,8 +2,6 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 import { FileCategory, MimeType } from '../../enums';
 
-import { DEFAULT_MIME } from './constants';
-
 import { MaybeType } from '$modules/common/common.types';
 
 @ObjectType()
@@ -23,6 +21,6 @@ export class FileObject {
   @Field(() => String, { nullable: true })
   downloadURL?: MaybeType<string>;
 
-  @Field(() => MimeType, { defaultValue: DEFAULT_MIME })
+  @Field(() => MimeType, { nullable: true, defaultValue: MimeType.JPG })
   mime?: MaybeType<MimeType>;
 }
