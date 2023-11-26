@@ -23,3 +23,8 @@ export type UploadFileToStorageArgs = {
   mime: MimeType;
   storagePath: string;
 };
+
+export enum MimeTypeGroup {
+  IMAGE = 'image/',
+  APPLICATION = 'application/',
+}

@@ -6,7 +6,7 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
-import { FILE_PATH_CHUNKS, STORAGE_PATH } from './constants';
+import { FILE_PATH_CHUNKS } from './constants';
 import {
   FileCategory,
   FileDataObject,
@@ -17,6 +17,7 @@ import {
   UploadFileOutput,
 } from './graphql';
 import { FileDB, FirebaseMetadata, UploadFileToStorageArgs } from './types';
+import { getStoragePathFolder } from './utils';
 
 @Injectable()
 export class FileService {
@@ -62,12 +63,14 @@ export class FileService {
     return getDownloadURL(storage.file(storagePath));
   }
 
-  private getMimeType(storagePath: string): MimeType | undefined {
+  private async getMimeType(storagePath: string): Promise<MimeType> {
     const storage = this.firebaseService.getStorage().bucket();
 
-    const metadata = storage.file(storagePath).metadata as FirebaseMetadata;
+    const response = await storage.file(storagePath).getMetadata();
 
-    return metadata?.contentType;
+    const { contentType } = response.at(0) as FirebaseMetadata;
+
+    return contentType;
   }
 
   private async getFileData(id: string): Promise<FileDB | null> {
@@ -97,7 +100,9 @@ export class FileService {
   async uploadFile(input: UploadFileInput): Promise<UploadFileOutput> {
     const { id, mime, base64, category, subcategory, data } = input;
 
-    const storagePath = path.join(STORAGE_PATH, category, subcategory, id);
+    const storagePathFolder = getStoragePathFolder(mime);
+
+    const storagePath = path.join(storagePathFolder, category, subcategory, id);
 
     const fileData = {
       ...data,
@@ -176,7 +181,8 @@ export class FileService {
       const { data } = fileData;
       const { storagePath } = fileData.data;
 
-      const mime = this.getMimeType(storagePath);
+      const mime = await this.getMimeType(storagePath);
+
       const downloadURL = await this.getStorageFileUrl(storagePath);
 
       const file: FileObject = {
@@ -184,7 +190,7 @@ export class FileService {
         category: routeChunks[1] as FileCategory,
         subcategory: routeChunks[2],
         downloadURL,
-        mime: mime ?? MimeType.JPG,
+        mime,
         data,
       };
 
