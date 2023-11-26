@@ -21,25 +21,25 @@ import { FileDB } from './types';
 
 @Injectable()
 export class FileService {
-  private readonly imageTableRef: FirebaseTableReference<FileDB>;
+  private readonly fileTableRef: FirebaseTableReference<FileDB>;
 
   constructor(private readonly firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
 
-    this.imageTableRef = database.ref(FirebaseDatabasePath.IMAGES);
+    this.fileTableRef = database.ref(FirebaseDatabasePath.IMAGES);
   }
 
-  private async uploadImageToStorage(
+  private async uploadFileToStorage(
     base64Data: string,
     storagePath: string,
   ): Promise<string> {
     const bucket = this.firebaseService.getStorage().bucket();
 
-    const imageData = Buffer.from(base64Data, 'base64');
+    const fileData = Buffer.from(base64Data, 'base64');
 
     const file = bucket.file(storagePath);
 
-    await file.save(imageData, {
+    await file.save(fileData, {
       metadata: {
         contentType: 'image/jpg',
       },
@@ -48,7 +48,7 @@ export class FileService {
     return getDownloadURL(file);
   }
 
-  private async deleteImageFromStorage(storagePath: string): Promise<void> {
+  private async deleteFileFromStorage(storagePath: string): Promise<void> {
     const bucket = this.firebaseService.getStorage().bucket();
 
     const file = bucket.file(storagePath);
@@ -62,20 +62,20 @@ export class FileService {
     return getDownloadURL(storage.file(storagePath));
   }
 
-  private async getImageData(id: string): Promise<FileDB | null> {
-    const imageDataSnapshot = await this.imageTableRef.child(id).get();
+  private async getFileData(id: string): Promise<FileDB | null> {
+    const fileDataSnapshot = await this.fileTableRef.child(id).get();
 
-    return imageDataSnapshot.val();
+    return fileDataSnapshot.val();
   }
 
-  private async deleteImageFromDB(id: string): Promise<true> {
-    await this.imageTableRef.child(id).remove();
+  private async deleteFileFromDB(id: string): Promise<true> {
+    await this.fileTableRef.child(id).remove();
 
     return true;
   }
 
-  private isImageData(imageData: FileDB | null): imageData is FileDB {
-    return Boolean(imageData);
+  private isFileData(fileData: FileDB | null): fileData is FileDB {
+    return Boolean(fileData);
   }
 
   private isValidRoute(routeChunks?: string[]): routeChunks is string[] {
@@ -86,88 +86,88 @@ export class FileService {
     return storagePath !== undefined;
   }
 
-  async uploadImage(input: UploadImageInput): Promise<UploadImageOutput> {
+  async uploadFile(input: UploadImageInput): Promise<UploadImageOutput> {
     const { id, base64, category, subcategory, data } = input;
 
     const storagePath = path.join(STORAGE_PATH, category, subcategory, id);
 
-    const imageData = {
+    const fileData = {
       ...data,
       storagePath,
     } satisfies FileDataObject;
 
     try {
-      const downloadURL = await this.uploadImageToStorage(base64, storagePath);
+      const downloadURL = await this.uploadFileToStorage(base64, storagePath);
 
-      await this.imageTableRef.child(id).child('data').set(imageData);
+      await this.fileTableRef.child(id).child('data').set(fileData);
 
-      const image: FileObject = {
+      const file: FileObject = {
         id,
         category,
         subcategory,
         downloadURL,
-        data: imageData,
+        data: fileData,
       };
 
       return {
-        image,
+        image: file,
       };
     } catch {
-      throw new Error('Uploading image failed');
+      throw new Error('Uploading file failed');
     }
   }
 
-  async removeImage(input: RemoveImageInput): Promise<true> {
+  async removeFile(input: RemoveImageInput): Promise<true> {
     const { id } = input;
 
-    const imageData = await this.getImageData(id);
+    const fileData = await this.getFileData(id);
 
-    const routeChunks = imageData?.data.storagePath?.split('/');
+    const routeChunks = fileData?.data.storagePath?.split('/');
 
     if (
-      !this.isImageData(imageData) ||
+      !this.isFileData(fileData) ||
       !this.isValidRoute(routeChunks) ||
-      !this.isStoragePathDefined(imageData.data.storagePath)
+      !this.isStoragePathDefined(fileData.data.storagePath)
     ) {
-      throw new Error('Image deletion failed');
+      throw new Error('File deletion failed');
     }
 
     try {
-      const { storagePath } = imageData.data;
+      const { storagePath } = fileData.data;
 
       await Promise.all([
-        this.deleteImageFromStorage(storagePath),
-        this.deleteImageFromDB(id),
+        this.deleteFileFromStorage(storagePath),
+        this.deleteFileFromDB(id),
       ]);
     } catch {
-      throw new Error('Image deletion failed');
+      throw new Error('File deletion failed');
     }
 
     return true;
   }
 
-  async getImage(input: ImageInput): Promise<ImageOutput> {
+  async getFile(input: ImageInput): Promise<ImageOutput> {
     const { id } = input;
 
-    const imageData = await this.getImageData(id);
+    const fileData = await this.getFileData(id);
 
-    const routeChunks = imageData?.data.storagePath?.split('/');
+    const routeChunks = fileData?.data.storagePath?.split('/');
 
     if (
-      !this.isImageData(imageData) ||
+      !this.isFileData(fileData) ||
       !this.isValidRoute(routeChunks) ||
-      !this.isStoragePathDefined(imageData.data.storagePath)
+      !this.isStoragePathDefined(fileData.data.storagePath)
     ) {
-      throw new Error('Loading image failed');
+      throw new Error('Loading file failed');
     }
 
     try {
-      const { data } = imageData;
-      const { storagePath } = imageData.data;
+      const { data } = fileData;
+      const { storagePath } = fileData.data;
 
       const downloadURL = await this.getStorageFileUrl(storagePath);
 
-      const image: FileObject = {
+      const file: FileObject = {
         id,
         category: routeChunks[1] as FileCategory,
         subcategory: routeChunks[2],
@@ -176,10 +176,10 @@ export class FileService {
       };
 
       return {
-        image,
+        image: file,
       };
     } catch {
-      throw new Error('Loading image failed');
+      throw new Error('Loading file failed');
     }
   }
 }

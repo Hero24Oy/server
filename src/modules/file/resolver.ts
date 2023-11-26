@@ -20,23 +20,23 @@ export class FileResolver {
   @Query(() => ImageOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async image(@Args('input') input: ImageInput): Promise<ImageOutput> {
-    return this.fileService.getImage(input);
+  async file(@Args('input') input: ImageInput): Promise<ImageOutput> {
+    return this.fileService.getFile(input);
   }
 
   @Mutation(() => UploadImageOutput)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async uploadImage(
+  async uploadFile(
     @Args('input') input: UploadImageInput,
   ): Promise<UploadImageOutput> {
-    return this.fileService.uploadImage(input);
+    return this.fileService.uploadFile(input);
   }
 
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async removeImage(@Args('input') input: RemoveImageInput): Promise<true> {
-    return this.fileService.removeImage(input);
+  async removeFile(@Args('input') input: RemoveImageInput): Promise<true> {
+    return this.fileService.removeFile(input);
   }
 }
