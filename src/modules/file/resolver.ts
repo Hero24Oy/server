@@ -7,7 +7,7 @@ import { FirebaseExceptionFilter } from '../firebase/firebase.exception.filter';
 import {
   FileInput,
   FileOutput,
-  RemoveImageInput,
+  RemoveFileInput,
   UploadImageInput,
   UploadImageOutput,
 } from './graphql';
@@ -36,7 +36,7 @@ export class FileResolver {
   @Mutation(() => Boolean)
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
-  async removeFile(@Args('input') input: RemoveImageInput): Promise<true> {
+  async removeFile(@Args('input') input: RemoveFileInput): Promise<true> {
     return this.fileService.removeFile(input);
   }
 }

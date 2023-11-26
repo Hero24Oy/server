@@ -13,7 +13,7 @@ import {
   FileInput,
   FileObject,
   FileOutput,
-  RemoveImageInput,
+  RemoveFileInput,
   UploadImageInput,
   UploadImageOutput,
 } from './graphql';
@@ -117,7 +117,7 @@ export class FileService {
     }
   }
 
-  async removeFile(input: RemoveImageInput): Promise<true> {
+  async removeFile(input: RemoveFileInput): Promise<true> {
     const { id } = input;
 
     const fileData = await this.getFileData(id);

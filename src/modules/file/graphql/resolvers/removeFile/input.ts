@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class RemoveImageInput {
+export class RemoveFileInput {
   @Field(() => String)
   id: string;
 }
