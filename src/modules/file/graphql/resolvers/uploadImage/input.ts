@@ -1,6 +1,6 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 
-import { FileObject, ImageDataWithoutStoragePathObject } from '../../objects';
+import { FileDataWithoutStoragePathObject, FileObject } from '../../objects';
 
 @InputType()
 export class UploadImageInput extends PickType(
@@ -11,6 +11,6 @@ export class UploadImageInput extends PickType(
   @Field(() => String)
   base64: string;
 
-  @Field(() => ImageDataWithoutStoragePathObject)
-  data: ImageDataWithoutStoragePathObject;
+  @Field(() => FileDataWithoutStoragePathObject)
+  data: FileDataWithoutStoragePathObject;
 }
