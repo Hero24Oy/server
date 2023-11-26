@@ -21,7 +21,9 @@ export class FileResolver {
   @UseFilters(FirebaseExceptionFilter)
   @UseGuards(AuthGuard)
   async file(@Args('input') input: FileInput): Promise<FileOutput> {
-    return this.fileService.getFile(input);
+    const { id } = input;
+
+    return this.fileService.getFile(id);
   }
 
   @Mutation(() => UploadFileOutput)

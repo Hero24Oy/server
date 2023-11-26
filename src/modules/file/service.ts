@@ -6,18 +6,18 @@ import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseTableReference } from '../firebase/firebase.types';
 
-import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
+import { FILE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import {
   FileCategory,
   FileDataObject,
-  FileInput,
   FileObject,
   FileOutput,
+  MimeType,
   RemoveFileInput,
   UploadFileInput,
   UploadFileOutput,
 } from './graphql';
-import { FileDB } from './types';
+import { FileDB, FirebaseMetadata } from './types';
 
 @Injectable()
 export class FileService {
@@ -62,6 +62,14 @@ export class FileService {
     return getDownloadURL(storage.file(storagePath));
   }
 
+  private getMimeType(storagePath: string): MimeType | undefined {
+    const storage = this.firebaseService.getStorage().bucket();
+
+    const metadata = storage.file(storagePath).metadata as FirebaseMetadata;
+
+    return metadata?.contentType;
+  }
+
   private async getFileData(id: string): Promise<FileDB | null> {
     const fileDataSnapshot = await this.fileTableRef.child(id).get();
 
@@ -79,7 +87,7 @@ export class FileService {
   }
 
   private isValidRoute(routeChunks?: string[]): routeChunks is string[] {
-    return routeChunks !== undefined && routeChunks?.length > IMAGE_PATH_CHUNKS;
+    return routeChunks !== undefined && routeChunks?.length > FILE_PATH_CHUNKS;
   }
 
   private isStoragePathDefined(storagePath?: string): storagePath is string {
@@ -146,9 +154,7 @@ export class FileService {
     return true;
   }
 
-  async getFile(input: FileInput): Promise<FileOutput> {
-    const { id } = input;
-
+  async getFile(id: string): Promise<FileOutput> {
     const fileData = await this.getFileData(id);
 
     const routeChunks = fileData?.data.storagePath?.split('/');
@@ -165,6 +171,7 @@ export class FileService {
       const { data } = fileData;
       const { storagePath } = fileData.data;
 
+      const mime = this.getMimeType(storagePath);
       const downloadURL = await this.getStorageFileUrl(storagePath);
 
       const file: FileObject = {
@@ -172,6 +179,7 @@ export class FileService {
         category: routeChunks[1] as FileCategory,
         subcategory: routeChunks[2],
         downloadURL,
+        mime,
         data,
       };
 
