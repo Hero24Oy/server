@@ -10,7 +10,7 @@ import { FirebaseTableReference } from '../firebase/firebase.types';
 import { IMAGE_PATH_CHUNKS, STORAGE_PATH } from './constants';
 import {
   FileCategory,
-  ImageDataObject,
+  FileDataObject,
   ImageInput,
   ImageObject,
   ImageOutput,
@@ -94,7 +94,7 @@ export class ImageService {
     const imageData = {
       ...data,
       storagePath,
-    } satisfies ImageDataObject;
+    } satisfies FileDataObject;
 
     try {
       const downloadURL = await this.uploadImageToStorage(base64, storagePath);
