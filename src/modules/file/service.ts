@@ -110,7 +110,7 @@ export class FileService {
       };
 
       return {
-        image: file,
+        file,
       };
     } catch {
       throw new Error('Uploading file failed');
@@ -176,7 +176,7 @@ export class FileService {
       };
 
       return {
-        image: file,
+        file,
       };
     } catch {
       throw new Error('Loading file failed');
