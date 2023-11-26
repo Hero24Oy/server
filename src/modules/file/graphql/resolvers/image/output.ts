@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { ImageObject } from '../../objects';
+import { FileObject } from '../../objects';
 
 @ObjectType()
 export class ImageOutput {
-  @Field(() => ImageObject)
-  image: ImageObject;
+  @Field(() => FileObject)
+  image: FileObject;
 }
