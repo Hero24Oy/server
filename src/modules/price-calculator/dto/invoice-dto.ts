@@ -1,6 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 
-// TODO better naming
 @ObjectType()
 export class ReceiptDto {
   // * money
