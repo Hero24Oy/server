@@ -4,12 +4,16 @@ import { PaymentTransaction } from 'hero24-types';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { FirebaseTableReference } from '$modules/firebase/firebase.types';
+import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 
 @Injectable()
 export class TransactionService {
   readonly transactionTableRef: FirebaseTableReference<PaymentTransaction>;
 
-  constructor(firebaseService: FirebaseService) {
+  constructor(
+    private readonly taskRequestService: OfferRequestService,
+    firebaseService: FirebaseService,
+  ) {
     const database = firebaseService.getDefaultApp().database();
 
     this.transactionTableRef = database.ref(
@@ -17,11 +21,21 @@ export class TransactionService {
     );
   }
 
-  async getStrictTransactionsByIds(
-    ids: string[],
+  async getTransactionByTaskRequestId(
+    taskRequestId: string,
   ): Promise<PaymentTransaction[]> {
+    const taskRequest = await this.taskRequestService.getOfferRequestById(
+      taskRequestId,
+    );
+
+    if (!taskRequest) {
+      throw new Error('Task request not found');
+    }
+
+    const transactionIds = taskRequest.paymentTransactions ?? [];
+
     const transactions = await Promise.all(
-      ids.map((id) => {
+      transactionIds.map((id) => {
         return this.getStrictTransactionById(id);
       }),
     );

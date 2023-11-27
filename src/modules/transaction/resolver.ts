@@ -2,10 +2,10 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import {
-  GetTransactionByIdInput,
-  GetTransactionByIdOutput,
-  GetTransactionsByIdsInput,
-  GetTransactionsByIdsOutput,
+  TransactionByIdInput,
+  TransactionByIdOutput,
+  TransactionsByIdsOutput,
+  TransactionsByTaskRequestIdInput,
 } from './graphql';
 import { TransactionService } from './service';
 
@@ -18,10 +18,10 @@ import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.fi
 export class TransactionResolver {
   constructor(private readonly transactionService: TransactionService) {}
 
-  @Query(() => GetTransactionByIdOutput)
+  @Query(() => TransactionByIdOutput)
   async transaction(
-    @Args('input') input: GetTransactionByIdInput,
-  ): Promise<GetTransactionByIdOutput> {
+    @Args('input') input: TransactionByIdInput,
+  ): Promise<TransactionByIdOutput> {
     const { id } = input;
 
     return {
@@ -29,15 +29,15 @@ export class TransactionResolver {
     };
   }
 
-  @Query(() => GetTransactionsByIdsOutput)
-  async transactions(
-    @Args('input') input: GetTransactionsByIdsInput,
-  ): Promise<GetTransactionsByIdsOutput> {
-    const { ids } = input;
+  @Query(() => TransactionsByIdsOutput)
+  async transactionsByTaskRequestId(
+    @Args('input') input: TransactionsByTaskRequestIdInput,
+  ): Promise<TransactionsByIdsOutput> {
+    const { id } = input;
 
     return {
-      transactions: await this.transactionService.getStrictTransactionsByIds(
-        ids,
+      transactions: await this.transactionService.getTransactionByTaskRequestId(
+        id,
       ),
     };
   }

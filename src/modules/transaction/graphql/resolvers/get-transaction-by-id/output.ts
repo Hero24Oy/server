@@ -3,7 +3,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { TransactionObject } from '../../objects';
 
 @ObjectType()
-export class GetTransactionByIdOutput {
+export class TransactionByIdOutput {
   @Field(() => TransactionObject)
   transaction: TransactionObject;
 }

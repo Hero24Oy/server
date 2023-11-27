@@ -4,9 +4,10 @@ import { TransactionResolver } from './resolver';
 import { TransactionService } from './service';
 
 import { FirebaseModule } from '$modules/firebase/firebase.module';
+import { OfferRequestModule } from '$modules/offer-request/offer-request.module';
 
 @Module({
-  imports: [FirebaseModule],
+  imports: [FirebaseModule, OfferRequestModule],
   providers: [TransactionService, TransactionResolver],
   exports: [TransactionService],
 })
