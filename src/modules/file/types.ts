@@ -7,6 +7,7 @@ export type FileCategoryType =
   | 'files'
   | 'news';
 
+// TODO remove after type will be added to hero24-types
 export type FileDB = {
   data: {
     name?: string;
