@@ -17,6 +17,12 @@ export type FileDB = {
   };
 };
 
+export type FileWithStoragePath = FileDB & {
+  data: {
+    storagePath: string;
+  };
+};
+
 export type FirebaseMetadata = {
   contentType: MimeType;
 };
@@ -30,4 +36,12 @@ export type UploadFileToStorageArgs = {
 export enum MimeTypeGroup {
   IMAGE = 'image/',
   APPLICATION = 'application/',
+}
+
+export enum ErrorMessage {
+  NO_FILE_DATA = 'No file data',
+  INVALID_STORAGE_PATH = "Storage path isn't valid",
+  UPLOADING_FAILED = 'Uploading file failed',
+  DELETION_FAILED = 'File deletion failed',
+  LOADING_FAILED = 'Loading file failed',
 }

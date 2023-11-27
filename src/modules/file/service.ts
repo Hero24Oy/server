@@ -16,7 +16,13 @@ import {
   UploadFileInput,
   UploadFileOutput,
 } from './graphql';
-import { FileDB, FirebaseMetadata, UploadFileToStorageArgs } from './types';
+import {
+  ErrorMessage,
+  FileDB,
+  FileWithStoragePath,
+  FirebaseMetadata,
+  UploadFileToStorageArgs,
+} from './types';
 import { getStoragePathFolder } from './utils';
 
 @Injectable()
@@ -73,18 +79,6 @@ export class FileService {
     return contentType;
   }
 
-  private async getFileDataById(id: string): Promise<FileDB | null> {
-    const fileDataSnapshot = await this.fileTableRef.child(id).get();
-
-    return fileDataSnapshot.val();
-  }
-
-  private async deleteFileFromDB(id: string): Promise<true> {
-    await this.fileTableRef.child(id).remove();
-
-    return true;
-  }
-
   private isFileData(fileData: FileDB | null): fileData is FileDB {
     return Boolean(fileData);
   }
@@ -95,6 +89,39 @@ export class FileService {
 
   private isStoragePathDefined(storagePath?: string): storagePath is string {
     return storagePath !== undefined;
+  }
+
+  private async strictGetFileDataById(
+    id: string,
+  ): Promise<FileWithStoragePath> {
+    const fileDataSnapshot = await this.fileTableRef.child(id).get();
+    const fileData = fileDataSnapshot.val();
+
+    if (!this.isFileData(fileData)) {
+      throw new Error(ErrorMessage.NO_FILE_DATA);
+    }
+
+    if (!this.isStoragePathDefined(fileData.data.storagePath)) {
+      throw new Error(ErrorMessage.INVALID_STORAGE_PATH);
+    }
+
+    return fileData as FileWithStoragePath;
+  }
+
+  private strictGetRouteChunks(storagePath?: string): string[] {
+    const routeChunks = storagePath?.split('/');
+
+    if (!this.isValidRoute(routeChunks)) {
+      throw new Error(ErrorMessage.INVALID_STORAGE_PATH);
+    }
+
+    return routeChunks;
+  }
+
+  private async deleteFileFromDB(id: string): Promise<true> {
+    await this.fileTableRef.child(id).remove();
+
+    return true;
   }
 
   async uploadFile(input: UploadFileInput): Promise<UploadFileOutput> {
@@ -133,22 +160,12 @@ export class FileService {
         file,
       };
     } catch {
-      throw new Error('Uploading file failed');
+      throw new Error(ErrorMessage.UPLOADING_FAILED);
     }
   }
 
   async removeFileById(id: string): Promise<true> {
-    const fileData = await this.getFileDataById(id);
-
-    const routeChunks = fileData?.data.storagePath?.split('/');
-
-    if (
-      !this.isFileData(fileData) ||
-      !this.isValidRoute(routeChunks) ||
-      !this.isStoragePathDefined(fileData.data.storagePath)
-    ) {
-      throw new Error('File deletion failed');
-    }
+    const fileData = await this.strictGetFileDataById(id);
 
     try {
       const { storagePath } = fileData.data;
@@ -158,24 +175,15 @@ export class FileService {
         this.deleteFileFromDB(id),
       ]);
     } catch {
-      throw new Error('File deletion failed');
+      throw new Error(ErrorMessage.DELETION_FAILED);
     }
 
     return true;
   }
 
   async getFileById(id: string): Promise<FileOutput> {
-    const fileData = await this.getFileDataById(id);
-
-    const routeChunks = fileData?.data.storagePath?.split('/');
-
-    if (
-      !this.isFileData(fileData) ||
-      !this.isValidRoute(routeChunks) ||
-      !this.isStoragePathDefined(fileData.data.storagePath)
-    ) {
-      throw new Error('Loading file failed');
-    }
+    const fileData = await this.strictGetFileDataById(id);
+    const routeChunks = this.strictGetRouteChunks(fileData?.data.storagePath);
 
     try {
       const { data } = fileData;
@@ -198,7 +206,7 @@ export class FileService {
         file,
       };
     } catch {
-      throw new Error('Loading file failed');
+      throw new Error(ErrorMessage.LOADING_FAILED);
     }
   }
 }
