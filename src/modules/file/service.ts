@@ -26,7 +26,7 @@ export class FileService {
   constructor(private readonly firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
 
-    this.fileTableRef = database.ref(FirebaseDatabasePath.IMAGES);
+    this.fileTableRef = database.ref(FirebaseDatabasePath.FILES);
   }
 
   private async uploadFileToStorage(
