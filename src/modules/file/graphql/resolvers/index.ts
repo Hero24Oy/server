@@ -1,3 +1,3 @@
 export * from './file';
-export * from './removeFile';
-export * from './uploadFile';
+export * from './remove-file';
+export * from './upload-file';
