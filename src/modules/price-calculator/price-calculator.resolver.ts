@@ -1,6 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
-import { InvoiceDto } from './dto';
+import { ReceiptDto } from './dto';
 import { PriceCalculatorService } from './price-calculator.service';
 
 @Resolver()
@@ -9,8 +9,8 @@ export class PriceCalculatorResolver {
     private readonly priceCalculatorService: PriceCalculatorService,
   ) {}
 
-  @Query(() => InvoiceDto)
-  computePurchaseOfferById(@Args('offerId') offerId: string) {
-    return this.priceCalculatorService.computePurchaseOfferById(offerId);
+  @Query(() => ReceiptDto)
+  offerReceipt(@Args('offerId') offerId: string): Promise<ReceiptDto> {
+    return this.priceCalculatorService.getOfferReceipt(offerId);
   }
 }

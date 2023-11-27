@@ -3,7 +3,8 @@ import round from 'lodash/round';
 
 export type Discount = Pick<PromotionDB['data'], 'discount' | 'discountFormat'>;
 
-const getDiscountValue = (
+// * Discounts are disabled for the moment, so not used
+export const getDiscountValue = (
   discount: Discount | null,
   initialGrossAmount: number,
 ): number => {
@@ -23,5 +24,3 @@ const getDiscountValue = (
   // eslint-disable-next-line no-magic-numbers -- In order to get percentage we divide by 100
   return round((initialGrossAmount * discount.discount) / 100, 2);
 };
-
-export default getDiscountValue;

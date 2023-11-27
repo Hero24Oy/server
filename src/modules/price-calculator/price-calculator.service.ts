@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { CategoryDB } from 'hero24-types';
 import { duration as getDurationInH } from 'moment';
 
-import { InvoiceDto } from './dto';
+import { ReceiptDto } from './dto';
 import {
+  // getDiscountValue,
   getFeeTotalWithHero24Cut,
   getFeeTotalWithoutHero24Cut,
   getValueBeforeVatApplied,
   getWorkedDuration,
 } from './price-calculator.utils';
 import { getCompletedOfferDuration } from './price-calculator.utils/get-completed-offer-duration';
-import getDiscountValue from './price-calculator.utils/get-discount-value';
 import { getPercents } from './price-calculator.utils/get-percents';
 import { getPurchasedOfferDuration } from './price-calculator.utils/get-purchased-offer-duration';
 import { SERVICE_PROVIDER_CUT } from './price-calculator.utils/get-value-with-service-cut-applied';
@@ -39,7 +39,7 @@ export class PriceCalculatorService {
     this.categoryTableRef = database.ref(FirebaseDatabasePath.CATEGORIES);
   }
 
-  async computePurchaseOfferById(offerId: string): Promise<InvoiceDto> {
+  async getOfferReceipt(offerId: string): Promise<ReceiptDto> {
     const offer = await this.offerService.strictGetOfferById(offerId);
 
     // TODO extract time calculating to service
@@ -72,28 +72,30 @@ export class PriceCalculatorService {
     // ! important
     // * now discount is passed as null, because this functionality got stripped out
     // * in future, we should replace null with actual discount
-    const discountForService = getDiscountValue(
-      null,
-      priceForServiceWithoutDiscount,
-    );
+    // const discountForService = getDiscountValue(
+    //   null,
+    //   priceForServiceWithoutDiscount,
+    // );
+    // * Discounts are disabled for the moment
+    const discountForService = 0;
 
-    const overallServicePrice =
+    const overallServiceProvidedPrice =
       priceForServiceWithoutDiscount - discountForService;
 
     // * calculate hero gross earning with service provider cut
-    const hero24PlatformCut = getPercents(
-      overallServicePrice,
+    const platformFee = getPercents(
+      overallServiceProvidedPrice,
       SERVICE_PROVIDER_CUT,
     );
 
-    const heroGrossEarnings = overallServicePrice - hero24PlatformCut;
+    const heroGrossEarnings = overallServiceProvidedPrice - platformFee;
 
-    const serviceProviderVAT =
+    const serviceProvidedVat =
       offerRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
 
     const heroNetEarnings = getValueBeforeVatApplied(
       heroGrossEarnings,
-      serviceProviderVAT,
+      serviceProvidedVat,
     );
 
     // * Calculate fees
@@ -120,17 +122,15 @@ export class PriceCalculatorService {
       0,
     );
 
-    const totalInvoice = {
-      gross: heroGrossEarnings + grossFeeCost,
-      net: heroNetEarnings + netFeeCost,
-    };
-
     return {
-      overallServicePrice,
-      hero24PlatformCut,
-      heroGrossEarnings: totalInvoice.gross,
-      heroNetEarnings: totalInvoice.net,
+      overallServiceProvidedPrice,
+      serviceProvidedVat,
+      feeTotal: netFeeCost,
+      platformFee: SERVICE_PROVIDER_CUT, // TODO rename service provider cut to platformFee
+      heroGrossEarnings: heroGrossEarnings + grossFeeCost,
+      heroNetEarnings: heroNetEarnings + netFeeCost,
       heroVatAmount: heroGrossEarnings - heroNetEarnings,
+      workedDuration,
     };
   }
 

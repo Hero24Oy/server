@@ -2,7 +2,8 @@ import { Field, Float, ObjectType } from '@nestjs/graphql';
 
 // TODO better naming
 @ObjectType()
-export class InvoiceDto {
+export class ReceiptDto {
+  // * money
   @Field(() => Float)
   heroGrossEarnings: number;
 
@@ -13,8 +14,19 @@ export class InvoiceDto {
   heroVatAmount: number;
 
   @Field(() => Float)
-  hero24PlatformCut: number;
+  feeTotal: number;
 
   @Field(() => Float)
-  overallServicePrice: number;
+  overallServiceProvidedPrice: number;
+
+  // * fees
+  @Field(() => Float)
+  serviceProvidedVat: number;
+
+  @Field(() => Float)
+  platformFee: number;
+
+  // * others
+  @Field(() => Float)
+  workedDuration: number;
 }
