@@ -1,12 +1,5 @@
 import { MimeType } from './graphql';
 
-export type FileCategoryType =
-  | 'chats'
-  | 'question'
-  | 'portfolios'
-  | 'files'
-  | 'news';
-
 // TODO remove after type will be added to hero24-types
 export type File = {
   data: {
