@@ -8,7 +8,7 @@ export type FileCategoryType =
   | 'news';
 
 // TODO remove after type will be added to hero24-types
-export type FileDB = {
+export type File = {
   data: {
     height?: number;
     name?: string;
@@ -17,7 +17,7 @@ export type FileDB = {
   };
 };
 
-export type FileWithStoragePath = FileDB & {
+export type FileWithStoragePath = File & {
   data: {
     storagePath: string;
   };

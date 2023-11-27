@@ -18,7 +18,7 @@ import {
 } from './graphql';
 import {
   ErrorMessage,
-  FileDB,
+  File,
   FileWithStoragePath,
   FirebaseMetadata,
   UploadFileToStorageArgs,
@@ -27,7 +27,7 @@ import { getStoragePathFolder } from './utils';
 
 @Injectable()
 export class FileService {
-  private readonly fileTableRef: FirebaseTableReference<FileDB>;
+  private readonly fileTableRef: FirebaseTableReference<File>;
 
   constructor(private readonly firebaseService: FirebaseService) {
     const database = firebaseService.getDefaultApp().database();
@@ -79,7 +79,7 @@ export class FileService {
     return contentType;
   }
 
-  private isFileData(fileData: FileDB | null): fileData is FileDB {
+  private isFileData(fileData: File | null): fileData is File {
     return Boolean(fileData);
   }
 
