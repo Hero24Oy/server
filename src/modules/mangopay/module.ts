@@ -5,7 +5,7 @@ import {
   MangopayPayInResolver,
   MangopayPayOutResolver,
 } from './resolvers';
-import { MangopayDocumentResolver } from './resolvers/document/index';
+import { MangopayDocumentResolver } from './resolvers/document';
 import {
   MangopayBankService,
   MangopayCardService,
