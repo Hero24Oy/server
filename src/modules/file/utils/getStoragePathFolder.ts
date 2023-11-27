@@ -10,6 +10,5 @@ const storagePathMapper: Record<MimeTypeGroup, string> = {
 export const getStoragePathFolder = (mime: MimeType): string => {
   return Object.entries(storagePathMapper)
     .filter(([key]) => mime.includes(key))
-    .map(([_key, value]) => value)
-    .at(0) as string;
+    .map(([_key, value]) => value)[0];
 };
