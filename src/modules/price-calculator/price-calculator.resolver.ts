@@ -10,7 +10,7 @@ export class PriceCalculatorResolver {
   ) {}
 
   @Query(() => ReceiptDto)
-  offerReceipt(@Args('offerId') offerId: string): Promise<ReceiptDto> {
-    return this.priceCalculatorService.getOfferReceipt(offerId);
+  taskReceipt(@Args('offerId') offerId: string): Promise<ReceiptDto> {
+    return this.priceCalculatorService.getTaskReceipt(offerId);
   }
 }

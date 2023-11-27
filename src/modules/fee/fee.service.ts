@@ -90,6 +90,18 @@ export class FeeService {
     });
   }
 
+  async getFeesByTaskRequestId(taskRequestId: string): Promise<FeeDto[]> {
+    // * Calculate fees
+    // ! TODO remove this
+    const fees = await this.getAllFees();
+
+    const feesFiltered = fees.filter(
+      (fee) => fee.offerRequestId === taskRequestId,
+    );
+
+    return feesFiltered;
+  }
+
   async createFee(args: FeeCreationArgs): Promise<FeeDto> {
     const feeInput = FeeCreationInput.adapter.toInternal(args.input);
 

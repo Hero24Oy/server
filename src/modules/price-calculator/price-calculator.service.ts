@@ -3,7 +3,10 @@ import { CategoryDB } from 'hero24-types';
 import { duration as getDurationInH } from 'moment';
 
 import { ReceiptDto } from './dto';
+import { FeesCost } from './price-calculator.types';
 import {
+  Discount,
+  getDiscountValue,
   // getDiscountValue,
   getFeeTotalWithHero24Cut,
   getFeeTotalWithoutHero24Cut,
@@ -11,11 +14,9 @@ import {
   getWorkedDuration,
 } from './price-calculator.utils';
 import { getCompletedOfferDuration } from './price-calculator.utils/get-completed-offer-duration';
-import { getPercents } from './price-calculator.utils/get-percents';
 import { getPurchasedOfferDuration } from './price-calculator.utils/get-purchased-offer-duration';
 import { SERVICE_PROVIDER_CUT } from './price-calculator.utils/get-value-with-service-cut-applied';
 
-import { Scope } from '$modules/auth/auth.constants';
 import { FeeService } from '$modules/fee/fee.service';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
@@ -23,14 +24,13 @@ import { FirebaseTableReference } from '$modules/firebase/firebase.types';
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 
-// TODO add tests
 @Injectable()
 export class PriceCalculatorService {
   private readonly categoryTableRef: FirebaseTableReference<CategoryDB>;
 
   constructor(
-    private readonly offerService: OfferService,
-    private readonly offerRequestService: OfferRequestService,
+    private readonly taskService: OfferService,
+    private readonly taskRequestService: OfferRequestService,
     private readonly feeService: FeeService,
     firebaseService: FirebaseService,
   ) {
@@ -39,94 +39,55 @@ export class PriceCalculatorService {
     this.categoryTableRef = database.ref(FirebaseDatabasePath.CATEGORIES);
   }
 
-  async getOfferReceipt(offerId: string): Promise<ReceiptDto> {
-    const offer = await this.offerService.strictGetOfferById(offerId);
+  async getTaskReceipt(offerId: string): Promise<ReceiptDto> {
+    const task = await this.taskService.strictGetOfferById(offerId);
 
-    // TODO extract time calculating to service
-    const offerRequest =
-      await this.offerRequestService.strictGetOfferRequestById(
-        offer.data.initial.offerRequestId,
-      );
+    const taskRequest = await this.taskRequestService.strictGetOfferRequestById(
+      task.data.initial.offerRequestId,
+    );
 
-    const category = (
-      await this.categoryTableRef
-        .child(offerRequest.data.initial.category)
-        .get()
-    ).val();
+    const category = await this.strictGetCategoryById(
+      taskRequest.data.initial.category,
+    );
 
-    // TODO extract to category service
-    if (!category) {
-      throw new Error('Category does not exist');
-    }
-
-    const { pricePerHour } = offer.data.initial;
-
-    // * PRICE COMPUTING
+    const { pricePerHour } = task.data.initial;
     const workedDuration = await this.calculateWorkDuration(offerId);
 
-    // TODO better naming
-    // * initially calculate the main part of the price based on worked hours and rate
     const priceForServiceWithoutDiscount = workedDuration * pricePerHour;
 
-    // * is not implemented, just stub
-    // ! important
+    // ! important its just a stub
     // * now discount is passed as null, because this functionality got stripped out
     // * in future, we should replace null with actual discount
-    // const discountForService = getDiscountValue(
-    //   null,
-    //   priceForServiceWithoutDiscount,
-    // );
-    // * Discounts are disabled for the moment
-    const discountForService = 0;
-
-    const overallServiceProvidedPrice =
-      priceForServiceWithoutDiscount - discountForService;
+    // * overallServiceProvidedPrice is the amount of money which is paid by customer
+    const overallServiceProvidedPrice = this.getValueWithDiscount(
+      null,
+      priceForServiceWithoutDiscount,
+    );
 
     // * calculate hero gross earning with service provider cut
-    const platformFee = getPercents(
-      overallServiceProvidedPrice,
-      SERVICE_PROVIDER_CUT,
-    );
+    const platformFee =
+      // eslint-disable-next-line no-magic-numbers -- 100 is percents
+      (overallServiceProvidedPrice * SERVICE_PROVIDER_CUT) / 100;
 
     const heroGrossEarnings = overallServiceProvidedPrice - platformFee;
 
     const serviceProvidedVat =
-      offerRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
+      taskRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
 
     const heroNetEarnings = getValueBeforeVatApplied(
       heroGrossEarnings,
       serviceProvidedVat,
     );
 
-    // * Calculate fees
-    // ! TODO remove this
-    const fees = await this.feeService.getFeeList(
-      {
-        filter: {
-          offerRequestId: offerRequest.id,
-        },
-      },
-      {
-        id: 'test',
-        scope: Scope.USER,
-      },
-    );
-
-    const grossFeeCost = fees.edges.reduce(
-      (total, { node }) => total + getFeeTotalWithHero24Cut(node),
-      0,
-    );
-
-    const netFeeCost = fees.edges.reduce(
-      (total, { node }) => total + getFeeTotalWithoutHero24Cut(node),
-      0,
+    const { grossFeeCost, netFeeCost } = await this.calculateFeeCost(
+      taskRequest.id,
     );
 
     return {
       overallServiceProvidedPrice,
       serviceProvidedVat,
       feeTotal: netFeeCost,
-      platformFee: SERVICE_PROVIDER_CUT, // TODO rename service provider cut to platformFee
+      platformFee: SERVICE_PROVIDER_CUT,
       heroGrossEarnings: heroGrossEarnings + grossFeeCost,
       heroNetEarnings: heroNetEarnings + netFeeCost,
       heroVatAmount: heroGrossEarnings - heroNetEarnings,
@@ -134,37 +95,67 @@ export class PriceCalculatorService {
     };
   }
 
-  async calculateWorkDuration(offerId: string): Promise<number> {
-    const offer = await this.offerService.strictGetOfferById(offerId);
+  getValueWithDiscount(
+    discount: Discount | null,
+    initialValue: number,
+  ): number {
+    return initialValue - getDiscountValue(discount, initialValue);
+  }
 
-    const offerRequest =
-      await this.offerRequestService.strictGetOfferRequestById(
-        offer.data.initial.offerRequestId,
-      );
+  async calculateWorkDuration(taskId: string): Promise<number> {
+    const task = await this.taskService.strictGetOfferById(taskId);
 
-    const category = (
-      await this.categoryTableRef
-        .child(offerRequest.data.initial.category)
-        .get()
-    ).val();
+    const taskRequest = await this.taskRequestService.strictGetOfferRequestById(
+      task.data.initial.offerRequestId,
+    );
 
-    // TODO extract to category service
-    if (!category) {
-      throw new Error('Category does not exist');
-    }
+    const category = await this.strictGetCategoryById(
+      taskRequest.data.initial.category,
+    );
 
-    // TODO extract to a function
     const minimumWorkDuration = getDurationInH(
-      offerRequest.minimumDuration ?? category.minimumDuration,
+      taskRequest.minimumDuration ?? category.minimumDuration,
       'h',
     );
 
     const workedDuration = getWorkedDuration(
-      getCompletedOfferDuration(offer),
+      getCompletedOfferDuration(task),
       minimumWorkDuration,
-      getPurchasedOfferDuration(offer),
+      getPurchasedOfferDuration(task),
     );
 
     return workedDuration;
+  }
+
+  // TODO use category module when migrated
+  async strictGetCategoryById(categoryId: string): Promise<CategoryDB> {
+    const category = (
+      await this.categoryTableRef.child(categoryId).get()
+    ).val();
+
+    if (!category) {
+      throw new Error('Category does not exist');
+    }
+
+    return category;
+  }
+
+  async calculateFeeCost(taskRequestId: string): Promise<FeesCost> {
+    const fees = await this.feeService.getFeesByTaskRequestId(taskRequestId);
+
+    const grossFeeCost = fees.reduce(
+      (total, fee) => total + getFeeTotalWithHero24Cut(fee),
+      0,
+    );
+
+    const netFeeCost = fees.reduce(
+      (total, fee) => total + getFeeTotalWithoutHero24Cut(fee),
+      0,
+    );
+
+    return {
+      grossFeeCost,
+      netFeeCost,
+    };
   }
 }
