@@ -23,7 +23,7 @@ export class FileResolver {
   async file(@Args('input') input: FileInput): Promise<FileOutput> {
     const { id } = input;
 
-    return this.fileService.getFile(id);
+    return this.fileService.getFileById(id);
   }
 
   @Mutation(() => UploadFileOutput)
@@ -41,6 +41,6 @@ export class FileResolver {
   async removeFile(@Args('input') input: RemoveFileInput): Promise<true> {
     const { id } = input;
 
-    return this.fileService.removeFile(id);
+    return this.fileService.removeFileById(id);
   }
 }

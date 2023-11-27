@@ -73,7 +73,7 @@ export class FileService {
     return contentType;
   }
 
-  private async getFileData(id: string): Promise<FileDB | null> {
+  private async getFileDataById(id: string): Promise<FileDB | null> {
     const fileDataSnapshot = await this.fileTableRef.child(id).get();
 
     return fileDataSnapshot.val();
@@ -132,13 +132,13 @@ export class FileService {
       return {
         file,
       };
-    } catch (e) {
+    } catch {
       throw new Error('Uploading file failed');
     }
   }
 
-  async removeFile(id: string): Promise<true> {
-    const fileData = await this.getFileData(id);
+  async removeFileById(id: string): Promise<true> {
+    const fileData = await this.getFileDataById(id);
 
     const routeChunks = fileData?.data.storagePath?.split('/');
 
@@ -164,8 +164,8 @@ export class FileService {
     return true;
   }
 
-  async getFile(id: string): Promise<FileOutput> {
-    const fileData = await this.getFileData(id);
+  async getFileById(id: string): Promise<FileOutput> {
+    const fileData = await this.getFileDataById(id);
 
     const routeChunks = fileData?.data.storagePath?.split('/');
 
