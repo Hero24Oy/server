@@ -10,13 +10,13 @@ export class ReceiptDto {
   heroNetEarnings: number;
 
   @Field(() => Float)
-  heroVatAmount: number;
+  netFeeCost: number;
 
   @Field(() => Float)
-  feeTotal: number;
+  grossFeeCost: number;
 
   @Field(() => Float)
-  overallServiceProvidedPrice: number;
+  overallAmount: number;
 
   // * fees
   @Field(() => Float)

@@ -3,13 +3,12 @@ import { CategoryDB } from 'hero24-types';
 import { duration as getDurationInH } from 'moment';
 
 import { ReceiptDto } from './dto';
-import { FeesCost } from './price-calculator.types';
 import {
+  convertToDecimalNumber,
   Discount,
   getDiscountValue,
   // getDiscountValue,
   getFeeTotalWithHero24Cut,
-  getFeeTotalWithoutHero24Cut,
   getValueBeforeVatApplied,
   getWorkedDuration,
 } from './price-calculator.utils';
@@ -59,7 +58,7 @@ export class PriceCalculatorService {
     // * now discount is passed as null, because this functionality got stripped out
     // * in future, we should replace null with actual discount
     // * overallServiceProvidedPrice is the amount of money which is paid by customer
-    const overallServiceProvidedPrice = this.getValueWithDiscount(
+    const serviceProvidedPrice = this.getValueWithDiscount(
       null,
       priceForServiceWithoutDiscount,
     );
@@ -67,9 +66,9 @@ export class PriceCalculatorService {
     // * calculate hero gross earning with service provider cut
     const platformFee =
       // eslint-disable-next-line no-magic-numbers -- 100 is percents
-      (overallServiceProvidedPrice * SERVICE_PROVIDER_CUT) / 100;
+      (serviceProvidedPrice * SERVICE_PROVIDER_CUT) / 100;
 
-    const heroGrossEarnings = overallServiceProvidedPrice - platformFee;
+    const heroGrossEarnings = serviceProvidedPrice - platformFee;
 
     const serviceProvidedVat =
       taskRequest.serviceProviderVAT ?? category.defaultServiceProviderVAT;
@@ -79,18 +78,21 @@ export class PriceCalculatorService {
       serviceProvidedVat,
     );
 
-    const { grossFeeCost, netFeeCost } = await this.calculateFeeCost(
-      taskRequest.id,
+    const grossFeeCost = await this.calculateGrossFeeCost(taskRequest.id);
+
+    const netFeeCost = getValueBeforeVatApplied(
+      grossFeeCost,
+      serviceProvidedVat,
     );
 
     return {
-      overallServiceProvidedPrice,
+      overallAmount: serviceProvidedPrice + grossFeeCost,
+      heroNetEarnings: convertToDecimalNumber(heroNetEarnings),
+      netFeeCost: convertToDecimalNumber(netFeeCost),
+      heroGrossEarnings,
       serviceProvidedVat,
-      feeTotal: netFeeCost,
-      platformFee: SERVICE_PROVIDER_CUT,
-      heroGrossEarnings: heroGrossEarnings + grossFeeCost,
-      heroNetEarnings: heroNetEarnings + netFeeCost,
-      heroVatAmount: heroGrossEarnings - heroNetEarnings,
+      grossFeeCost,
+      platformFee,
       workedDuration,
     };
   }
@@ -140,7 +142,7 @@ export class PriceCalculatorService {
     return category;
   }
 
-  async calculateFeeCost(taskRequestId: string): Promise<FeesCost> {
+  async calculateGrossFeeCost(taskRequestId: string): Promise<number> {
     const fees = await this.feeService.getFeesByTaskRequestId(taskRequestId);
 
     const grossFeeCost = fees.reduce(
@@ -148,14 +150,6 @@ export class PriceCalculatorService {
       0,
     );
 
-    const netFeeCost = fees.reduce(
-      (total, fee) => total + getFeeTotalWithoutHero24Cut(fee),
-      0,
-    );
-
-    return {
-      grossFeeCost,
-      netFeeCost,
-    };
+    return grossFeeCost;
   }
 }
