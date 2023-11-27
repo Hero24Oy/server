@@ -11,4 +11,4 @@ import { FileService } from './service';
   providers: [FileService, FileResolver],
   exports: [FileService],
 })
-export class ImageModule {}
+export class FileModule {}

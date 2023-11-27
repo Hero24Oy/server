@@ -17,7 +17,7 @@ import { CategoryGroupModule } from './modules/category-group/module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommonModule } from './modules/common/common.module';
 import { FeeModule } from './modules/fee/fee.module';
-import { ImageModule } from './modules/file/module';
+import { FileModule } from './modules/file/module';
 import { FirebaseModule } from './modules/firebase/firebase.module';
 import { GraphQlContextManagerModule } from './modules/graphql-context-manager/graphql-context-manager.module';
 import { GraphQlContextManagerService } from './modules/graphql-context-manager/graphql-context-manager.service';
@@ -84,7 +84,7 @@ import { XmlJsModule } from '$modules/xml-js/module';
     PriceCalculatorModule,
     UserMergeModule,
     FeeModule,
-    ImageModule,
+    FileModule,
     ReviewModule,
     CategoryGroupModule,
     HeroPortfolioModule,
