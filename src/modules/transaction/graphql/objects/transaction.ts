@@ -1,37 +1,22 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
   PaymentSystem,
-  PaymentTransaction,
   PaymentTransactionStatus,
   PaymentTransactionSubjectType,
   PaymentTransactionType,
 } from 'hero24-types';
 
-registerEnumType(PaymentTransactionSubjectType, {
-  name: 'PaymentTransactionSubjectType',
-});
-
-registerEnumType(PaymentTransactionStatus, {
-  name: 'PaymentTransactionStatus',
-});
-
-registerEnumType(PaymentTransactionType, {
-  name: 'PaymentTransactionType',
-});
-
-registerEnumType(PaymentSystem, {
-  name: 'PaymentSystem',
-});
+import { MaybeType } from '$modules/common/common.types';
 
 @ObjectType()
-export class TransactionObject implements PaymentTransaction {
+export class TransactionObject {
   @Field(() => PaymentTransactionStatus)
   status: PaymentTransactionStatus;
 
   @Field(() => PaymentTransactionType)
   type: PaymentTransactionType;
 
-  @Field(() => PaymentTransactionType)
+  @Field(() => PaymentSystem)
   service: PaymentSystem;
 
   @Field(() => String || Int, { nullable: true })
@@ -47,11 +32,11 @@ export class TransactionObject implements PaymentTransaction {
   amount: number;
 
   @Field(() => String, { nullable: true })
-  promotionId?: string;
+  promotionId?: MaybeType<string>;
 
   @Field(() => Number, { nullable: true })
-  paidAt?: number;
+  paidAt?: MaybeType<number>;
 
   @Field(() => Number, { nullable: true })
-  createdAt?: number;
+  createdAt?: MaybeType<number>;
 }

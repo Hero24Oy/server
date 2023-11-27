@@ -50,7 +50,7 @@ declare global {
       MANGOPAY_CLIENT_ID: string;
       MANGOPAY_API_KEY: string;
       MANGOPAY_PAYMENT_LINK_SECRET: string;
-      MANGOPAY_LINK_EXPIRE_TIME: string;
+      MANGOPAY_LINK_EXPIRATION_TIME: string;
     }
   }
 }

@@ -17,6 +17,18 @@ export class TransactionService {
     );
   }
 
+  async getStrictTransactionsByIds(
+    ids: string[],
+  ): Promise<PaymentTransaction[]> {
+    const transactions = await Promise.all(
+      ids.map((id) => {
+        return this.getStrictTransactionById(id);
+      }),
+    );
+
+    return transactions;
+  }
+
   async getTransactionById(id: string): Promise<PaymentTransaction | null> {
     const transactionsSnapshot = await this.transactionTableRef.child(id).get();
 
@@ -24,9 +36,7 @@ export class TransactionService {
   }
 
   async getStrictTransactionById(id: string): Promise<PaymentTransaction> {
-    const transactionsSnapshot = await this.transactionTableRef.child(id).get();
-
-    const transaction = transactionsSnapshot.val();
+    const transaction = await this.getTransactionById(id);
 
     if (!transaction) {
       throw new Error('Transaction not found');

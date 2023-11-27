@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentTransaction } from 'hero24-types';
 import {
   payIn as MangopayPayIn,
   transaction as MangopayTransaction,
@@ -10,13 +11,27 @@ import {
   MangopayPayInPaymentType,
   MangopayTransactionType,
 } from '../enums';
-import { MangopaySearchParameters, PayInParameters } from '../types';
+import {
+  JwtTokenPayload,
+  MangopaySearchParameters,
+  PayInParameters,
+} from '../types';
 
 import { MangopayInstanceService } from './instance';
 
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
+import { JwtService } from '$modules/jwt';
+import { TransactionService } from '$modules/transaction';
+
 @Injectable()
 export class MangopayPayInService {
-  constructor(private readonly api: MangopayInstanceService) {}
+  constructor(
+    @Config() private readonly config: ConfigType,
+    private readonly jwtService: JwtService,
+    private readonly transactionService: TransactionService,
+    private readonly api: MangopayInstanceService,
+  ) {}
 
   async createDirectCardPayIn(
     parameters: PayInParameters,
@@ -71,5 +86,44 @@ export class MangopayPayInService {
       transactions,
       MangopayTransactionType.PAYIN,
     );
+  }
+
+  async generatePaymentTokenByTransactionId(
+    transactionId: string,
+  ): Promise<string> {
+    const transaction = await this.transactionService.getTransactionById(
+      transactionId,
+    );
+
+    if (!transaction) {
+      throw new Error('Invalid transaction id');
+    }
+
+    return this.jwtService.sign({
+      data: { transactionId },
+      secret: this.config.mangopay.paymentLinkSecret,
+      expiresIn: this.config.mangopay.linkExpirationTime,
+    });
+  }
+
+  verifyPaymentToken(token: string): JwtTokenPayload {
+    return this.jwtService.verify<JwtTokenPayload>({
+      token,
+      secret: this.config.mangopay.paymentLinkSecret,
+    });
+  }
+
+  async getPayInDataByToken(token: string): Promise<PaymentTransaction> {
+    let transactionId: string;
+
+    try {
+      const payload = this.verifyPaymentToken(token);
+
+      transactionId = payload.transactionId;
+    } catch {
+      throw new Error('Payment token invalid');
+    }
+
+    return this.transactionService.getStrictTransactionById(transactionId);
   }
 }

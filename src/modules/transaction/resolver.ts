@@ -19,7 +19,7 @@ export class TransactionResolver {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Query(() => GetTransactionByIdOutput)
-  async getTransactionInfoById(
+  async transaction(
     @Args('input') input: GetTransactionByIdInput,
   ): Promise<GetTransactionByIdOutput> {
     const { id } = input;
@@ -30,19 +30,15 @@ export class TransactionResolver {
   }
 
   @Query(() => GetTransactionsByIdsOutput)
-  async getTransactionsSubjectInfoByIds(
+  async transactions(
     @Args('input') input: GetTransactionsByIdsInput,
   ): Promise<GetTransactionsByIdsOutput> {
     const { ids } = input;
 
-    const transactions = await Promise.all(
-      ids.map((id) => {
-        return this.transactionService.getStrictTransactionById(id);
-      }),
-    );
-
     return {
-      transactions,
+      transactions: await this.transactionService.getStrictTransactionsByIds(
+        ids,
+      ),
     };
   }
 }

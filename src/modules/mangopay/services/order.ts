@@ -30,7 +30,7 @@ export class MangopayOrderService {
     return this.jwtService.sign({
       data: { transactionId },
       secret: this.config.mangopay.paymentLinkSecret,
-      expiresIn: this.config.mangopay.linkExpireTime,
+      expiresIn: this.config.mangopay.linkExpirationTime,
     });
   }
 
@@ -45,24 +45,13 @@ export class MangopayOrderService {
     let transactionId: string;
 
     try {
-      const payload = this.jwtService.verify<JwtTokenPayload>({
-        token,
-        secret: this.config.mangopay.paymentLinkSecret,
-      });
+      const payload = this.verifyPaymentToken(token);
 
       transactionId = payload.transactionId;
     } catch {
-      throw new Error('Payment token expired');
+      throw new Error('Payment token invalid');
     }
 
-    const transaction = await this.transactionService.getTransactionById(
-      transactionId,
-    );
-
-    if (!transaction) {
-      throw new Error('Invalid token payload');
-    }
-
-    return transaction;
+    return this.transactionService.getStrictTransactionById(transactionId);
   }
 }

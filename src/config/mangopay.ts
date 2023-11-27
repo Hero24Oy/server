@@ -5,7 +5,7 @@ export const mangopayValidationSchema = Joi.object({
   MANGOPAY_CLIENT_ID: Joi.string().required(),
   MANGOPAY_API_KEY: Joi.string().required(),
   MANGOPAY_PAYMENT_LINK_SECRET: Joi.string().required(),
-  MANGOPAY_LINK_EXPIRE_TIME: Joi.string().regex(/^\d+$/).required(),
+  MANGOPAY_LINK_EXPIRATION_TIME: Joi.string().regex(/^\d+$/).required(),
 });
 
 export default () => ({
@@ -13,5 +13,5 @@ export default () => ({
   clientId: process.env.MANGOPAY_CLIENT_ID,
   clientApiKey: process.env.MANGOPAY_API_KEY,
   paymentLinkSecret: process.env.MANGOPAY_PAYMENT_LINK_SECRET,
-  linkExpireTime: Number(process.env.MANGOPAY_LINK_EXPIRE_TIME),
+  linkExpirationTime: Number(process.env.MANGOPAY_LINK_EXPIRATION_TIME),
 });

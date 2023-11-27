@@ -1,9 +1,9 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
-import { /* Args, Query, */ Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 
-import { MangopayPayInService } from '../../services/pay-in';
+import { PaymentTokenInput } from '../graphql';
+import { MangopayPayInService } from '../services/pay-in';
 
-// import { CreateDirectCardPayInInput } from './graphql';
 import { AuthGuard } from '$modules/auth/guards/auth.guard';
 import { BuyerService } from '$modules/buyer/buyer.service';
 import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.filter';
@@ -20,6 +20,13 @@ export class MangopayPayInResolver {
     private readonly transactionSubjectService: TransactionSubjectService,
     private readonly buyerService: BuyerService,
   ) {}
+
+  @Query(() => String)
+  async paymentToken(@Args('input') input: PaymentTokenInput): Promise<string> {
+    const { transactionId } = input;
+
+    return this.payInService.generatePaymentTokenByTransactionId(transactionId);
+  }
 
   // We need to confirm mangopay flow and then get author and wallet ids
   // @Query(() => Boolean)

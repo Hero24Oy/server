@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
-export class GeneratePaymentTokenInput {
+export class PaymentTokenInput {
   @Field(() => String)
   transactionId: string;
 }
