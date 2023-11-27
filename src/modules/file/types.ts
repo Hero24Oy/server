@@ -10,8 +10,10 @@ export type FileCategoryType =
 // TODO remove after type will be added to hero24-types
 export type FileDB = {
   data: {
+    height?: number;
     name?: string;
     storagePath?: string;
+    width?: number;
   };
 };
 

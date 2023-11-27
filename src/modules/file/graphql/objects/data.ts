@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 import { MaybeType } from '$modules/common/common.types';
 import { FileDB } from '$modules/file/types';
@@ -6,6 +6,12 @@ import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class FileDataObject {
+  @Field(() => Int, { nullable: true })
+  width?: MaybeType<number>;
+
+  @Field(() => Int, { nullable: true })
+  height?: MaybeType<number>;
+
   @Field(() => String, { nullable: true })
   name?: MaybeType<string>;
 
@@ -17,11 +23,15 @@ export class FileDataObject {
 
 FileDataObject.adapter = new FirebaseAdapter({
   toExternal: (internal) => ({
+    width: internal.width,
+    height: internal.height,
     name: internal.name,
     storagePath: internal.storagePath,
   }),
 
   toInternal: (external) => ({
+    width: external.width ?? undefined,
+    height: external.height ?? undefined,
     name: external.name ?? undefined,
     storagePath: external.storagePath ?? undefined,
   }),
