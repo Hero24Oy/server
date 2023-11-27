@@ -31,11 +31,7 @@ const replaceImagesWithFiles = async (): Promise<void> => {
   try {
     await Promise.all(
       Object.entries(images).map(async ([id, imageData]) => {
-        const fileData: FileDB['data'] = {
-          storagePath: imageData.data.storagePath,
-        };
-
-        await filesTableRef.child(id).child('data').set(fileData);
+        await filesTableRef.child(id).child('data').set(imageData.data);
       }),
     );
   } catch (error) {
