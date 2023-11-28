@@ -4,7 +4,7 @@ import { base as MangopayBase } from 'mangopay2-nodejs-sdk';
 import { BrowserInfoDataObject } from '../../objects';
 
 @InputType()
-export class CreateDirectCardPayInInput {
+export class MakeDirectCardPayInInput {
   @Field(() => String)
   ip: string;
 
