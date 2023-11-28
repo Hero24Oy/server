@@ -20,7 +20,7 @@ export class TransactionObject {
   service: PaymentSystem;
 
   @Field(() => String || Int, { nullable: true })
-  externalServiceId: string | number | null;
+  externalServiceId: MaybeType<string | number>;
 
   @Field(() => PaymentTransactionSubjectType)
   subjectType: PaymentTransactionSubjectType;
