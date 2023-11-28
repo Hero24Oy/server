@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { CategoryDB } from 'hero24-types';
 import { duration as getDurationInH } from 'moment';
 
-import { ReceiptDto } from './dto';
+import { ReceiptDto } from './graphql';
 import {
   convertToDecimalNumber,
   getDiscountValue,
   getFeeTotalWithHero24Cut,
   getValueBeforeVatApplied,
   getWorkedDuration,
-} from './price-calculator.utils';
-import { getCompletedOfferDuration } from './price-calculator.utils/get-completed-offer-duration';
-import { getPurchasedOfferDuration } from './price-calculator.utils/get-purchased-offer-duration';
+} from './utils';
+import { getCompletedOfferDuration } from './utils/get-completed-offer-duration';
+import { getPurchasedOfferDuration } from './utils/get-purchased-offer-duration';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
@@ -142,7 +142,7 @@ export class PriceCalculatorService {
     return category;
   }
 
-  getPlatformFeeAmount(amount: number) {
+  getPlatformFeeAmount(amount: number): number {
     return (amount * this.config.platformFeeInPercents) / 100;
   }
 

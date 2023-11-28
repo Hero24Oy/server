@@ -3,7 +3,7 @@ import floor from 'lodash/floor';
 import round from 'lodash/round';
 import precision from 'precision';
 
-import { RoundedNumber } from '../price-calculator.monad';
+import { RoundedNumber } from './price-calculator.monad';
 
 import { Keys } from '$modules/common/common.types';
 

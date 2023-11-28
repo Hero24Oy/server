@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 import { FeeDto } from '../dto/fee/fee.dto';
 
-import { RoundedNumber } from '$modules/price-calculator/price-calculator.monad';
-import { percentToDecimal } from '$modules/price-calculator/price-calculator.utils';
+import { percentToDecimal } from '$modules/price-calculator/utils';
+import { RoundedNumber } from '$modules/price-calculator/utils/price-calculator.monad';
 
 const CURRENCY_PRECISION = 2;
 

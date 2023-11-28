@@ -7,7 +7,7 @@ import { PRECISION } from './offer-price-calculator.constants';
 import { roundDuration } from './offer-price-calculator.utils';
 
 import { Maybe } from '$modules/common/common.monads';
-import { RoundedNumber } from '$modules/price-calculator/price-calculator.monad';
+import { RoundedNumber } from '$modules/price-calculator/utils/price-calculator.monad';
 
 @Injectable()
 export class OfferPriceCalculatorService {
