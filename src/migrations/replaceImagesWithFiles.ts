@@ -34,6 +34,8 @@ const replaceImagesWithFiles = async (): Promise<void> => {
         await filesTableRef.child(id).child('data').set(imageData.data);
       }),
     );
+
+    await imagesTableRef.remove();
   } catch (error) {
     console.error(`There was an error during migration: ${error}`);
   }
