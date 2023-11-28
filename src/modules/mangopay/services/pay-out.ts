@@ -9,13 +9,19 @@ import {
   MangopayPayoutPaymentType,
   MangopayTransactionType,
 } from '../enums';
+// import { MakePayOutInput } from '../graphql';
 import { MangopaySearchParameters, PayOutParameters } from '../types';
 
 import { MangopayInstanceService } from './instance';
 
+import { SellerService } from '$modules/seller/seller.service';
+
 @Injectable()
 export class MangopayPayOutService {
-  constructor(private readonly api: MangopayInstanceService) {}
+  constructor(
+    private readonly api: MangopayInstanceService,
+    private readonly sellerService: SellerService,
+  ) {}
 
   async createPayOut(
     parameters: PayOutParameters,
@@ -74,4 +80,18 @@ export class MangopayPayOutService {
       parameters,
     });
   }
+
+  // We need to confirm mangopay flow and then get author and wallet ids
+  // async makePayOut(input: MakePayOutInput): Promise<boolean> {
+  //   const { heroId, amount } = input;
+
+  //   const hero = await this.sellerService.strictGetSellerById(heroId);
+
+  //   await this.createPayOut({
+  //     fee: 0,
+  //     amount,
+  //   });
+
+  //   return true;
+  // }
 }
