@@ -7,6 +7,6 @@ export type PayInParameters = {
   cardId: string;
   fee: number;
   ip: string;
-  returnUrl: string;
+  redirectUrl: string;
   walletId: string;
 };

@@ -1,17 +1,16 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
-
-import { MangopayCardService } from '../../services/card';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import {
   CardObject,
+  CardRegistrationInput,
+  CardRegistrationOutput,
+  CardsInput,
+  CardsOutput,
   DeactivateCardInput,
-  GetCardRegistrationInput,
-  GetCardRegistrationOutput,
-  GetCardsByUserIdOutput,
-  GetCardsByUserInput,
   UpdateCardRegistrationInput,
-} from './graphql';
+} from '../graphql';
+import { MangopayCardService } from '../services/card';
 
 import { AuthGuard } from '$modules/auth/guards/auth.guard';
 import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.filter';
@@ -22,10 +21,10 @@ import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.fi
 export class MangopayCardResolver {
   constructor(private readonly cardService: MangopayCardService) {}
 
-  @Mutation(() => GetCardRegistrationOutput)
-  async getCardRegistrationData(
-    @Args('input') input: GetCardRegistrationInput,
-  ): Promise<GetCardRegistrationOutput> {
+  @Mutation(() => CardRegistrationOutput)
+  async cardRegistration(
+    @Args('input') input: CardRegistrationInput,
+  ): Promise<CardRegistrationOutput> {
     const cardRegistration = await this.cardService.createCardRegistration({
       UserId: input.userId,
     });
@@ -45,7 +44,7 @@ export class MangopayCardResolver {
     try {
       await this.cardService.updateCardRegistration({
         Id: input.cardId,
-        RegistrationData: input.registrationData,
+        RegistrationData: input.token,
       });
 
       return true;
@@ -54,11 +53,10 @@ export class MangopayCardResolver {
     }
   }
 
-  @Mutation(() => GetCardsByUserIdOutput)
-  async getCard(
-    @Args('input') input: GetCardsByUserInput,
-  ): Promise<GetCardsByUserIdOutput> {
+  @Query(() => CardsOutput)
+  async cards(@Args('input') input: CardsInput): Promise<CardsOutput> {
     const cards = await this.cardService.getCardsByUserId(input.userId);
+
     const formattedCards = cards.map<CardObject>((card) => {
       return {
         id: card.Id,

@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
-export class GetCardsByUserInput {
+export class CardRegistrationInput {
   @Field(() => String)
   userId: string;
 }
