@@ -7,10 +7,10 @@ export class CardObject {
   id: string;
 
   @Field(() => String)
-  expirationDate: string;
+  expirationDate: string; // The expiration date of the card in format: “MMYY”.
 
   @Field(() => String)
-  alias: string;
+  alias: string; // The card number, partially obfuscated.
 
   @Field(() => String)
   type: MangopayCard.CardType;
