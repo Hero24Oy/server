@@ -1,17 +1,18 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CountryISO } from 'mangopay2-nodejs-sdk';
 
 import { MangopayBirthPlaceObject } from './birth-place';
 
 import { MangopayAddressObject } from '$modules/mangopay/graphql';
 
-@InputType()
+@InputType('MangopayBeneficialOwnerInput')
+@ObjectType()
 export class MangopayBeneficialOwnerObject {
   @Field(() => MangopayAddressObject)
   address: MangopayAddressObject;
 
-  @Field(() => Int)
-  birthday: number;
+  @Field(() => Date)
+  birthday: Date;
 
   @Field(() => MangopayBirthPlaceObject)
   birthplace: MangopayBirthPlaceObject;

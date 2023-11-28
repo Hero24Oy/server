@@ -6,5 +6,5 @@ export class UpdateCardRegistrationInput {
   cardId: string;
 
   @Field(() => String)
-  registrationData: string;
+  token: string;
 }

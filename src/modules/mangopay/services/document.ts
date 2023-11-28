@@ -5,6 +5,7 @@ import {
 } from 'mangopay2-nodejs-sdk';
 
 import { MangopayDocumentStatus } from '../enums';
+import { UploadKycDocumentInput, UploadUboDocumentInput } from '../graphql';
 import {
   CreateKycPageParameters,
   CreateUboParameters,
@@ -109,5 +110,68 @@ export class MangopayDocumentService {
     parameters?: MangopaySearchParameters,
   ): Promise<MangopayKycDocument.KycDocumentData[]> {
     return this.api.KycDocuments.getAll({ parameters });
+  }
+
+  async uploadKycDocument(input: UploadKycDocumentInput): Promise<boolean> {
+    const { userId, type, base64 } = input;
+
+    try {
+      const kycDocument = await this.createKycDocument(userId, {
+        Type: type,
+      });
+
+      await this.createKycPage({
+        kycDocumentId: kycDocument.Id,
+        userId,
+        base64,
+      });
+
+      await this.askKycValidate(userId, kycDocument.Id);
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async uploadUboDeclaration(input: UploadUboDocumentInput): Promise<boolean> {
+    const { userId, beneficialOwners } = input;
+
+    try {
+      const uboDeclaration = await this.createUboDeclaration(userId);
+
+      await Promise.all(
+        beneficialOwners.map(async (beneficialOwner) => {
+          return this.createUbo({
+            uboDeclarationId: uboDeclaration.Id,
+            userId,
+            data: {
+              Address: {
+                AddressLine1: beneficialOwner.address.addressLine,
+                AddressLine2: '',
+                City: beneficialOwner.address.city,
+                Country: beneficialOwner.address.country,
+                PostalCode: beneficialOwner.address.postalCode,
+                Region: beneficialOwner.address.region ?? '',
+              },
+              Birthday: beneficialOwner.birthday.getTime(),
+              Birthplace: {
+                City: beneficialOwner.birthplace.city,
+                Country: beneficialOwner.birthplace.country,
+              },
+              FirstName: beneficialOwner.firstName,
+              LastName: beneficialOwner.lastName,
+              Nationality: beneficialOwner.nationality,
+            },
+          });
+        }),
+      );
+
+      await this.askKycValidate(userId, uboDeclaration.Id);
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

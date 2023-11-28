@@ -1,10 +1,6 @@
-import { Field, InputType, registerEnumType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 
 import { KycType } from '$modules/mangopay/enums';
-
-registerEnumType(KycType, {
-  name: 'KycType',
-});
 
 @InputType()
 export class UploadKycDocumentInput {
