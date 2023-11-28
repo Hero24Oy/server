@@ -35,7 +35,7 @@ export class OfferRequestDataInitialDto {
   createdAt: Date;
 
   @Field(() => String, { nullable: true })
-  prePayWith?: MaybeType<'stripe' | 'netvisor'>;
+  prePayWith?: MaybeType<'stripe' | 'netvisor' | 'mangopay'>;
 
   @Field(() => String, { nullable: true })
   sendInvoiceWith?: MaybeType<'sms' | 'email'>;

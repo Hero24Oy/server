@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { File } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
-import { File } from '$modules/file/types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()

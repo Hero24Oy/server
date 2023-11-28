@@ -74,6 +74,7 @@ SellerProfileDataDto.adapter = new FirebaseAdapter({
     weeksOfSentPurchaseInvoices: internal.weeksOfSentPurchaseInvoices,
   }),
   toInternal: (external) => ({
+    type: undefined,
     photoURL: external.photoURL,
     companyName: external.companyName,
     companyEmail: external.companyEmail,
