@@ -1,1 +1,1 @@
-export * from './getStoragePathFolder';
+export * from './get-storage-path-folder';
