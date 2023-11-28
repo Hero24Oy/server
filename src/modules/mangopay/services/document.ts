@@ -112,8 +112,11 @@ export class MangopayDocumentService {
     return this.api.KycDocuments.getAll({ parameters });
   }
 
-  async uploadKycDocument(input: UploadKycDocumentInput): Promise<boolean> {
-    const { userId, type, base64 } = input;
+  async uploadKycDocument(
+    userId: string,
+    input: UploadKycDocumentInput,
+  ): Promise<boolean> {
+    const { type, base64 } = input;
 
     try {
       const kycDocument = await this.createKycDocument(userId, {
@@ -134,8 +137,11 @@ export class MangopayDocumentService {
     }
   }
 
-  async uploadUboDeclaration(input: UploadUboDocumentInput): Promise<boolean> {
-    const { userId, beneficialOwners } = input;
+  async uploadUboDeclaration(
+    userId: string,
+    input: UploadUboDocumentInput,
+  ): Promise<boolean> {
+    const { beneficialOwners } = input;
 
     try {
       const uboDeclaration = await this.createUboDeclaration(userId);
