@@ -49,6 +49,9 @@ declare global {
       MANGOPAY_BASE_URL: string;
       MANGOPAY_CLIENT_ID: string;
       MANGOPAY_API_KEY: string;
+
+      // Payment
+      PLATFORM_FEE: number;
     }
   }
 }

@@ -16,11 +16,17 @@ export class ReceiptDto {
   grossFeeCost: number;
 
   @Field(() => Float)
+  discountAmount: number;
+
+  @Field(() => Float)
   overallAmount: number;
 
   // * fees
   @Field(() => Float)
   serviceProvidedVat: number;
+
+  @Field(() => Float)
+  customerVat: number;
 
   @Field(() => Float)
   platformFee: number;

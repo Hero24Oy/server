@@ -5,17 +5,16 @@ import { duration as getDurationInH } from 'moment';
 import { ReceiptDto } from './dto';
 import {
   convertToDecimalNumber,
-  Discount,
   getDiscountValue,
-  // getDiscountValue,
   getFeeTotalWithHero24Cut,
   getValueBeforeVatApplied,
   getWorkedDuration,
 } from './price-calculator.utils';
 import { getCompletedOfferDuration } from './price-calculator.utils/get-completed-offer-duration';
 import { getPurchasedOfferDuration } from './price-calculator.utils/get-purchased-offer-duration';
-import { SERVICE_PROVIDER_CUT } from './price-calculator.utils/get-value-with-service-cut-applied';
 
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
 import { FeeService } from '$modules/fee/fee.service';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
@@ -27,12 +26,16 @@ import { OfferRequestService } from '$modules/offer-request/offer-request.servic
 export class PriceCalculatorService {
   private readonly categoryTableRef: FirebaseTableReference<CategoryDB>;
 
+  private readonly config: ConfigType['environment'];
+
   constructor(
+    @Config() config: ConfigType,
     private readonly taskService: OfferService,
     private readonly taskRequestService: OfferRequestService,
     private readonly feeService: FeeService,
     firebaseService: FirebaseService,
   ) {
+    this.config = config.environment;
     const database = firebaseService.getDefaultApp().database();
 
     this.categoryTableRef = database.ref(FirebaseDatabasePath.CATEGORIES);
@@ -58,15 +61,18 @@ export class PriceCalculatorService {
     // * now discount is passed as null, because this functionality got stripped out
     // * in future, we should replace null with actual discount
     // * overallServiceProvidedPrice is the amount of money which is paid by customer
-    const serviceProvidedPrice = this.getValueWithDiscount(
+    const discountAmount = getDiscountValue(
       null,
       priceForServiceWithoutDiscount,
     );
 
+    const serviceProvidedPrice =
+      priceForServiceWithoutDiscount - discountAmount;
+
     // * calculate hero gross earning with service provider cut
     const platformFee =
       // eslint-disable-next-line no-magic-numbers -- 100 is percents
-      (serviceProvidedPrice * SERVICE_PROVIDER_CUT) / 100;
+      (serviceProvidedPrice * this.config.platformFeeInPercents) / 100;
 
     const heroGrossEarnings = serviceProvidedPrice - platformFee;
 
@@ -85,23 +91,20 @@ export class PriceCalculatorService {
       serviceProvidedVat,
     );
 
+    const customerVat = taskRequest.customerVAT ?? category.defaultCustomerVAT;
+
     return {
       overallAmount: serviceProvidedPrice + grossFeeCost,
       heroNetEarnings: convertToDecimalNumber(heroNetEarnings),
       netFeeCost: convertToDecimalNumber(netFeeCost),
       heroGrossEarnings,
       serviceProvidedVat,
+      customerVat,
       grossFeeCost,
       platformFee,
       workedDuration,
+      discountAmount,
     };
-  }
-
-  getValueWithDiscount(
-    discount: Discount | null,
-    initialValue: number,
-  ): number {
-    return initialValue - getDiscountValue(discount, initialValue);
   }
 
   async calculateWorkDuration(taskId: string): Promise<number> {

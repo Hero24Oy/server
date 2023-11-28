@@ -376,8 +376,9 @@ const override = {
     },
   },
   env: {
-    files: ['env.d.ts'],
+    files: ['env.d.ts', 'src/config/*.ts'],
     rules: {
+      'no-magic-numbers': 'off',
       'typescript-sort-keys/interface': 'off',
       '@typescript-eslint/naming-convention': 'off',
     },

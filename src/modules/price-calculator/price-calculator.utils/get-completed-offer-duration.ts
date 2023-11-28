@@ -8,7 +8,7 @@ import { OfferDto } from '$modules/offer/dto/offer/offer.dto';
 export const getCompletedOfferDuration = (offer: OfferDto): Duration => {
   const workedTimeDuration = moment.duration(0, 'milliseconds');
 
-  // TODO else statements is not needed
+  // * else statement is a fallback logic, decided not to remove in case something breaks
   if (offer.data.workTime) {
     offer.data.workTime.forEach(({ startTime, endTime }) => {
       if (!endTime) {
