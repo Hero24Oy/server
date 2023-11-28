@@ -6,3 +6,4 @@ export * from './get-fee-total-without-hero24-cut';
 export * from './convert-decimal-to-number';
 export * from './get-value-before-vat-applied';
 export * from './get-discount-value';
+export * from './moment';

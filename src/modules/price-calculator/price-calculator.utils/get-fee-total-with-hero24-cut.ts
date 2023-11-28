@@ -9,7 +9,6 @@ export const getFeeTotalWithHero24Cut = (fee: FeeDto): number => {
 };
 
 export const getFeeUnitPriceWithHero24Cut = (fee: FeeDto): number => {
-  // eslint-disable-next-line no-magic-numbers -- 100 is percents
   const platformFeePercentageAsDecimal = fee.platformFeePercentage / 100;
 
   return convertToDecimalNumber(

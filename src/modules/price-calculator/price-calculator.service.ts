@@ -60,7 +60,6 @@ export class PriceCalculatorService {
     // ! important its just a stub
     // * now discount is passed as null, because this functionality got stripped out
     // * in future, we should replace null with actual discount
-    // * overallServiceProvidedPrice is the amount of money which is paid by customer
     const discountAmount = getDiscountValue(
       null,
       priceForServiceWithoutDiscount,
@@ -70,9 +69,7 @@ export class PriceCalculatorService {
       priceForServiceWithoutDiscount - discountAmount;
 
     // * calculate hero gross earning with service provider cut
-    const platformFee =
-      // eslint-disable-next-line no-magic-numbers -- 100 is percents
-      (serviceProvidedPrice * this.config.platformFeeInPercents) / 100;
+    const platformFee = this.getPlatformFeeAmount(serviceProvidedPrice);
 
     const heroGrossEarnings = serviceProvidedPrice - platformFee;
 
@@ -143,6 +140,10 @@ export class PriceCalculatorService {
     }
 
     return category;
+  }
+
+  getPlatformFeeAmount(amount: number) {
+    return (amount * this.config.platformFeeInPercents) / 100;
   }
 
   async calculateGrossFeeCost(taskRequestId: string): Promise<number> {

@@ -21,6 +21,6 @@ export const getDiscountValue = (
   }
 
   // * discount format is percentage here
-  // eslint-disable-next-line no-magic-numbers -- In order to get percentage we divide by 100
+  // eslint-disable-next-line no-magic-numbers -- 2 is number of digits after coma
   return round((initialGrossAmount * discount.discount) / 100, 2);
 };

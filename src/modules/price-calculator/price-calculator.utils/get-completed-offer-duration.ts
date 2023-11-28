@@ -1,7 +1,7 @@
 import { Duration } from 'moment';
 import moment from 'moment-timezone';
 
-import { getMoment } from './get-moment';
+import { getMoment } from './moment';
 
 import { OfferDto } from '$modules/offer/dto/offer/offer.dto';
 

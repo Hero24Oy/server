@@ -58,7 +58,7 @@ const roundBy = (
     return remainder ? round(value - remainder, precision) : value;
   }
 
-  // eslint-disable-next-line no-magic-numbers -- TODO don't know what it is, figure it out
+  // eslint-disable-next-line no-magic-numbers -- function from cloud
   if (remainder > step / 2) {
     return round(value - remainder + step, precision);
   }
