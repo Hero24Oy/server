@@ -1,6 +1,8 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 
-import { FileDataWithoutStoragePath, FileObject } from '../../objects';
+import { FileObject } from '../../objects';
+
+import { UploadFileDataInput } from './data';
 
 import { MaybeType } from '$modules/common/common.types';
 
@@ -13,6 +15,6 @@ export class UploadFileInput extends PickType(
   @Field(() => String)
   base64: string;
 
-  @Field(() => FileDataWithoutStoragePath, { nullable: true })
-  data?: MaybeType<FileDataWithoutStoragePath>;
+  @Field(() => UploadFileDataInput, { nullable: true })
+  data?: MaybeType<UploadFileDataInput>;
 }

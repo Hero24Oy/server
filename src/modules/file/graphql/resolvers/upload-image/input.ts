@@ -1,6 +1,8 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 
-import { FileDataWithoutStoragePath, FileObject } from '../../objects';
+import { FileObject } from '../../objects';
+
+import { ImageCreationDataInput } from './data';
 
 /**
  * @deprecated `ImageCreationInput` object is legacy, use `UploadFileInput` instead.
@@ -14,6 +16,6 @@ export class ImageCreationInput extends PickType(
   @Field(() => String)
   base64: string;
 
-  @Field(() => FileDataWithoutStoragePath)
-  data: FileDataWithoutStoragePath;
+  @Field(() => ImageCreationDataInput)
+  data: ImageCreationDataInput;
 }
