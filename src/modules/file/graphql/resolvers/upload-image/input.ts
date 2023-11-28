@@ -1,13 +1,16 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 
-import { ImageDto } from '../image/image.dto';
+import { FileObject } from '../../objects';
 
-import { ImageCreationDataInput } from './image-creation-data.input';
+import { ImageCreationDataInput } from './data';
 
+/**
+ * @deprecated `ImageCreationInput` object is legacy, use `UploadFileInput` instead.
+ */
 @InputType()
 export class ImageCreationInput extends PickType(
-  ImageDto,
-  ['id', 'category', 'subcategory'],
+  FileObject,
+  ['id', 'category', 'subcategory', 'mime'],
   InputType,
 ) {
   @Field(() => String)
