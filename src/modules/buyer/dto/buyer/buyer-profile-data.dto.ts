@@ -29,5 +29,7 @@ BuyerProfileDataDto.adapter = new FirebaseAdapter({
     displayName: external.displayName,
     isCreatedFromWeb: external.isCreatedFromWeb ?? undefined,
     photoURL: external.photoURL ?? undefined,
+    type: undefined,
+    businessId: undefined,
   }),
 });

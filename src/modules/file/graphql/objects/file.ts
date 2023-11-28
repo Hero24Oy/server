@@ -1,17 +1,18 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { ImageCategory } from './image-category.enum';
-import { ImageDataDto } from './image-data.dto';
+import { FileCategory, MimeType } from '../enums';
+
+import { FileDataObject } from './data';
 
 import { MaybeType } from '$modules/common/common.types';
 
 @ObjectType()
-export class ImageDto {
+export class FileObject {
   @Field(() => String)
   id: string;
 
-  @Field(() => ImageCategory)
-  category: ImageCategory;
+  @Field(() => FileCategory)
+  category: FileCategory;
 
   @Field(() => String)
   subcategory: string;
@@ -22,6 +23,9 @@ export class ImageDto {
   @Field(() => String, { nullable: true })
   downloadURL?: MaybeType<string>;
 
-  @Field(() => ImageDataDto)
-  data: ImageDataDto;
+  @Field(() => MimeType, { nullable: true, defaultValue: MimeType.JPG })
+  mime: MimeType;
+
+  @Field(() => FileDataObject)
+  data: FileDataObject;
 }

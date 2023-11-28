@@ -31,3 +31,5 @@ words:
   - 'contactpersonphonenumber'
   - 'contactpersonemail'
   - 'runbooks'
+  # Mangopay
+  - 'mangopay'
