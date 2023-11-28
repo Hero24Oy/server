@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { getDownloadURL } from 'firebase-admin/storage';
+import { File } from 'hero24-types';
 import path from 'path';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
@@ -18,7 +19,6 @@ import {
 } from './graphql';
 import {
   ErrorMessage,
-  File,
   FileWithStoragePath,
   FirebaseMetadata,
   UploadFileToStorageArgs,

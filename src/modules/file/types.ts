@@ -1,14 +1,6 @@
-import { MimeType } from './graphql';
+import { File } from 'hero24-types';
 
-// TODO remove after type will be added to hero24-types
-export type File = {
-  data: {
-    height?: number;
-    name?: string;
-    storagePath?: string;
-    width?: number;
-  };
-};
+import { MimeType } from './graphql';
 
 export type FileWithStoragePath = File & {
   data: {

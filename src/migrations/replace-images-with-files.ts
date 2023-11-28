@@ -1,8 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { ImageDB } from 'hero24-types';
+import { File } from 'hero24-types';
 
 import { AppModule } from '$/app.module';
-import { File } from '$modules/file/types';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { FirebaseTableReference } from '$modules/firebase/firebase.types';
@@ -13,7 +12,7 @@ const replaceImagesWithFiles = async (): Promise<void> => {
 
   const database = firebaseService.getDefaultApp().database();
 
-  const imagesTableRef: FirebaseTableReference<ImageDB> = database.ref(
+  const imagesTableRef: FirebaseTableReference<File> = database.ref(
     FirebaseDatabasePath.IMAGES,
   );
 
