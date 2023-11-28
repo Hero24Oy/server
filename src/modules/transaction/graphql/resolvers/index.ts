@@ -1,2 +1,2 @@
-export * from './get-transaction-by-id';
-export * from './get-transactions-by-task-request-id';
+export * from './transaction';
+export * from './transactions-by-task-request-id';
