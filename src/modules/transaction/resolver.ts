@@ -24,8 +24,12 @@ export class TransactionResolver {
   ): Promise<TransactionByIdOutput> {
     const { id } = input;
 
+    const transaction = await this.transactionService.getStrictTransactionById(
+      id,
+    );
+
     return {
-      transaction: await this.transactionService.getStrictTransactionById(id),
+      transaction,
     };
   }
 
@@ -35,10 +39,11 @@ export class TransactionResolver {
   ): Promise<TransactionsByIdsOutput> {
     const { id } = input;
 
+    const transactions =
+      await this.transactionService.getTransactionByTaskRequestId(id);
+
     return {
-      transactions: await this.transactionService.getTransactionByTaskRequestId(
-        id,
-      ),
+      transactions,
     };
   }
 }
