@@ -3,12 +3,12 @@ import { Module } from '@nestjs/common';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { GraphQlPubsubModule } from '../graphql-pubsub/graphql-pubsub.module';
 
-import { FileResolver } from './resolver';
-import { FileService } from './service';
+import { ImageResolver } from './image.resolver';
+import { ImageService } from './image.service';
 
 @Module({
   imports: [FirebaseModule, GraphQlPubsubModule],
-  providers: [FileService, FileResolver],
-  exports: [FileService],
+  providers: [ImageService, ImageResolver],
+  exports: [ImageService],
 })
-export class FileModule {}
+export class ImageModule {}
