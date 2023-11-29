@@ -6,3 +6,4 @@ export * from './create-kyc-page-parameters';
 export * from './ubo';
 export * from './get-ubo-parameters';
 export * from './create-ubo-parameters';
+export * from './account-pay-out-info';
