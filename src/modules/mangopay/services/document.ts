@@ -5,7 +5,11 @@ import {
 } from 'mangopay2-nodejs-sdk';
 
 import { MangopayDocumentStatus } from '../enums';
-import { UploadKycDocumentInput, UploadUboDocumentInput } from '../graphql';
+import {
+  SubmitKycDocumentInput,
+  UploadKycPageInput,
+  UploadUboDocumentInput,
+} from '../graphql';
 import {
   CreateKycPageParameters,
   CreateUboParameters,
@@ -112,21 +116,18 @@ export class MangopayDocumentService {
     return this.api.KycDocuments.getAll({ parameters });
   }
 
-  async uploadKycDocument(input: UploadKycDocumentInput): Promise<boolean> {
-    const { userId, type, base64 } = input;
+  async uploadKycPage(
+    userId: string,
+    input: UploadKycPageInput,
+  ): Promise<boolean> {
+    const { kycDocumentId, base64 } = input;
 
     try {
-      const kycDocument = await this.createKycDocument(userId, {
-        Type: type,
-      });
-
       await this.createKycPage({
-        kycDocumentId: kycDocument.Id,
+        kycDocumentId,
         userId,
         base64,
       });
-
-      await this.askKycValidate(userId, kycDocument.Id);
 
       return true;
     } catch {
@@ -134,8 +135,26 @@ export class MangopayDocumentService {
     }
   }
 
-  async uploadUboDeclaration(input: UploadUboDocumentInput): Promise<boolean> {
-    const { userId, beneficialOwners } = input;
+  async submitKycDocument(
+    userId: string,
+    input: SubmitKycDocumentInput,
+  ): Promise<boolean> {
+    const { kycDocumentId } = input;
+
+    try {
+      await this.askKycValidate(userId, kycDocumentId);
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async uploadUboDeclaration(
+    userId: string,
+    input: UploadUboDocumentInput,
+  ): Promise<boolean> {
+    const { beneficialOwners } = input;
 
     try {
       const uboDeclaration = await this.createUboDeclaration(userId);

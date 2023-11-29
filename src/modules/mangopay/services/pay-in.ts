@@ -11,6 +11,7 @@ import {
   MangopayPayInPaymentType,
   MangopayTransactionType,
 } from '../enums';
+import { MakeDirectCardPayInInput } from '../graphql';
 import {
   JwtTokenPayload,
   MangopaySearchParameters,
@@ -21,8 +22,6 @@ import { MangopayInstanceService } from './instance';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
-// import { MakeDirectCardPayInInput } from '../graphql';
-import { BuyerService } from '$modules/buyer/buyer.service';
 import { JwtService } from '$modules/jwt';
 import { TransactionService } from '$modules/transaction';
 import { TransactionSubjectService } from '$modules/transaction-subject';
@@ -35,12 +34,13 @@ export class MangopayPayInService {
     private readonly transactionService: TransactionService,
     private readonly api: MangopayInstanceService,
     private readonly transactionSubjectService: TransactionSubjectService,
-    private readonly buyerService: BuyerService,
   ) {}
 
   async createDirectCardPayIn(
     parameters: PayInParameters,
   ): Promise<MangopayPayIn.CardDirectPayInData> {
+    const { browserInfo } = parameters;
+
     return this.api.PayIns.create({
       AuthorId: parameters.authorId,
       DebitedFunds: {
@@ -57,7 +57,17 @@ export class MangopayPayInService {
       PaymentType: MangopayPayInPaymentType.CARD,
       ExecutionType: MangopayPayInExecutionType.DIRECT,
       IpAddress: parameters.ip,
-      BrowserInfo: parameters.browserInfo,
+      BrowserInfo: {
+        AcceptHeader: browserInfo.acceptHeader,
+        ColorDepth: browserInfo.colorDepth,
+        JavaEnabled: browserInfo.javaEnabled,
+        JavascriptEnabled: browserInfo.javascriptEnabled,
+        Language: browserInfo.language,
+        ScreenHeight: browserInfo.screenHeight,
+        ScreenWidth: browserInfo.screenWidth,
+        TimeZoneOffset: browserInfo.timeZoneOffset,
+        UserAgent: browserInfo.userAgent,
+      },
     });
   }
 
@@ -132,43 +142,42 @@ export class MangopayPayInService {
     return this.transactionService.getStrictTransactionById(transactionId);
   }
 
-  // We need to confirm mangopay flow and then get author and wallet ids
-  // async makePayIn(input: MakeDirectCardPayInInput): Promise<boolean> {
-  //   const { ip, browserInfo, transactionId, cardId, redirectUrl } = input;
+  async makePayIn(input: MakeDirectCardPayInInput): Promise<boolean> {
+    const { ip, browserInfo, transactionId, cardId, redirectUrl } = input;
 
-  //   const transaction = await this.transactionService.getTransactionById(
-  //     transactionId,
-  //   );
+    const transaction = await this.transactionService.getTransactionById(
+      transactionId,
+    );
 
-  //   if (!transaction) {
-  //     throw new Error('Invalid transaction id');
-  //   }
+    if (!transaction) {
+      throw new Error('Invalid transaction id');
+    }
 
-  //   const { amount, subjectId, subjectType } = transaction;
+    const { amount, subjectId, subjectType } = transaction;
 
-  //   const customerId =
-  //     await this.transactionSubjectService.getCustomerIdBySubject({
-  //       subjectId,
-  //       subjectType,
-  //     });
+    const customer =
+      await this.transactionSubjectService.strictGetCustomerBySubject({
+        subjectId,
+        subjectType,
+      });
 
-  //   if (!customerId) {
-  //     throw new Error('Transaction owner not found');
-  //   }
+    if (!customer.mangopay) {
+      throw new Error('Customer does not have mangopay account');
+    }
 
-  //   const customer = await this.buyerService.strictGetBuyerProfileById(
-  //     customerId,
-  //   );
+    const { id, walletId } = customer.mangopay;
 
-  //   await this.createDirectCardPayIn({
-  //     fee: 0,
-  //     ip,
-  //     browserInfo,
-  //     amount,
-  //     cardId,
-  //     redirectUrl,
-  //   });
+    await this.createDirectCardPayIn({
+      fee: 0,
+      ip,
+      browserInfo,
+      amount,
+      cardId,
+      redirectUrl,
+      authorId: id,
+      walletId,
+    });
 
-  //   return true;
-  // }
+    return true;
+  }
 }

@@ -1,5 +1,5 @@
 export * from './payment-token';
-export * from './upload-kyc-document';
+export * from './upload-kyc-page';
 export * from './upload-ubo-declaration';
 export * from './card-registration';
 export * from './cards';
@@ -7,3 +7,5 @@ export * from './deactivate-card';
 export * from './update-card-registration';
 export * from './make-direct-card-pay-in';
 export * from './make-pay-out';
+export * from './submit-kyc-document';
+export * from './create-kyc-document';

@@ -28,7 +28,7 @@ PartialBuyerProfileDataInput.adapter = new FirebaseAdapter({
     displayName: external.displayName ?? undefined,
     isCreatedFromWeb: external.isCreatedFromWeb ?? undefined,
     photoURL: external.photoURL ?? undefined,
-    type: external.type ?? undefined,
-    businessId: external.businessId ?? undefined,
+    type: undefined,
+    businessId: undefined,
   }),
 });
