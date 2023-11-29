@@ -7,10 +7,4 @@ export class MakePayOutInput {
 
   @Field(() => Int)
   amount: number;
-
-  @Field(() => String)
-  cardId: string;
-
-  @Field(() => String)
-  returnUrl: string;
 }
