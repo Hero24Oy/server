@@ -10,7 +10,7 @@ import { MangopayIndividualHeroObject } from './individual-hero';
 import { MangopaySoletraderHeroObject } from './soletrader-hero';
 
 export const MangopayHeroObject = createUnionType({
-  name: 'MangopayCustomerObject',
+  name: 'MangopayHeroObject',
   types: () =>
     [
       MangopayIndividualHeroObject,

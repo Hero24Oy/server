@@ -5,7 +5,7 @@ import { MangopayBaseKycDocumentObject } from './base';
 import { MangopayRefusedKycDocumentObject } from './refused';
 
 export const MangopayKycDocumentObject = createUnionType({
-  name: 'MangopayCustomerObject',
+  name: 'MangopayKycDocumentObject',
   types: () =>
     [MangopayBaseKycDocumentObject, MangopayRefusedKycDocumentObject] as const,
   resolveType: (kycDocument: KycDocument) => {
