@@ -29,9 +29,12 @@ export class MangopayDocumentResolver {
     const { id } = identity;
     const { type } = input;
 
-    const kycDocument = await this.documentService.createKycDocument(id, {
-      Type: type,
-    });
+    const kycDocument = await this.documentService.createKycDocumentByHeroId(
+      id,
+      {
+        Type: type,
+      },
+    );
 
     return { kycDocumentId: kycDocument.Id };
   }
@@ -43,7 +46,7 @@ export class MangopayDocumentResolver {
   ): Promise<boolean> {
     const { id } = identity;
 
-    return this.documentService.uploadKycPage(id, input);
+    return this.documentService.uploadKycPageByHeroId(id, input);
   }
 
   @Mutation(() => Boolean)
@@ -53,7 +56,7 @@ export class MangopayDocumentResolver {
   ): Promise<boolean> {
     const { id } = identity;
 
-    return this.documentService.submitKycDocument(id, input);
+    return this.documentService.submitKycDocumentByHeroId(id, input);
   }
 
   @Mutation(() => Boolean)
@@ -63,6 +66,6 @@ export class MangopayDocumentResolver {
   ): Promise<boolean> {
     const { id } = identity;
 
-    return this.documentService.uploadUboDeclaration(id, input);
+    return this.documentService.uploadUboDeclarationByHeroId(id, input);
   }
 }

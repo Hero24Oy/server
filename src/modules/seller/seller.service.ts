@@ -15,6 +15,7 @@ import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { SellerMirror } from './seller.mirror';
 
+import { isProfessionalHero } from '$modules/mangopay/utils';
 import { NetvisorService } from '$modules/netvisor';
 import { UserService } from '$modules/user/user.service';
 
@@ -57,6 +58,18 @@ export class SellerService {
     }
 
     return seller;
+  }
+
+  async getMangopayHeroId(heroId: string): Promise<string> {
+    const { mangopay: hero } = await this.strictGetSellerById(heroId);
+
+    if (!hero || !isProfessionalHero(hero)) {
+      throw new Error('Invalid hero id');
+    }
+
+    const { id } = hero;
+
+    return id;
   }
 
   async getAllSellers(): Promise<SellerProfileDto[]> {

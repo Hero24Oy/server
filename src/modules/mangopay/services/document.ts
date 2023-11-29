@@ -19,9 +19,14 @@ import {
 
 import { MangopayInstanceService } from './instance';
 
+import { SellerService } from '$modules/seller/seller.service';
+
 @Injectable()
 export class MangopayDocumentService {
-  constructor(private readonly api: MangopayInstanceService) {}
+  constructor(
+    private readonly api: MangopayInstanceService,
+    private readonly heroService: SellerService,
+  ) {}
 
   async createUboDeclaration(
     userId: string,
@@ -116,11 +121,22 @@ export class MangopayDocumentService {
     return this.api.KycDocuments.getAll({ parameters });
   }
 
-  async uploadKycPage(
-    userId: string,
+  async createKycDocumentByHeroId(
+    heroId: string,
+    data: MangopayKycDocument.CreateKycDocument,
+  ): Promise<MangopayKycDocument.KycDocumentData> {
+    const userId = await this.heroService.getMangopayHeroId(heroId);
+
+    return this.createKycDocument(userId, data);
+  }
+
+  async uploadKycPageByHeroId(
+    heroId: string,
     input: UploadKycPageInput,
   ): Promise<boolean> {
     const { kycDocumentId, base64 } = input;
+
+    const userId = await this.heroService.getMangopayHeroId(heroId);
 
     try {
       await this.createKycPage({
@@ -135,11 +151,12 @@ export class MangopayDocumentService {
     }
   }
 
-  async submitKycDocument(
-    userId: string,
+  async submitKycDocumentByHeroId(
+    heroId: string,
     input: SubmitKycDocumentInput,
   ): Promise<boolean> {
     const { kycDocumentId } = input;
+    const userId = await this.heroService.getMangopayHeroId(heroId);
 
     try {
       await this.askKycValidate(userId, kycDocumentId);
@@ -150,11 +167,13 @@ export class MangopayDocumentService {
     }
   }
 
-  async uploadUboDeclaration(
-    userId: string,
+  async uploadUboDeclarationByHeroId(
+    heroId: string,
     input: UploadUboDocumentInput,
   ): Promise<boolean> {
     const { beneficialOwners } = input;
+
+    const userId = await this.heroService.getMangopayHeroId(heroId);
 
     try {
       const uboDeclaration = await this.createUboDeclaration(userId);
