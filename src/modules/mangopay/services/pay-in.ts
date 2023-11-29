@@ -10,7 +10,7 @@ import {
   MangopayPayInPaymentType,
   MangopayTransactionType,
 } from '../enums';
-// import { MakeDirectCardPayInInput } from '../graphql';
+import { MakeDirectCardPayInInput } from '../graphql';
 import { MangopaySearchParameters, PayInParameters } from '../types';
 
 import { MangopayInstanceService } from './instance';
@@ -31,6 +31,8 @@ export class MangopayPayInService {
   async createDirectCardPayIn(
     parameters: PayInParameters,
   ): Promise<MangopayPayIn.CardDirectPayInData> {
+    const { browserInfo } = parameters;
+
     return this.api.PayIns.create({
       AuthorId: parameters.authorId,
       DebitedFunds: {
@@ -47,7 +49,17 @@ export class MangopayPayInService {
       PaymentType: MangopayPayInPaymentType.CARD,
       ExecutionType: MangopayPayInExecutionType.DIRECT,
       IpAddress: parameters.ip,
-      BrowserInfo: parameters.browserInfo,
+      BrowserInfo: {
+        AcceptHeader: browserInfo.acceptHeader,
+        ColorDepth: browserInfo.colorDepth,
+        JavaEnabled: browserInfo.javaEnabled,
+        JavascriptEnabled: browserInfo.javascriptEnabled,
+        Language: browserInfo.language,
+        ScreenHeight: browserInfo.screenHeight,
+        ScreenWidth: browserInfo.screenWidth,
+        TimeZoneOffset: browserInfo.timeZoneOffset,
+        UserAgent: browserInfo.userAgent,
+      },
     });
   }
 
@@ -83,43 +95,50 @@ export class MangopayPayInService {
     );
   }
 
-  // We need to confirm mangopay flow and then get author and wallet ids
-  // async makePayIn(input: MakeDirectCardPayInInput): Promise<boolean> {
-  //   const { ip, browserInfo, transactionId, cardId, redirectUrl } = input;
+  async makePayIn(input: MakeDirectCardPayInInput): Promise<boolean> {
+    const { ip, browserInfo, transactionId, cardId, redirectUrl } = input;
 
-  //   const transaction = await this.transactionService.getTransactionById(
-  //     transactionId,
-  //   );
+    const transaction = await this.transactionService.getTransactionById(
+      transactionId,
+    );
 
-  //   if (!transaction) {
-  //     throw new Error('Invalid transaction id');
-  //   }
+    if (!transaction) {
+      throw new Error('Invalid transaction id');
+    }
 
-  //   const { amount, subjectId, subjectType } = transaction;
+    const { amount, subjectId, subjectType } = transaction;
 
-  //   const customerId =
-  //     await this.transactionSubjectService.getCustomerIdBySubject({
-  //       subjectId,
-  //       subjectType,
-  //     });
+    const customerId =
+      await this.transactionSubjectService.getCustomerIdBySubject({
+        subjectId,
+        subjectType,
+      });
 
-  //   if (!customerId) {
-  //     throw new Error('Transaction owner not found');
-  //   }
+    if (!customerId) {
+      throw new Error('Transaction owner not found');
+    }
 
-  //   const customer = await this.buyerService.strictGetBuyerProfileById(
-  //     customerId,
-  //   );
+    const customer = await this.buyerService.strictGetBuyerProfileById(
+      customerId,
+    );
 
-  //   await this.createDirectCardPayIn({
-  //     fee: 0,
-  //     ip,
-  //     browserInfo,
-  //     amount,
-  //     cardId,
-  //     redirectUrl,
-  //   });
+    if (!customer.mangopay) {
+      throw new Error('Customer does not have mangopay account');
+    }
 
-  //   return true;
-  // }
+    const { id, walletId } = customer.mangopay;
+
+    await this.createDirectCardPayIn({
+      fee: 0,
+      ip,
+      browserInfo,
+      amount,
+      cardId,
+      redirectUrl,
+      authorId: id,
+      walletId,
+    });
+
+    return true;
+  }
 }

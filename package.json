@@ -54,7 +54,7 @@
     "firebase-admin": "^11.10.1",
     "graphql": "^16.6.0",
     "graphql-subscriptions": "^2.0.0",
-    "hero24-types": "1.7.3",
+    "hero24-types": "1.7.5",
     "joi": "^17.8.3",
     "lodash": "^4.17.21",
     "mangopay2-nodejs-sdk": "^1.40.1",
