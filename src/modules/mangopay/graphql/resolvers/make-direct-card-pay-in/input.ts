@@ -1,5 +1,4 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { base as MangopayBase } from 'mangopay2-nodejs-sdk';
 
 import { BrowserInfoDataObject } from '../../objects';
 
@@ -9,7 +8,7 @@ export class MakeDirectCardPayInInput {
   ip: string;
 
   @Field(() => BrowserInfoDataObject)
-  browserInfo: MangopayBase.BrowserInfoData;
+  browserInfo: BrowserInfoDataObject;
 
   @Field(() => String)
   transactionId: string;

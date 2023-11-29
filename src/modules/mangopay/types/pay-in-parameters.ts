@@ -1,9 +1,9 @@
-import { base as MangoPayBase } from 'mangopay2-nodejs-sdk';
+import { BrowserInfoDataObject } from '../graphql';
 
 export type PayInParameters = {
   amount: number;
   authorId: string;
-  browserInfo: MangoPayBase.BrowserInfoData;
+  browserInfo: BrowserInfoDataObject;
   cardId: string;
   fee: number;
   ip: string;
