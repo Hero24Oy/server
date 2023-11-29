@@ -15,7 +15,6 @@ import { MangopaySearchParameters, PayInParameters } from '../types';
 
 import { MangopayInstanceService } from './instance';
 
-import { BuyerService } from '$modules/buyer/buyer.service';
 import { TransactionService } from '$modules/transaction';
 import { TransactionSubjectService } from '$modules/transaction-subject';
 
@@ -25,7 +24,6 @@ export class MangopayPayInService {
     private readonly api: MangopayInstanceService,
     private readonly transactionService: TransactionService,
     private readonly transactionSubjectService: TransactionSubjectService,
-    private readonly buyerService: BuyerService,
   ) {}
 
   async createDirectCardPayIn(
@@ -108,19 +106,11 @@ export class MangopayPayInService {
 
     const { amount, subjectId, subjectType } = transaction;
 
-    const customerId =
-      await this.transactionSubjectService.getCustomerIdBySubject({
+    const customer =
+      await this.transactionSubjectService.strictGetCustomerBySubject({
         subjectId,
         subjectType,
       });
-
-    if (!customerId) {
-      throw new Error('Transaction owner not found');
-    }
-
-    const customer = await this.buyerService.strictGetBuyerProfileById(
-      customerId,
-    );
 
     if (!customer.mangopay) {
       throw new Error('Customer does not have mangopay account');
