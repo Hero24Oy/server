@@ -6,7 +6,7 @@ import { SellerProfileDataDto } from './seller-profile-data';
 import { MaybeType } from '$modules/common/common.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
-import { MangopayHeroObject } from '$modules/mangopay';
+import { MangopayHeroObject } from '$modules/mangopay/graphql';
 
 @ObjectType()
 export class SellerProfileDto {

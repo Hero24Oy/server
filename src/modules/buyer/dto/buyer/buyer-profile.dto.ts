@@ -5,7 +5,7 @@ import { BuyerProfileDataDto } from './buyer-profile-data.dto';
 
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
-import { MangopayCustomerObject } from '$modules/mangopay';
+import { MangopayCustomerObject } from '$modules/mangopay/graphql';
 
 @ObjectType()
 export class BuyerProfileDto {
