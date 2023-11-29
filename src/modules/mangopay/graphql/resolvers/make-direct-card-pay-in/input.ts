@@ -8,7 +8,7 @@ export class MakeDirectCardPayInInput {
   ip: string;
 
   @Field(() => BrowserInfoDataObject)
-  browserInfo: BrowserInfoDataObject;
+  browserInfo: BrowserInfoDataObject; // we need this data to process pay in
 
   @Field(() => String)
   transactionId: string;
@@ -17,5 +17,5 @@ export class MakeDirectCardPayInInput {
   cardId: string;
 
   @Field(() => String)
-  redirectUrl: string;
+  redirectUrl: string; // url where it will be redirected after 3ds
 }
