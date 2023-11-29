@@ -5,7 +5,11 @@ import {
 } from 'mangopay2-nodejs-sdk';
 
 import { MangopayDocumentStatus } from '../enums';
-import { UploadKycDocumentInput, UploadUboDocumentInput } from '../graphql';
+import {
+  SubmitKycDocumentInput,
+  UploadKycPageInput,
+  UploadUboDocumentInput,
+} from '../graphql';
 import {
   CreateKycPageParameters,
   CreateUboParameters,
@@ -112,24 +116,33 @@ export class MangopayDocumentService {
     return this.api.KycDocuments.getAll({ parameters });
   }
 
-  async uploadKycDocument(
+  async uploadKycPage(
     userId: string,
-    input: UploadKycDocumentInput,
+    input: UploadKycPageInput,
   ): Promise<boolean> {
-    const { type, base64 } = input;
+    const { kycDocumentId, base64 } = input;
 
     try {
-      const kycDocument = await this.createKycDocument(userId, {
-        Type: type,
-      });
-
       await this.createKycPage({
-        kycDocumentId: kycDocument.Id,
+        kycDocumentId,
         userId,
         base64,
       });
 
-      await this.askKycValidate(userId, kycDocument.Id);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async submitKycDocument(
+    userId: string,
+    input: SubmitKycDocumentInput,
+  ): Promise<boolean> {
+    const { kycDocumentId } = input;
+
+    try {
+      await this.askKycValidate(userId, kycDocumentId);
 
       return true;
     } catch {

@@ -1,7 +1,13 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 
-import { UploadKycDocumentInput, UploadUboDocumentInput } from '../graphql';
+import {
+  CreateKycDocumentInput,
+  CreateKycDocumentOutput,
+  SubmitKycDocumentInput,
+  UploadKycPageInput,
+  UploadUboDocumentInput,
+} from '../graphql';
 import { MangopayDocumentService } from '../services/document';
 
 import { AuthIdentity } from '$modules/auth/auth.decorator';
@@ -15,14 +21,39 @@ import { FirebaseExceptionFilter } from '$modules/firebase/firebase.exception.fi
 export class MangopayDocumentResolver {
   constructor(private readonly documentService: MangopayDocumentService) {}
 
+  @Mutation(() => CreateKycDocumentOutput)
+  async createKycDocument(
+    @Args('input') input: CreateKycDocumentInput,
+    @AuthIdentity() identity: Identity,
+  ): Promise<CreateKycDocumentOutput> {
+    const { id } = identity;
+    const { type } = input;
+
+    const kycDocument = await this.documentService.createKycDocument(id, {
+      Type: type,
+    });
+
+    return { kycDocumentId: kycDocument.Id };
+  }
+
   @Mutation(() => Boolean)
-  async uploadKycDocument(
-    @Args('input') input: UploadKycDocumentInput,
+  async uploadKycPage(
+    @Args('input') input: UploadKycPageInput,
     @AuthIdentity() identity: Identity,
   ): Promise<boolean> {
     const { id } = identity;
 
-    return this.documentService.uploadKycDocument(id, input);
+    return this.documentService.uploadKycPage(id, input);
+  }
+
+  @Mutation(() => Boolean)
+  async submitKycDocument(
+    @Args('input') input: SubmitKycDocumentInput,
+    @AuthIdentity() identity: Identity,
+  ): Promise<boolean> {
+    const { id } = identity;
+
+    return this.documentService.submitKycDocument(id, input);
   }
 
   @Mutation(() => Boolean)
