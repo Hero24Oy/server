@@ -77,7 +77,7 @@ PartialSellerProfileDataInput.adapter = new FirebaseAdapter({
     weeksOfSentPurchaseInvoices: internal.weeksOfSentPurchaseInvoices,
   }),
   toInternal: (external) => ({
-    type: external.type ?? undefined,
+    type: undefined,
     photoURL: external.photoURL ?? undefined,
     companyName: external.companyName ?? undefined,
     companyEmail: external.companyEmail ?? undefined,
