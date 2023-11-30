@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 
 import {
   MangopayCardResolver,
+  MangopayDocumentResolver,
   MangopayPayInResolver,
   MangopayPayOutResolver,
+  MangopayUserResolver,
 } from './resolvers';
-import { MangopayDocumentResolver } from './resolvers/document';
 import {
   MangopayBankService,
   MangopayCardService,
@@ -14,6 +15,7 @@ import {
   MangopayPayInService,
   MangopayPayOutService,
   MangopayTransactionService,
+  MangopayUserCreationService,
   MangopayUserService,
   MangopayWalletService,
 } from './services';
@@ -45,10 +47,12 @@ import { UserModule } from '$modules/user/user.module';
     MangopayPayOutService,
     MangopayBankService,
     MangopayDocumentService,
+    MangopayUserCreationService,
     MangopayCardResolver,
     MangopayPayInResolver,
     MangopayPayOutResolver,
     MangopayDocumentResolver,
+    MangopayUserResolver,
   ],
   exports: [
     MangopayInstanceService,
@@ -60,6 +64,7 @@ import { UserModule } from '$modules/user/user.module';
     MangopayPayOutService,
     MangopayBankService,
     MangopayDocumentService,
+    MangopayUserCreationService,
   ],
 })
 export class MangopayModule {}
