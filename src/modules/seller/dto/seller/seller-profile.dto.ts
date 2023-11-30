@@ -40,7 +40,11 @@ SellerProfileDto.adapter = new FirebaseAdapter({
     data: SellerProfileDataDto.adapter.toExternal(internal.data),
     rating: internal.rating,
     reviews: internal.reviews ? Object.keys(internal.reviews) : null,
-    mangopay: internal.mangopay,
+    mangopay: internal.mangopay
+      ? (MangopayHeroObjectAdapter.toExternal(
+          internal.mangopay,
+        ) as MangopayHeroObject)
+      : undefined,
   }),
   toInternal: (external) => ({
     id: external.id,
@@ -50,10 +54,9 @@ SellerProfileDto.adapter = new FirebaseAdapter({
       ? convertListToFirebaseMap(external.reviews)
       : undefined,
     mangopay: external.mangopay
-      ? ({
-          ...MangopayHeroObjectAdapter.toInternal(external.mangopay),
-          bankId: undefined,
-        } as MangoPayHero)
+      ? (MangopayHeroObjectAdapter.toInternal(
+          external.mangopay,
+        ) as MangoPayHero)
       : undefined,
   }),
 });
