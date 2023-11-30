@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentTransaction } from 'hero24-types';
 
+import { TransactionObject } from './graphql';
+
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { FirebaseTableReference } from '$modules/firebase/firebase.types';
@@ -23,7 +25,7 @@ export class TransactionService {
 
   async getTransactionByTaskRequestId(
     taskRequestId: string,
-  ): Promise<PaymentTransaction[]> {
+  ): Promise<TransactionObject[]> {
     const taskRequest = await this.taskRequestService.getOfferRequestById(
       taskRequestId,
     );
@@ -36,7 +38,7 @@ export class TransactionService {
 
     const transactions = await Promise.all(
       transactionIds.map((id) => {
-        return this.getStrictTransactionById(id);
+        return this.strictGetTransactionById(id);
       }),
     );
 
@@ -49,13 +51,13 @@ export class TransactionService {
     return transactionsSnapshot.val();
   }
 
-  async getStrictTransactionById(id: string): Promise<PaymentTransaction> {
+  async strictGetTransactionById(id: string): Promise<TransactionObject> {
     const transaction = await this.getTransactionById(id);
 
     if (!transaction) {
       throw new Error('Transaction not found');
     }
 
-    return transaction;
+    return TransactionObject.adapter.toExternal(transaction);
   }
 }
