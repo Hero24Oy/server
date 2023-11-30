@@ -105,13 +105,7 @@ export class MangopayPayInService {
   async generatePaymentTokenByTransactionId(
     transactionId: string,
   ): Promise<string> {
-    const transaction = await this.transactionService.getTransactionById(
-      transactionId,
-    );
-
-    if (!transaction) {
-      throw new Error('Invalid transaction id');
-    }
+    await this.transactionService.strictGetTransactionById(transactionId);
 
     return this.jwtService.sign({
       data: { transactionId },
