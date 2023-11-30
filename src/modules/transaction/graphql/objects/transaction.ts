@@ -1,12 +1,14 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import {
   PaymentSystem,
+  PaymentTransaction,
   PaymentTransactionStatus,
   PaymentTransactionSubjectType,
   PaymentTransactionType,
 } from 'hero24-types';
 
 import { MaybeType } from '$modules/common/common.types';
+import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
 
 @ObjectType()
 export class TransactionObject {
@@ -28,15 +30,39 @@ export class TransactionObject {
   @Field(() => String)
   subjectId: string;
 
-  @Field(() => Number)
+  @Field(() => Float)
   amount: number;
 
-  @Field(() => String, { nullable: true })
-  promotionId?: MaybeType<string>;
+  @Field(() => Date, { nullable: true })
+  paidAt?: MaybeType<Date>;
 
-  @Field(() => Number, { nullable: true })
-  paidAt?: MaybeType<number>;
+  @Field(() => Date, { nullable: true })
+  createdAt?: MaybeType<Date>;
 
-  @Field(() => Number, { nullable: true })
-  createdAt?: MaybeType<number>;
+  static adapter: FirebaseAdapter<PaymentTransaction, TransactionObject>;
 }
+
+TransactionObject.adapter = new FirebaseAdapter({
+  toExternal: (internal) => ({
+    status: internal.status,
+    type: internal.type,
+    service: internal.service,
+    externalServiceId: internal.externalServiceId,
+    subjectType: internal.subjectType,
+    subjectId: internal.subjectId,
+    amount: internal.amount,
+    paidAt: internal.paidAt ? new Date(internal.paidAt) : undefined,
+    createdAt: internal.createdAt ? new Date(internal.createdAt) : undefined,
+  }),
+  toInternal: (external) => ({
+    status: external.status,
+    type: external.type,
+    service: external.service,
+    externalServiceId: external.externalServiceId ?? null,
+    subjectType: external.subjectType,
+    subjectId: external.subjectId,
+    amount: external.amount,
+    paidAt: external.paidAt?.getTime() ?? undefined,
+    createdAt: external.createdAt?.getTime() ?? undefined,
+  }),
+});

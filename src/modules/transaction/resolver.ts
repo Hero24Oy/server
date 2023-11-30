@@ -24,7 +24,7 @@ export class TransactionResolver {
   ): Promise<TransactionOutput> {
     const { id } = input;
 
-    const transaction = await this.transactionService.getStrictTransactionById(
+    const transaction = await this.transactionService.strictGetTransactionById(
       id,
     );
 

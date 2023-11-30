@@ -9,3 +9,4 @@ export * from './make-direct-card-pay-in';
 export * from './make-pay-out';
 export * from './submit-kyc-document';
 export * from './create-kyc-document';
+export * from './pay-in-data';

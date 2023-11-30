@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentTransaction } from 'hero24-types';
 import {
   payIn as MangopayPayIn,
   transaction as MangopayTransaction,
@@ -23,7 +22,7 @@ import { MangopayInstanceService } from './instance';
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
 import { JwtService } from '$modules/jwt';
-import { TransactionService } from '$modules/transaction';
+import { TransactionObject, TransactionService } from '$modules/transaction';
 import { TransactionSubjectService } from '$modules/transaction-subject';
 
 @Injectable()
@@ -128,7 +127,7 @@ export class MangopayPayInService {
     });
   }
 
-  async getPayInDataByToken(token: string): Promise<PaymentTransaction> {
+  async getPayInDataByToken(token: string): Promise<TransactionObject> {
     let transactionId: string;
 
     try {
@@ -139,7 +138,7 @@ export class MangopayPayInService {
       throw new Error('Payment token invalid');
     }
 
-    return this.transactionService.getStrictTransactionById(transactionId);
+    return this.transactionService.strictGetTransactionById(transactionId);
   }
 
   async makePayIn(input: MakeDirectCardPayInInput): Promise<boolean> {
