@@ -6,3 +6,4 @@ export * from './customer';
 export * from './user';
 export * from './documents';
 export * from './hero';
+export * from './professional-user';

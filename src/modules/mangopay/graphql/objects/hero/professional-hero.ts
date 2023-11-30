@@ -2,10 +2,10 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { MangoPayUserType } from 'hero24-types';
 
 import { MangopayHeroBusinessOwnerObject } from '../business';
-import { MangopayUserObject } from '../user';
+import { MangopayProfessionalUserObject } from '../professional-user';
 
 @ObjectType()
-export class MangopayProfessionalHeroObject extends MangopayUserObject {
+export class MangopayProfessionalHeroObject extends MangopayProfessionalUserObject {
   @Field(() => String)
   type: MangoPayUserType.PROFESSIONAL;
 

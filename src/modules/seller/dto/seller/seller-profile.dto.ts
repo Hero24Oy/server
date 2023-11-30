@@ -1,12 +1,15 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { SellerProfileDB } from 'hero24-types';
+import { MangoPayHero, SellerProfileDB } from 'hero24-types';
 
 import { SellerProfileDataDto } from './seller-profile-data';
 
 import { MaybeType } from '$modules/common/common.types';
 import { convertListToFirebaseMap } from '$modules/common/common.utils';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
-import { MangopayHeroObject } from '$modules/mangopay/graphql';
+import {
+  MangopayHeroObject,
+  MangopayHeroObjectAdapter,
+} from '$modules/mangopay/graphql';
 
 @ObjectType()
 export class SellerProfileDto {
@@ -46,6 +49,11 @@ SellerProfileDto.adapter = new FirebaseAdapter({
     reviews: external.reviews
       ? convertListToFirebaseMap(external.reviews)
       : undefined,
-    mangopay: external.mangopay ?? undefined,
+    mangopay: external.mangopay
+      ? ({
+          ...MangopayHeroObjectAdapter.toInternal(external.mangopay),
+          bankId: undefined,
+        } as MangoPayHero)
+      : undefined,
   }),
 });
