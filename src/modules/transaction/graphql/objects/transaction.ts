@@ -1,4 +1,4 @@
-import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import {
   PaymentSystem,
   PaymentTransaction,
@@ -9,6 +9,7 @@ import {
 
 import { MaybeType } from '$modules/common/common.types';
 import { FirebaseAdapter } from '$modules/firebase/firebase.adapter';
+import { isNumeric } from '$utils';
 
 @ObjectType()
 export class TransactionObject {
@@ -21,8 +22,8 @@ export class TransactionObject {
   @Field(() => PaymentSystem)
   service: PaymentSystem;
 
-  @Field(() => String || Int, { nullable: true })
-  externalServiceId: MaybeType<string | number>;
+  @Field(() => String, { nullable: true })
+  externalServiceId: MaybeType<string>;
 
   @Field(() => PaymentTransactionSubjectType)
   subjectType: PaymentTransactionSubjectType;
@@ -47,7 +48,7 @@ TransactionObject.adapter = new FirebaseAdapter({
     status: internal.status,
     type: internal.type,
     service: internal.service,
-    externalServiceId: internal.externalServiceId,
+    externalServiceId: String(internal.externalServiceId),
     subjectType: internal.subjectType,
     subjectId: internal.subjectId,
     amount: internal.amount,
@@ -58,7 +59,9 @@ TransactionObject.adapter = new FirebaseAdapter({
     status: external.status,
     type: external.type,
     service: external.service,
-    externalServiceId: external.externalServiceId ?? null,
+    externalServiceId: isNumeric(external.externalServiceId)
+      ? Number(external.externalServiceId)
+      : external.externalServiceId ?? null,
     subjectType: external.subjectType,
     subjectId: external.subjectId,
     amount: external.amount,
