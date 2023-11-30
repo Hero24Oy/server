@@ -28,31 +28,18 @@ export class TransactionSubjectService {
     let buyerId: string;
 
     if (subjectType === PaymentTransactionSubjectType.TASK) {
-      const offerRequest = await this.taskRequestService.getOfferRequestById(
-        subjectId,
-      );
-
-      if (!offerRequest) {
-        throw new Error('Wrong subject id');
-      }
+      const offerRequest =
+        await this.taskRequestService.strictGetOfferRequestById(subjectId);
 
       buyerId = offerRequest?.data.initial.buyerProfile;
     } else if (subjectType === PaymentTransactionSubjectType.FEE) {
-      const fee = await this.feeService.getFeeById(subjectId);
-
-      if (!fee) {
-        throw new Error('Wrong subject id');
-      }
+      const fee = await this.feeService.strictGetFeeById(subjectId);
 
       buyerId = fee.userId;
     } else {
       const [offerId] = subjectId.split('//');
 
-      const offer = await this.taskService.getOfferById(offerId);
-
-      if (!offer) {
-        throw new Error('Wrong subject id');
-      }
+      const offer = await this.taskService.strictGetOfferById(offerId);
 
       buyerId = offer.data.initial.buyerProfileId;
     }
