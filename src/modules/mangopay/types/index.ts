@@ -8,3 +8,5 @@ export * from './get-ubo-parameters';
 export * from './create-ubo-parameters';
 export * from './jwt-token-payload';
 export * from './account-pay-out-info';
+export * from './user-creation';
+export * from './create-bank-account-parameters';

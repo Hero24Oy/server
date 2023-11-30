@@ -11,9 +11,9 @@ export class MangopayBankService {
 
   async createBankAccount(
     userId: string,
-    data: MangopayBankAccount.IBANDetails,
+    data: Omit<MangopayBankAccount.IBANDetails, 'Type'>,
   ): Promise<MangopayBankAccount.IBANData> {
-    return this.api.Users.createBankAccount(userId, data);
+    return this.api.Users.createBankAccount(userId, { ...data, Type: 'IBAN' });
   }
 
   async deactivateBankAccount(
