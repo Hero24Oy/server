@@ -1,3 +1,4 @@
+export * from './payment-token';
 export * from './upload-kyc-page';
 export * from './upload-ubo-declaration';
 export * from './card-registration';
@@ -8,3 +9,8 @@ export * from './make-direct-card-pay-in';
 export * from './make-pay-out';
 export * from './submit-kyc-document';
 export * from './create-kyc-document';
+export * from './create-professional-customer-user';
+export * from './create-business-hero-user';
+export * from './create-soletrader-hero-user';
+export * from './create-individual-hero-user';
+export * from './pay-in-data';
