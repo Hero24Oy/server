@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 
-export const environmentValidationSchema = Joi.object({
+export const platformValidationSchema = Joi.object({
   PLATFORM_FEE: Joi.number().required().min(0).max(100),
 });
 

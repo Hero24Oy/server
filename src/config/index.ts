@@ -2,11 +2,11 @@ import { ConfigType as NestJsConfigType, registerAs } from '@nestjs/config';
 import * as Joi from 'joi';
 
 import app, { appValidationSchema } from './app';
-import environment, { environmentValidationSchema } from './environment';
 import firebase, { firebaseValidationSchema } from './firebase';
 import hubSpot, { hubSpotValidationSchema } from './hubSpot';
 import mangopay, { mangopayValidationSchema } from './mangopay';
 import netvisor, { netvisorValidationSchema } from './netvisor';
+import platform, { platformValidationSchema } from './platform';
 
 export const configValidationSchema = Joi.object()
   .concat(appValidationSchema)
@@ -14,7 +14,7 @@ export const configValidationSchema = Joi.object()
   .concat(hubSpotValidationSchema)
   .concat(netvisorValidationSchema)
   .concat(mangopayValidationSchema)
-  .concat(environmentValidationSchema);
+  .concat(platformValidationSchema);
 
 const getConfig = () => ({
   app: app(),
@@ -22,7 +22,7 @@ const getConfig = () => ({
   hubSpot: hubSpot(),
   netvisor: netvisor(),
   mangopay: mangopay(),
-  environment: environment(),
+  platform: platform(),
 });
 
 const registerConfig = registerAs('config', getConfig);

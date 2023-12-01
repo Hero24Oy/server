@@ -9,6 +9,8 @@ export class PriceCalculatorResolver {
     private readonly priceCalculatorService: PriceCalculatorService,
   ) {}
 
+  // * taskReceipt is triggered by cloud to send receipts
+  // TODO add auth guards when cloud functions are eliminated
   @Query(() => TaskReceiptOutput)
   async taskReceipt(
     @Args('input') input: TaskReceiptInput,

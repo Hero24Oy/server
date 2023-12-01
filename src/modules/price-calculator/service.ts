@@ -5,14 +5,9 @@ import { ReceiptDto } from './graphql';
 import { CalculateWorkDurationReturnType, FetchRequiredData } from './types';
 import {
   convertToDecimalNumber,
-  getCompletedOfferDuration,
   getDiscountValue,
   getDurationInH,
-  getPurchasedOfferDuration,
   getValueBeforeVatApplied,
-  getWorkedDurationInH,
-  RoundedNumber,
-  roundedOfferDurationInH,
 } from './utils';
 
 import { ConfigType } from '$config';
@@ -22,6 +17,7 @@ import { FeePriceCalculatorService } from '$modules/fee/fee-price-calculator/fee
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { FirebaseTableReference } from '$modules/firebase/firebase.types';
+import { OfferPriceCalculatorService } from '$modules/offer/offer-price-calculator/offer-price-calculator.service';
 import { OfferService } from '$modules/offer/services/offer.service';
 import { OfferRequestDto } from '$modules/offer-request/dto/offer-request/offer-request.dto';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
@@ -30,7 +26,7 @@ import { OfferRequestService } from '$modules/offer-request/offer-request.servic
 export class PriceCalculatorService {
   private readonly categoryTableRef: FirebaseTableReference<CategoryDB>;
 
-  private readonly config: ConfigType['environment'];
+  private readonly config: ConfigType['platform'];
 
   constructor(
     @Config() config: ConfigType,
@@ -38,9 +34,10 @@ export class PriceCalculatorService {
     private readonly taskRequestService: OfferRequestService,
     private readonly feeService: FeeService,
     private readonly feePriceCalculatorService: FeePriceCalculatorService,
+    private readonly taskPriceCalculationService: OfferPriceCalculatorService,
     firebaseService: FirebaseService,
   ) {
-    this.config = config.environment;
+    this.config = config.platform;
     const database = firebaseService.getDefaultApp().database();
 
     this.categoryTableRef = database.ref(FirebaseDatabasePath.CATEGORIES);
@@ -88,7 +85,10 @@ export class PriceCalculatorService {
       serviceProvidedVat,
     );
 
-    const grossFeeCost = await this.calculateGrossFeeCost(taskRequest.id);
+    const fees = await this.feeService.getFeesByTaskRequestId(taskRequest.id);
+
+    const grossFeeCost =
+      await this.feePriceCalculatorService.calculateGrossFeesCost(fees);
 
     const netFeeCost = getValueBeforeVatApplied(
       grossFeeCost,
@@ -131,29 +131,32 @@ export class PriceCalculatorService {
       taskRequest.data.initial.category,
     );
 
-    const minimumDuration = getDurationInH(
+    const minimumDurationInH = getDurationInH(
       taskRequest.minimumDuration ?? category.minimumDuration,
     );
 
-    const workedDuration = getCompletedOfferDuration(task);
+    const workedDurationInH = this.taskPriceCalculationService
+      .getWorkedDuration(task)
+      .asHours();
 
-    const workedDurationInH = roundedOfferDurationInH(
-      workedDuration.asMilliseconds(),
-    );
+    const purchasedDurationInH = this.taskPriceCalculationService
+      .getPurchasedDuration(task)
+      .asHours();
 
-    const purchasedDuration = getPurchasedOfferDuration(task);
+    const totalDurationInH = this.taskPriceCalculationService
+      .getTotalDuration(task)
+      .asHours();
 
-    const actualDurationInH = getWorkedDurationInH({
-      minimumDuration,
-      purchasedDuration,
-      workedDuration,
-    });
+    const actualDurationInH =
+      totalDurationInH > minimumDurationInH
+        ? totalDurationInH
+        : minimumDurationInH;
 
     return {
       actualDurationInH,
       workedDurationInH,
-      minimumDurationInH: minimumDuration.asHours(),
-      purchasedDurationInH: purchasedDuration.asHours(),
+      minimumDurationInH,
+      purchasedDurationInH,
     };
   }
 
@@ -175,20 +178,6 @@ export class PriceCalculatorService {
       taskRequest.hero24Cut ?? this.config.platformFeeInPercents;
 
     return (amount * hero24Cut) / 100;
-  }
-
-  async calculateGrossFeeCost(taskRequestId: string): Promise<number> {
-    const fees = await this.feeService.getFeesByTaskRequestId(taskRequestId);
-
-    const grossFeeCost = fees.reduce(
-      (total, fee) =>
-        total.add(
-          this.feePriceCalculatorService.getFeePriceWithServiceProviderCut(fee),
-        ),
-      new RoundedNumber(0),
-    );
-
-    return grossFeeCost.val();
   }
 
   private async fetchRequiredData(taskId: string): Promise<FetchRequiredData> {

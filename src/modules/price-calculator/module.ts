@@ -7,6 +7,7 @@ import { FeeModule } from '$modules/fee/fee.module';
 import { FeePriceCalculatorModule } from '$modules/fee/fee-price-calculator/fee-price-calculator.module';
 import { FirebaseModule } from '$modules/firebase/firebase.module';
 import { OfferModule } from '$modules/offer/offer.module';
+import { OfferPriceCalculatorModule } from '$modules/offer/offer-price-calculator/offer-price-calculator.module';
 import { OfferRequestModule } from '$modules/offer-request/offer-request.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { OfferRequestModule } from '$modules/offer-request/offer-request.module'
     FeeModule,
     FirebaseModule,
     FeePriceCalculatorModule,
+    OfferPriceCalculatorModule,
   ],
   providers: [PriceCalculatorService, PriceCalculatorResolver],
 })

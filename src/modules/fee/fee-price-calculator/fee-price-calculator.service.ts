@@ -29,4 +29,13 @@ export class FeePriceCalculatorService {
 
     return unitPrice.multiply(quantity);
   }
+
+  async calculateGrossFeesCost(fees: FeeDto[]): Promise<number> {
+    const grossFeeCost = fees.reduce(
+      (total, fee) => total.add(this.getFeePriceWithServiceProviderCut(fee)),
+      new RoundedNumber(0),
+    );
+
+    return grossFeeCost.val();
+  }
 }
