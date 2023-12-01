@@ -40,7 +40,7 @@ export class TransactionResolver {
     const { id } = input;
 
     const transactions =
-      await this.transactionService.getTransactionByTaskRequestId(id);
+      await this.transactionService.getTransactionsByTaskRequestId(id);
 
     return {
       transactions,

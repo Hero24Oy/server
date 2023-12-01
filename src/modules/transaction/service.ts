@@ -23,7 +23,7 @@ export class TransactionService {
     );
   }
 
-  async getTransactionByTaskRequestId(
+  async getTransactionsByTaskRequestId(
     taskRequestId: string,
   ): Promise<TransactionObject[]> {
     const taskRequest = await this.taskRequestService.getOfferRequestById(
