@@ -6,6 +6,11 @@ import {
 
 import { MangopayDocumentStatus } from '../enums';
 import {
+  SubmitKycDocumentInput,
+  UploadKycPageInput,
+  UploadUboDocumentInput,
+} from '../graphql';
+import {
   CreateKycPageParameters,
   CreateUboParameters,
   GetUboParameters,
@@ -14,9 +19,14 @@ import {
 
 import { MangopayInstanceService } from './instance';
 
+import { SellerService } from '$modules/seller/seller.service';
+
 @Injectable()
 export class MangopayDocumentService {
-  constructor(private readonly api: MangopayInstanceService) {}
+  constructor(
+    private readonly api: MangopayInstanceService,
+    private readonly heroService: SellerService,
+  ) {}
 
   async createUboDeclaration(
     userId: string,
@@ -109,5 +119,97 @@ export class MangopayDocumentService {
     parameters?: MangopaySearchParameters,
   ): Promise<MangopayKycDocument.KycDocumentData[]> {
     return this.api.KycDocuments.getAll({ parameters });
+  }
+
+  async createKycDocumentByHeroId(
+    heroId: string,
+    data: MangopayKycDocument.CreateKycDocument,
+  ): Promise<MangopayKycDocument.KycDocumentData> {
+    const userId = await this.heroService.getMangopayHeroId(heroId);
+
+    return this.createKycDocument(userId, data);
+  }
+
+  async uploadKycPageByHeroId(
+    heroId: string,
+    input: UploadKycPageInput,
+  ): Promise<boolean> {
+    const { kycDocumentId, base64 } = input;
+
+    const userId = await this.heroService.getMangopayHeroId(heroId);
+
+    try {
+      await this.createKycPage({
+        kycDocumentId,
+        userId,
+        base64,
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async submitKycDocumentByHeroId(
+    heroId: string,
+    input: SubmitKycDocumentInput,
+  ): Promise<boolean> {
+    const { kycDocumentId } = input;
+    const userId = await this.heroService.getMangopayHeroId(heroId);
+
+    try {
+      await this.askKycValidate(userId, kycDocumentId);
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async uploadUboDeclarationByHeroId(
+    heroId: string,
+    input: UploadUboDocumentInput,
+  ): Promise<boolean> {
+    const { beneficialOwners } = input;
+
+    const userId = await this.heroService.getMangopayHeroId(heroId);
+
+    try {
+      const uboDeclaration = await this.createUboDeclaration(userId);
+
+      await Promise.all(
+        beneficialOwners.map(async (beneficialOwner) => {
+          return this.createUbo({
+            uboDeclarationId: uboDeclaration.Id,
+            userId,
+            data: {
+              Address: {
+                AddressLine1: beneficialOwner.address.addressLine,
+                AddressLine2: '',
+                City: beneficialOwner.address.city,
+                Country: beneficialOwner.address.country,
+                PostalCode: beneficialOwner.address.postalCode,
+                Region: beneficialOwner.address.region ?? '',
+              },
+              Birthday: beneficialOwner.birthday.getTime(),
+              Birthplace: {
+                City: beneficialOwner.birthplace.city,
+                Country: beneficialOwner.birthplace.country,
+              },
+              FirstName: beneficialOwner.firstName,
+              LastName: beneficialOwner.lastName,
+              Nationality: beneficialOwner.nationality,
+            },
+          });
+        }),
+      );
+
+      await this.askKycValidate(userId, uboDeclaration.Id);
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
