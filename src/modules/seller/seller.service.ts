@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SellerProfileDB } from 'hero24-types';
+import { MangoPayHero, SellerProfileDB } from 'hero24-types';
 
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
@@ -15,6 +15,7 @@ import { SellerProfileListDto } from './dto/sellers/seller-profile-list.dto';
 import { SellersArgs } from './dto/sellers/sellers.args';
 import { SellerMirror } from './seller.mirror';
 
+import { isProfessionalHero } from '$modules/mangopay/utils';
 import { NetvisorService } from '$modules/netvisor';
 import { UserService } from '$modules/user/user.service';
 
@@ -57,6 +58,18 @@ export class SellerService {
     }
 
     return seller;
+  }
+
+  async getMangopayHeroId(heroId: string): Promise<string> {
+    const { mangopay: hero } = await this.strictGetSellerById(heroId);
+
+    if (!hero || !isProfessionalHero(hero)) {
+      throw new Error('Invalid hero id');
+    }
+
+    const { id } = hero;
+
+    return id;
   }
 
   async getAllSellers(): Promise<SellerProfileDto[]> {
@@ -192,5 +205,19 @@ export class SellerService {
     const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
 
     return sellerIds.map((sellerId) => sellerById.get(sellerId) || null);
+  }
+
+  async setMangopayData(heroId: string, data: MangoPayHero): Promise<boolean> {
+    await this.sellerTableRef.child(heroId).child('mangopay').set(data);
+
+    return true;
+  }
+
+  async setMangopayBankId(heroId: string, bankId: string): Promise<boolean> {
+    await this.sellerTableRef.child(heroId).child('mangopay').update({
+      bankId,
+    });
+
+    return true;
   }
 }

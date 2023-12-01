@@ -11,18 +11,27 @@ import {
   MangopayTransactionType,
 } from '../enums';
 import { MakeDirectCardPayInInput } from '../graphql';
-import { MangopaySearchParameters, PayInParameters } from '../types';
+import {
+  JwtTokenPayload,
+  MangopaySearchParameters,
+  PayInParameters,
+} from '../types';
 
 import { MangopayInstanceService } from './instance';
 
-import { TransactionService } from '$modules/transaction';
+import { ConfigType } from '$config';
+import { Config } from '$decorator';
+import { JwtService } from '$modules/jwt';
+import { TransactionObject, TransactionService } from '$modules/transaction';
 import { TransactionSubjectService } from '$modules/transaction-subject';
 
 @Injectable()
 export class MangopayPayInService {
   constructor(
-    private readonly api: MangopayInstanceService,
+    @Config() private readonly config: ConfigType,
+    private readonly jwtService: JwtService,
     private readonly transactionService: TransactionService,
+    private readonly api: MangopayInstanceService,
     private readonly transactionSubjectService: TransactionSubjectService,
   ) {}
 
@@ -91,6 +100,39 @@ export class MangopayPayInService {
       transactions,
       MangopayTransactionType.PAYIN,
     );
+  }
+
+  async generatePaymentTokenByTransactionId(
+    transactionId: string,
+  ): Promise<string> {
+    await this.transactionService.strictGetTransactionById(transactionId);
+
+    return this.jwtService.sign({
+      data: { transactionId },
+      secret: this.config.mangopay.paymentLinkSecret,
+      expiresIn: this.config.mangopay.linkExpirationTime,
+    });
+  }
+
+  verifyPaymentToken(token: string): JwtTokenPayload {
+    return this.jwtService.verify<JwtTokenPayload>({
+      token,
+      secret: this.config.mangopay.paymentLinkSecret,
+    });
+  }
+
+  async getPayInDataByToken(token: string): Promise<TransactionObject> {
+    let transactionId: string;
+
+    try {
+      const payload = this.verifyPaymentToken(token);
+
+      transactionId = payload.transactionId;
+    } catch {
+      throw new Error('Payment token invalid');
+    }
+
+    return this.transactionService.strictGetTransactionById(transactionId);
   }
 
   async makePayIn(input: MakeDirectCardPayInInput): Promise<boolean> {

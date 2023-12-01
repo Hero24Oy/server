@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CustomerProfile } from 'hero24-types';
+import { CustomerProfile, MangoPayCustomer } from 'hero24-types';
 
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -90,5 +90,14 @@ export class BuyerService {
     const buyerById = new Map(buyers.map((buyer) => [buyer.id, buyer]));
 
     return buyerIds.map((buyerId) => buyerById.get(buyerId) ?? null);
+  }
+
+  async setMangopayData(
+    customerId: string,
+    data: MangoPayCustomer,
+  ): Promise<boolean> {
+    await this.buyerTableRef.child(customerId).child('mangopay').set(data);
+
+    return true;
   }
 }
