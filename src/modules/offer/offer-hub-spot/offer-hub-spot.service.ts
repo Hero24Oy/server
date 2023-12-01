@@ -18,7 +18,7 @@ import {
   HubSpotDealProperties,
 } from '$modules/hub-spot/hub-spot-deal/hub-spot-deal.types';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
-import { RoundedNumber } from '$modules/price-calculator/utils/price-calculator.monad';
+import { RoundedNumber } from '$modules/price-calculator/utils/calculations/price-calculator.monad';
 import { UserService } from '$modules/user/user.service';
 
 @Injectable()

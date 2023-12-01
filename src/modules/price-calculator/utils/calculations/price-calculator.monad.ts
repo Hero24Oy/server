@@ -7,6 +7,10 @@ export class RoundedNumber {
     return round(this.value, this.precision);
   }
 
+  modula(other: RoundedNumber) {
+    return this.run((value) => value % other.val());
+  }
+
   run(proceed: (value: number) => number): RoundedNumber {
     const newValue = proceed(this.val());
 

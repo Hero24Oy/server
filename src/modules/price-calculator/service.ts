@@ -1,25 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryDB } from 'hero24-types';
-import { duration as getDurationInH } from 'moment';
 
 import { ReceiptDto } from './graphql';
+import { CalculateWorkDurationReturnType, FetchRequiredData } from './types';
 import {
   convertToDecimalNumber,
+  getCompletedOfferDuration,
   getDiscountValue,
-  getFeeTotalWithHero24Cut,
+  getDurationInH,
+  getPurchasedOfferDuration,
   getValueBeforeVatApplied,
-  getWorkedDuration,
+  getWorkedDurationInH,
+  RoundedNumber,
+  roundedOfferDurationInH,
 } from './utils';
-import { getCompletedOfferDuration } from './utils/get-completed-offer-duration';
-import { getPurchasedOfferDuration } from './utils/get-purchased-offer-duration';
 
 import { ConfigType } from '$config';
 import { Config } from '$decorator';
 import { FeeService } from '$modules/fee/fee.service';
+import { FeePriceCalculatorService } from '$modules/fee/fee-price-calculator/fee-price-calculator.service';
 import { FirebaseDatabasePath } from '$modules/firebase/firebase.constants';
 import { FirebaseService } from '$modules/firebase/firebase.service';
 import { FirebaseTableReference } from '$modules/firebase/firebase.types';
 import { OfferService } from '$modules/offer/services/offer.service';
+import { OfferRequestDto } from '$modules/offer-request/dto/offer-request/offer-request.dto';
 import { OfferRequestService } from '$modules/offer-request/offer-request.service';
 
 @Injectable()
@@ -33,6 +37,7 @@ export class PriceCalculatorService {
     private readonly taskService: OfferService,
     private readonly taskRequestService: OfferRequestService,
     private readonly feeService: FeeService,
+    private readonly feePriceCalculatorService: FeePriceCalculatorService,
     firebaseService: FirebaseService,
   ) {
     this.config = config.environment;
@@ -41,21 +46,20 @@ export class PriceCalculatorService {
     this.categoryTableRef = database.ref(FirebaseDatabasePath.CATEGORIES);
   }
 
-  async getTaskReceipt(offerId: string): Promise<ReceiptDto> {
-    const task = await this.taskService.strictGetOfferById(offerId);
-
-    const taskRequest = await this.taskRequestService.strictGetOfferRequestById(
-      task.data.initial.offerRequestId,
+  async getTaskReceipt(taskId: string): Promise<ReceiptDto> {
+    const { category, task, taskRequest } = await this.fetchRequiredData(
+      taskId,
     );
 
-    const category = await this.strictGetCategoryById(
-      taskRequest.data.initial.category,
-    );
+    const {
+      actualDurationInH,
+      minimumDurationInH,
+      purchasedDurationInH,
+      workedDurationInH,
+    } = await this.calculateWorkDuration(taskId);
 
     const { pricePerHour } = task.data.initial;
-    const workedDuration = await this.calculateWorkDuration(offerId);
-
-    const priceForServiceWithoutDiscount = workedDuration * pricePerHour;
+    const priceForServiceWithoutDiscount = actualDurationInH * pricePerHour;
 
     // ! important its just a stub
     // * now discount is passed as null, because this functionality got stripped out
@@ -69,7 +73,10 @@ export class PriceCalculatorService {
       priceForServiceWithoutDiscount - discountAmount;
 
     // * calculate hero gross earning with service provider cut
-    const platformFee = this.getPlatformFeeAmount(serviceProvidedPrice);
+    const platformFee = this.getPlatformFeeAmount(
+      serviceProvidedPrice,
+      taskRequest,
+    );
 
     const heroGrossEarnings = serviceProvidedPrice - platformFee;
 
@@ -99,12 +106,21 @@ export class PriceCalculatorService {
       customerVat,
       grossFeeCost,
       platformFee,
-      workedDuration,
       discountAmount,
+      actualDurationInH,
+      workedDurationInH,
+      minimumDurationInH,
+      purchasedDurationInH,
+      pricePerHourWithVat: pricePerHour,
+      pricePerHourWithoutVat: convertToDecimalNumber(
+        getValueBeforeVatApplied(pricePerHour, serviceProvidedVat),
+      ),
     };
   }
 
-  async calculateWorkDuration(taskId: string): Promise<number> {
+  async calculateWorkDuration(
+    taskId: string,
+  ): Promise<CalculateWorkDurationReturnType> {
     const task = await this.taskService.strictGetOfferById(taskId);
 
     const taskRequest = await this.taskRequestService.strictGetOfferRequestById(
@@ -115,18 +131,30 @@ export class PriceCalculatorService {
       taskRequest.data.initial.category,
     );
 
-    const minimumWorkDuration = getDurationInH(
+    const minimumDuration = getDurationInH(
       taskRequest.minimumDuration ?? category.minimumDuration,
-      'h',
     );
 
-    const workedDuration = getWorkedDuration(
-      getCompletedOfferDuration(task),
-      minimumWorkDuration,
-      getPurchasedOfferDuration(task),
+    const workedDuration = getCompletedOfferDuration(task);
+
+    const workedDurationInH = roundedOfferDurationInH(
+      workedDuration.asMilliseconds(),
     );
 
-    return workedDuration;
+    const purchasedDuration = getPurchasedOfferDuration(task);
+
+    const actualDurationInH = getWorkedDurationInH({
+      minimumDuration,
+      purchasedDuration,
+      workedDuration,
+    });
+
+    return {
+      actualDurationInH,
+      workedDurationInH,
+      minimumDurationInH: minimumDuration.asHours(),
+      purchasedDurationInH: purchasedDuration.asHours(),
+    };
   }
 
   // TODO use category module when migrated
@@ -142,18 +170,42 @@ export class PriceCalculatorService {
     return category;
   }
 
-  getPlatformFeeAmount(amount: number): number {
-    return (amount * this.config.platformFeeInPercents) / 100;
+  getPlatformFeeAmount(amount: number, taskRequest: OfferRequestDto): number {
+    const hero24Cut =
+      taskRequest.hero24Cut ?? this.config.platformFeeInPercents;
+
+    return (amount * hero24Cut) / 100;
   }
 
   async calculateGrossFeeCost(taskRequestId: string): Promise<number> {
     const fees = await this.feeService.getFeesByTaskRequestId(taskRequestId);
 
     const grossFeeCost = fees.reduce(
-      (total, fee) => total + getFeeTotalWithHero24Cut(fee),
-      0,
+      (total, fee) =>
+        total.add(
+          this.feePriceCalculatorService.getFeePriceWithServiceProviderCut(fee),
+        ),
+      new RoundedNumber(0),
     );
 
-    return grossFeeCost;
+    return grossFeeCost.val();
+  }
+
+  private async fetchRequiredData(taskId: string): Promise<FetchRequiredData> {
+    const task = await this.taskService.strictGetOfferById(taskId);
+
+    const taskRequest = await this.taskRequestService.strictGetOfferRequestById(
+      task.data.initial.offerRequestId,
+    );
+
+    const category = await this.strictGetCategoryById(
+      taskRequest.data.initial.category,
+    );
+
+    return {
+      task,
+      taskRequest,
+      category,
+    };
   }
 }

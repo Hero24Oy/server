@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-import { roundToStep } from '$modules/price-calculator/utils/round-to-step.util';
+import { roundToStep } from '$modules/price-calculator/utils/calculations/round-to-step';
 
 const DURATION_HOURS_PRECISION = 0.5;
 

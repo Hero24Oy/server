@@ -21,7 +21,13 @@ export class ReceiptDto {
   @Field(() => Float)
   overallAmount: number;
 
-  // * fees
+  @Field(() => Float)
+  pricePerHourWithVat: number;
+
+  @Field(() => Float)
+  pricePerHourWithoutVat: number;
+
+  // * taxes
   @Field(() => Float)
   serviceProvidedVat: number;
 
@@ -31,7 +37,17 @@ export class ReceiptDto {
   @Field(() => Float)
   platformFee: number;
 
-  // * others
+  // * time
   @Field(() => Float)
-  workedDuration: number;
+  workedDurationInH: number;
+
+  @Field(() => Float)
+  purchasedDurationInH: number;
+
+  @Field(() => Float)
+  minimumDurationInH: number;
+
+  // * actualDuration is calculated using workedDuration, purchasedDuration, minimumDuration
+  @Field(() => Float)
+  actualDurationInH: number;
 }

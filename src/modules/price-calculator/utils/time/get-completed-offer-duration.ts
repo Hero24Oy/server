@@ -8,7 +8,6 @@ import { OfferDto } from '$modules/offer/dto/offer/offer.dto';
 export const getCompletedOfferDuration = (offer: OfferDto): Duration => {
   const workedTimeDuration = moment.duration(0, 'milliseconds');
 
-  // * else statement is a fallback logic, decided not to remove in case something breaks
   if (offer.data.workTime) {
     offer.data.workTime.forEach(({ startTime, endTime }) => {
       if (!endTime) {
@@ -22,6 +21,7 @@ export const getCompletedOfferDuration = (offer: OfferDto): Duration => {
 
       workedTimeDuration.add(deltaInMs, 'milliseconds');
     });
+    // * else statement is a fallback logic, decided not to remove in case something breaks
   } else if (offer.data.actualStartTime && offer.data.actualCompletedTime) {
     const startMoment = getMoment(offer.data.actualStartTime);
     const endMoment = getMoment(offer.data.actualCompletedTime);

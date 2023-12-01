@@ -1,6 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
-import { TaskReceiptOutput } from './graphql';
+import { TaskReceiptInput, TaskReceiptOutput } from './graphql';
 import { PriceCalculatorService } from './service';
 
 @Resolver()
@@ -10,7 +10,13 @@ export class PriceCalculatorResolver {
   ) {}
 
   @Query(() => TaskReceiptOutput)
-  taskReceipt(@Args('taskId') offerId: string): Promise<TaskReceiptOutput> {
-    return this.priceCalculatorService.getTaskReceipt(offerId);
+  async taskReceipt(
+    @Args('input') input: TaskReceiptInput,
+  ): Promise<TaskReceiptOutput> {
+    const receipt = await this.priceCalculatorService.getTaskReceipt(
+      input.taskId,
+    );
+
+    return { receipt };
   }
 }
