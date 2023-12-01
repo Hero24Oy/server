@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SellerProfileDB } from 'hero24-types';
+import { MangoPayHero, SellerProfileDB } from 'hero24-types';
 
 import { paginate, preparePaginatedResult } from '../common/common.utils';
 import { FirebaseDatabasePath } from '../firebase/firebase.constants';
@@ -192,5 +192,19 @@ export class SellerService {
     const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
 
     return sellerIds.map((sellerId) => sellerById.get(sellerId) || null);
+  }
+
+  async setMangopayData(heroId: string, data: MangoPayHero): Promise<boolean> {
+    await this.sellerTableRef.child(heroId).child('mangopay').set(data);
+
+    return true;
+  }
+
+  async setMangopayBankId(heroId: string, bankId: string): Promise<boolean> {
+    await this.sellerTableRef.child(heroId).child('mangopay').update({
+      bankId,
+    });
+
+    return true;
   }
 }

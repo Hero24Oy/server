@@ -10,7 +10,7 @@ export class MangopayWalletService {
   constructor(private readonly api: MangopayInstanceService) {}
 
   async createWallet(
-    data: MangoPayWallet.CreateWallet,
+    data: Omit<MangoPayWallet.CreateWallet, 'Currency'>,
   ): Promise<MangoPayWallet.WalletData> {
     return this.api.Wallets.create({ ...data, Currency: MangopayCurrency.EUR });
   }
