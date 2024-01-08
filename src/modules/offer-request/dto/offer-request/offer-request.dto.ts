@@ -7,6 +7,7 @@ import { OfferRequestDB } from 'hero24-types';
 import { OfferRequestChatDto } from './offer-request-chat.dto';
 import { OfferRequestDataDto } from './offer-request-data.dto';
 import { OfferRequestRefundDto } from './offer-request-refund.dto';
+import { OfferRequestStripePaymentDto } from './offer-request-stripe-payment.dto';
 import { OfferRequestSubscriptionDto } from './offer-request-subscription.dto';
 
 import { MaybeType } from '$modules/common/common.types';
@@ -87,6 +88,9 @@ export class OfferRequestDto {
   @Field(() => OfferRequestRefundDto, { nullable: true })
   refund?: MaybeType<OfferRequestRefundDto>;
 
+  @Field(() => OfferRequestStripePaymentDto, { nullable: true })
+  stripePayment?: MaybeType<OfferRequestStripePaymentDto>;
+
   static adapter: FirebaseAdapter<
     OfferRequestDB & { id: string },
     OfferRequestDto
@@ -106,6 +110,9 @@ OfferRequestDto.adapter = new FirebaseAdapter({
       : undefined,
     refund: external.refund
       ? OfferRequestRefundDto.adapter.toInternal(external.refund)
+      : undefined,
+    stripePayment: external.stripePayment
+      ? OfferRequestStripePaymentDto.adapter.toInternal(external.stripePayment)
       : undefined,
     subscription: external.subscription
       ? OfferRequestSubscriptionDto.adapter.toInternal(external.subscription)
@@ -164,6 +171,9 @@ OfferRequestDto.adapter = new FirebaseAdapter({
       convertFirebaseMapToList(internal.paymentTransactions),
     refund: internal.refund
       ? OfferRequestRefundDto.adapter.toExternal(internal.refund)
+      : undefined,
+    stripePayment: internal.stripePayment
+      ? OfferRequestStripePaymentDto.adapter.toExternal(internal.stripePayment)
       : undefined,
     subscription: internal.subscription
       ? OfferRequestSubscriptionDto.adapter.toExternal(internal.subscription)

@@ -41,6 +41,7 @@ OfferRequestDataInitialInput.adapter = new FirebaseAdapter({
     return {
       buyerProfile: external.buyerProfile,
       category: external.category,
+      platformProvider: external.platformProvider ?? undefined,
       prePayWith: external.prePayWith ?? undefined,
       sendInvoiceWith: external.sendInvoiceWith ?? undefined,
       prepaid: external.prepaid ?? undefined,
@@ -68,6 +69,7 @@ OfferRequestDataInitialInput.adapter = new FirebaseAdapter({
       questions,
       buyerProfile: internal.buyerProfile,
       category: internal.category,
+      platformProvider: internal.platformProvider ?? undefined,
       prePayWith: internal.prePayWith ?? undefined,
       sendInvoiceWith: internal.sendInvoiceWith ?? undefined,
       prepaid: internal.prepaid ?? undefined,
