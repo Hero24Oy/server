@@ -35,6 +35,11 @@ export class OfferRequestDataInitialDto {
   createdAt: Date;
 
   @Field(() => String, { nullable: true })
+  platformProvider?: MaybeType<
+    'hero_payments_oy' | 'hero24_oy' | 'hero24_b2b_oy'
+  >;
+
+  @Field(() => String, { nullable: true })
   prePayWith?: MaybeType<'stripe' | 'netvisor'>;
 
   @Field(() => String, { nullable: true })
@@ -79,6 +84,7 @@ OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
       promotionDisabled: external.promotionDisabled ?? undefined,
       fixedDuration: external.fixedDuration ?? undefined,
       fixedPrice: external.fixedPrice ?? undefined,
+      platformProvider: external.platformProvider ?? undefined,
       prePayWith: external.prePayWith ?? undefined,
       sendInvoiceWith: external.sendInvoiceWith ?? undefined,
       buyerProfile: external.buyerProfile,
@@ -100,6 +106,7 @@ OfferRequestDataInitialDto.adapter = new FirebaseAdapter({
 
     return {
       fixedPrice: internal.fixedPrice,
+      platformProvider: internal.platformProvider,
       prePayWith: internal.prePayWith,
       sendInvoiceWith: internal.sendInvoiceWith,
       prepaid: internal.prepaid,
