@@ -6,8 +6,8 @@
   "author": "",
   "license": "UNLICENSED",
   "engines": {
-    "node": "^18.17",
-    "npm": "^9.6"
+    "node": "^18.19",
+    "npm": "^10.2"
   },
   "engineStrict": true,
   "scripts": {
