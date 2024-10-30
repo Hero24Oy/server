@@ -4,11 +4,13 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { Args, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 
+import { AdminGuard } from '../../auth/guards/admin.guard';
 import { OfferIdInput } from '../dto/editing/offer-id.input';
 import { OfferDto } from '../dto/offer/offer.dto';
+import { OfferPurchaseArgs } from '../dto/offer-purchase/offer-purchase.args';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OfferSubscriptionInput } from '../dto/offers/offers-subsribption.input';
@@ -85,5 +87,16 @@ export class OfferResolver {
     }
 
     return this.pubSub.asyncIterator(OFFER_UPDATED_SUBSCRIPTION);
+  }
+
+  @Mutation(() => Boolean)
+  @UseFilters(FirebaseExceptionFilter)
+  @UseGuards(AdminGuard)
+  async updateOfferPurchase(
+    @Args() { input }: OfferPurchaseArgs,
+  ): Promise<boolean> {
+    await this.offerService.updatePurchase(input);
+
+    return true;
   }
 }

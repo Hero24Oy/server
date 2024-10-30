@@ -4,6 +4,7 @@ import { OfferDB } from 'hero24-types';
 
 import { OfferStatusInput } from '../dto/editing/offer-status.input';
 import { OfferDto } from '../dto/offer/offer.dto';
+import { OfferPurchaseInput } from '../dto/offer-purchase/offer-purchase.input';
 import { OfferListDto } from '../dto/offers/offer-list.dto';
 import { OfferArgs } from '../dto/offers/offers.args';
 import { OfferOrderColumn } from '../dto/offers/offers-order.enum';
@@ -145,5 +146,24 @@ export class OfferService {
       limit,
       offset,
     });
+  }
+
+  async updatePurchase(purchase: OfferPurchaseInput): Promise<true> {
+    const { id } = purchase;
+
+    const updatedInitial = OfferPurchaseInput.adapter.toInternal(purchase);
+
+    try {
+      await this.offerTableRef
+        .child(id)
+        .child('data')
+        .child('initial')
+        .child('purchase')
+        .update(updatedInitial);
+    } catch {
+      throw new Error('Purchase update failed');
+    }
+
+    return true;
   }
 }
